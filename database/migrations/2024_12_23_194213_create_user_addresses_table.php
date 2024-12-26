@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained();
             $table->text('address')->nullable();
             $table->boolean('id_default')->default(false);
-            $table->timestamps(); // created_at and updated_at
+            $table->timestamps();
         });
     }
 

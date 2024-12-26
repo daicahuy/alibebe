@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('google_id')->nullable();
-            $table->string('full_name', 100);
+            $table->string('fullname', 100);
             $table->string('email', 100)->unique()->nullable();
             $table->string('phone_number', 20)->nullable();
             $table->timestamp('verified_at')->nullable();
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->boolean('is_active');
             $table->decimal('expense', 12, 2)->nullable();
             $table->rememberToken();
-            $table->timestamps(); // created_at and updated_at
+            $table->timestamps();
         });
     }
 

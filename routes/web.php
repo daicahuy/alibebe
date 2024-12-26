@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Web\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,21 +15,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return '<h2>@Copyright by Huy + Anh + Manh + Hiep + Quan + Tung + Bao</h2>';
 });
 
 
 
 /*--------------ADMIN--------------*/
 
-Route::prefix('admin')
+Route::prefix('/admin')
     ->name('admin.')
     ->group(function () {
 
-        Route::controller(AdminController::class)
-            ->group(function () {
-
-                // Route::get('', 'index') ->name('index');
-
-            });
+        Route::get('/', [DashboardController::class, 'index'])->name('index');
+        
     });

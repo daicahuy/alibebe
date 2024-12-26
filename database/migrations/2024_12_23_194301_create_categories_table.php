@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('slug', 100)->unique();
             $table->integer('ordinal')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->string('icon', 255)->nullable();
+            $table->string('icon')->nullable();
             $table->timestamps();
         });
     }

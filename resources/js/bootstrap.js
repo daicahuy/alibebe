@@ -25,17 +25,14 @@
 // window.axios = axios;
 // window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-import $ from 'jquery';
 window.$ = $;
 
 $.ajaxSetup({
-    url: getHost(),
+    url: 'http://127.0.0.1:8000',
     dataType: 'json',
+    timeout: 15000,
+    processData: false,
     headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
 });
-
-export function getHost() {
-    return 'http://127.0.0.1:8000';
-}

@@ -27,9 +27,18 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'google_id',
+        'full_name',
         'email',
+        'phone_number',
+        'verified_at',
         'password',
+        'avatar',
+        'gender',
+        'birthday',
+        'role',
+        'is_active',
+        'expense',
     ];
 
     /**
@@ -48,7 +57,6 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 
@@ -75,4 +83,65 @@ class User extends Authenticatable
     public function isRoleCustomer() {
         return $this->role === self::ROLE_CUSTOMER;
     }
+
+
+
+    /////////////////////////////////////////////////////
+    // RELATIONS
+
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function commentReplies()
+    {
+        return $this->hasMany(CommentReply::class);
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupon::class)->withPivot('quantity');
+    }
+
+    public function userAddresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
+    public function senderNotices()
+    {
+        return $this->hasMany(Notice::class, 'sender_id');
+    }
+
+    public function receiverNotices()
+    {
+        return $this->hasMany(Notice::class, 'receiver_id');
+    }
+
+    public function histories()
+    {
+        return $this->hasMany(History::class);
+    }
+
 }
