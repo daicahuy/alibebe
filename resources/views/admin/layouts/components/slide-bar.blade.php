@@ -57,11 +57,11 @@
                     </a>
                     <ul class="sidebar-submenu">
                         <li>
-                            <a href="category.html">Category List</a>
+                            <a href="">Category List</a>
                         </li>
 
                         <li>
-                            <a href="add-new-category.html">Add New Category</a>
+                            <a href="">Category Type</a>
                         </li>
                     </ul>
                 </li>
