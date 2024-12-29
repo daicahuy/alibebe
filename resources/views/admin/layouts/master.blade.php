@@ -42,7 +42,7 @@
     <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/vendors/animate.css">
 
     <!-- Bootstrap css-->
-    <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/vendors/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/vendors/bootstrap.css">    
 
     <!-- vector map css -->
     <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/vector-map.css">
@@ -50,10 +50,12 @@
     <!-- Slick Slider Css -->
     <link rel="stylesheet" href="/theme/admin/assets/css/vendors/slick.css">
     @stack('css_library')
-
+    
     <!-- App css -->
     {{-- <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/style2.css"> --}}
     <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/style.css">
+
+    
     @stack('css')
 
 

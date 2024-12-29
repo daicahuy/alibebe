@@ -5,26 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CartItem extends Model
+class ProductStock extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'product_id',
         'product_variant_id',
-        'quantity',
+        'stock',
     ];
-
-
-
-    /////////////////////////////////////////////////////
-    // RELATIONS
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 
     public function product()
     {
@@ -35,5 +24,4 @@ class CartItem extends Model
     {
         return $this->belongsTo(ProductVariant::class);
     }
-
 }

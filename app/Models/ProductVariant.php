@@ -2,19 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductVariant extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
 
-    protected $fillables = [
+    protected $fillable = [
         'product_id',
         'sku',
         'price',
         'sale_price',
-        'stock',
+        'sale_price_start_at',
+        'sale_price_end_at',
         'thumbnail',
     ];
 
@@ -26,6 +27,16 @@ class ProductVariant extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function productStock()
+    {
+        return $this->hasOne(ProductStock::class);
+    }
+
+    public function productMovement()
+    {
+        return $this->hasMany(StockMovement::class);
     }
 
     public function orderItems()
@@ -41,11 +52,6 @@ class ProductVariant extends Model
     public function attributeValues()
     {
         return $this->belongsToMany(AttributeValue::class);
-    }
-
-    public function histories()
-    {
-        return $this->hasMany(History::class);
     }
     
 

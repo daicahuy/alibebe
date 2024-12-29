@@ -2,7 +2,6 @@
 
 use App\Models\Brand;
 use App\Models\Product;
-use App\Models\Promotion;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,20 +16,23 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Brand::class)->constrained();
-            $table->foreignIdFor(Promotion::class)->nullable()->constrained();
-            $table->string('name');
-            $table->string('slug');
-            $table->string('outstanding_features')->nullable();
+            $table->string('name')->unique();
+            $table->string('name_link', 50)->nullable();
+            $table->string('slug')->unique();
             $table->string('video')->nullable();
+            $table->unsignedInteger('views')->default(0);
             $table->text('content')->nullable();
             $table->string('thumbnail');
             $table->string('sku')->nullable();
             $table->decimal('price', 11, 2)->nullable();
             $table->decimal('sale_price', 11, 2)->nullable();
-            $table->integer('stock')->nullable();
-            $table->string('type', 50)->default(Product::TYPE_SINGLE);
+            $table->timestamp('sale_price_start_at')->nullable();
+            $table->timestamp('sale_price_end_at')->nullable();
+            $table->string('type', 20)->default(Product::TYPE_SINGLE);
             $table->boolean('is_active')->default(true);
+            $table->timestamp('start_at');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

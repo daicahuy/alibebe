@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payment extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
 
-    protected $fillables = [
+    protected $fillable = [
         'parent_id',
         'name',
         'logo',
@@ -34,11 +34,6 @@ class Payment extends Model
     public function orders()
     {
         return $this->hasMany(Order::class);
-    }
-
-    public function histories()
-    {
-        return $this->hasMany(History::class);
     }
 
 

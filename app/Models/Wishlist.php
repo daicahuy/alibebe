@@ -11,7 +11,7 @@ class Wishlist extends Model
 
     const UPDATED_AT = NULL;
 
-    protected $fillables = [
+    protected $fillable = [
         'user_id',
         'product_id'
     ];

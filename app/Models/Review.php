@@ -9,12 +9,14 @@ class Review extends Model
 {
     use HasFactory;
 
-    protected $fillables = [
+    protected $fillable = [
         'product_id',
         'order_id',
         'user_id',
         'rating',
         'review_text',
+        'reason',
+        'is_active',
     ];
 
 
@@ -40,11 +42,6 @@ class Review extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function histories()
-    {
-        return $this->hasMany(History::class);
     }
 
     

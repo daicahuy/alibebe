@@ -18,9 +18,11 @@ return new class extends Migration
             $table->string('sku')->unique()->nullable();
             $table->decimal('price', 11, 2);
             $table->decimal('sale_price', 11, 2);
-            $table->integer('stock');
+            $table->timestamp('sale_price_start_at')->nullable();
+            $table->timestamp('sale_price_end_at')->nullable();
             $table->string('thumbnail');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

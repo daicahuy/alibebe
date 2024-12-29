@@ -14,11 +14,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('coupon_user', function (Blueprint $table) {
-            $table->foreignIdFor(User::class)->constrained();
             $table->foreignIdFor(Coupon::class)->constrained();
-            $table->unsignedInteger('quantity');
-            
-            $table->primary(['user_id', 'coupon_id']);
+            $table->foreignIdFor(User::class)->constrained();
+            $table->primary(['coupon_id', 'user_id']);
+            $table->timestamps();
         });
     }
 

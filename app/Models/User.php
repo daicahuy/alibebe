@@ -21,6 +21,10 @@ class User extends Authenticatable
     const ROLE_EMPLOYEE = 'employee';
     const ROLE_CUSTOMER = 'cusmoter';
 
+    const STATUS_ACTIVE = 'active';
+    const STATUS_INACTIVE = 'inactive';
+    const STATUS_LOCK = 'lock';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -28,19 +32,20 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'google_id',
-        'full_name',
-        'email',
         'phone_number',
-        'verified_at',
+        'email',
         'password',
+        'fullname',
         'avatar',
         'gender',
         'birthday',
+        'loyalty_points',
         'role',
-        'is_active',
-        'expense',
+        'status',
+        'verified_at',
     ];
 
+    
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -59,6 +64,7 @@ class User extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
     ];
+
 
     public function isGenderMale() {
         return $this->gender === self::GENDER_MALE;
@@ -84,6 +90,17 @@ class User extends Authenticatable
         return $this->role === self::ROLE_CUSTOMER;
     }
 
+    public function isStatusActive() {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function isStatusInactive() {
+        return $this->status === self::STATUS_INACTIVE;
+    }
+
+    public function isStatusLock() {
+        return $this->status === self::STATUS_LOCK;
+    }
 
 
     /////////////////////////////////////////////////////
@@ -114,29 +131,19 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupon::class);
+    }
+
     public function reviews()
     {
         return $this->hasMany(Review::class);
     }
 
-    public function coupons()
-    {
-        return $this->belongsToMany(Coupon::class)->withPivot('quantity');
-    }
-
     public function userAddresses()
     {
         return $this->hasMany(UserAddress::class);
-    }
-
-    public function senderNotices()
-    {
-        return $this->hasMany(Notice::class, 'sender_id');
-    }
-
-    public function receiverNotices()
-    {
-        return $this->hasMany(Notice::class, 'receiver_id');
     }
 
     public function histories()

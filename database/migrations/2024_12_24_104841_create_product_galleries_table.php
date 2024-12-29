@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\CategoryType;
 use App\Models\Product;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,11 +12,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('category_type_product', function (Blueprint $table) {
-            $table->foreignIdFor(CategoryType::class)->constrained();
+        Schema::create('product_galleries', function (Blueprint $table) {
+            $table->id();
             $table->foreignIdFor(Product::class)->constrained();
-            
-            $table->primary(['product_id', 'category_type_id']);
+            $table->string('image');
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('category_type_product');
+        Schema::dropIfExists('product_galleries');
     }
 };

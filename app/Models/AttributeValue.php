@@ -3,14 +3,14 @@
 namespace App\Models;
 
 use App\Models\Attribute;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AttributeValue extends Model
 {
-    use HasFactory;
-
-    protected $fillables = [
+    use SoftDeletes;
+    
+    protected $fillable = [
         'attribute_id',
         'value',
         'is_active',
@@ -36,10 +36,5 @@ class AttributeValue extends Model
         return $this->belongsToMany(ProductVariant::class);
     }
 
-    public function histories()
-    {
-        return $this->hasMany(History::class);
-    }
 
-    
 }

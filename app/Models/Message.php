@@ -14,12 +14,12 @@ class Message extends Model
     const TYPE_VIDEO = 'video';
     const TYPE_FILE = 'file';
 
-    protected $fillables = [
+    protected $fillable = [
         'chat_session_id',
         'sender_id',
         'message',
         'type',
-        'is_read',
+        'read_at',
     ];
 
     public function isTypeText()

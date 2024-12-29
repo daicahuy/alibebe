@@ -10,81 +10,45 @@ class History extends Model
 {
     use HasFactory;
 
-    protected $fillables = [
-        'category_id',
-        'attribute_id',
-        'attribute_value_id',
-        'product_id',
-        'product_variant_id',
-        'payment_id',
-        'order_id',
-        'order_confirmation_id',
-        'review_id',
-        'promotion_id',
-        'coupon_id',
+    const ACTION_TYPE_CREATE = 'create';
+    const ACTION_TYPE_UPDATE = 'update';
+    const ACTION_TYPE_DELETE = 'delete';
+    const ACTION_TYPE_CHANGE_STATUS = 'change_status';
+
+    protected $fillable = [
+        'subject_type',
+        'subject_id',
+        'action_type',
+        'old_value',
+        'new_value',
         'user_id',
-        'action',
+        'description',
     ];
 
+    public function isActionTypeCreate()
+    {
+        return $this->action_type = History::ACTION_TYPE_CREATE;
+    }
+
+    public function isActionTypeUpdate()
+    {
+        return $this->action_type = History::ACTION_TYPE_UPDATE;
+    }
+
+    public function isActionTypeDelete()
+    {
+        return $this->action_type = History::ACTION_TYPE_DELETE;
+    }
+
+    public function isActionTypeChangeStatus()
+    {
+        return $this->action_type = History::ACTION_TYPE_CHANGE_STATUS;
+    }
 
 
     /////////////////////////////////////////////////////
     // RELATIONS
 
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
-    
-    public function attribute()
-    {
-        return $this->belongsTo(Attribute::class);
-    }
-
-    public function attributeValue()
-    {
-        return $this->belongsTo(AttributeValue::class);
-    }
-
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
-
-    public function productVariant()
-    {
-        return $this->belongsTo(ProductVariant::class);
-    }
-
-    public function payment()
-    {
-        return $this->belongsTo(Payment::class);
-    }
-
-    public function order()
-    {
-        return $this->belongsTo(Order::class);
-    }
-
-    public function orderConfirmation()
-    {
-        return $this->belongsTo(OrderConfirmation::class);
-    }
-
-    public function review()
-    {
-        return $this->belongsTo(Review::class);
-    }
-
-    public function promotion()
-    {
-        return $this->belongsTo(Promotion::class);
-    }
-
-    public function coupon()
-    {
-        return $this->belongsTo(Coupon::class);
-    }
 
     public function user()
     {

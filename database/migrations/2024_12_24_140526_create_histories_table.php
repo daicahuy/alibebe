@@ -9,7 +9,6 @@ use App\Models\OrderConfirmation;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Models\Promotion;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
@@ -25,20 +24,14 @@ return new class extends Migration
     {
         Schema::create('histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Category::class)->nullable()->constrained();
-            $table->foreignIdFor(Attribute::class)->nullable()->constrained();
-            $table->foreignIdFor(AttributeValue::class)->nullable()->constrained();
-            $table->foreignIdFor(Product::class)->nullable()->constrained();
-            $table->foreignIdFor(ProductVariant::class)->nullable()->constrained();
-            $table->foreignIdFor(Payment::class)->nullable()->constrained();
-            $table->foreignIdFor(Order::class)->nullable()->constrained();
-            $table->foreignIdFor(OrderConfirmation::class)->nullable()->constrained();
-            $table->foreignIdFor(Review::class)->nullable()->constrained();
-            $table->foreignIdFor(Promotion::class)->nullable()->constrained();
-            $table->foreignIdFor(Coupon::class)->nullable()->constrained();
+            $table->string('subject_type');
+            $table->unsignedBigInteger('subject_id');
+            $table->string('action_type', 50);
+            $table->json('old_value')->nullable();
+            $table->json('new_value')->nullable();
             $table->foreignIdFor(User::class)->constrained();
-            $table->text('action')->nullable();
-            $table->timestamps();
+            $table->text('description')->nullable();
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 

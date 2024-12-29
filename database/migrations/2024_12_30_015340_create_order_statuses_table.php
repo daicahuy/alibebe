@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('promotions', function (Blueprint $table) {
+        Schema::create('order_statuses', function (Blueprint $table) {
             $table->id();
-            $table->string('promotion_name', 100)->unique();
-            $table->unsignedInteger('percent_decrease');
-            $table->boolean('is_active')->default(true);
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
+            $table->string('name', 30);
+            $table->unsignedInteger('ordinal')->default(0);
         });
     }
 
@@ -26,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('promotions');
+        Schema::dropIfExists('order_statuses');
     }
 };

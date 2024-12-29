@@ -2,28 +2,37 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Coupon extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
 
-    const TYPE_PERCENT = 'percent';
-    const TYPE_FIX_AMOUNT = 'fix_amount';
+    const DISCOUNT_TYPE_PERCENT = 'percent';
+    const DISCOUNT_TYPE_FIX_AMOUNT = 'fix_amount';
+
+    const USER_GROUP_ALL = 'all';
+    const USER_GROUP_NEWBIE = 'newbie';
+    const USER_GROUP_IRON = 'iron';
+    const USER_GROUP_BRONZE = 'bronze';
+    const USER_GROUP_SILVER = 'silver';
+    const USER_GROUP_GOLD = 'gold';
+    const USER_GROUP_PLATINUM = 'platinum';
+    const USER_GROUP_DIAMOND = 'diamond';
 
     public $timestamps = false;
 
-    protected $fillables = [
+    protected $fillable = [
         'code',
-        'name',
+        'title',
         'description',
-        'quantity',
-        'min_order',
-        'max_coupon_value',
-        'percent_decrease',
-        'value',
-        'type',
+        'discount_type',
+        'discount_value',
+        'usage_limit',
+        'usage_count',
+        'user_group',
+        'is_expired',
         'is_active',
         'start_date',
         'end_date',
@@ -31,33 +40,27 @@ class Coupon extends Model
 
     public function isTypePercent()
     {
-        return $this->type === self::TYPE_PERCENT;
+        return $this->discount_type === self::DISCOUNT_TYPE_PERCENT;
     }
 
     public function isTypeFixAmount()
     {
-        return $this->type === self::TYPE_FIX_AMOUNT;
+        return $this->discount_type === self::DISCOUNT_TYPE_FIX_AMOUNT;
     }
 
 
 
     /////////////////////////////////////////////////////
     // RELATIONS
-    
+
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
 
-
     public function users()
     {
-        return $this->belongsToMany(User::class)->withPivot('quantity');
-    }
-
-    public function histories()
-    {
-        return $this->hasMany(History::class);
+        return $this->belongsToMany(User::class);
     }
 
 }

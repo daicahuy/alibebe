@@ -14,10 +14,10 @@ class ReviewMultimedia extends Model
 
     public $timestamps = false;
 
-    protected $fillables = [
+    protected $fillable = [
         'review_id',
         'file',
-        'type',
+        'file_type',
     ];
 
 

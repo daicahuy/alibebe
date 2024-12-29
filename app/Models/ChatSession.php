@@ -14,7 +14,7 @@ class ChatSession extends Model
 
     public $timestamps = false;
 
-    protected $fillables = [
+    protected $fillable = [
         'customer_id',
         'employee_id',
         'status',

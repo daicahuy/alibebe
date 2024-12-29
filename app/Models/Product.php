@@ -2,31 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
 
     const TYPE_SINGLE = 'single';
     const TYPE_VARIANT = 'variant';
 
-    protected $fillables = [
+    protected $fillable = [
         'brand_id',
-        'promotion_id',
         'name',
+        'name_link',
         'slug',
-        'outstanding_features',
         'video',
+        'views',
         'content',
         'thumbnail',
         'sku',
         'price',
         'sale_price',
-        'stock',
+        'sale_price_start_at',
+        'sale_price_end_at',
         'type',
         'is_active',
+        'start_at'
     ];
 
     public function isTypeSingle()
@@ -43,11 +45,6 @@ class Product extends Model
 
     /////////////////////////////////////////////////////
     // RELATIONS
-
-    public function promotion()
-    {
-        return $this->belongsTo(Promotion::class);
-    }
 
     public function reviews()
     {
@@ -89,14 +86,14 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
-    public function categoryTypes()
-    {
-        return $this->belongsToMany(CategoryType::class);
-    }
-
     public function tags()
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    public function productFeatures()
+    {
+        return $this->hasMany(Product::class);
     }
 
     public function productAccessories()
@@ -109,9 +106,9 @@ class Product extends Model
         return $this->belongsToMany(Product::class, 'product_link', 'product_id', 'product_link_id');
     }
 
-    public function productCollections()
+    public function productGallery()
     {
-        return $this->hasMany(ProductCollection::class);
+        return $this->hasMany(ProductGallery::class);
     }
 
     public function attributeValues()
@@ -119,10 +116,14 @@ class Product extends Model
         return $this->belongsToMany(AttributeValue::class);
     }
     
-    public function histories()
+    public function productStock()
     {
-        return $this->hasMany(History::class);
+        return $this->hasOne(ProductStock::class);
     }
-    
+
+    public function productMovement()
+    {
+        return $this->hasMany(StockMovement::class);
+    }
 
 }

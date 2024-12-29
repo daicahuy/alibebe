@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,15 +14,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reviews', function (Blueprint $table) {
+        Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Product::class)->constrained();
-            $table->foreignIdFor(Order::class)->constrained();
+            $table->foreignIdFor(Product::class)->nullable()->constrained();
+            $table->foreignIdFor(ProductVariant::class)->nullable()->constrained();
+            $table->integer('quantity');
+            $table->string('type', 20);
+            $table->text('reason')->nullable();
             $table->foreignIdFor(User::class)->constrained();
-            $table->unsignedInteger('rating');
-            $table->text('review_text');
-            $table->string('reason')->nullable();
-            $table->boolean('is_active')->nullable();
             $table->timestamps();
         });
     }
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('reviews');
+        Schema::dropIfExists('stock_movements');
     }
 };

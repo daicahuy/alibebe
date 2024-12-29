@@ -15,18 +15,18 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('google_id')->nullable();
-            $table->string('fullname', 100);
+            $table->string('phone_number', 20)->unique();
             $table->string('email', 100)->unique()->nullable();
-            $table->string('phone_number', 20)->nullable();
-            $table->timestamp('verified_at')->nullable();
             $table->string('password');
+            $table->string('fullname', 100)->nullable();
             $table->string('avatar')->nullable();
             $table->string('gender', 20)->nullable();
             $table->date('birthday')->nullable();
+            $table->unsignedBigInteger('loyalty_points')->default(0);
             $table->string('role', 30)->default(User::ROLE_CUSTOMER);
-            $table->boolean('is_active');
-            $table->decimal('expense', 12, 2)->nullable();
+            $table->string('status', 20)->default(User::STATUS_ACTIVE);
             $table->rememberToken();
+            $table->timestamp('verified_at')->nullable();
             $table->timestamps();
         });
     }

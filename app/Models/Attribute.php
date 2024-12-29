@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Attribute extends Model
 {
-    use HasFactory;
 
-    protected $fillables = [
+    use SoftDeletes;
+
+    protected $fillable = [
         'name',
         'slug',
         'is_variant',
@@ -26,10 +27,5 @@ class Attribute extends Model
         return $this->hasMany(AttributeValue::class);
     }
 
-    public function histories()
-    {
-        return $this->hasMany(History::class);
-    }
-    
-    
+
 }

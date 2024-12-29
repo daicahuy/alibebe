@@ -5,21 +5,37 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CartItem extends Model
+class StockMovement extends Model
 {
     use HasFactory;
 
+    const TYPE_IMPORT = 'import';
+    const TYPE_EXPORT = 'export';
+    const TYPE_ADJUSTMENT = 'adjustment';
+
     protected $fillable = [
-        'user_id',
         'product_id',
         'product_variant_id',
         'quantity',
+        'type',
+        'reason',
+        'user_id'
     ];
 
+    public function isTypeImport()
+    {
+        return $this->type = self::TYPE_IMPORT;
+    }
 
+    public function isTypeExport()
+    {
+        return $this->type = self::TYPE_EXPORT;
+    }
 
-    /////////////////////////////////////////////////////
-    // RELATIONS
+    public function isTypeAdjustment()
+    {
+        return $this->type = self::TYPE_ADJUSTMENT;
+    }
 
     public function user()
     {
@@ -35,5 +51,4 @@ class CartItem extends Model
     {
         return $this->belongsTo(ProductVariant::class);
     }
-
 }
