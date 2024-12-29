@@ -27,5 +27,11 @@ Route::prefix('/admin')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
-        
+
+        Route::get('reviews', function () {
+            return view('admin.pages.review.list');
+        });
+        Route::get('reviews/detail', function () {
+            return view('admin.pages.review.detail');
+        });
     });
