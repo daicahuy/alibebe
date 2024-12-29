@@ -52,8 +52,8 @@
     @stack('css_library')
 
     <!-- App css -->
-    {{-- <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/style2.css"> --}}
-    <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/style.css">
+    {{-- <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/style.css"> --}}
+    <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/style2.css">
     @stack('css')
 
 

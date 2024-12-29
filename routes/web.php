@@ -27,5 +27,11 @@ Route::prefix('/admin')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
+        Route::get('orders', function(){
+            return view('admin.pages.orders.list');
+        });
+        Route::get('orders/detail/{id}', function(){
+            return view('admin.pages.orders.detail');
+        });
         
     });
