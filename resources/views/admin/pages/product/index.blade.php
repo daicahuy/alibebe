@@ -458,8 +458,6 @@
                         class="align-items-center btn btn-theme d-flex" href="/fastkart-admin/product/create"><i
                             _ngcontent-ng-c831449713="" class="ri-add-line"></i> Add Product </a></div><!---->
             </div>
-            {{-- Start trạng thái --}}
-            {{-- End trạng thái --}}
             <app-table _ngcontent-ng-c831449713="" _nghost-ng-c1063460097="">
                 <div _ngcontent-ng-c1063460097="" class="show-box">
                     <div _ngcontent-ng-c1063460097="" class="selection-box"><label _ngcontent-ng-c1063460097="">Show
