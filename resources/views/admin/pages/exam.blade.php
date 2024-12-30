@@ -6,11 +6,9 @@
 {{-- ================================== --}}
 
 @push('css_library')
-    
 @endpush
 
 @push('css')
-    
 @endpush
 
 
@@ -20,7 +18,6 @@
 {{-- ================================== --}}
 
 @section('content')
-
 @endsection
 
 
@@ -30,9 +27,7 @@
 {{-- ================================== --}}
 
 @push('js_library')
-    
 @endpush
 
 @push('js')
-    
 @endpush

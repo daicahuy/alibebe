@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Web\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,5 +28,9 @@ Route::prefix('/admin')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
-        
+        Route::get('/product', [ProductController::class, 'index'])->name('index');
+        Route::get('/product-add', [ProductController::class, 'add'])->name('add');
+        Route::get('/product-add2', [ProductController::class, 'add2'])->name('add2');
+        Route::get('/product-show', [ProductController::class, 'show'])->name('show');
+
     });
