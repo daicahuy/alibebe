@@ -1,8 +1,6 @@
 <?php
 
-
 use App\Http\Controllers\Web\Admin\DashboardController;
-
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,11 +44,16 @@ Route::prefix('/admin')
         Route::get('/categories/create', function () {
             return view('admin.pages.categories.create');
         });
-        // 
+        //
         Route::get('/category', function () {
             return view('admin.pages.categories.category');
         });
-        
+
+        Route::get('/product', [ProductController::class, 'index'])->name('index');
+        Route::get('/product-add', [ProductController::class, 'add'])->name('add');
+        Route::get('/product-add2', [ProductController::class, 'add2'])->name('add2');
+        Route::get('/product-show', [ProductController::class, 'show'])->name('show');
+
     });
 
 
