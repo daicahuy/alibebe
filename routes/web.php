@@ -80,4 +80,11 @@ Route::prefix('/admin')
         Route::get('/coupons/{id}/edit', function () {
             return view('admin.pages.coupons.edit');
         });
+
+        Route::get('reviews', function () {
+            return view('admin.pages.review.list');
+        });
+        Route::get('reviews/detail', function () {
+            return view('admin.pages.review.detail');
+        });
     });

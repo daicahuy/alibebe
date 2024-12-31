@@ -12,6 +12,6 @@
     },
     "dependencies": {
         "@yaireo/tagify": "^4.33.0",
-        "sweetalert2": "^11.15.3"
+        "sweetalert2": "^11.6.13"
     }
 }
