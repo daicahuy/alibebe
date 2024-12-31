@@ -88,3 +88,12 @@ Route::prefix('/admin')
             return view('admin.pages.review.detail');
         });
     });
+
+        Route::get('orders', function(){
+            return view('admin.pages.orders.list');
+        });
+        Route::get('orders/detail/{id}', function(){
+            return view('admin.pages.orders.detail');
+        });
+
+    });

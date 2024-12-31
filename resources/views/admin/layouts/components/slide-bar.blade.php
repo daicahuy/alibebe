@@ -126,7 +126,7 @@
                     </a>
                     <ul class="sidebar-submenu">
                         <li>
-                            <a href="order-list.html">Order List</a>
+                            <a href="">Order List</a>
                         </li>
                         <li>
                             <a href="order-detail.html">Order Detail</a>
