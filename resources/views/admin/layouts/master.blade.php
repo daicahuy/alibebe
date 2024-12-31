@@ -52,8 +52,9 @@
     @stack('css_library')
 
     <!-- App css -->
-    {{-- <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/style2.css"> --}}
-    <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/style.css">
+    {{-- <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/style.css"> --}}
+    <link rel="stylesheet" type="text/css" href="/theme/admin/assets/css/style2.css">
+
     @stack('css')
 
 
@@ -148,7 +149,7 @@
     <script src="/theme/admin/assets/js/config.js"></script>
 
     <!-- tooltip init js -->
-    <script src="/theme/admin/assets/js/tooltip-init.js"></script>
+    {{-- <script src="/theme/admin/assets/js/tooltip-init.js"></script> --}}
 
     <!-- Plugins JS -->
     <script src="/theme/admin/assets/js/sidebar-menu.js"></script>
@@ -180,7 +181,7 @@
     <!-- Theme js -->
     <script src="/theme/admin/assets/js/script.js"></script>
     @stack('js')
-    
+
 </body>
 
 </html>
