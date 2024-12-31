@@ -1,6 +1,8 @@
 <?php
 
+
 use App\Http\Controllers\Web\Admin\DashboardController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,5 +29,28 @@ Route::prefix('/admin')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
+
+        // Category
+        Route::get('/categories', function () {
+            return view('admin.pages.categories.list');
+        });
+
+        Route::get('/categories/edit/{id}', function () {
+            return view('admin.pages.categories.edit');
+        });
+
+        Route::get('/categories/detail/{id}', function () {
+            return view('admin.pages.categories.detail');
+        });
+
+        Route::get('/categories/create', function () {
+            return view('admin.pages.categories.create');
+        });
+        // 
+        Route::get('/category', function () {
+            return view('admin.pages.categories.category');
+        });
         
     });
+
+

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>jsTree CRUD Example</title>
+  <!-- Include jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <!-- Include jsTree -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css">
+  <style>
+    #container {
+      display: flex;
+      gap: 20px;
+    }
+    #tree {
+      width: 40%;
+    }
+    #form {
+      width: 50%;
+    }
+  </style>
+</head>
+<body>
+  <h1>jsTree CRUD Example</h1>
+  <div id="container">
+    <!-- Tree -->
+    <div id="tree"></div>
+
+    <!-- Form -->
+    <div id="form">
+      <h3>Category Form</h3>
+      <form id="categoryForm">
+        <input type="hidden" id="nodeId" />
+        <div>
+          <label for="nodeName">Name:</label>
+          <input type="text" id="nodeName" required />
+        </div>
+        <div>
+          <label for="nodeParent">Parent ID:</label>
+          <input type="text" id="nodeParent" />
+        </div>
+        <button type="button" id="addNode">Add</button>
+        <button type="button" id="editNode">Edit</button>
+      </form>
+      <button id="deleteNode">Delete</button>
+    </div>
+  </div>
+
+  <script>
+    $(function () {
+      // Initialize jsTree
+      $('#tree').jstree({
+        'core': {
+          'data': [
+            { "id": "1", "parent": "#", "text": "Root Node" },
+            { "id": "2", "parent": "1", "text": "Child Node 1" },
+            { "id": "3", "parent": "1", "text": "Child Node 2" }
+          ],
+          "check_callback": true // Allow modifications
+        },
+        "plugins": ["contextmenu", "dnd", "state", "types"]
+      });
+
+      // Edit node
+      $('#editNode').on('click', function () {
+        const id = $('#nodeId').val();
+        const name = $('#nodeName').val();
+
+        if (id && name) {
+          // Call API to update node on server
+          // Example API: PUT /api/categories/:id
+          $.ajax({
+            url: `/api/categories/${id}`,
+            method: 'PUT',
+            data: { name },
+            success: function () {
+              // Update node in jsTree
+              $('#tree').jstree('rename_node', id, name);
+              alert('Node updated successfully!');
+            }
+          });
+        } else {
+          alert('Please select a node and fill in the form.');
+        }
+      });
+
+      // Add node
+      $('#addNode').on('click', function () {
+        const parentId = $('#nodeParent').val() || '#'; // Root if parent ID is empty
+        const name = $('#nodeName').val();
+
+        if (name) {
+          // Call API to create node on server
+          // Example API: POST /api/categories
+          $.ajax({
+            url: '/api/categories',
+            method: 'POST',
+            data: { name, parent: parentId },
+            success: function (data) {
+              // Add new node to jsTree
+              $('#tree').jstree('create_node', parentId, {
+                id: data.id, // Returned from API
+                text: name
+              });
+              alert('Node added successfully!');
+            }
+          });
+        } else {
+          alert('Please fill in the form.');
+        }
+      });
+
+      // Delete node
+      $('#deleteNode').on('click', function () {
+        const id = $('#nodeId').val();
+
+        if (id) {
+          // Call API to delete node on server
+          // Example API: DELETE /api/categories/:id
+          $.ajax({
+            url: `/api/categories/${id}`,
+            method: 'DELETE',
+            success: function () {
+              // Remove node from jsTree
+              $('#tree').jstree('delete_node', id);
+              alert('Node deleted successfully!');
+            }
+          });
+        } else {
+          alert('Please select a node to delete.');
+        }
+      });
+
+      // Handle node selection
+      $('#tree').on('select_node.jstree', function (e, data) {
+        const node = data.node;
+        $('#nodeId').val(node.id);
+        $('#nodeName').val(node.text);
+        $('#nodeParent').val(node.parent === "#" ? "" : node.parent);
+      });
+    });
+  </script>
+</body>
+</html>
