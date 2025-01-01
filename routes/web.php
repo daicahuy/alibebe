@@ -19,7 +19,6 @@ Route::get('/', function () {
 });
 
 
-
 /*--------------ADMIN--------------*/
 
 Route::prefix('/admin')
@@ -49,11 +48,13 @@ Route::prefix('/admin')
             return view('admin.pages.categories.category');
         });
 
-        Route::get('/product', [ProductController::class, 'index'])->name('index');
-        Route::get('/product-add', [ProductController::class, 'add'])->name('add');
-        Route::get('/product-add2', [ProductController::class, 'add2'])->name('add2');
-        Route::get('/product-show', [ProductController::class, 'show'])->name('show');
+        Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])->name('index');
 
+        Route::get('/products-add', [\App\Http\Controllers\ProductController::class, 'add'])->name('add');
+
+        Route::get('/products-add2', [\App\Http\Controllers\ProductController::class, 'add2'])->name('add2');
+
+        Route::get('/products-show', [\App\Http\Controllers\ProductController::class, 'show'])->name('show');
 
 
         Route::get('/brands', function () {
@@ -87,13 +88,11 @@ Route::prefix('/admin')
         Route::get('reviews/detail', function () {
             return view('admin.pages.review.detail');
         });
-    });
 
-        Route::get('orders', function(){
+        Route::get('orders', function () {
             return view('admin.pages.orders.list');
         });
-        Route::get('orders/detail/{id}', function(){
+        Route::get('orders/detail/{id}', function () {
             return view('admin.pages.orders.detail');
         });
-
     });

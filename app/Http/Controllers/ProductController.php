@@ -10,20 +10,20 @@ class ProductController extends Controller
 
     public function index()
     {
-        return view('admin.pages.product.index');
+        return view('admin.pages.products.index');
     }
     public function add()
     {
-        return view('admin.pages.product.add');
+        return view('admin.pages.products.add');
     }
 
     public function add2()
     {
-        return view('admin.pages.product.add2');
+        return view('admin.pages.products.add2');
     }
 
     public function show()
     {
-        return view('admin.pages.product.show');
+        return view('admin.pages.products.show');
     }
 }
