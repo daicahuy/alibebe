@@ -9,17 +9,13 @@ class ReviewMultimedia extends Model
 {
     use HasFactory;
 
-    const TYPE_IMAGE = 'image';
-    const TYPE_VIDEO = 'video';
-
     public $timestamps = false;
 
-    protected $fillables = [
+    protected $fillable = [
         'review_id',
         'file',
-        'type',
+        'file_type',
     ];
-
 
 
     /////////////////////////////////////////////////////

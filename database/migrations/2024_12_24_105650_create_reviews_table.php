@@ -22,8 +22,8 @@ return new class extends Migration
             $table->unsignedInteger('rating');
             $table->text('review_text');
             $table->string('reason')->nullable();
+            $table->boolean('is_active')->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

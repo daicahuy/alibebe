@@ -11,13 +11,17 @@ class OrderItem extends Model
 
     public $timestamps = false;
 
-    protected $fillables = [
+    protected $fillable = [
         'order_id',
         'product_id',
         'product_variant_id',
-        'name_order_time',
-        'price_order_time',
+        'name',
+        'price',
         'quantity',
+        'name_variant',
+        'attributes_variant',
+        'price_variant',
+        'quantity_variant',
     ];
 
 

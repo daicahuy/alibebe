@@ -2,62 +2,53 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Enums\CouponDiscountType;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Coupon extends Model
 {
-    use HasFactory;
-
-    const TYPE_PERCENT = 'percent';
-    const TYPE_FIX_AMOUNT = 'fix_amount';
+    use SoftDeletes;
 
     public $timestamps = false;
 
-    protected $fillables = [
+    protected $fillable = [
         'code',
-        'name',
+        'title',
         'description',
-        'quantity',
-        'min_order',
-        'max_coupon_value',
-        'percent_decrease',
-        'value',
-        'type',
+        'discount_type',
+        'discount_value',
+        'usage_limit',
+        'usage_count',
+        'user_group',
+        'is_expired',
         'is_active',
         'start_date',
         'end_date',
     ];
 
-    public function isTypePercent()
+    public function isFixAmount()
     {
-        return $this->type === self::TYPE_PERCENT;
+        return $this->discount_type === CouponDiscountType::FIX_AMOUNT;
     }
 
-    public function isTypeFixAmount()
+    public function isPercent()
     {
-        return $this->type === self::TYPE_FIX_AMOUNT;
+        return $this->discount_type === CouponDiscountType::PERCENT;
     }
-
 
 
     /////////////////////////////////////////////////////
     // RELATIONS
-    
+
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
 
-
     public function users()
     {
-        return $this->belongsToMany(User::class)->withPivot('quantity');
-    }
-
-    public function histories()
-    {
-        return $this->hasMany(History::class);
+        return $this->belongsToMany(User::class)->withPivot('created_at', 'updated_at');
     }
 
 }

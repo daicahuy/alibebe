@@ -1,6 +1,15 @@
 <?php
 
+use App\Http\Controllers\Web\Admin\AttributeController;
+use App\Http\Controllers\Web\Admin\AttributeValueController;
+use App\Http\Controllers\Web\Admin\BrandController;
+use App\Http\Controllers\Web\Admin\CategoryController;
+use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Web\Admin\DashboardController;
+use App\Http\Controllers\Web\Admin\OrderController;
+use App\Http\Controllers\Web\Admin\ProductController;
+use App\Http\Controllers\Web\Admin\ReviewController;
+use App\Http\Controllers\Web\Admin\TagController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,7 +28,6 @@ Route::get('/', function () {
 });
 
 
-
 /*--------------ADMIN--------------*/
 
 Route::prefix('/admin')
@@ -27,11 +35,5 @@ Route::prefix('/admin')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
-
-        Route::get('reviews', function () {
-            return view('admin.pages.review.list');
-        });
-        Route::get('reviews/detail', function () {
-            return view('admin.pages.review.detail');
-        });
+        
     });

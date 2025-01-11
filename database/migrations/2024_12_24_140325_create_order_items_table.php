@@ -19,9 +19,13 @@ return new class extends Migration
             $table->foreignIdFor(Order::class)->constrained();
             $table->foreignIdFor(Product::class)->nullable()->constrained();
             $table->foreignIdFor(ProductVariant::class)->nullable()->constrained();
-            $table->string('name_order_time');
-            $table->decimal('price_order_time', 11, 2);
-            $table->unsignedInteger('quantity');
+            $table->string('name')->nullable();
+            $table->decimal('price', 11, 2)->nullable();
+            $table->unsignedSmallInteger('quantity')->nullable();
+            $table->string('name_variant')->nullable();
+            $table->jsonb('attributes_variant');
+            $table->decimal('price_variant', 11, 2)->nullable();
+            $table->unsignedSmallInteger('quantity_variant')->nullable();
         });
     }
 

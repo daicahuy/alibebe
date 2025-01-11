@@ -2,28 +2,29 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Brand extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
 
-    protected $fillables = [
+    protected $fillable = [
         'name',
         'slug',
         'logo',
+        'is_active',
     ];
 
 
 
     /////////////////////////////////////////////////////
     // RELATIONS
-    
+
     public function products()
     {
-        return $this->belongsToMany(Product::class);
+        return $this->hasMany(Product::class);
     }
-    
+
 
 }

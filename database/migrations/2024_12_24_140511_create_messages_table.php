@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\MessageType;
 use App\Models\ChatSession;
 use App\Models\Message;
 use Illuminate\Database\Migrations\Migration;
@@ -18,8 +19,8 @@ return new class extends Migration
             $table->foreignIdFor(ChatSession::class)->constrained();
             $table->foreignId('sender_id')->constrained('users');
             $table->text('message');
-            $table->string('type', 20)->default(Message::TYPE_TEXT);
-            $table->boolean('is_read')->default(false);
+            $table->tinyInteger('type')->default(MessageType::TEXT);
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
     }

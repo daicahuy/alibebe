@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Review::class)->constrained();
             $table->string('file');
-            $table->string('type', 20);
+            $table->tinyInteger('file_type');
         });
     }
 

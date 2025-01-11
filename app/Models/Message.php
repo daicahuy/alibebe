@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MessageType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -9,37 +10,32 @@ class Message extends Model
 {
     use HasFactory;
 
-    const TYPE_TEXT = 'text';
-    const TYPE_IMAGE = 'image';
-    const TYPE_VIDEO = 'video';
-    const TYPE_FILE = 'file';
-
-    protected $fillables = [
+    protected $fillable = [
         'chat_session_id',
         'sender_id',
         'message',
         'type',
-        'is_read',
+        'read_at',
     ];
 
     public function isTypeText()
     {
-        return $this->type === self::TYPE_TEXT;
+        return $this->type === MessageType::TEXT;
     }
 
     public function isTypeImage()
     {
-        return $this->type === self::TYPE_IMAGE;
+        return $this->type === MessageType::IMAGE;
     }
 
     public function isTypeVideo()
     {
-        return $this->type === self::TYPE_VIDEO;
+        return $this->type === MessageType::VIDEO;
     }
 
     public function isTypeFile()
     {
-        return $this->type === self::TYPE_FILE;
+        return $this->type === MessageType::FILE;
     }
 
 

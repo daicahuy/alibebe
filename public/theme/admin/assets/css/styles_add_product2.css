@@ -1,0 +1,258 @@
+:root {
+    --ngx-editor-border-radius: 4px;
+    --ngx-editor-background-color: #fff;
+    --ngx-editor-text-color: #000;
+    --ngx-editor-placeholder-color: #6c757d;
+    --ngx-editor-border-color: rgba(0, 0, 0, 0.2);
+    --ngx-editor-wrapper-border-color: rgba(0, 0, 0, 0.2);
+    --ngx-editor-menubar-bg-color: #fff;
+    --ngx-editor-menubar-padding: 3px;
+    --ngx-editor-menubar-height: 30px;
+    --ngx-editor-blockquote-color: #ddd;
+    --ngx-editor-blockquote-border-width: 3px;
+    --ngx-editor-icon-size: 30px;
+    --ngx-editor-popup-bg-color: #fff;
+    --ngx-editor-popup-border-radius: 4px;
+    --ngx-editor-popup-shadow: rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    --ngx-editor-menu-item-border-radius: 2px;
+    --ngx-editor-menu-item-active-color: #1a73e8;
+    --ngx-editor-menu-item-hover-bg-color: #f1f1f1;
+    --ngx-editor-menu-item-active-bg-color: #e8f0fe;
+    --ngx-editor-seperator-color: #ccc;
+    --ngx-editor-bubble-bg-color: #000;
+    --ngx-editor-bubble-text-color: #fff;
+    --ngx-editor-bubble-item-hover-color: #636262;
+    --ngx-editor-bubble-seperator-color: #fff;
+    --ngx-editor-focus-ring-color: #5e9ed6;
+    --ngx-editor-error-color: red;
+    --ngx-editor-click-pointer: default;
+}
+.NgxEditor {
+    background: var(--ngx-editor-background-color);
+    color: var(--ngx-editor-text-color);
+    background-clip: padding-box;
+    border-radius: var(--ngx-editor-border-radius);
+    border: 1px solid var(--ngx-editor-border-color);
+    position: relative;
+}
+.NgxEditor--Disabled {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+}
+.NgxEditor__Placeholder:before {
+    color: var(--ngx-editor-placeholder-color);
+    opacity: 1;
+    -webkit-user-select: none;
+    user-select: none;
+    position: absolute;
+    cursor: text;
+    content: attr(data-placeholder);
+}
+.NgxEditor__Placeholder[data-align="right"]:before {
+    position: relative;
+}
+.NgxEditor__Content {
+    padding: 8px;
+    white-space: pre-wrap;
+    outline: none;
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0;
+}
+.NgxEditor__Content p {
+    margin: 0 0 10px;
+}
+.NgxEditor__Content blockquote {
+    padding-left: 16px;
+    border-left: var(--ngx-editor-blockquote-border-width) solid
+        var(--ngx-editor-blockquote-color);
+    margin-left: 0;
+    margin-right: 0;
+}
+.NgxEditor__Content--Disabled {
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
+}
+.NgxEditor__Wrapper {
+    border: 1px solid var(--ngx-editor-wrapper-border-color);
+    border-radius: var(--ngx-editor-border-radius);
+}
+.NgxEditor__Wrapper .NgxEditor__MenuBar {
+    border-top-left-radius: var(--ngx-editor-border-radius);
+    border-top-right-radius: var(--ngx-editor-border-radius);
+    border-bottom: 1px solid var(--ngx-editor-border-color);
+}
+.NgxEditor__Wrapper .NgxEditor {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border: none;
+}
+.NgxEditor__MenuBar {
+    display: flex;
+    flex-wrap: wrap;
+    padding: var(--ngx-editor-menubar-padding);
+    background-color: var(--ngx-editor-menubar-bg-color);
+    gap: 0.25rem 0.1rem;
+}
+.NgxEditor__MenuBar button:not(:disabled),
+.NgxEditor__MenuBar [role="button"]:not(:disabled) {
+    cursor: var(--ngx-editor-click-pointer, default);
+}
+.NgxEditor__MenuItem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+}
+.NgxEditor__MenuItem.NgxEditor__MenuItem--IconContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.NgxEditor__MenuItem .NgxEditor__MenuItem--Icon {
+    all: unset;
+    appearance: none;
+    height: var(--ngx-editor-icon-size);
+    width: var(--ngx-editor-icon-size);
+    transition: 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--ngx-editor-menu-item-border-radius);
+}
+.NgxEditor__MenuItem .NgxEditor__MenuItem--Icon + .NgxEditor__MenuItem--Icon {
+    margin-left: 2px;
+}
+.NgxEditor__MenuItem .NgxEditor__MenuItem--Icon:focus-visible {
+    outline: 1px solid var(--ngx-editor-focus-ring-color);
+}
+.NgxEditor__MenuItem .NgxEditor__MenuItem--Icon:hover {
+    background-color: var(--ngx-editor-menu-item-hover-bg-color);
+}
+.NgxEditor__MenuItem.NgxEditor__MenuItem--Text {
+    padding: 0 5px;
+}
+.NgxEditor__MenuItem.NgxEditor__MenuItem--Active,
+.NgxEditor__MenuItem .NgxEditor__MenuItem--Active {
+    background-color: var(--ngx-editor-menu-item-active-bg-color);
+    color: var(--ngx-editor-menu-item-active-color);
+}
+.NgxEditor__Dropdown {
+    min-width: 64px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+.NgxEditor__Dropdown:hover {
+    background-color: var(--ngx-editor-menu-item-hover-bg-color);
+}
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Text {
+    all: unset;
+    appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    height: 100%;
+    width: 100%;
+}
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Text:focus-visible {
+    outline: 1px solid var(--ngx-editor-focus-ring-color);
+}
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Text:after {
+    display: inline-block;
+    content: "";
+    margin-left: 24px;
+    vertical-align: 4px;
+    border-top: 4px solid;
+    border-right: 4px solid transparent;
+    border-bottom: 0;
+    border-left: 4px solid transparent;
+}
+.NgxEditor__Dropdown .NgxEditor__Dropdown--DropdownMenu {
+    position: absolute;
+    left: 0;
+    box-shadow: var(--ngx-editor-popup-shadow);
+    border-radius: var(--ngx-editor-popup-border-radius);
+    background-color: var(--ngx-editor-popup-bg-color);
+    z-index: 10;
+    width: 100%;
+    top: calc(var(--ngx-editor-menubar-height) + 2px);
+    display: flex;
+    flex-direction: column;
+}
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Item {
+    all: unset;
+    appearance: none;
+    padding: 8px;
+    white-space: nowrap;
+    color: inherit;
+}
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Item:focus-visible {
+    outline: 1px solid var(--ngx-editor-focus-ring-color);
+}
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Item:hover {
+    background-color: var(--ngx-editor-menu-item-hover-bg-color);
+}
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Selected,
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Open {
+    color: var(--ngx-editor-menu-item-active-color);
+    background-color: var(--ngx-editor-menu-item-active-bg-color);
+}
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Active {
+    background-color: var(--ngx-editor-menu-item-active-bg-color);
+}
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Active:hover {
+    background-color: var(--ngx-editor-menu-item-hover-bg-color);
+}
+.NgxEditor__MenuBar--Reverse .NgxEditor__Dropdown--DropdownMenu {
+    top: unset;
+    bottom: calc(var(--ngx-editor-menubar-height) + 2px);
+}
+.NgxEditor__MenuBar--Reverse .NgxEditor__Dropdown--Text:after {
+    transform: rotate(180deg);
+}
+.NgxEditor__MenuBar--Reverse .NgxEditor__Popup {
+    top: unset;
+    bottom: calc(var(--ngx-editor-menubar-height) + 2px);
+}
+.NgxEditor__Popup {
+    position: absolute;
+    top: calc(var(--ngx-editor-menubar-height) + 2px);
+    box-shadow: var(--ngx-editor-popup-shadow);
+    border-radius: var(--ngx-editor-popup-border-radius);
+    background-color: var(--ngx-editor-popup-bg-color);
+    z-index: 10;
+    min-width: 192px;
+    padding: 8px;
+}
+.NgxEditor__Popup .NgxEditor__Popup--FormGroup {
+    margin-bottom: 8px;
+}
+.NgxEditor__Popup .NgxEditor__Popup--FormGroup label {
+    margin-bottom: 3px;
+}
+.NgxEditor__Popup .NgxEditor__Popup--FormGroup input[type="text"],
+.NgxEditor__Popup .NgxEditor__Popup--FormGroup input[type="url"] {
+    padding: 2px 4px;
+}
+.NgxEditor__Popup .NgxEditor__Popup--Col {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.NgxEditor__Popup .NgxEditor__Popup--Label {
+    font-size: 85%;
+}
+.NgxEditor__Seperator {
+    border-left: 1px solid var(--ngx-editor-seperator-color);
+    margin: 0 5px;
+}
+.NgxEditor__HelpText {
+    font-size: 80%;
+}
+.NgxEditor__HelpText.NgxEditor__HelpText--Error {
+    color: var(--ngx-editor-error-color);
+}

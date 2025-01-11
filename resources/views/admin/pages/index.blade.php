@@ -100,7 +100,7 @@
             </div>
         </div>
 
-        <div class="col-12">
+        {{-- <div class="col-12">
             <div class="card o-hidden card-hover">
                 <div class="card-header border-0 pb-1">
                     <div class="card-header-title p-0">
@@ -265,7 +265,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
         <!-- chart card section End -->
 
 

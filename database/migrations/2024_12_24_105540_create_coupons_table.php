@@ -1,6 +1,7 @@
 <?php
 
-use App\Models\Coupon;
+use App\Enums\CouponDiscountType;
+use App\Enums\UserGroupType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,17 +16,19 @@ return new class extends Migration
         Schema::create('coupons', function (Blueprint $table) {
             $table->id();
             $table->string('code', 50)->unique();
-            $table->string('name')->unique();
+            $table->string('title', 50);
             $table->string('description')->nullable();
-            $table->unsignedBigInteger('quantity');
-            $table->decimal('min_order', 10, 2)->nullable();
-            $table->decimal('max_coupon_value', 10, 2)->nullable();
-            $table->unsignedInteger('percent_decrease')->nullable();
-            $table->decimal('value', 10, 2)->nullable();
-            $table->string('type', 20)->default(Coupon::TYPE_PERCENT);
+            $table->tinyInteger('discount_type')->default(CouponDiscountType::FIX_AMOUNT);
+            $table->decimal('discount_value', 10, 2);
+            $table->unsignedSmallInteger('usage_limit');
+            $table->unsignedInteger('usage_count');
+            $table->tinyInteger('user_group')->default(UserGroupType::ALL);
+            $table->boolean('is_expired')->default(true);
             $table->boolean('is_active')->default(true);
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
