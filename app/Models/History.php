@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\HistoryActionType;
 use App\Models\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,11 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 class History extends Model
 {
     use HasFactory;
-
-    const ACTION_TYPE_CREATE = 'create';
-    const ACTION_TYPE_UPDATE = 'update';
-    const ACTION_TYPE_DELETE = 'delete';
-    const ACTION_TYPE_CHANGE_STATUS = 'change_status';
 
     protected $fillable = [
         'subject_type',
@@ -25,24 +21,24 @@ class History extends Model
         'description',
     ];
 
-    public function isActionTypeCreate()
+    public function isCreate()
     {
-        return $this->action_type = History::ACTION_TYPE_CREATE;
+        return $this->action_type = HistoryActionType::CREATE;
     }
 
-    public function isActionTypeUpdate()
+    public function isUpdate()
     {
-        return $this->action_type = History::ACTION_TYPE_UPDATE;
+        return $this->action_type = HistoryActionType::UPDATE;
     }
 
-    public function isActionTypeDelete()
+    public function isDelete()
     {
-        return $this->action_type = History::ACTION_TYPE_DELETE;
+        return $this->action_type = HistoryActionType::DELETE;
     }
 
-    public function isActionTypeChangeStatus()
+    public function isChangeStatus()
     {
-        return $this->action_type = History::ACTION_TYPE_CHANGE_STATUS;
+        return $this->action_type = HistoryActionType::CHANGE_STATUS;
     }
 
 

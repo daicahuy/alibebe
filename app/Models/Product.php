@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\ProductType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
     use SoftDeletes;
-
-    const TYPE_SINGLE = 'single';
-    const TYPE_VARIANT = 'variant';
 
     protected $fillable = [
         'brand_id',
@@ -31,14 +29,14 @@ class Product extends Model
         'start_at'
     ];
 
-    public function isTypeSingle()
+    public function isSingle()
     {
-        return $this->type = self::TYPE_SINGLE;
+        return $this->type = ProductType::SINGLE;
     }
 
-    public function isTypeVatiant()
+    public function isVatiant()
     {
-        return $this->type = self::TYPE_VARIANT;
+        return $this->type = ProductType::VARIANT;
     }
 
 

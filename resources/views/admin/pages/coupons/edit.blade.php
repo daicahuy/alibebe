@@ -6,63 +6,7 @@
 @endpush
 
 @push('css')
-    <style>
-        .dropdown {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
 
-        .dropdown__content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-            width: 100%;
-        }
-
-        .dropdown__item {
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            color: #0da487;
-        }
-
-        .dropdown__item img {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-        }
-
-        .dropdown__item:hover {
-            background-color: #e1e1e1;
-        }
-
-        .selected-items {
-            display: flex;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
-        .selected-item {
-            background-color: #0da487;
-            border-radius: 4px;
-            padding: 5px 10px;
-            margin: 5px;
-            display: flex;
-            align-items: center;
-            color: #fff;
-        }
-
-        .selected-item__remove {
-            margin-left: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            color: #fff;
-        }
-    </style>
 @endpush
 
 
@@ -76,7 +20,7 @@
                             <h5>Chỉnh Sửa Mã Giảm Giá</h5>
                         </div>
                     </div>
-                    <form novalidate="" class="theme-form theme-form-2 mega-form ng-untouched ng-pristine ng-invalid">
+                    <form novalidate="" class="theme-form theme-form-2 mega-form ">
                         <div class="vertical-tabs">
                             <div class="row">
                                 <div class="col-xl-3 col-lg-4">
@@ -110,24 +54,24 @@
                                             <div class="align-items-center g-2 mb-4 row">
 
                                                 <label class="col-sm-3 form-label-title mb-0" for="title">
-                                                    Tiêu Đề
+                                                   Tiêu Đề
                                                     <span class="theme-color ms-2 required-dot">*</span>
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <input id="title" type="text" formcontrolname="title"
-                                                        class="form-control ng-untouched ng-pristine ng-invalid"
+                                                        class="form-control "
                                                         placeholder="Enter coupon title">
                                                 </div>
                                             </div>
 
                                             <div class="align-items-center g-2 mb-4 row">
                                                 <label class="col-sm-3 form-label-title mb-0" for="description">
-                                                    Mô Tả
+                                                    Mô Tả 
                                                     <span class="theme-color ms-2 required-dot">*</span>
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <textarea id="description" type="text" formcontrolname="description"
-                                                        class="form-control ng-untouched ng-pristine ng-invalid" placeholder="Enter coupon description"></textarea>
+                                                        class="form-control " placeholder="Enter coupon description"></textarea>
                                                 </div>
                                             </div>
 
@@ -138,20 +82,19 @@
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <input id="code" type="text" formcontrolname="code"
-                                                        class="form-control ng-untouched ng-pristine ng-invalid"
+                                                        class="form-control "
                                                         placeholder="Enter coupon code">
                                                 </div>
                                             </div>
 
                                             {{-- PHẦN SELECT TYPE --}}
                                             <div class="align-items-center g-2 mb-4 row">
-                                                <label class="col-sm-3 form-label-title mb-0" for="type">Loại Giảm
-                                                    Giá<span class="theme-color ms-2 required-dot">*</span></label>
+                                                <label class="col-sm-3 form-label-title mb-0" for="type">Loại Giảm Giá<span
+                                                        class="theme-color ms-2 required-dot">*</span></label>
                                                 <div class="col-sm-9">
                                                     <select id="type"
-                                                        class="form-control ng-untouched ng-pristine ng-invalid">
-                                                        <option value="" disabled selected>Lựa Chọn Loại Giảm Giá
-                                                        </option>
+                                                        class="form-control form-select">
+                                                        <option value="" disabled selected>Lựa Chọn Loại Giảm Giá</option>
                                                         <option value="percentage">Phần Trăm</option>
                                                         <option value="free_shipping">Miễn Phí Ship</option>
                                                         <option value="fixed">Thương Lượng</option>
@@ -195,7 +138,7 @@
                                             <div class="align-items-center g-2 mb-4 row" id="start-date-div"
                                                 style="display:none;">
                                                 <label class="col-sm-3 form-label-title mb-0" for="start_date">
-                                                    Ngày Bắt Đầu<span class="theme-color ms-2 required-dot">*</span>
+                                                   Ngày Bắt Đầu<span class="theme-color ms-2 required-dot">*</span>
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <div class="dp-hidden position-absolute custom-dp-dropdown">
@@ -234,7 +177,7 @@
 
                                             <div class="align-items-center g-2 mb-4 row">
                                                 <label class="col-sm-3 form-label-title mb-0" for="is_first_order">
-                                                    Đơn Hàng Đầu Tiên ?
+                                                   Đơn Hàng Đầu Tiên ?
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <div class="form-check form-switch ps-0">
@@ -249,7 +192,7 @@
                                             </div>
                                             <div class="align-items-center g-2 mb-4 row">
                                                 <label class="col-sm-3 form-label-title mb-0" for="status">
-                                                    Trạng Thái
+                                                   Trạng Thái
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <div class="form-check form-switch ps-0">
@@ -289,34 +232,19 @@
                                                     Bao Gồm Sản Phẩm<span class="theme-color ms-2 required-dot">*</span>
                                                 </label>
                                                 <div class="col-sm-9">
-                                                    <div class="dropdown">
-                                                        <div class="form-control ng-untouched ng-pristine ng-invalid"
-                                                            id="dropdownBtn">Lựa Chọn Sản Phẩm</div>
-                                                        <div class="dropdown__content" id="dropdownContent">
-                                                            <div class="dropdown__item" data-value="pomegranate">
-                                                                <img src="https://laravel.pixelstrap.net/fastkart/storage/90/Pomegranate_2.png"
-                                                                    alt="Pomegranate">
-                                                                Gourmet Fresh Pomegranate
-                                                            </div>
-                                                            <div class="dropdown__item" data-value="strawberry">
-                                                                <img src="https://laravel.pixelstrap.net/fastkart/storage/93/Strawberry_1.png"
-                                                                    alt="Strawberry">
-                                                                Deliciously Sweet Strawberry
-                                                            </div>
-                                                            <div class="dropdown__item" data-value="watermelon">
-                                                                <img src="https://laravel.pixelstrap.net/fastkart/storage/94/Watermelon_1.png"
-                                                                    alt="Watermelon">
-                                                                Fresh Watermelon
-                                                            </div>
-                                                        </div>
-                                                        <div class="selected-items" id="selectedItems"></div>
-                                                    </div>
+                                                    <select name="" id="" class="form-control form-select" multiple>
+                                                        <option value="">Điện thoại</option>
+                                                        <option value="">Điện thoại</option>
+                                                        <option value="">Điện thoại</option>
+                                                        <option value="">Điện thoại</option>
+                                                        <option value="">Điện thoại</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                             {{-- PHẦN cHỌN NHIỀU SẢN PHẨM --}}
                                             <div class="align-items-center g-2 mb-4 row">
                                                 <label class="col-sm-3 form-label-title mb-0" for="min_spend">
-                                                    Giá Tối Thiểu
+                                                   Giá Tối Thiểu
                                                     <span class="theme-color ms-2 required-dot">*</span>
                                                 </label>
                                                 <div class="col-sm-9">
@@ -324,7 +252,7 @@
                                                         <span class="input-group-text"> $ </span>
                                                         <input type="number" id="min_spend" name="min_spend"
                                                             formcontrolname="min_spend"
-                                                            class="form-control ng-untouched ng-pristine ng-invalid"
+                                                            class="form-control "
                                                             placeholder="Enter min spend">
                                                     </div>
                                                     <p class="help-text">*Xác định
@@ -354,7 +282,7 @@
 
                                             <div class="align-items-center g-2 mb-4 row" id="usage-per-coupon">
                                                 <label class="col-sm-3 form-label-title mb-0" for="usage_per_coupon">
-                                                    Sử Dụng Cho Mỗi Phiếu Giảm Giá
+                                                   Sử Dụng Cho Mỗi Phiếu Giảm Giá
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <input type="number" id="usage_per_coupon" name="usage_per_coupon"
@@ -443,43 +371,6 @@
                 $("#end_date_input").open(); // Mở bảng lịch cho end_date
             });
 
-
-
-            // phần chọn nhiều sản phẩm
-
-            $('#dropdownBtn').click(function(event) {
-                event.stopPropagation();
-                $('#dropdownContent').toggle();
-            });
-
-            function removeItem(element) {
-                element.remove();
-            }
-
-            function createSelectedItem(text, value) {
-                var item = $('<div class="selected-item" data-value="' + value + '">' + text +
-                    '<span class="selected-item__remove"> x</span></div>');
-                item.find('.selected-item__remove').click(function() {
-                    removeItem(item);
-                });
-                $('#selectedItems').append(item);
-            }
-
-            $('#dropdownContent').find('.dropdown__item').click(function() {
-                var value = $(this).attr('data-value');
-                var text = $(this).text();
-                var alreadySelected = $('#selectedItems').find('[data-value="' + value + '"]');
-                if (alreadySelected.length) {
-                    removeItem(alreadySelected);
-                } else {
-                    createSelectedItem(text, value);
-                }
-                $('#dropdownContent').hide();
-            });
-
-            $(window).click(function() {
-                $('#dropdownContent').hide();
-            });
 
         });
     </script>

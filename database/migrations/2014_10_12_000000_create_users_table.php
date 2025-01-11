@@ -1,6 +1,7 @@
 <?php
 
-use App\Models\User;
+use App\Enums\UserRoleType;
+use App\Enums\UserStatusType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,11 +21,11 @@ return new class extends Migration
             $table->string('password');
             $table->string('fullname', 100)->nullable();
             $table->string('avatar')->nullable();
-            $table->string('gender', 20)->nullable();
+            $table->tinyInteger('gender')->nullable();
             $table->date('birthday')->nullable();
             $table->unsignedBigInteger('loyalty_points')->default(0);
-            $table->string('role', 30)->default(User::ROLE_CUSTOMER);
-            $table->string('status', 20)->default(User::STATUS_ACTIVE);
+            $table->tinyInteger('role')->default(UserRoleType::CUSTOMER);
+            $table->tinyInteger('status')->default(UserStatusType::ACTIVE);
             $table->rememberToken();
             $table->timestamp('verified_at')->nullable();
             $table->timestamps();

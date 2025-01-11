@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\StockMovementType;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
@@ -19,7 +20,7 @@ return new class extends Migration
             $table->foreignIdFor(Product::class)->nullable()->constrained();
             $table->foreignIdFor(ProductVariant::class)->nullable()->constrained();
             $table->integer('quantity');
-            $table->string('type', 20);
+            $table->tinyInteger('type')->default(StockMovementType::IMPORT);
             $table->text('reason')->nullable();
             $table->foreignIdFor(User::class)->constrained();
             $table->timestamps();

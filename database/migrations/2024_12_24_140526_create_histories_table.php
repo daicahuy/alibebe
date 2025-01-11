@@ -26,7 +26,7 @@ return new class extends Migration
             $table->id();
             $table->string('subject_type');
             $table->unsignedBigInteger('subject_id');
-            $table->string('action_type', 50);
+            $table->tinyInteger('action_type');
             $table->json('old_value')->nullable();
             $table->json('new_value')->nullable();
             $table->foreignIdFor(User::class)->constrained();

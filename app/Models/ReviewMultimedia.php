@@ -9,9 +9,6 @@ class ReviewMultimedia extends Model
 {
     use HasFactory;
 
-    const TYPE_IMAGE = 'image';
-    const TYPE_VIDEO = 'video';
-
     public $timestamps = false;
 
     protected $fillable = [
@@ -19,7 +16,6 @@ class ReviewMultimedia extends Model
         'file',
         'file_type',
     ];
-
 
 
     /////////////////////////////////////////////////////

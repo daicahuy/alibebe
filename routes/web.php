@@ -1,6 +1,15 @@
 <?php
 
+use App\Http\Controllers\Web\Admin\AttributeController;
+use App\Http\Controllers\Web\Admin\AttributeValueController;
+use App\Http\Controllers\Web\Admin\BrandController;
+use App\Http\Controllers\Web\Admin\CategoryController;
+use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Web\Admin\DashboardController;
+use App\Http\Controllers\Web\Admin\OrderController;
+use App\Http\Controllers\Web\Admin\ProductController;
+use App\Http\Controllers\Web\Admin\ReviewController;
+use App\Http\Controllers\Web\Admin\TagController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,72 +36,213 @@ Route::prefix('/admin')
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
 
-        // Category
-        Route::get('/categories', function () {
-            return view('admin.pages.categories.list');
-        });
 
-        Route::get('/categories/edit/{id}', function () {
-            return view('admin.pages.categories.edit');
-        });
+        // CATEGORIES
+        Route::prefix('/categories')
+            ->name('categories.')
+            ->controller(CategoryController::class)
+            ->group(function() {
 
-        Route::get('/categories/detail/{id}', function () {
-            return view('admin.pages.categories.detail');
-        });
+                Route::get('/', 'index')->name('index');
 
-        Route::get('/categories/create', function () {
-            return view('admin.pages.categories.create');
-        });
-        //
-        Route::get('/category', function () {
-            return view('admin.pages.categories.category');
-        });
+                Route::get('/trash', 'trash')->name('trash');
 
-        Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])->name('index');
+                Route::get('/{category}', 'show')->name('show')->where(['category' => '[0-9]+']);
 
-        Route::get('/products-add', [\App\Http\Controllers\ProductController::class, 'add'])->name('add');
+                Route::get('/create', 'create')->name('create');
 
-        Route::get('/products-add2', [\App\Http\Controllers\ProductController::class, 'add2'])->name('add2');
+                Route::post('/store', 'store')->name('store');
 
-        Route::get('/products-show', [\App\Http\Controllers\ProductController::class, 'show'])->name('show');
+                Route::get('/edit/{category}', 'edit')->name('edit');
+
+                Route::put('/update', 'update')->name('update');
+
+                Route::put('/restore/{category}', 'restore')->name('restore');
+
+                Route::put('/restore', 'restoreMany')->name('restoreMany');                
+
+                Route::delete('/delete/{category}', 'delete')->name('delete');
+
+                Route::delete('/delete', 'deleteMany')->name('deleteMany');
+
+                Route::delete('/destroy/{category}', 'destroy')->name('destroy');
+
+                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+
+            });
+
+        // PRODUCTS
+        Route::prefix('/products')
+            ->name('products.')
+            ->controller(ProductController::class)
+            ->group(function() {
+
+                Route::get('/', 'index')->name('index');
+
+                Route::get('/trash', 'trash')->name('trash');
+
+                Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
+
+                Route::get('/create', 'create')->name('create');
+
+                Route::post('/store', 'store')->name('store');
+
+                Route::get('/edit/{product}', 'edit')->name('edit');
+
+                Route::put('/update', 'update')->name('update');
+
+                Route::put('/restore/{product}', 'restore')->name('restore');
+
+                Route::put('/restore', 'restoreMany')->name('restoreMany');                
+
+                Route::delete('/delete/{product}', 'delete')->name('delete');
+
+                Route::delete('/delete', 'deleteMany')->name('deleteMany');
+
+                Route::delete('/destroy/{product}', 'destroy')->name('destroy');
+
+                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+
+            });
+
+        // ATTRIBUTES
+        Route::prefix('/attributes')
+            ->name('attributes.')
+            ->controller(AttributeController::class)
+            ->group(function() {
+
+                Route::get('/', 'index')->name('index');
+
+                Route::get('/create', 'create')->name('create');
+
+                Route::post('/store', 'store')->name('store');
+
+                Route::get('/edit/{attribute}', 'edit')->name('edit');
+
+                Route::put('/update', 'update')->name('update');   
+
+                Route::delete('/destroy/{attribute}', 'destroy')->name('destroy');
+
+                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+
+                // Attribute Values
+                Route::prefix('{attribute}/attribute_values')
+                    ->name('attribute_values.')
+                    ->controller(AttributeValueController::class)
+                    ->where(['attribute' => '[0-9]+'])
+                    ->group(function() {
+
+                        Route::get('/', 'index')->name('index');
+
+                        Route::get('/create', 'create')->name('create');
+
+                        Route::post('/store', 'store')->name('store');
+
+                        Route::get('/edit/{attributeValue}', 'edit')->name('edit');
+
+                        Route::put('/update', 'update')->name('update');   
+
+                        Route::delete('/destroy/{attributeValue}', 'destroy')->name('destroy');
+
+                        Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+                    
+                    });
+
+            });
 
 
-        Route::get('/brands', function () {
-            return view('admin.pages.brands.list');
-        });
+        // BRANDS
+        Route::prefix('/brands')
+            ->name('brands.')
+            ->controller(BrandController::class)
+            ->group(function() {
 
-        Route::get('/brands/create', function () {
-            return view('admin.pages.brands.create');
-        });
+                Route::get('/', 'index')->name('index');
 
-        Route::get('/brands/{id}/edit', function () {
-            return view('admin.pages.brands.edit');
-        });
+                Route::get('/create', 'create')->name('create');
 
+                Route::post('/store', 'store')->name('store');
 
-        Route::get('/coupons', function () {
-            return view('admin.pages.coupons.list');
-        });
+                Route::get('/edit/{brand}', 'edit')->name('edit');
 
-        Route::get('/coupons/create', function () {
-            return view('admin.pages.coupons.create');
-        });
+                Route::put('/update', 'update')->name('update');   
 
-        Route::get('/coupons/{id}/edit', function () {
-            return view('admin.pages.coupons.edit');
-        });
+                Route::delete('/destroy/{brand}', 'destroy')->name('destroy');
 
-        Route::get('reviews', function () {
-            return view('admin.pages.review.list');
-        });
-        Route::get('reviews/detail', function () {
-            return view('admin.pages.review.detail');
-        });
+                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
 
-        Route::get('orders', function () {
-            return view('admin.pages.orders.list');
-        });
-        Route::get('orders/detail/{id}', function () {
-            return view('admin.pages.orders.detail');
-        });
+            });
+
+        // TAGS
+        Route::prefix('/tags')
+            ->name('tags.')
+            ->controller(TagController::class)
+            ->group(function() {
+
+                Route::get('/', 'index')->name('index');
+
+                Route::get('/create', 'create')->name('create');
+
+                Route::post('/store', 'store')->name('store');
+
+                Route::get('/edit/{tag}', 'edit')->name('edit');
+
+                Route::put('/update', 'update')->name('update');   
+
+                Route::delete('/destroy/{tag}', 'destroy')->name('destroy');
+
+                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+
+            });
+
+        Route::prefix('/orders')
+            ->name('orders.')
+            ->controller(OrderController::class)
+            ->group(function() {
+
+                Route::get('/', 'index')->name('index');
+
+                Route::get('/{order}', 'show')->name('show')->where(['order' => '[0-9]+']);
+
+                Route::put('/update/{order}', 'update')->name('update');
+
+            });
+
+        Route::prefix('/reviews')
+            ->name('reviews.')
+            ->controller(ReviewController::class)
+            ->group(function() {
+
+                Route::get('/', 'index')->name('index');
+
+                Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
+
+                Route::put('/update/{review}', 'update')->name('update');
+
+            });
+
+        Route::prefix('/coupons')
+            ->name('coupons.')
+            ->controller(CouponController::class)
+            ->group(function() {
+
+                Route::get('/', 'index')->name('index');
+
+                Route::get('/{coupon}', 'show')->name('show')->where(['coupon' => '[0-9]+']);
+
+                Route::get('/create', 'create')->name('create');
+
+                Route::post('/store', 'store')->name('store');
+
+                Route::get('/edit/{coupon}', 'edit')->name('edit');
+
+                Route::put('/update', 'update')->name('update');   
+
+                Route::delete('/destroy/{coupon}', 'destroy')->name('destroy');
+
+                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+
+            });
+
+        
     });

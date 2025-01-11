@@ -3,6 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enums\UserGenderType;
+use App\Enums\UserRoleType;
+use App\Enums\UserStatusType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,17 +16,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-
-    const GENDER_MALE = 'male';
-    const GENDER_FEMALE = 'female';
-    const GENDER_OTHER = 'other';
-
-    const ROLE_ADMIN = 'admin';
-    const ROLE_EMPLOYEE = 'employee';
-    const ROLE_CUSTOMER = 'cusmoter';
-
-    const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';
+    const STATUS_ACTIVE = 'active';
     const STATUS_LOCK = 'lock';
 
     /**
@@ -66,40 +61,40 @@ class User extends Authenticatable
     ];
 
 
-    public function isGenderMale() {
-        return $this->gender === self::GENDER_MALE;
+    public function isMale() {
+        return $this->gender === UserGenderType::MALE;
     }
 
-    public function isGenderFemale() {
-        return $this->gender === self::GENDER_FEMALE;
+    public function isFemale() {
+        return $this->gender === UserGenderType::FEMALE;
     }
 
-    public function isGenderOther() {
-        return $this->gender === self::GENDER_OTHER;
+    public function isOther() {
+        return $this->gender === UserGenderType::OTHER;
     }
 
-    public function isRoleAdmin() {
-        return $this->role === self::ROLE_ADMIN;
+    public function isAdmin() {
+        return $this->role === UserRoleType::ADMIN;
     }
 
-    public function isRoleEmployee() {
-        return $this->role === self::ROLE_EMPLOYEE;
+    public function isEmployee() {
+        return $this->role === UserRoleType::EMPLOYEE;
     }
 
-    public function isRoleCustomer() {
-        return $this->role === self::ROLE_CUSTOMER;
+    public function isCustomer() {
+        return $this->role === UserRoleType::CUSTOMER;
     }
 
-    public function isStatusActive() {
-        return $this->status === self::STATUS_ACTIVE;
+    public function isActive() {
+        return $this->status === UserStatusType::ACTIVE;
     }
 
-    public function isStatusInactive() {
-        return $this->status === self::STATUS_INACTIVE;
+    public function isInactive() {
+        return $this->status === UserStatusType::INACTIVE;
     }
 
-    public function isStatusLock() {
-        return $this->status === self::STATUS_LOCK;
+    public function isLock() {
+        return $this->status === UserStatusType::LOCK;
     }
 
 
@@ -133,7 +128,7 @@ class User extends Authenticatable
 
     public function coupons()
     {
-        return $this->belongsToMany(Coupon::class);
+        return $this->belongsToMany(Coupon::class)->withPivot('created_at', 'updated_at');
     }
 
     public function reviews()

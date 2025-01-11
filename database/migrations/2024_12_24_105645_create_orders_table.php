@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Coupon;
-use App\Models\Order;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
@@ -26,7 +25,7 @@ return new class extends Migration
             $table->text('address');
             $table->decimal('total_amount', 12, 2);
             $table->boolean('is_paid')->default(false);
-            $table->foreignIdFor(Coupon::class)->constrained();
+            $table->foreignIdFor(Coupon::class)->nullable()->constrained();
             $table->string('coupon_code', 50)->nullable();
             $table->string('coupon_description')->nullable();
             $table->string('coupon_discount_type', 20)->nullable();

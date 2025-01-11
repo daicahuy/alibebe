@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\ChatSessionStatusType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ChatSession extends Model
 {
     use HasFactory;
-
-    const STATUS_OPEN = 'open';
-    const STATUS_CLOSED = 'closed';
 
     public $timestamps = false;
 
@@ -22,14 +20,14 @@ class ChatSession extends Model
         'closed_date',
     ];
 
-    public function isStatusOpen()
+    public function isClosed()
     {
-        return $this->status === self::STATUS_OPEN;
+        return $this->status === ChatSessionStatusType::CLOSED;
     }
 
-    public function isStatusClosed()
+    public function isOpen()
     {
-        return $this->status === self::STATUS_CLOSED;
+        return $this->status === ChatSessionStatusType::OPEN;
     }
 
 

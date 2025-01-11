@@ -2,16 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\StockMovementType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class StockMovement extends Model
 {
     use HasFactory;
-
-    const TYPE_IMPORT = 'import';
-    const TYPE_EXPORT = 'export';
-    const TYPE_ADJUSTMENT = 'adjustment';
 
     protected $fillable = [
         'product_id',
@@ -22,19 +19,19 @@ class StockMovement extends Model
         'user_id'
     ];
 
-    public function isTypeImport()
+    public function isImport()
     {
-        return $this->type = self::TYPE_IMPORT;
+        return $this->type = StockMovementType::IMPORT;
     }
 
-    public function isTypeExport()
+    public function isExport()
     {
-        return $this->type = self::TYPE_EXPORT;
+        return $this->type = StockMovementType::EXPORT;
     }
 
-    public function isTypeAdjustment()
+    public function isAdjustment()
     {
-        return $this->type = self::TYPE_ADJUSTMENT;
+        return $this->type = StockMovementType::ADJUSTMENT;
     }
 
     public function user()

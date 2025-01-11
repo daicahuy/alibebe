@@ -37,7 +37,8 @@ class Order extends Model
 
     public function orderStatuses()
     {
-        return $this->belongsToMany(OrderStatus::class, 'order_order_status', 'order_id', 'order_status_id');
+        return $this->belongsToMany(OrderStatus::class, 'order_order_status', 'order_id', 'order_status_id')
+            ->withPivot('modified_by', 'note', 'employee_evidence', 'customer_confirmation', 'created_at', 'updated_at');
     }
 
     public function coupon()
@@ -54,6 +55,4 @@ class Order extends Model
     {
         return $this->belongsTo(Payment::class);
     }
-
-    
 }

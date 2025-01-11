@@ -3501,6 +3501,15 @@ fieldset:disabled .btn {
     --bs-btn-disabled-bg: transparent;
     --bs-btn-disabled-border-color: #dc3545;
     --bs-gradient: none;
+    border: 1px solid var(--bs-red) !important;
+}
+
+.dark-only .btn-outline-danger {
+    color: #fff;
+}
+
+.btn-outline-danger:active {
+    background-color: var(--bs-danger)!important;
 }
 
 .btn-outline-light {
@@ -27559,6 +27568,8 @@ strong ~ p {
     background-color: transparent;
 }
 
+
+
 .btn-primary-gradien {
     background-image: linear-gradient(to right, #10caa6, #0a7e68 51%, #10caa6);
     border: none;
@@ -44816,7 +44827,7 @@ html[dir="rtl"] .grow svg {
 }
 
 .page-wrapper.compact-wrapper .page-body-wrapper .sidebar-wrapper.close_icon {
-    width: 81px;
+    width: 74px;
 }
 
 .page-wrapper.compact-wrapper
@@ -59294,7 +59305,7 @@ body.dark-only
     .table-striped
     tbody
     tr:nth-of-type(odd) {
-    --bs-table-accent-bg: $dark-body-background;
+    --bs-table-accent-bg: dark-body-background;
 }
 
 body.dark-only
@@ -75708,4 +75719,41 @@ body[class*="dark-"] .main-white {
     to {
         transform: rotate(360deg)
     }
+}
+
+.colorblack-icon {
+    filter: brightness(0) saturate(100%);
+}
+
+.colorwhite-icon {
+    filter: invert(100%) brightness(100%);
+}
+
+body.dark-only input[type="file"]:hover::-webkit-file-upload-button {
+    background-color: transparent!important;
+}
+
+.btn-delete, .btn-restore {
+    border: none;
+    background-color: transparent;
+    font-size: large;
+    padding: 0 1px;
+}
+
+.btn-delete {
+    color: var(--bs-danger);
+}
+
+.btn-restore {
+    color: var(--bs-green);
+}
+
+.title-header .link {
+    font-size: unset;
+    color: var(--theme-color);
+    font-weight: 650;
+}
+
+.title-header .link:hover {
+    text-decoration: underline;
 }

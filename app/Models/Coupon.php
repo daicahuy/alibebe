@@ -2,24 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\CouponDiscountType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Coupon extends Model
 {
     use SoftDeletes;
-
-    const DISCOUNT_TYPE_PERCENT = 'percent';
-    const DISCOUNT_TYPE_FIX_AMOUNT = 'fix_amount';
-
-    const USER_GROUP_ALL = 'all';
-    const USER_GROUP_NEWBIE = 'newbie';
-    const USER_GROUP_IRON = 'iron';
-    const USER_GROUP_BRONZE = 'bronze';
-    const USER_GROUP_SILVER = 'silver';
-    const USER_GROUP_GOLD = 'gold';
-    const USER_GROUP_PLATINUM = 'platinum';
-    const USER_GROUP_DIAMOND = 'diamond';
 
     public $timestamps = false;
 
@@ -38,16 +27,15 @@ class Coupon extends Model
         'end_date',
     ];
 
-    public function isTypePercent()
+    public function isFixAmount()
     {
-        return $this->discount_type === self::DISCOUNT_TYPE_PERCENT;
+        return $this->discount_type === CouponDiscountType::FIX_AMOUNT;
     }
 
-    public function isTypeFixAmount()
+    public function isPercent()
     {
-        return $this->discount_type === self::DISCOUNT_TYPE_FIX_AMOUNT;
+        return $this->discount_type === CouponDiscountType::PERCENT;
     }
-
 
 
     /////////////////////////////////////////////////////
@@ -60,7 +48,7 @@ class Coupon extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withPivot('created_at', 'updated_at');
     }
 
 }

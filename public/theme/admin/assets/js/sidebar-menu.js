@@ -1,29 +1,33 @@
 $(document).ready(function () {
-    // Khi click vào menu chính
+
     $('.sidebar-title').on('click', function (e) {
-        // Lấy submenu liên quan
+
         var $submenu = $(this).next('.sidebar-submenu');
-        console.log($submenu);
+
+        if ($('.sidebar-title').hasClass('active')) {
+            var $sidebarActive = $('.sidebar-title.active');
+            var $submenuActive = $sidebarActive.next('.sidebar-submenu');
+            $submenuActive.slideUp();
+            $submenuActive.find('.according-menu i').removeClass('ri-arrow-down-s-line').addClass('ri-arrow-right-s-line');
+
+        }
 
         if ($submenu.length > 0 && $submenu.children().length > 0) {
-            // Nếu submenu tồn tại và không trống
-            e.preventDefault(); // Ngăn chặn hành vi mặc định của liên kết
 
-            // Kiểm tra trạng thái hiển thị của submenu
+            e.preventDefault();
+
             if ($submenu.is(':visible')) {
-                // Nếu đang mở, thì đóng submenu
                 $submenu.slideUp();
                 $(this).find('.according-menu i').removeClass('ri-arrow-down-s-line').addClass('ri-arrow-right-s-line');
+                $(this).removeClass('active');
             } else {
-                // Nếu đang đóng, thì mở submenu
                 $submenu.slideDown();
                 $(this).find('.according-menu i').removeClass('ri-arrow-right-s-line').addClass('ri-arrow-down-s-line');
             }
-        } else {
-            // Nếu không có submenu, cho phép hành vi mặc định (link hoạt động)
-            $(this).addClass('active'); // Thêm class active cho thẻ a được click
         }
     });
+
+
 });
 
 // toggle sidebar
@@ -164,8 +168,8 @@ $("#left-arrow").click(function () {
 // page active
 
 if ($('#pageWrapper').hasClass('compact-wrapper')) {
-    $(".sidebar-wrapper nav #sidebar-menu .simplebar-wrapper .simplebar-content-wrapper .simplebar-content").find("a").removeClass("active");
-    $(".sidebar-wrapper nav #sidebar-menu .simplebar-wrapper .simplebar-content-wrapper .simplebar-content").find("li").removeClass("active");
+    // $(".sidebar-wrapper nav #sidebar-menu .simplebar-wrapper .simplebar-content-wrapper .simplebar-content").find("a").removeClass("active");
+    // $(".sidebar-wrapper nav #sidebar-menu .simplebar-wrapper .simplebar-content-wrapper .simplebar-content").find("li").removeClass("active");
 
     var current = window.location.pathname
     $(".sidebar-wrapper nav #sidebar-menu ul .simplebar-mask li a").filter(function () {
@@ -225,6 +229,7 @@ $(document).ready(function () {
         $(this).find(".menu-to-be-close").slideToggle("fast");
     });
 });
+
 $(document).on("click", function (event) {
     var $trigger = $(".outside");
     if ($trigger !== event.target && !$trigger.has(event.target).length) {
@@ -245,7 +250,7 @@ if ($(window).width() <= 1199) {
     $(".left-header .link-section").children('ul').css('display', 'none');
     $(this).parent().children('ul').toggleClass("d-block").slideToggle();
 }
-q
+
 if ($(window).width() <= 991) {
     $('.sidebar-wrapper .back-btn').on('click', function (e) {
         $(".page-header").toggleClass("close_icon");

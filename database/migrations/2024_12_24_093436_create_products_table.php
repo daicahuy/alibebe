@@ -1,7 +1,7 @@
 <?php
 
+use App\Enums\ProductType;
 use App\Models\Brand;
-use App\Models\Product;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->decimal('sale_price', 11, 2)->nullable();
             $table->timestamp('sale_price_start_at')->nullable();
             $table->timestamp('sale_price_end_at')->nullable();
-            $table->string('type', 20)->default(Product::TYPE_SINGLE);
+            $table->tinyInteger('type')->default(ProductType::SINGLE);
             $table->boolean('is_active')->default(true);
             $table->timestamp('start_at');
             $table->timestamps();
