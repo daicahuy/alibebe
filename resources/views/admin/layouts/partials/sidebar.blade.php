@@ -103,6 +103,36 @@
                         </a>
                     </li>
                     <li class="sidebar-list">
+                        <a class="debar-link link-nav sidebar-link sidebar-title">
+                            <span>
+                                <div class="d-flex align-items-center"><i class="ri-contacts-line"></i>
+                                    <div class="sidebar-main-link">{{ __('form.users') }}</div>
+                                </div>
+                            </span>
+                            <div class="according-menu">
+                                @if (Request::is('admin/users*'))
+                                    <i class="ri-arrow-down-s-line"></i>
+                                @else
+                                    <i class="ri-arrow-right-s-line"></i>
+                                @endif
+                            </div>
+                        </a>
+                        <ul class="sidebar-submenu" @style(['display: block;' => Request::is('admin/users*')])>
+                            <li>
+                                <a href="{{ route('admin.users.customer.index') }}" class="{{ Request::is('admin/users*') ? 'active' : '' }}">
+                                    <div>{{ __('form.user_customer') }}</div>
+                                </a>
+                                <ul class="sidebar-submenu"></ul>
+                            </li>
+                            {{-- <li>
+                                <a href="/fastkart-admin/role">
+                                    <div>Role</div>
+                                </a>
+                                <ul class="sidebar-submenu"></ul>
+                            </li> --}}
+                        </ul>
+                    </li>
+                    <li class="sidebar-list">
                         <a href="{{ route('admin.reviews.index') }}"
                             class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/reviews*') ? 'active' : '' }}">
                             <span>
@@ -124,36 +154,6 @@
                             </span>
                         </a>
                     </li>
-                    {{-- <li class="sidebar-list">
-                        <a class="debar-link link-nav sidebar-link sidebar-title">
-                            <span>
-                                <div class="d-flex align-items-center"><i class="ri-contacts-line"></i>
-                                    <div class="sidebar-main-link">Users</div>
-                                </div>
-                            </span>
-                            <div class="according-menu"><i class="ri-arrow-right-s-line"></i></div>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li>
-                                <a href="/fastkart-admin/user/create">
-                                    <div>Add User</div>
-                                </a>
-                                <ul class="sidebar-submenu"></ul>
-                            </li>
-                            <li>
-                                <a href="/fastkart-admin/user">
-                                    <div>All Users</div>
-                                </a>
-                                <ul class="sidebar-submenu"></ul>
-                            </li>
-                            <li>
-                                <a href="/fastkart-admin/role">
-                                    <div>Role</div>
-                                </a>
-                                <ul class="sidebar-submenu"></ul>
-                            </li>
-                        </ul>
-                    </li> --}}
                 </ul>
             </div>
         </nav>

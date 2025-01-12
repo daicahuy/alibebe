@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Admin;
+namespace App\Services\Web\Admin;
 
-class TagService
+class DashboardService
 {
     public function __construct()
     {

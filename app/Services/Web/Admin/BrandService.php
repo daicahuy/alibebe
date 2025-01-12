@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Admin;
+namespace App\Services\Web\Admin;
 
-class DashboardService
+class BrandService
 {
     public function __construct()
     {

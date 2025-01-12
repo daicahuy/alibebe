@@ -10,6 +10,7 @@ use App\Http\Controllers\Web\Admin\OrderController;
 use App\Http\Controllers\Web\Admin\ProductController;
 use App\Http\Controllers\Web\Admin\ReviewController;
 use App\Http\Controllers\Web\Admin\TagController;
+use App\Http\Controllers\Web\Admin\User\UserCustomerController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -195,6 +196,7 @@ Route::prefix('/admin')
 
             });
 
+        // ORDERS
         Route::prefix('/orders')
             ->name('orders.')
             ->controller(OrderController::class)
@@ -208,6 +210,33 @@ Route::prefix('/admin')
 
             });
 
+        // USERS
+        Route::prefix('/users')
+            ->name('users.')
+            ->group(function() {
+
+                Route::prefix('/customer')
+                    ->name('customer.')
+                    ->controller(UserCustomerController::class)
+                    ->group(function() {
+
+                        Route::get('/', 'index')->name('index');
+        
+                        Route::get('/create', 'create')->name('create');
+        
+                        Route::post('/store', 'store')->name('store');
+        
+                        Route::get('/edit/{user}', 'edit')->name('edit');
+        
+                        Route::put('/update', 'update')->name('update');
+
+                    });
+
+
+            });
+        
+
+        // REVIEWS
         Route::prefix('/reviews')
             ->name('reviews.')
             ->controller(ReviewController::class)
@@ -220,7 +249,8 @@ Route::prefix('/admin')
                 Route::put('/update/{review}', 'update')->name('update');
 
             });
-
+        
+        // COUPONS
         Route::prefix('/coupons')
             ->name('coupons.')
             ->controller(CouponController::class)

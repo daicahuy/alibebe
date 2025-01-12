@@ -309,6 +309,8 @@ return [
     ],
 
     'users' => 'Người dùng',
+    'user_customer' => 'Khách hàng',
+    'user_customer_list' => 'Danh sách khách hàng',
     'user' => [
         'id' => 'ID',
         'google_id' => 'ID Google',

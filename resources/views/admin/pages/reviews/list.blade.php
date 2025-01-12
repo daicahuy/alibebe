@@ -18,27 +18,12 @@
 
         .filter-container input,
         .filter-container select {
-            background-color: #f5f7f9;
-            border: 1px solid #ddd;
-            border-radius: 8px;
             height: 40px;
         }
 
         .filter-container button {
             height: 40px;
             border-radius: 8px;
-        }
-
-        .filter-container .btn-filter {
-            background-color: #0da487;
-            color: white;
-            border: none;
-        }
-
-        .filter-container .btn-reset {
-            background-color: #e9ecef;
-            color: #6c757d;
-            border: none;
         }
 
         .rating li {
@@ -77,10 +62,10 @@
 
 
                     <!-- Filter Button -->
-                    <button class="btn btn-filter mt-4">Filter</button>
+                    <button class="btn btn-theme mt-4">Filter</button>
 
                     <!-- Reset Button -->
-                    <button class="btn btn-reset mt-4">Reset</button>
+                    <button class="btn btn-secondary mt-4">Reset</button>
                 </div>
                 <div>
                     <div class="table-responsive mt-3">
