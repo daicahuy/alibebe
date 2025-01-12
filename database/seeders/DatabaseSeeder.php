@@ -23,31 +23,21 @@ class DatabaseSeeder extends Seeder
         $this->truncateAllTable();
         
         // Fake User
-        User::create([
-            'phone_number' => '0987654321',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('123456'),
-            'fullname' => 'Admin',
-            'gender' => UserGenderType::MALE,
-            'role' => UserRoleType::ADMIN,
-            'status' => UserStatusType::ACTIVE,
-            'verified_at' => now(),
+        $this->call([
+            UserSeeder::class,
+            CategorySeeder::class
         ]);
 
-        // User::factory()->create(10);
-
-        // Chua fake xong user
-
-        // Fake Categories
-        // Fake Brands
-        // Fake Tags
-        // Fake Attributes
-        // Fake Attribute Values
-        // Fake Payments
-        // Fake Order Status
-        // Fake Products
-        // Fake Orders
-        // Fake Reviews
+        // Fake User                -> OK
+        // Fake Categories          -> OK
+        // Fake Brands              -> 
+        // Fake Tags                
+        // Fake Attributes          
+        // Fake Attribute Values    
+        // Fake Payments            
+        // Fake Order Status        
+        // Fake Products            
+        // Fake Orders              
     }
 
     private function truncateAllTable()

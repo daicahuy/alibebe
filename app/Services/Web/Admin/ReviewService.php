@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Admin;
+namespace App\Services\Web\Admin;
 
-class OrderService
+class AttributeValueService
 {
     public function __construct()
     {

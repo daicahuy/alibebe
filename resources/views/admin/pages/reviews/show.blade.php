@@ -6,16 +6,11 @@
 {{-- ================================== --}}
 
 @push('css_library')
+    <script src="https://cdn.tailwindcss.com"></script>
 @endpush
 
 @push('css')
-    <script src="https://kit.fontawesome.com/41dd1b16b5.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: Arial, sans-serif;
-        }
 
         .content {
             display: flex;
@@ -119,11 +114,11 @@
             <div class="mb-3">
                 <label class="form-label">Rating</label>
                 <div style="color: yellow">
-                    <a href=""><i class="fa-solid fa-star"></i></a>
-                    <a href=""><i class="fa-solid fa-star"></i></a>
-                    <a href=""><i class="fa-solid fa-star"></i></a>
-                    <a href=""><i class="fa-solid fa-star"></i></a>
-                    <a href=""><i class="fa-solid fa-star"></i></a>
+                    <a href=""><i class="ri-star-fill"></i></a>
+                    <a href=""><i class="ri-star-fill"></i></a>
+                    <a href=""><i class="ri-star-fill"></i></a>
+                    <a href=""><i class="ri-star-fill"></i></a>
+                    <a href=""><i class="ri-star-fill"></i></a>
                 </div>
             </div>
             <div class="mb-3">
@@ -174,19 +169,25 @@
 
         <!-- Review Section -->
         <div class="review-section">
-            <div class="review-header-section">
-                <h3 class="title-header option-title fw-bold">44 Đánh Giá</h3>
-                <div class="flex justify-content-center">
-                    <select class="">
-                        <option>Sort by date</option>
-                        <option>Newest first</option>
-                        <option>Oldest first</option>
-                    </select>
-                    <select class="">
-                        <option>Export</option>
-                        <option>CSV</option>
-                        <option>PDF</option>
-                    </select>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="title-header option-title fw-bold pb-0">44 Đánh Giá</h3>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div class="me-3">
+                        <select class="form-select">
+                            <option>Sort by date</option>
+                            <option>Newest first</option>
+                            <option>Oldest first</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="form-select">
+                            <option>Export</option>
+                            <option>CSV</option>
+                            <option>PDF</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="review-card">
@@ -199,11 +200,11 @@
                 </div>
                 <div class="mt-2">
                     <h4 class="mt-2">Sohaib Bismal
-                        <a href="" style="color: yellow"><i class="fa-solid fa-star"></i></a>
-                        <a href=""style="color: yellow"><i class="fa-solid fa-star"></i></a>
-                        <a href=""style="color: yellow"><i class="fa-solid fa-star"></i></a>
-                        <a href=""style="color: yellow"><i class="fa-solid fa-star"></i></a>
-                        <a href=""style="color: yellow"><i class="fa-solid fa-star"></i></a>
+                        <a href="" style="color: yellow"><i class="ri-star-fill"></i></a>
+                        <a href=""style="color: yellow"><i class="ri-star-fill"></i></a>
+                        <a href=""style="color: yellow"><i class="ri-star-fill"></i></a>
+                        <a href=""style="color: yellow"><i class="ri-star-fill"></i></a>
+                        <a href=""style="color: yellow"><i class="ri-star-fill"></i></a>
                     </h4>
 
                 </div>
@@ -296,11 +297,11 @@
 
                 </div>
                 <div class="mt-2" style="color: yellow">
-                    <a href=""><i class="fa-solid fa-star"></i></a>
-                    <a href=""><i class="fa-solid fa-star"></i></a>
-                    <a href=""><i class="fa-solid fa-star"></i></a>
-                    <a href=""><i class="fa-solid fa-star"></i></a>
-                    <a href=""><i class="fa-solid fa-star"></i></a>
+                    <a href=""><i class="ri-star-fill"></i></a>
+                    <a href=""><i class="ri-star-fill"></i></a>
+                    <a href=""><i class="ri-star-fill"></i></a>
+                    <a href=""><i class="ri-star-fill"></i></a>
+                    <a href=""><i class="ri-star-fill"></i></a>
                 </div>
                 <div class="mt-2">
                     <h5 class="fw-bold">Image & Video :</h5>

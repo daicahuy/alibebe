@@ -30806,8 +30806,8 @@ strong ~ p {
 .theme-form input[type="file"],
 .theme-form textarea,
 .theme-form select {
-    border-color: #efefef !important;
-    background-color: #f9f9f6 !important;
+    /* border-color: #efefef !important;
+    background-color: #f9f9f6 !important; */
     font-size: calc(14px + 0.00125 * (100vw - 320px));
     color: #444;
     padding: calc(10px + 0.00125 * (100vw - 320px)) 10px;

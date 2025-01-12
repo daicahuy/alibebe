@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Admin;
+namespace App\Services\Web\Admin;
 
-class AttributeValueService
+class TagService
 {
     public function __construct()
     {
