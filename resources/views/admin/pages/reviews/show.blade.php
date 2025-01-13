@@ -63,10 +63,6 @@
             align-items: center;
         }
 
-        .rating {
-            color: #f39c12;
-        }
-
         .translated {
             color: #007bff;
             cursor: pointer;

@@ -75733,18 +75733,21 @@ body.dark-only input[type="file"]:hover::-webkit-file-upload-button {
     background-color: transparent!important;
 }
 
-.btn-delete, .btn-restore {
+.btn-delete,
+.btn-restore,
+.btn-lock,
+.btn-unlock {
     border: none;
     background-color: transparent;
     font-size: large;
     padding: 0 1px;
 }
 
-.btn-delete {
+.btn-delete, .btn-lock {
     color: var(--bs-danger);
 }
 
-.btn-restore {
+.btn-restore, .btn-unlock {
     color: var(--bs-green);
 }
 

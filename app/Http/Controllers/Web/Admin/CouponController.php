@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Coupon;
 use Illuminate\Http\Request;
 
 class CouponController extends Controller
@@ -12,7 +13,7 @@ class CouponController extends Controller
         return view('admin.pages.coupons.list');
     }
 
-    public function show()
+    public function show(Coupon $coupon)
     {
 
     }
@@ -22,27 +23,22 @@ class CouponController extends Controller
         return view('admin.pages.coupons.create');
     }
 
-    public function store()
+    public function store(Request $request)
     {
 
     }
 
-    public function edit()
+    public function edit(Coupon $coupon)
     {
         return view('admin.pages.coupons.edit');
     }
 
-    public function update()
+    public function update(Request $request, Coupon $coupon)
     {
 
     }
 
-    public function destroy()
-    {
-
-    }
-
-    public function destroyMany()
+    public function destroy(Request $request)
     {
 
     }

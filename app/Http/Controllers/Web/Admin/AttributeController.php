@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attribute;
 use Illuminate\Http\Request;
 
 class AttributeController extends Controller
@@ -22,23 +23,18 @@ class AttributeController extends Controller
         
     }
 
-    public function edit($id)
+    public function edit(Attribute $attribute)
     {
         return view('admin.pages.attributes.edit');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Attribute $attribute)
     {
 
     }
 
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-
-    }
-
-    public function destroyMany()
-    {
-
+        
     }
 }

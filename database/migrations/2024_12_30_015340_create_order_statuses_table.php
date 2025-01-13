@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('order_statuses', function (Blueprint $table) {
             $table->id();
             $table->string('name', 30);
-            $table->unsignedInteger('ordinal')->default(0);
         });
     }
 
