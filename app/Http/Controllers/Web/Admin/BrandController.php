@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 
 class BrandController extends Controller
@@ -22,22 +23,17 @@ class BrandController extends Controller
         
     }
 
-    public function edit($id)
+    public function edit(Brand $brand)
     {
         return view('admin.pages.brands.edit');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Brand $brand)
     {
 
     }
 
-    public function destroy($id)
-    {
-
-    }
-
-    public function destroyMany()
+    public function destroy(Request $request)
     {
 
     }
