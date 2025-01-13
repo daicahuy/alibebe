@@ -201,7 +201,7 @@ return [
     ],
 
     'products' => 'Sản phẩm',
-    'product_list' => 'Danh sách sản phẩm',
+    'product_manager' => 'Quản lý sản phẩm',
     'product' => [
         'id' => 'ID',
         'brand_id' => 'ID thương hiệu',
@@ -309,14 +309,17 @@ return [
     ],
 
     'users' => 'Người dùng',
+    'user_manager' => 'Quản lý người dùng',
+    'user_all' => 'Tất cả người dùng',
     'user_customer' => 'Khách hàng',
-    'user_customer_list' => 'Danh sách khách hàng',
+    'user_employee' => 'Nhân viên',
     'user' => [
         'id' => 'ID',
         'google_id' => 'ID Google',
         'phone_number' => 'Số điện thoại',
         'email' => 'Email',
         'password' => 'Mật khẩu',
+        'confirm_password' => 'Xác nhận mật khẩu',
         'fullname' => 'Họ và tên',
         'avatar' => 'Ảnh đại diện',
         'gender' => 'Giới tính',
@@ -355,6 +358,10 @@ return [
     'enter_brand_name' => 'Nhập tên thương hiệu',
     'enter_tag_name' => 'Nhập tên thẻ',
     'enter_attribute_value_value' => 'Nhập giá trị',
+    'enter_phone_number' => 'Nhập số điện thoại',
+    'enter_email' => 'Nhập email',
+    'enter_password' => 'Nhập mật khẩu',
+    'enter_confirm_password' => 'Xác nhận lại mật khẩu',
     'select_icon' => 'Chọn biểu tượng',
     'select_logo' => 'Chọn logo',
 
