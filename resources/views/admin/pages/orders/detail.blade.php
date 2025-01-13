@@ -11,9 +11,6 @@
 @push('css')
     <style>
         /* Set background color of the header row to gray */
-        .table thead tr {
-            background-color: #f0f0f0;
-        }
     </style>
 @endpush
 

@@ -6,6 +6,7 @@
 {{-- ================================== --}}
 
 @push('css_library')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 @endpush
 
 @push('css')
@@ -103,6 +104,12 @@
             font-weight: bold;
             color: #656d7b;
         }
+
+        body.dark-only .btn-order {
+            color: #fff9 !important;
+            border-radius: 7% !important;
+            background: unset !important;
+        }
     </style>
 @endpush
 
@@ -113,10 +120,33 @@
 {{-- ================================== --}}
 
 @section('content')
+    @php
+
+        $dataOrder = [
+            'id' => 1,
+            'code' => 'ORD123456',
+            'user_id' => 1, // Giả sử đã có người dùng với ID là 1
+            'payment_id' => 1, // Giả sử đã có phương thức thanh toán với ID là 1
+            'phone_number' => '0123456789',
+            'email' => 'example@example.com',
+            'fullname' => 'Nguyễn Văn A',
+            'address' => '123 Đường ABC, Phường XYZ, Thành phố HCM',
+            'total_amount' => 150.75,
+            'is_paid' => true,
+            'coupon_id' => null, // Hoặc 1 nếu có coupon
+            'coupon_code' => null, // Hoặc 'DISCOUNT10' nếu có coupon
+            'coupon_description' => null, // Hoặc 'Giảm giá 10%' nếu có coupon
+            'coupon_discount_type' => null, // Hoặc 'percentage' nếu có coupon
+            'coupon_discount_value' => null, // Hoặc 10 nếu có coupon
+            'created_at' => now(),
+            'updated_at' => now(),
+            'name_payment' => 'payment',
+        ];
+    @endphp
     {{-- Start Lọc --}}
     <div class="tab">
         <div class="card layout_filter shadow-sm">
-            <div class="card-body bg-white">
+            <div class="card-body">
                 <div>
                     <form>
                         <div class="row g-3 py-2"> <!-- Giảm khoảng cách giữa các phần tử -->
@@ -157,13 +187,29 @@
                             <!-- Ngày bắt đầu -->
                             <div class="col-md-4">
                                 <label class="form-label">Ngày bắt đầu</label>
-                                <input class="form-control form-control-sm" type="date" name="startDate">
+                                <div class="col-sm-9" style="width: 100%">
+                                    <div class="input-group custom-dt-picker">
+                                        <input placeholder="yyyy-mm-dd" name="dpToDate" id="end_date_input" readonly=""
+                                            class="form-control">
+                                        <button type="button" class="btn btn-outline-secondary" id="endDatePickerBtn">
+                                            <i class="ri-calendar-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Ngày kết thúc -->
                             <div class="col-md-4">
                                 <label class="form-label">Ngày kết thúc</label>
-                                <input class="form-control form-control-sm" type="date" name="endDate">
+                                <div class="col-sm-9" style="width: 100%">
+                                    <div class="input-group custom-dt-picker">
+                                        <input placeholder="yyyy-mm-dd" name="dpToDate" id="end_date_input" readonly=""
+                                            class="form-control">
+                                        <button type="button" class="btn btn-outline-secondary" id="endDatePickerBtn">
+                                            <i class="ri-calendar-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Nút lọc -->
@@ -184,8 +230,10 @@
 
 
 
+
     {{-- Start Body Order --}}
     <div class="card card-table mt-2">
+
         <div class="card-body">
             <div class="title-header option-title">
                 <h5>Danh Sách Đơn Hàng</h5>
@@ -244,14 +292,17 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="px-4 py-2"><span class="font-semibold uppercase text-xs">11497</span></td>
-                                <td class="px-4 py-2"><span class="text-sm">23 Dec, 2024 6:40 PM</span></td>
-                                <td class="px-4 py-2 text-xs"><span class="text-sm">Win </span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">Tiền mặt</span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">$558.12</span></td>
+                                <td class="px-4 py-2"><span
+                                        class="font-semibold uppercase text-xs">{{ $dataOrder['code'] }}</span></td>
+                                <td class="px-4 py-2"><span class="text-sm">{{ $dataOrder['created_at'] }}</span></td>
+                                <td class="px-4 py-2 text-xs"><span class="text-sm">{{ $dataOrder['fullname'] }}</span></td>
+                                <td class="px-4 py-2"><span
+                                        class="text-sm font-semibold">{{ $dataOrder['name_payment'] }}</span></td>
+                                <td class="px-4 py-2"><span
+                                        class="text-sm font-semibold">{{ $dataOrder['total_amount'] }}</span></td>
                                 <td class="px-4 py-2 text-xs">
                                     <select class="font-serif form-select form-select-sm orderStatus">
-                                        <option>Chờ xử lý</option>
+                                        <option value="{{ OrderStatusType::PENDING }}">Chờ xử lý</option>
                                         <option>Đã lấy hàng</option>
                                         <option>Đang giao</option>
                                         <option>Đã giao</option>
@@ -270,240 +321,6 @@
                                 </a>
                             </tr>
 
-                            <tr>
-                                <td class="px-4 py-2"><span class="font-semibold uppercase text-xs">11497</span></td>
-                                <td class="px-4 py-2"><span class="text-sm">23 Dec, 2024 6:40 PM</span></td>
-                                <td class="px-4 py-2 text-xs"><span class="text-sm">Win </span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">Tiền mặt</span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">$558.12</span></td>
-                                <td class="px-4 py-2 text-xs">
-                                    <select class="font-serif form-select form-select-sm orderStatus">
-                                        <option>Chờ xử lý</option>
-                                        <option>Đã lấy hàng</option>
-                                        <option>Đang giao</option>
-                                        <option>Đã giao</option>
-                                        <option>Hủy đơn</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <ul id="actions">
-                                        <li>
-                                            <a href="{{ route('admin.orders.show', ['order' => 1]) }}" class="btn-detail">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </td>
-                                </a>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-2"><span class="font-semibold uppercase text-xs">11497</span></td>
-                                <td class="px-4 py-2"><span class="text-sm">23 Dec, 2024 6:40 PM</span></td>
-                                <td class="px-4 py-2 text-xs"><span class="text-sm">Win </span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">Tiền mặt</span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">$558.12</span></td>
-                                <td class="px-4 py-2 text-xs">
-                                    <select class="font-serif form-select form-select-sm orderStatus">
-                                        <option>Chờ xử lý</option>
-                                        <option>Đã lấy hàng</option>
-                                        <option>Đang giao</option>
-                                        <option>Đã giao</option>
-                                        <option>Hủy đơn</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <ul id="actions">
-                                        <li>
-                                            <a href="{{ route('admin.orders.show', ['order' => 1]) }}" class="btn-detail">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </td>
-                                </a>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-2"><span class="font-semibold uppercase text-xs">11497</span></td>
-                                <td class="px-4 py-2"><span class="text-sm">23 Dec, 2024 6:40 PM</span></td>
-                                <td class="px-4 py-2 text-xs"><span class="text-sm">Win </span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">Tiền mặt</span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">$558.12</span></td>
-                                <td class="px-4 py-2 text-xs">
-                                    <select class="font-serif form-select form-select-sm orderStatus">
-                                        <option>Chờ xử lý</option>
-                                        <option>Đã lấy hàng</option>
-                                        <option>Đang giao</option>
-                                        <option>Đã giao</option>
-                                        <option>Hủy đơn</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <ul id="actions">
-                                        <li>
-                                            <a href="{{ route('admin.orders.show', ['order' => 1]) }}" class="btn-detail">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </td>
-                                </a>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-2"><span class="font-semibold uppercase text-xs">11497</span></td>
-                                <td class="px-4 py-2"><span class="text-sm">23 Dec, 2024 6:40 PM</span></td>
-                                <td class="px-4 py-2 text-xs"><span class="text-sm">Win </span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">Tiền mặt</span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">$558.12</span></td>
-                                <td class="px-4 py-2 text-xs">
-                                    <select class="font-serif form-select form-select-sm orderStatus">
-                                        <option>Chờ xử lý</option>
-                                        <option>Đã lấy hàng</option>
-                                        <option>Đang giao</option>
-                                        <option>Đã giao</option>
-                                        <option>Hủy đơn</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <ul id="actions">
-                                        <li>
-                                            <a href="{{ route('admin.orders.show', ['order' => 1]) }}" class="btn-detail">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </td>
-                                </a>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-2"><span class="font-semibold uppercase text-xs">11497</span></td>
-                                <td class="px-4 py-2"><span class="text-sm">23 Dec, 2024 6:40 PM</span></td>
-                                <td class="px-4 py-2 text-xs"><span class="text-sm">Win </span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">Tiền mặt</span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">$558.12</span></td>
-                                <td class="px-4 py-2 text-xs">
-                                    <select class="font-serif form-select form-select-sm orderStatus">
-                                        <option>Chờ xử lý</option>
-                                        <option>Đã lấy hàng</option>
-                                        <option>Đang giao</option>
-                                        <option>Đã giao</option>
-                                        <option>Hủy đơn</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <ul id="actions">
-                                        <li>
-                                            <a href="{{ route('admin.orders.show', ['order' => 1]) }}" class="btn-detail">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </td>
-                                </a>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-2"><span class="font-semibold uppercase text-xs">11497</span></td>
-                                <td class="px-4 py-2"><span class="text-sm">23 Dec, 2024 6:40 PM</span></td>
-                                <td class="px-4 py-2 text-xs"><span class="text-sm">Win </span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">Tiền mặt</span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">$558.12</span></td>
-                                <td class="px-4 py-2 text-xs">
-                                    <select class="font-serif form-select form-select-sm orderStatus">
-                                        <option>Chờ xử lý</option>
-                                        <option>Đã lấy hàng</option>
-                                        <option>Đang giao</option>
-                                        <option>Đã giao</option>
-                                        <option>Hủy đơn</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <ul id="actions">
-                                        <li>
-                                            <a href="{{ route('admin.orders.show', ['order' => 1]) }}" class="btn-detail">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </td>
-                                </a>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-2"><span class="font-semibold uppercase text-xs">11497</span></td>
-                                <td class="px-4 py-2"><span class="text-sm">23 Dec, 2024 6:40 PM</span></td>
-                                <td class="px-4 py-2 text-xs"><span class="text-sm">Win </span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">Tiền mặt</span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">$558.12</span></td>
-                                <td class="px-4 py-2 text-xs">
-                                    <select class="font-serif form-select form-select-sm orderStatus">
-                                        <option>Chờ xử lý</option>
-                                        <option>Đã lấy hàng</option>
-                                        <option>Đang giao</option>
-                                        <option>Đã giao</option>
-                                        <option>Hủy đơn</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <ul id="actions">
-                                        <li>
-                                            <a href="{{ route('admin.orders.show', ['order' => 1]) }}" class="btn-detail">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </td>
-                                </a>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-2"><span class="font-semibold uppercase text-xs">11497</span></td>
-                                <td class="px-4 py-2"><span class="text-sm">23 Dec, 2024 6:40 PM</span></td>
-                                <td class="px-4 py-2 text-xs"><span class="text-sm">Win </span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">Tiền mặt</span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">$558.12</span></td>
-                                <td class="px-4 py-2 text-xs">
-                                    <select class="font-serif form-select form-select-sm orderStatus">
-                                        <option>Chờ xử lý</option>
-                                        <option>Đã lấy hàng</option>
-                                        <option>Đang giao</option>
-                                        <option>Đã giao</option>
-                                        <option>Hủy đơn</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <ul id="actions">
-                                        <li>
-                                            <a href="{{ route('admin.orders.show', ['order' => 1]) }}" class="btn-detail">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </td>
-                                </a>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-2"><span class="font-semibold uppercase text-xs">11497</span></td>
-                                <td class="px-4 py-2"><span class="text-sm">23 Dec, 2024 6:40 PM</span></td>
-                                <td class="px-4 py-2 text-xs"><span class="text-sm">Win </span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">Tiền mặt</span></td>
-                                <td class="px-4 py-2"><span class="text-sm font-semibold">$558.12</span></td>
-                                <td class="px-4 py-2 text-xs">
-                                    <select class="font-serif form-select form-select-sm orderStatus">
-                                        <option>Chờ xử lý</option>
-                                        <option>Đã lấy hàng</option>
-                                        <option>Đang giao</option>
-                                        <option>Đã giao</option>
-                                        <option>Hủy đơn</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <ul id="actions">
-                                        <li>
-                                            <a href="{{ route('admin.orders.show', ['order' => 1]) }}" class="btn-detail">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </td>
-                                </a>
-                            </tr>
 
                         </tbody>
                     </table>
@@ -560,10 +377,10 @@
 {{-- ================================== --}}
 
 @push('js_library')
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 @endpush
 
 @push('js')
-    
     <!-- Thêm SweetAlert2 CDN -->
     <script>
         $(document).ready(function() {
@@ -575,12 +392,52 @@
                 // Thêm lớp active vào nút được click
                 $(this).addClass('active');
             });
-            
+
             $('.orderStatus').on('change', function() {
                 // Xóa lớp active khỏi tất cả các nút
                 $('#modalConfirm').modal('show');
 
             });
+        });
+
+
+        $('#is_unlimited').change(function() {
+            // Toggle để ẩn/hiện hai trường phía dưới
+            $('#usage-per-coupon, #usage-per-customer').toggle(!$(this).is(':checked'));
+        });
+
+        // Mặc định ẩn Start Date và End Date khi checkbox chưa được tick
+        $('#start-date-div, #end-date-div').hide(); // Ẩn các trường ngày khi trang tải
+
+        // Khi checkbox thay đổi trạng thái
+        $('#is_expired').change(function() {
+            // Kiểm tra nếu checkbox được tick
+            if ($(this).is(':checked')) {
+                // Hiện các trường Start Date và End Date khi checkbox được tick
+                $('#start-date-div, #end-date-div').show();
+            } else {
+                // Ẩn các trường khi checkbox không được tick
+                $('#start-date-div, #end-date-div').hide();
+            }
+        });
+
+        // Khởi tạo Flatpickr cho các trường input
+        $("#start_date_input").flatpickr({
+            dateFormat: "Y-m-d"
+        });
+
+        $("#end_date_input").flatpickr({
+            dateFormat: "Y-m-d"
+        });
+
+        // Khi nhấn vào nút calendar bên cạnh input #start_date
+        $("#startDatePickerBtn").click(function() {
+            $("#start_date_input").open(); // Mở bảng lịch cho start_date
+        });
+
+        // Khi nhấn vào nút calendar bên cạnh input #end_date
+        $("#endDatePickerBtn").click(function() {
+            $("#end_date_input").open(); // Mở bảng lịch cho end_date
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
