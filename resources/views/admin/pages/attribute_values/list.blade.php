@@ -27,7 +27,7 @@
                             <div class="d-flex align-items-center">
                                 <h5>
                                     <a class="link" href="{{ route('admin.attributes.index') }}">{{ __('form.attributes') }}</a>
-                                    <span class="fs-6 fw-light">></span> Màu sắc
+                                    <span class="fs-6 fw-light">></span> {{$attribute->name}}
 
                                 </h5>
                             </div>
@@ -105,6 +105,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @foreach ($attributeValues as $atb_value)
                                         <tr>
                                             <td>
                                                 <div class="custom-control custom-checkbox">
@@ -112,25 +113,25 @@
                                                         class="custom-control-input checkbox_animated checkbox-input">
                                                 </div>
                                             </td>
-                                            <td class="cursor-pointer sm-width"> 1 </td>
+                                            <td class="cursor-pointer sm-width"> {{$atb_value->id}} </td>
                                             <td class="cursor-pointer">
-                                                Màu đỏ
+                                                {{$atb_value->value}}
                                             </td>
 
                                             <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
-                                                    <label class="switch switch-sm"><input type="checkbox" id="status-0"
+                                                    <label class="switch switch-sm"><input type="checkbox" id="status-{{$atb_value->id}} "{{$atb_value->is_active ? 'checked' : '' }}
                                                             value="1"><span class="switch-state"></span></label>
                                                 </div>
                                             </td>
                                             <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                {{$atb_value->created_at}}
 
                                             </td>
                                             <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                {{$atb_value->updated_at}}
 
                                             </td>
 
@@ -155,6 +156,7 @@
                                                 </ul>
                                             </td>
                                         </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>

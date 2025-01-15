@@ -31,63 +31,75 @@
                                     <div class="title-header option-title">
                                         <h5>
                                             <a class="link"
-                                                href="{{ route('admin.users.customer.index') }}">{{ __('form.user_customer_list') }}</a>
-                                            <span class="fs-6 fw-light">></span> {{ __('message.edit') }}
+                                                href="{{ route('admin.users.index') }}">{{ __('form.users') }}</a>
+                                            <span class="fs-6 fw-light">></span> {{ __('message.detail') }}
 
                                         </h5>
                                     </div>
-                                    <form action="{{ route('admin.users.customer.store') }}" method="POST"
+
+                                    <form action="{{ route('admin.users.store') }}" method="POST"
                                         class="theme-form theme-form-2 mega-form mt-4" novalidate>
                                         @csrf
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0">
-                                                {{ __('form.user.logo') }}
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <img alt="image" class="tbl-image"
-                                                    src="{{ asset('/theme/admin/assets/images/product/1.png') }}">
-                                            </div>
-                                        </div>
 
                                         <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0" for="logo">
-                                                {{ __('form.select_logo') }}
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <input type="file" name="logo" id="logo" class="form-control">
-                                            </div>
-                                        </div>
-
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0" for="name">
-                                                {{ __('form.user.name') }}
+                                            <label class="col-sm-3 form-label-title mb-0" for="fullname">
+                                                {{ __('form.user.fullname') }}
                                                 <span class="theme-color ms-2 required-dot ">*</span>
                                             </label>
                                             <div class="col-sm-9">
-                                                <input type="text" name="name" id="name"
-                                                    class="form-control is-invalid"
-                                                    placeholder="{{ __('form.enter_brand_name') }}">
-                                                <div class="invalid-feedback">Vui lòng nhập tên thương hiệu</div>
+                                                <input type="text" name="fullname" id="fullname" class="form-control"
+                                                    placeholder="{{ __('form.enter_name') }}" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="align-items-center g-2 mb-4 row">
+                                            <label class="col-sm-3 form-label-title mb-0" for="phone_number">
+                                                {{ __('form.user.phone_number') }}
+                                                <span class="theme-color ms-2 required-dot ">*</span>
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <input type="text" name="phone_number" id="phone_number"
+                                                    class="form-control" placeholder="{{ __('form.enter_phone_number') }}" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="align-items-center g-2 mb-4 row">
+                                            <label class="col-sm-3 form-label-title mb-0" for="email">
+                                                {{ __('form.user.email') }}
+                                                <span class="theme-color ms-2 required-dot ">*</span>
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <input type="email" name="email" id="email" class="form-control"
+                                                    placeholder="{{ __('form.enter_email') }}" disabled>
                                             </div>
                                         </div>
 
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0">
-                                                {{ __('form.user.is_active') }}
+                                                {{ __('form.user.role') }}
+                                                <span class="theme-color ms-2 required-dot ">*</span>
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <select name="role" class="form-select" disabled>
+                                                    <option value="">{{ __('form.user_customer') }}</option>
+                                                    <option value="">{{ __('form.user_employee') }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="align-items-center g-2 mb-4 row">
+                                            <label class="col-sm-3 form-label-title mb-0">
+                                                {{ __('form.user.status') }}
                                             </label>
                                             <div class="col-sm-9">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch">
-                                                        <input type="checkbox" name="is_active" value="1" checked>
+                                                        <input type="checkbox" name="status" value="1" checked disabled>
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <button class="btn btn-theme ms-auto mt-4" type="submit">
-                                            {{ __('message.update') }}
-                                        </button>
                                     </form>
                                 </div>
                             </div>

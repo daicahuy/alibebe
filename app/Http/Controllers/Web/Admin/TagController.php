@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class TagController extends Controller
@@ -22,22 +23,17 @@ class TagController extends Controller
         
     }
 
-    public function edit($id)
+    public function edit(Tag $tag)
     {
         return view('admin.pages.tags.edit');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Tag $tag)
     {
 
     }
 
-    public function destroy($id)
-    {
-
-    }
-
-    public function destroyMany()
+    public function destroy(Request $request)
     {
 
     }

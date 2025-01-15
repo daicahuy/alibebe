@@ -3,13 +3,26 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attribute;
+use App\Models\AttributeValue;
+use App\Services\Web\Admin\AttributeValueService;
 use Illuminate\Http\Request;
 
 class AttributeValueController extends Controller
 {
-    public function index()
+    protected $attributeValueService;
+    
+    public function __construct(AttributeValueService $attributeValueService){
+        $this->attributeValueService = $attributeValueService;
+    }
+
+    public function index($attribute)
     {
-        return view('admin.pages.attribute_values.list');
+        $data = $this->attributeValueService->getAllAttributeValue($attribute);
+        // dd($data);
+        $attribute = $data['attribute'];
+        $attributeValues = $data['attributeValues'];
+        return view('admin.pages.attribute_values.list',compact('attributeValues', 'attribute'));
     }
 
     public function create()
@@ -17,27 +30,22 @@ class AttributeValueController extends Controller
         return view('admin.pages.attribute_values.create');
     }
 
-    public function store(Request $request)
+    public function store(Request $request, Attribute $attribute)
     {
         
     }
 
-    public function edit($id)
+    public function edit(Attribute $attribute, AttributeValue $attributeValue)
     {
         return view('admin.pages.attribute_values.edit');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Attribute $attribute, AttributeValue $attributeValue)
     {
 
     }
 
-    public function destroy($id)
-    {
-
-    }
-
-    public function destroyMany()
+    public function destroy(Request $request, Attribute $attribute)
     {
 
     }

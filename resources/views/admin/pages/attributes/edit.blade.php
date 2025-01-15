@@ -47,7 +47,7 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="name" id="name"
-                                                    class="form-control is-invalid"
+                                                    class="form-control is-invalid" value="{{$attribute->name}}"
                                                     placeholder="{{ __('form.enter_attribute_name') }}">
                                                 <div class="invalid-feedback">Vui lòng nhập tên thuộc tính</div>
                                             </div>

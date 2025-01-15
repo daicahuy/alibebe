@@ -18,6 +18,14 @@
 {{-- ================================== --}}
 
 @section('content')
+@if(session('create_success'))
+    <div class="alert alert-success">
+        {{ session('create_success') }}
+    </div>
+        {{-- <script>
+            alert("{{ session('success') }}");
+        </script> --}}
+@endif
     <div class="container-fuild">
         <div class="row">
             <div class="col-sm-12">
@@ -117,6 +125,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @foreach ($data as $atb)
                                         <tr>
                                             <td>
                                                 <div class="custom-control custom-checkbox">
@@ -124,39 +133,47 @@
                                                         class="custom-control-input checkbox_animated checkbox-input">
                                                 </div>
                                             </td>
-                                            <td class="cursor-pointer sm-width"> 1 </td>
+                                            <td class="cursor-pointer sm-width"> {{$atb->id}} </td>
                                             <td class="cursor-pointer">
-                                                <a href="{{ route('admin.attributes.attribute_values.index', ['attribute' => 1]) }}" class="fs-6 fw-bold w-100">Màu sắc</a>
+                                                <a href="{{ route('admin.attributes.attribute_values.index', ['attribute' => $atb->id]) }}" class="fs-6 fw-bold w-100">{{$atb->name}}</a>
                                                 <div class="ms-5 ps-md-5 ps-sm-2">
-                                                    <div class="item pl-2">
-                                                        <a class="subcategory-link w-100 d-block text-start"
+
+                                                    @foreach ($atb['attributeValues'] as $value)
+                                                        <div class="item pl-2">
+                                                            <a class="subcategory-link w-100 d-block text-start"
                                                             href="">
-                                                            <span>-- Tai nghe</span>
-                                                        </a>
-                                                    </div>
-                                                    <div class="item pl-2">
-                                                        <a class="subcategory-link w-100 d-block text-start"
-                                                            href="">
-                                                            <span>-- Máy tính</span>
-                                                        </a>
-                                                    </div>
+                                                            <span>-- {{$value['value']}}</span>
+                                                            </a>
+                                                        </div>
+                                                    @endforeach
+                                                   
                                                 </div>
                                             </td>
 
                                             <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
-                                                    <label class="switch switch-sm"><input type="checkbox" id="status-0"
-                                                            value="1"><span class="switch-state"></span></label>
+                                                    <label class="switch switch-sm">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            id="status-{{$atb->id}}" 
+                                                            value="1" 
+
+                                                            {{ $atb->is_active ? 'checked' : '' }}
+
+                                                            class="switch-input">
+                                                        <span class="switch-state"></span>
+                                                    </label>
                                                 </div>
                                             </td>
+                                            
                                             <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                {{$atb->created_at}}
 
                                             </td>
                                             <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                {{$atb->updated_at}}
 
                                             </td>
 
@@ -164,13 +181,13 @@
                                             <td>
                                                 <ul id="actions">
                                                     <li>
-                                                        <a href="{{ route('admin.attributes.attribute_values.index', ['attribute' => 1]) }}"
+                                                        <a href="{{ route('admin.attributes.attribute_values.index', ['attribute' =>$atb->id]) }}"
                                                             class="btn-detail">
                                                             <i class="ri-eye-line"></i>
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="{{ route('admin.attributes.edit', 1) }}" class="btn-edit">
+                                                        <a href="{{ route('admin.attributes.edit', $atb->id) }}" class="btn-edit">
                                                             <i class="ri-pencil-line"></i>
                                                         </a>
                                                     </li>
@@ -187,6 +204,7 @@
                                                 </ul>
                                             </td>
                                         </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
@@ -196,7 +214,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-
+                            {{$data->links()}}
                         </div>
                         <!-- END PAGINATIOn -->
 

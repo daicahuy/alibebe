@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -17,7 +18,7 @@ class ProductController extends Controller
         return view('admin.pages.products.trash');
     }
 
-    public function show($id)
+    public function show(Product $product)
     {
         return view('admin.pages.products.show');
     }
@@ -32,42 +33,27 @@ class ProductController extends Controller
         
     }
 
-    public function edit($id)
+    public function edit(Product $product)
     {
         return view('admin.pages.products.edit');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Product $product)
     {
 
     }
 
-    public function restore($id)
+    public function restore(Request $request)
     {
 
     }
 
-    public function restoreMany()
+    public function delete(Request $request)
     {
 
     }
 
-    public function delete($id)
-    {
-
-    }
-
-    public function deleteMany()
-    {
-
-    }
-
-    public function destroy($id)
-    {
-
-    }
-
-    public function destroyMany()
+    public function destroy(Request $request)
     {
 
     }

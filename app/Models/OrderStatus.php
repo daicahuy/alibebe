@@ -13,7 +13,6 @@ class OrderStatus extends Model
 
     protected $fillable = [
         'name',
-        'ordinal',
     ];
 
     public function orders()
