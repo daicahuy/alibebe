@@ -196,18 +196,22 @@ Route::prefix('/admin')
 
                 Route::prefix('/customer')
                     ->name('customer.')
-                    ->controller(UserCustomerController::class)
+                    ->controller(UserController::class)
                     ->group(function() {
 
                         Route::get('/', 'index')->name('index');
         
                         Route::get('/create', 'create')->name('create');
         
-                        Route::post('/store', 'store')->name('store');
+                        Route::post('/', 'store')->name('store');
         
+                        Route::get('/show/{user}', 'show')->name('show');
+
                         Route::get('/edit/{user}', 'edit')->name('edit');
         
-                        Route::put('/update', 'update')->name('update');
+                        Route::put('/update/{user}', 'update')->name('update');
+
+                        Route::get('/lock', 'lock')->name('lock');
 
                     });
 

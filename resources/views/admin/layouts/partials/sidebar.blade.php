@@ -119,7 +119,7 @@
                         </a>
                         <ul class="sidebar-submenu" @style(['display: block;' => Request::is('admin/users*')])>
                             <li>
-                                <a href="{{ route('admin.users.index') }}" class="{{ Request::is('admin/users*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.users.customer.index') }}" class="{{ Request::is('admin/users*') ? 'active' : '' }}">
                                     <div>{{ __('form.user_manager') }}</div>
                                 </a>
                                 <ul class="sidebar-submenu"></ul>

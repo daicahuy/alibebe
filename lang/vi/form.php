@@ -313,6 +313,7 @@ return [
     'user_all' => 'Tất cả người dùng',
     'user_customer' => 'Khách hàng',
     'user_employee' => 'Nhân viên',
+    'user_admin' => 'Chủ cửa hàng',
     'user' => [
         'id' => 'ID',
         'google_id' => 'ID Google',

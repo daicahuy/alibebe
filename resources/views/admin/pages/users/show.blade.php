@@ -31,13 +31,13 @@
                                     <div class="title-header option-title">
                                         <h5>
                                             <a class="link"
-                                                href="{{ route('admin.users.index') }}">{{ __('form.users') }}</a>
+                                                href="{{ route('admin.users.customer.index') }}">{{ __('form.users') }}</a>
                                             <span class="fs-6 fw-light">></span> {{ __('message.detail') }}
 
                                         </h5>
                                     </div>
 
-                                    <form action="{{ route('admin.users.store') }}" method="POST"
+                                    <form action="{{ route('admin.users.customer.store') }}" method="POST"
                                         class="theme-form theme-form-2 mega-form mt-4" novalidate>
                                         @csrf
 
@@ -48,7 +48,7 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="fullname" id="fullname" class="form-control"
-                                                    placeholder="{{ __('form.enter_name') }}" disabled>
+                                                    value="{{$ShowUser->fullname}}" disabled>
                                             </div>
                                         </div>
 
@@ -59,7 +59,7 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="phone_number" id="phone_number"
-                                                    class="form-control" placeholder="{{ __('form.enter_phone_number') }}" disabled>
+                                                    class="form-control" value="{{$ShowUser->phone_number}}" disabled>
                                             </div>
                                         </div>
 
@@ -70,7 +70,7 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="email" name="email" id="email" class="form-control"
-                                                    placeholder="{{ __('form.enter_email') }}" disabled>
+                                                value="{{$ShowUser->email}}" disabled>
                                             </div>
                                         </div>
 
@@ -80,10 +80,8 @@
                                                 <span class="theme-color ms-2 required-dot ">*</span>
                                             </label>
                                             <div class="col-sm-9">
-                                                <select name="role" class="form-select" disabled>
-                                                    <option value="">{{ __('form.user_customer') }}</option>
-                                                    <option value="">{{ __('form.user_employee') }}</option>
-                                                </select>
+                                                <input type="text" name="role" id="role" class="form-control"
+                                                value="{{$roleLabel}}" disabled>
                                             </div>
                                         </div>
 
