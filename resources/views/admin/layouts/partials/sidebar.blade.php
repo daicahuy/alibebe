@@ -63,7 +63,7 @@
                             <li>
                                 <a href="{{ route('admin.products.index') }}"
                                     class="{{ Request::is('admin/products*') ? 'active' : '' }}">
-                                    <div>{{ __('form.product_list') }}</div>
+                                    <div>{{ __('form.product_manager') }}</div>
                                     {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
                                 </a>
                                 <ul class="sidebar-submenu"></ul>
@@ -119,8 +119,8 @@
                         </a>
                         <ul class="sidebar-submenu" @style(['display: block;' => Request::is('admin/users*')])>
                             <li>
-                                <a href="{{ route('admin.users.customer.index') }}" class="{{ Request::is('admin/users*') ? 'active' : '' }}">
-                                    <div>{{ __('form.user_customer') }}</div>
+                                <a href="{{ route('admin.users.index') }}" class="{{ Request::is('admin/users*') ? 'active' : '' }}">
+                                    <div>{{ __('form.user_manager') }}</div>
                                 </a>
                                 <ul class="sidebar-submenu"></ul>
                             </li>

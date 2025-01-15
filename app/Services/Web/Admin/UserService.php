@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Web\Admin;
+namespace App\Services\Web\Admin\User;
 
 class UserService
 {

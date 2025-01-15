@@ -101,6 +101,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @foreach ($brands as $brand)
                                         <tr>
                                             <td>
                                                 <div class="custom-control custom-checkbox">
@@ -108,33 +109,33 @@
                                                         class="custom-control-input checkbox_animated checkbox-input">
                                                 </div>
                                             </td>
-                                            <td class="cursor-pointer sm-width"> 1
-
+                                            <td class="cursor-pointer sm-width"> 
+                                                {{$brand->id}}
                                             </td>
                                             <td class="cursor-pointer sm-width">
-                                                <img alt="image" class="tbl-image"
-                                                    src="{{ asset('/theme/admin/assets/images/product/1.png') }}">
+                                                <img alt="image" class="tbl-image w-100 h-auto"
+                                                    src="{{  Storage::url($brand->logo)}}">
                                             </td>
                                             <td class="cursor-pointer">
 
-                                                <a href="#!" class="fs-6 fw-bold w-100">Asus</a>
+                                                <a href="#!" class="fs-6 fw-bold w-100">{{$brand->name}}</a>
 
                                             </td>
 
                                             <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch switch-sm"><input type="checkbox" id="status-0"
-                                                            value="1"><span class="switch-state"></span></label>
+                                                            value="1" {{$brand->is_active ? 'checked' : ''}}><span class="switch-state"></span></label>
                                                 </div>
                                             </td>
                                             <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                {{$brand->created_at}}
 
                                             </td>
                                             <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                {{$brand->updated_at}}
 
                                             </td>
 
@@ -142,7 +143,7 @@
                                             <td>
                                                 <ul id="actions">
                                                     <li>
-                                                        <a href="{{ route('admin.brands.edit', 1) }}" class="btn-edit">
+                                                        <a href="{{ route('admin.brands.edit',$brand->id ) }}" class="btn-edit">
                                                             <i class="ri-pencil-line"></i>
                                                         </a>
                                                     </li>
@@ -159,6 +160,8 @@
                                                 </ul>
                                             </td>
                                         </tr>
+                                        @endforeach
+                                       
                                     </tbody>
                                 </table>
                             </div>
@@ -168,7 +171,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-
+                            {{ $brands->links() }}
                         </div>
                         <!-- END PAGINATIOn -->
 

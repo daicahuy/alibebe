@@ -10,7 +10,7 @@ use App\Http\Controllers\Web\Admin\OrderController;
 use App\Http\Controllers\Web\Admin\ProductController;
 use App\Http\Controllers\Web\Admin\ReviewController;
 use App\Http\Controllers\Web\Admin\TagController;
-use App\Http\Controllers\Web\Admin\User\UserCustomerController;
+use App\Http\Controllers\Web\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -52,23 +52,17 @@ Route::prefix('/admin')
 
                 Route::get('/create', 'create')->name('create');
 
-                Route::post('/store', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
                 Route::get('/edit/{category}', 'edit')->name('edit');
 
-                Route::put('/update', 'update')->name('update');
+                Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
 
-                Route::put('/restore/{category}', 'restore')->name('restore');
+                Route::put('/restore', 'restore')->name('restore');              
 
-                Route::put('/restore', 'restoreMany')->name('restoreMany');                
+                Route::delete('/delete', 'delete')->name('delete');
 
-                Route::delete('/delete/{category}', 'delete')->name('delete');
-
-                Route::delete('/delete', 'deleteMany')->name('deleteMany');
-
-                Route::delete('/destroy/{category}', 'destroy')->name('destroy');
-
-                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+                Route::delete('/destroy', 'destroy')->name('destroy');
 
             });
 
@@ -86,23 +80,17 @@ Route::prefix('/admin')
 
                 Route::get('/create', 'create')->name('create');
 
-                Route::post('/store', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
                 Route::get('/edit/{product}', 'edit')->name('edit');
 
-                Route::put('/update', 'update')->name('update');
+                Route::put('/{product}', 'update')->name('update');
 
-                Route::put('/restore/{product}', 'restore')->name('restore');
+                Route::put('/restore', 'restore')->name('restore');              
 
-                Route::put('/restore', 'restoreMany')->name('restoreMany');                
+                Route::delete('/delete', 'delete')->name('delete');
 
-                Route::delete('/delete/{product}', 'delete')->name('delete');
-
-                Route::delete('/delete', 'deleteMany')->name('deleteMany');
-
-                Route::delete('/destroy/{product}', 'destroy')->name('destroy');
-
-                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+                Route::delete('/destroy', 'destroy')->name('destroy');
 
             });
 
@@ -116,15 +104,13 @@ Route::prefix('/admin')
 
                 Route::get('/create', 'create')->name('create');
 
-                Route::post('/store', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
                 Route::get('/edit/{attribute}', 'edit')->name('edit');
 
-                Route::put('/update', 'update')->name('update');   
+                Route::put('/{attribute}', 'update')->name('update');   
 
-                Route::delete('/destroy/{attribute}', 'destroy')->name('destroy');
-
-                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+                Route::delete('/destroy', 'destroy')->name('destroy');
 
                 // Attribute Values
                 Route::prefix('{attribute}/attribute_values')
@@ -137,15 +123,13 @@ Route::prefix('/admin')
 
                         Route::get('/create', 'create')->name('create');
 
-                        Route::post('/store', 'store')->name('store');
+                        Route::post('/', 'store')->name('store');
 
                         Route::get('/edit/{attributeValue}', 'edit')->name('edit');
 
-                        Route::put('/update', 'update')->name('update');   
+                        Route::put('/{attributeValue}', 'update')->name('update');   
 
-                        Route::delete('/destroy/{attributeValue}', 'destroy')->name('destroy');
-
-                        Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+                        Route::delete('/destroy', 'destroy')->name('destroy');
                     
                     });
 
@@ -162,15 +146,13 @@ Route::prefix('/admin')
 
                 Route::get('/create', 'create')->name('create');
 
-                Route::post('/store', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
                 Route::get('/edit/{brand}', 'edit')->name('edit');
 
-                Route::put('/update', 'update')->name('update');   
+                Route::put('/{brand}', 'update')->name('update');   
 
-                Route::delete('/destroy/{brand}', 'destroy')->name('destroy');
-
-                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+                Route::delete('/destroy', 'destroy')->name('destroy');
 
             });
 
@@ -184,15 +166,13 @@ Route::prefix('/admin')
 
                 Route::get('/create', 'create')->name('create');
 
-                Route::post('/store', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
                 Route::get('/edit/{tag}', 'edit')->name('edit');
 
-                Route::put('/update', 'update')->name('update');   
+                Route::put('/{tag}', 'update')->name('update');   
 
-                Route::delete('/destroy/{tag}', 'destroy')->name('destroy');
-
-                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+                Route::delete('/destroy', 'destroy')->name('destroy');
 
             });
 
@@ -206,32 +186,29 @@ Route::prefix('/admin')
 
                 Route::get('/{order}', 'show')->name('show')->where(['order' => '[0-9]+']);
 
-                Route::put('/update/{order}', 'update')->name('update');
+                Route::put('/{order}', 'update')->name('update');
 
             });
 
         // USERS
         Route::prefix('/users')
             ->name('users.')
+            ->controller(UserController::class)
             ->group(function() {
 
-                Route::prefix('/customer')
-                    ->name('customer.')
-                    ->controller(UserCustomerController::class)
-                    ->group(function() {
+                Route::get('/', 'index')->name('index');
 
-                        Route::get('/', 'index')->name('index');
-        
-                        Route::get('/create', 'create')->name('create');
-        
-                        Route::post('/store', 'store')->name('store');
-        
-                        Route::get('/edit/{user}', 'edit')->name('edit');
-        
-                        Route::put('/update', 'update')->name('update');
+                Route::get('/lock', 'lock')->name('lock');
 
-                    });
+                Route::get('/{user}', 'show')->name('show');
 
+                Route::get('/create', 'create')->name('create');
+
+                Route::post('/', 'store')->name('store');
+
+                Route::get('/edit/{user}', 'edit')->name('edit');
+
+                Route::put('/{user}', 'update')->name('update');
 
             });
         
@@ -246,7 +223,7 @@ Route::prefix('/admin')
 
                 Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
 
-                Route::put('/update/{review}', 'update')->name('update');
+                Route::put('/{review}', 'update')->name('update');
 
             });
         
@@ -262,15 +239,13 @@ Route::prefix('/admin')
 
                 Route::get('/create', 'create')->name('create');
 
-                Route::post('/store', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
                 Route::get('/edit/{coupon}', 'edit')->name('edit');
 
-                Route::put('/update', 'update')->name('update');   
+                Route::put('/{coupon}', 'update')->name('update');   
 
-                Route::delete('/destroy/{coupon}', 'destroy')->name('destroy');
-
-                Route::delete('/destroy', 'destroyMany')->name('destroyMany');
+                Route::delete('/destroy', 'destroy')->name('destroy');
 
             });
 

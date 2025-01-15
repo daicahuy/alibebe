@@ -10,5 +10,10 @@ class BrandRepository extends BaseRepository {
     {
         return Brand::class;
     }
+    public function pagination15BrandAsc() {
+        return Brand::orderBy('id','ASC')->paginate('5');
+    }
+   
     
+  
 }

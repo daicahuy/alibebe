@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -18,7 +19,7 @@ class CategoryController extends Controller
         return view('admin.pages.categories.trash');
     }
 
-    public function show($id)
+    public function show(Category $category)
     {
         return view('admin.pages.categories.show');
     }
@@ -33,42 +34,27 @@ class CategoryController extends Controller
         
     }
 
-    public function edit($id)
+    public function edit(Category $category)
     {
         return view('admin.pages.categories.edit');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Category $category)
     {
 
     }
 
-    public function restore($id)
+    public function restore(Request $request)
     {
 
     }
 
-    public function restoreMany()
+    public function delete(Request $request)
     {
 
     }
 
-    public function delete($id)
-    {
-
-    }
-
-    public function deleteMany()
-    {
-
-    }
-
-    public function destroy($id)
-    {
-
-    }
-
-    public function destroyMany()
+    public function destroy(Request $request)
     {
 
     }

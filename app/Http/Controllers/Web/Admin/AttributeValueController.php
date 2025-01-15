@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attribute;
+use App\Models\AttributeValue;
 use Illuminate\Http\Request;
 
 class AttributeValueController extends Controller
@@ -17,27 +19,22 @@ class AttributeValueController extends Controller
         return view('admin.pages.attribute_values.create');
     }
 
-    public function store(Request $request)
+    public function store(Request $request, Attribute $attribute)
     {
         
     }
 
-    public function edit($id)
+    public function edit(Attribute $attribute, AttributeValue $attributeValue)
     {
         return view('admin.pages.attribute_values.edit');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Attribute $attribute, AttributeValue $attributeValue)
     {
 
     }
 
-    public function destroy($id)
-    {
-
-    }
-
-    public function destroyMany()
+    public function destroy(Request $request, Attribute $attribute)
     {
 
     }

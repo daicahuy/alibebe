@@ -25,18 +25,26 @@ class DatabaseSeeder extends Seeder
         // Fake User
         $this->call([
             UserSeeder::class,
-            CategorySeeder::class
+            CategorySeeder::class,
+            BrandSeeder::class,
+            TagSeeder::class,
+            AttributeSeeder::class,
+            AttributeValueSeeder::class,
+            PaymentSeeder::class,
+            OrderStatusSeeder::class,
+            ProductSeeder::class,
+            OrderSeeder::class,
         ]);
 
         // Fake User                -> OK
         // Fake Categories          -> OK
-        // Fake Brands              -> 
-        // Fake Tags                
-        // Fake Attributes          
-        // Fake Attribute Values    
-        // Fake Payments            
-        // Fake Order Status        
-        // Fake Products            
+        // Fake Brands              -> OK
+        // Fake Tags                -> OK
+        // Fake Attributes          -> OK
+        // Fake Attribute Values    -> OK
+        // Fake Payments            -> OK
+        // Fake Order Status        -> OK  
+        // Fake Products               
         // Fake Orders              
     }
 
