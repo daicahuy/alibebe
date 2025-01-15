@@ -36,10 +36,46 @@
 
                                         </h5>
                                     </div>
+
+                                    
+
+                                    @if ($errors->any())
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            <strong>{{ __('message.error') }}</strong> {{ __('message.error_message') }}
+                                            <ul>
+                                                @foreach ($errors->all() as $error)
+                                                    <li>
+                                                        <span>{{ $error }}</span>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                        </div>
+                                    @endif
+
+
                                     <form action="{{ route('admin.categories.store') }}" method="POST"
-                                        class="theme-form theme-form-2 mega-form mt-4" novalidate>
+                                        class="theme-form theme-form-2 mega-form mt-4" novalidate
+                                        enctype="multipart/form-data">
                                         @csrf
-                                        
+
+                                        {{-- <div class="align-items-center g-2 mb-4 row">
+                                            <label class="col-sm-3 form-label-title mb-0">
+                                                {{ __('form.category.icon') }}
+                                            </label>
+                                            <div class="col-sm-9">
+                                                @if ($request->icon)
+                                                        <img alt="image" class="tbl-image icon-image"
+                                                            src="{{ Storage::url($request->icon) }}">
+                                                    @else
+                                                        <img alt="image" class="tbl-image icon-image"
+                                                            src="{{ asset('/theme/admin/assets/images/categories/no-image.svg') }}">
+                                                    @endif
+                                            </div>
+                                        </div> --}}
+
+
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0" for="icon">
                                                 {{ __('form.select_icon') }}
@@ -82,8 +118,10 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <select name="parent_id" class="form-select">
-                                                    <option value="AL">Điện thoại</option>
-                                                    <option value="WY">Máy tính</option>
+                                                    <option value="">Chọn danh mục cha</option>
+                                                    @foreach ($parent as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                    @endforeach
                                                 </select>
                                                 <div class="invalid-feedback"></div>
                                             </div>
@@ -96,7 +134,8 @@
                                             <div class="col-sm-9">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch">
-                                                        <input type="checkbox" name="is_active" value="1" checked>
+                                                        <input type="checkbox" name="is_active" value="1" checked
+                                                            id="isActive">
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>
@@ -130,7 +169,13 @@
 @push('js')
     <script>
         $(document).ready(function() {
-
+            // $('#isActive').change(function() {
+            //     if ($(this).is(':checked')) {
+            //         $(this).val(1);
+            //     } else {
+            //         $(this).val(0);
+            //     }
+            // });
         });
     </script>
 @endpush

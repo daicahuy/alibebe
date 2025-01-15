@@ -32,20 +32,53 @@
                                         <h5>
                                             <a class="link"
                                                 href="{{ route('admin.categories.index') }}">{{ __('form.categories') }}</a>
-                                            <span class="fs-6 fw-light">></span> {{ __('message.edit') }}
+                                            <span class="fs-6 fw-light">></span> {{ $findId->name }}
 
                                         </h5>
                                     </div>
-                                    <form action="{{ route('admin.categories.store') }}" method="POST"
-                                        class="theme-form theme-form-2 mega-form mt-4" novalidate>
+
+                                    @if (session('msg'))
+                                        <div class="alert alert-{{session('type')}} alert-dismissible fade show" role="alert">
+                                            <strong>{{ session('msg') }}</strong>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                        </div>
+                                    @endif
+
+                                    {{-- errors --}}
+                                    @if ($errors->any())
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            <strong>{{ __('message.error') }}</strong> {{ __('message.error_message') }}
+                                            <ul>
+                                                @foreach ($errors->all() as $error)
+                                                    <li>
+                                                        <span>{{ $error }}</span>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                        </div>
+                                    @endif
+
+
+                                    <form action="{{ route('admin.categories.update', $findId) }}" method="POST"
+                                        class="theme-form theme-form-2 mega-form mt-4" novalidate
+                                        enctype="multipart/form-data">
                                         @csrf
+                                        @method('PUT') {{-- Thêm directive này --}}
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0">
                                                 {{ __('form.category.icon') }}
                                             </label>
                                             <div class="col-sm-9">
-                                                <img alt="image" class="tbl-image icon-image"
-                                                    src="{{ asset('/theme/admin/assets/images/categories/mobile_phone.svg') }}">
+                                                @if ($findId->icon)
+                                                    <img alt="image" class="tbl-image icon-image"
+                                                        src="{{ Storage::url($findId->icon) }}">
+                                                @else
+                                                    <img alt="image" class="tbl-image icon-image"
+                                                        src="{{ asset('/theme/admin/assets/images/categories/no-image.svg') }}">
+                                                @endif
                                             </div>
                                         </div>
 
@@ -66,7 +99,7 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="name" id="name"
-                                                    class="form-control is-invalid"
+                                                    value="{{ $findId->name }}" class="form-control is-invalid"
                                                     placeholder="{{ __('form.enter_name') }}">
                                                 <div class="invalid-feedback">Vui lòng nhập tên</div>
                                             </div>
@@ -80,6 +113,7 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="number" name="ordinal" id="ordinal" class="form-control"
+                                                    value="{{ $findId->ordinal }}"
                                                     placeholder="{{ __('form.enter_ordinal') }}">
                                                 <div class="invalid-feedback"></div>
                                             </div>
@@ -91,8 +125,14 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <select name="parent_id" class="form-select">
-                                                    <option value="AL">Điện thoại</option>
-                                                    <option value="WY">Máy tính</option>
+                                                    <option value="">Chọn danh mục cha</option>
+                                                    @foreach ($parentCate as $item)
+                                                        <option {{ $findId->parent_id === $item->id ? 'selected' : '' }}
+                                                            value="{{ $item->id }}">
+                                                            {{ $item->name }}</option>
+                                                    @endforeach
+
+
                                                 </select>
                                                 <div class="invalid-feedback"></div>
                                             </div>
@@ -105,7 +145,9 @@
                                             <div class="col-sm-9">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch">
-                                                        <input type="checkbox" name="is_active" value="1" checked>
+                                                        <input type="checkbox" name="is_active" value="{{ $findId->is_active }}"
+                                                            {{ $findId->is_active == 1 ? 'checked' : '' }}>
+                                                           
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>

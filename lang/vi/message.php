@@ -35,4 +35,8 @@ return [
     'update' => 'Cập nhật',
 
     'dashboard' => 'Bảng điều khiển',
+
+    // category
+    'error' => 'Lỗi',
+    'error_message' => 'Đã xảy ra lỗi, vui lòng kiểm tra lại',
 ];

@@ -26,12 +26,14 @@
                         <div class="title-header">
                             <div class="d-flex align-items-center">
                                 <h5>
-                                    <a class="link" href="{{ route('admin.categories.index') }}">{{ __('form.categories') }}</a>
-                                    <span class="fs-6 fw-light">></span> Âm thanh
+                                    <a class="link"
+                                        href="{{ route('admin.categories.index') }}">{{ __('form.categories') }}</a>
+                                    <span class="fs-6 fw-light">></span> {{ $show->name }}
                                 </h5>
                             </div>
                             <div>
-                                <a class="align-items-center btn btn-theme d-flex" href="{{ route('admin.categories.create') }}">
+                                <a class="align-items-center btn btn-theme d-flex"
+                                    href="{{ route('admin.categories.create') }}">
                                     <i class="ri-add-line"></i>
                                     {{ __('message.add') . ' ' . __('form.categories') }}
                                 </a>
@@ -104,65 +106,75 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" id="checkbox-table"
-                                                        class="custom-control-input checkbox_animated checkbox-input">
-                                                </div>
-                                            </td>
-                                            <td class="cursor-pointer sm-width"> 1
+                                        @foreach ($show->categories as $item)
+                                            <tr>
+                                                <td>
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" id="checkbox-table"
+                                                            class="custom-control-input checkbox_animated checkbox-input">
+                                                    </div>
+                                                </td>
+                                                <td class="cursor-pointer sm-width"> {{ $item->id }}
 
-                                            </td>
-                                            <td class="cursor-pointer sm-width">
-                                                <img alt="image" class="tbl-image icon-image"
-                                                    src="{{ asset('/theme/admin/assets/images/categories/mobile_phone.svg') }}">
-                                            </td>
-                                            <td class="cursor-pointer">
+                                                </td>
+                                                <td class="cursor-pointer sm-width">
+                                                    @if ($item->icon)
+                                                        <img alt="image" class="tbl-image icon-image"
+                                                            src="{{ Storage::url($item->icon) }}">
+                                                    @else
+                                                        <img alt="image" class="tbl-image icon-image"
+                                                            src="{{ asset('/theme/admin/assets/images/categories/no-image.svg') }}">
+                                                    @endif
+                                                </td>
+                                                <td class="cursor-pointer">
 
-                                                <div>
-                                                    Âm thanh
-                                                </div>
+                                                    <div>
+                                                        {{ $item->name }}
+                                                    </div>
 
-                                            </td>
+                                                </td>
 
-                                            <td class="cursor-pointer">
-                                                <div class="form-check form-switch ps-0">
-                                                    <label class="switch switch-sm"><input type="checkbox" id="status-0"
-                                                            value="1"><span class="switch-state"></span></label>
-                                                </div>
-                                            </td>
-                                            <td class="cursor-pointer">
+                                                <td class="cursor-pointer">
+                                                    <div class="form-check form-switch ps-0">
+                                                        <label class="switch switch-sm"><input type="checkbox"
+                                                                id="{{ $item->id }}" value="{{ $item->id }}"><span
+                                                                class="switch-state"></span></label>
+                                                    </div>
+                                                </td>
+                                                <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                    {{ $item->created_at }}
 
-                                            </td>
-                                            <td class="cursor-pointer">
+                                                </td>
+                                                <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                    {{ $item->updated_at }}
 
-                                            </td>
+                                                </td>
 
 
-                                            <td>
-                                                <ul id="actions">
-                                                    <li>
-                                                        <a href="#!" class="btn-edit">
-                                                            <i class="ri-pencil-line"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <form action="" method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn-delete" onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
-                                                                <i class="ri-delete-bin-line"></i>
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
+                                                <td>
+                                                    <ul id="actions">
+                                                        <li>
+                                                            <a href="{{ route('admin.categories.edit', $item->id) }}"
+                                                                class="btn-edit">
+                                                                <i class="ri-pencil-line"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <form action="" method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn-delete"
+                                                                    onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
+                                                                    <i class="ri-delete-bin-line"></i>
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        @endforeach
 
                                     </tbody>
                                 </table>

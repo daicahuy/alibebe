@@ -60,9 +60,9 @@ Route::prefix('/admin')
 
                 Route::put('/restore', 'restore')->name('restore');              
 
-                Route::delete('/delete', 'delete')->name('delete');
-
-                Route::delete('/destroy', 'destroy')->name('destroy');
+                Route::delete('/delete/{category}', 'delete')->name('delete');
+                
+                Route::delete('/{category}', 'destroy')->name('destroy');
 
             });
 

@@ -28,7 +28,8 @@
                                 <h5>{{ __('form.categories') }}</h5>
                             </div>
                             <div>
-                                <a class="align-items-center btn btn-theme d-flex" href="{{ route('admin.categories.create') }}">
+                                <a class="align-items-center btn btn-theme d-flex"
+                                    href="{{ route('admin.categories.create') }}">
                                     <i class="ri-add-line"></i>
                                     {{ __('message.add') . ' ' . __('form.categories') }}
                                 </a>
@@ -73,7 +74,7 @@
                             @endcomponent
                             <!-- End Switch Button -->
 
-                            
+
                             <div class="table-search">
                                 <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
                                 <input type="search" class="form-control" name="_keyword">
@@ -82,7 +83,14 @@
                         </div>
                         <!-- END HEADER TABLE -->
 
-
+                        @if (session('msg'))
+                            <div class="alert alert-{{ session('type') }} alert-dismissible fade show" role="alert">
+                                <strong>{{ session('msg') }}</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
+                        {{-- @dd(session('msg')); --}}
 
                         <!-- START TABLE -->
                         <div>
@@ -116,85 +124,96 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" id="checkbox-table"
-                                                        class="custom-control-input checkbox_animated checkbox-input">
-                                                </div>
-                                            </td>
-                                            <td class="cursor-pointer sm-width"> 1
+                                        @foreach ($listCategory as $cate)
+                                            <tr>
+                                                <td>
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" id="checkbox-table"
+                                                            class="custom-control-input checkbox_animated checkbox-input">
+                                                    </div>
+                                                </td>
+                                                <td class="cursor-pointer sm-width"> {{ $cate->id }}
 
-                                            </td>
-                                            <td class="cursor-pointer sm-width">
-                                                <img alt="image" class="tbl-image icon-image"
-                                                    src="{{ asset('/theme/admin/assets/images/categories/mobile_phone.svg') }}">
-                                            </td>
-                                            <td class="cursor-pointer">
+                                                </td>
+                                                <td class="cursor-pointer sm-width">
+                                                    @if ($cate->icon)
+                                                        <img alt="image" class="tbl-image icon-image"
+                                                            src="{{ Storage::url($cate->icon) }}">
+                                                    @else
+                                                        <img alt="image" class="tbl-image icon-image"
+                                                            src="{{ asset('/theme/admin/assets/images/categories/no-image.svg') }}">
+                                                    @endif
+                                                </td>
+                                                <td class="cursor-pointer">
 
-                                                <div>
-                                                    <a href="{{ route('admin.categories.show', 1) }}" class="fs-6 fw-bold w-100">Âm thanh </a>
+                                                    <div>
+                                                        <a href="{{ route('admin.categories.show', $cate->id) }}"
+                                                            class="fs-6 fw-bold w-100">{{ $cate->name }} </a>
 
-                                                    <div class="ms-5 ps-md-4 ps-sm-2">
-                                                        <div class="item pl-2">
-                                                            <a class="subcategory-link w-100 d-block text-start"
-                                                                href="">
-                                                                <span>-- Tai nghe</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="item pl-2">
-                                                            <a class="subcategory-link w-100 d-block text-start"
-                                                                href="">
-                                                                <span>-- Máy tính</span>
-                                                            </a>
+                                                        <div class="ms-5 ps-md-4 ps-sm-2">
+                                                            @foreach ($cate->categories as $child)
+                                                                <div class="item pl-2">
+                                                                    <a class="subcategory-link w-100 d-block text-start"
+                                                                        href="">
+                                                                        <span>-- {{ $child->name }}</span>
+                                                                    </a>
+                                                                </div>
+                                                            @endforeach
                                                         </div>
                                                     </div>
-                                                </div>
 
-                                            </td>
+                                                </td>
 
-                                            <td class="cursor-pointer">
-                                                <div class="form-check form-switch ps-0">
-                                                    <label class="switch switch-sm"><input type="checkbox" id="status-0"
-                                                            value="1"><span class="switch-state"></span></label>
-                                                </div>
-                                            </td>
-                                            <td class="cursor-pointer">
+                                                <td class="cursor-pointer">
+                                                    <div class="form-check form-switch ps-0">
+                                                        <label class="switch switch-sm"><input type="checkbox"
+                                                                id="{{ $cate->is_active }}" value="{{ $cate->is_active }}"
+                                                                {{ $cate->is_active == 1 ? 'checked' : '' }}><span
+                                                                class="switch-state"></span></label>
+                                                    </div>
+                                                </td>
+                                                <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                    {{ $cate->created_at }}
 
-                                            </td>
-                                            <td class="cursor-pointer">
+                                                </td>
+                                                <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                    {{ $cate->updated_at }}
 
-                                            </td>
+                                                </td>
 
 
-                                            <td>
-                                                <ul id="actions">
-                                                    <li>
-                                                        <a href="{{ route('admin.categories.show', 1) }}" class="btn-detail">
-                                                            <i class="ri-eye-line"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="{{ route('admin.categories.edit', 1) }}" class="btn-edit">
-                                                            <i class="ri-pencil-line"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <form action="" method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn-delete" onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
-                                                                <i class="ri-delete-bin-line"></i>
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
+                                                <td>
+                                                    <ul id="actions">
+                                                        <li>
+                                                            <a href="{{ route('admin.categories.show', $cate->id) }}"
+                                                                class="btn-detail">
+                                                                <i class="ri-eye-line"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="{{ route('admin.categories.edit', $cate->id) }}"
+                                                                class="btn-edit">
+                                                                <i class="ri-pencil-line"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <form
+                                                                action="{{ route('admin.categories.delete', $cate) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn-delete"
+                                                                    onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
+                                                                    <i class="ri-delete-bin-line"></i>
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
@@ -204,7 +223,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-
+                            {{ $listCategory->links() }}
                         </div>
                         <!-- END PAGINATIOn -->
 
