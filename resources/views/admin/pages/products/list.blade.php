@@ -28,7 +28,8 @@
                                 <h5>{{ __('form.products') }}</h5>
                             </div>
                             <div>
-                                <a class="align-items-center btn btn-theme d-flex" href="{{ route('admin.products.create') }}">
+                                <a class="align-items-center btn btn-theme d-flex"
+                                    href="{{ route('admin.products.create') }}">
                                     <i class="ri-add-line"></i>
                                     {{ __('message.add') . ' ' . __('form.products') }}
                                 </a>
@@ -48,7 +49,7 @@
                                 </select>
                                 <label>{{ __('message.items_per_page') }}</label>
                                 <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
-                                    id="btn-delete-all">
+                                    id="btn-move-to-trash">
                                     {{ __('message.move_to_trash') }}
                                 </button>
                                 <a href="{{ route('admin.products.trash') }}"
@@ -63,16 +64,20 @@
                             <div class="datepicker-wrap">
 
                             </div>
-
-                            <!-- Start Switch Button -->
-                            @component('components.button-switch-react', [
-                                'viewOnly1' => __('message.all'),
-                                'viewOnly2' => __('message.parent_only'),
-                                'with' => 140,
-                            ])
-                            @endcomponent
-                            <!-- End Switch Button -->
-
+                            <div>
+                                <select name="" class="form-select">
+                                    <option value="">{{ __('form.category_all') }}</option>
+                                    <option value="">Điện thoại</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select name="" class="form-select">
+                                    <option value="">{{ __('form.status_all') }}</option>
+                                    <option value="">{{ __('form.product_stock_in_stock') }}</option>
+                                    <option value="">{{ __('form.product_stock_out_of_stock') }}</option>
+                                    <option value="">{{ __('form.product_stock_low_stock') }}</option>
+                                </select>
+                            </div>
                             <form action="" method="GET">
                                 <div class="table-search">
                                     <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
@@ -87,7 +92,8 @@
 
                         <!-- START TABLE -->
                         <div>
-                            <div class="table-responsive datatable-wrapper border-table mt-3">
+                            <div class="table-responsive datatable-wrapper border-table">
+
                                 <table class="table all-package theme-table no-footer">
                                     <thead>
                                         <tr>
@@ -97,101 +103,84 @@
                                                         class="custom-control-input checkbox_animated">
                                                 </div>
                                             </th>
-                                            <th class="sm-width">{{ __('form.category.id') }}</th>
-                                            <th>{{ __('form.category.icon') }}</th>
+                                            <th class="sm-width">
+                                                {{ __('form.product.id') }}
+                                                <div class="filter-arrow">
+                                                    <div><i class="ri-arrow-up-s-fill"></i></div>
+                                                </div>
+                                            </th>
+                                            <th>{{ __('form.product.sku') }}</th>
+                                            <th class="cursor-pointer sm-width">{{ __('form.product.thumbnail') }}</th>
+                                            <th class="cursor-pointer md-width">
+                                                {{ __('form.product.name') }}
+                                                <div class="filter-arrow">
+                                                    <div><i class="ri-arrow-up-s-fill"></i></div>
+                                                </div>
+                                            </th>
+                                            <th class="cursor-pointer">{{ __('form.categories') }}</th>
                                             <th class="cursor-pointer">
-                                                {{ __('form.category.name') }}
+                                                {{ __('form.product.price') }}
                                                 <div class="filter-arrow">
                                                     <div><i class="ri-arrow-up-s-fill"></i></div>
                                                 </div>
                                             </th>
-                                            <th>
-                                                {{ __('form.category.is_active') }}
+                                            <th class="cursor-pointer">
+                                                {{ __('form.product_stocks') }}
                                                 <div class="filter-arrow">
                                                     <div><i class="ri-arrow-up-s-fill"></i></div>
                                                 </div>
                                             </th>
-                                            <th>{{ __('form.category.created_at') }}</th>
-                                            <th>{{ __('form.category.updated_at') }}</th>
+                                            <th class="cursor-pointer">{{ __('form.status') }}</th>
+                                            <th class="cursor-pointer">{{ __('form.product.is_active') }}</th>
                                             <th>{{ __('form.action') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>
+                                            <td class="sm-width">
                                                 <div class="custom-control custom-checkbox">
                                                     <input type="checkbox" id="checkbox-table"
                                                         class="custom-control-input checkbox_animated checkbox-input">
                                                 </div>
                                             </td>
-                                            <td class="cursor-pointer sm-width"> 1
-
+                                            <td class="cursor-pointer sm-width">1</td>
+                                            <td class="cursor-pointer">PHO125821</td>
+                                            <td class="cursor-pointer sm-width"><img alt="image" class="tbl-image"
+                                                    src="https://laravel.pixelstrap.net/fastkart/storage/90/Pomegranate_2.png">
                                             </td>
-                                            <td class="cursor-pointer sm-width">
-                                                <img alt="image" class="tbl-image icon-image"
-                                                    src="{{ asset('/theme/admin/assets/images/products/mobile_phone.svg') }}">
-                                            </td>
+                                            <td class="cursor-pointer">iPhone 16 Pro 128GB | Chính hãng VN/A</td>
+                                            <td class="cursor-pointer">Điện thoại</td>
+                                            <td class="cursor-pointer">45.000.000 VND</td>
+                                            <td class="cursor-pointer">50</td>
                                             <td class="cursor-pointer">
-
-                                                <div>
-                                                    <a href="{{ route('admin.products.show', 1) }}" class="fs-6 fw-bold w-100">Âm thanh </a>
-
-                                                    <div class="subcategory-wrapper ms-5 ps-md-4 ps-sm-2">
-                                                        <div class="pl-2 subcategory-item">
-                                                            <a class="subcategory-link w-100 d-block text-start"
-                                                                href="">
-                                                                <span>-- Tai nghe</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="pl-2 subcategory-item">
-                                                            <a class="subcategory-link w-100 d-block text-start"
-                                                                href="">
-                                                                <span>-- Máy tính</span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
+                                                <div class="status-in_stock">
+                                                    <span>{{ __('form.product_stock_in_stock') }}</span>
                                                 </div>
-
+                                                {{-- <div class="status-out_of_stock">
+                                                    <span>{{ __('form.product_stock_out_of_stock') }}</span>
+                                                </div>
+                                                <div class="status-low_stock">
+                                                    <span>{{ __('form.product_stock_low_stock') }}</span>
+                                                </div> --}}
                                             </td>
-
                                             <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
-                                                    <label class="switch switch-sm"><input type="checkbox" id="status-0"
-                                                            value="1"><span class="switch-state"></span></label>
+                                                    <label class="switch switch-sm">
+                                                        <input type="checkbox" id="status-0"value="0">
+                                                        <span class="switch-state"></span>
+                                                    </label>
                                                 </div>
                                             </td>
-                                            <td class="cursor-pointer">
-
-                                                22/12/2024
-
-                                            </td>
-                                            <td class="cursor-pointer">
-
-                                                22/12/2024
-
-                                            </td>
-
-
                                             <td>
                                                 <ul id="actions">
                                                     <li>
-                                                        <a href="{{ route('admin.products.show', 1) }}" class="btn-detail">
-                                                            <i class="ri-eye-line"></i>
-                                                        </a>
+                                                        <a href="" class="btn-detail"><i class="ri-eye-line"></i></a>
                                                     </li>
                                                     <li>
-                                                        <a href="{{ route('admin.products.edit', 1) }}" class="btn-edit">
-                                                            <i class="ri-pencil-line"></i>
-                                                        </a>
+                                                        <a href="" class="btn-edit"><i class="ri-pencil-line"></i></a>
                                                     </li>
                                                     <li>
-                                                        <form action="" method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn-delete" onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
-                                                                <i class="ri-delete-bin-line"></i>
-                                                            </button>
-                                                        </form>
+                                                        <a href="" class="btn-move-to-trash"><i class="ri-delete-bin-line"></i></a>
                                                     </li>
                                                 </ul>
                                             </td>
@@ -234,9 +223,9 @@
             $('#checkbox-table').on('click', function() {
 
                 if ($(this).prop('checked')) {
-                    $('#btn-delete-all').removeClass('visually-hidden');
+                    $('#btn-move-to-trash').removeClass('visually-hidden');
                 } else {
-                    $('#btn-delete-all').addClass('visually-hidden');
+                    $('#btn-move-to-trash').addClass('visually-hidden');
                 }
 
                 $('.checkbox-input').prop('checked', $(this).prop('checked'));
@@ -250,7 +239,7 @@
                 $('#checkbox-table').prop('checked', total === checked);
 
                 if ($(this).prop('checked')) {
-                    $('#btn-delete-all').removeClass('visually-hidden');
+                    $('#btn-move-to-trash').removeClass('visually-hidden');
                 } else {
                     let isAnotherInputChecked = false;
                     $('.checkbox-input').not($(this)).each((index, checkboxInput) => {
@@ -261,33 +250,15 @@
                     })
 
                     if (!isAnotherInputChecked) {
-                        $('#btn-delete-all').addClass('visually-hidden');
+                        $('#btn-move-to-trash').addClass('visually-hidden');
                         $('#checkbox-table').prop('checked', false);
                     }
                 }
             });
-            // --- End Logic Checkbox ---
+            // --- End Logic Checkbox --
 
 
-            // --- Logic Hide, Show Sub Category ---
-            $('.pl-2').hide();
-
-            $btnSwitch.on('click', function() {
-                const isChecked = $inputSwitch.prop('checked');
-
-                if (!isChecked) {
-                    // Ẩn các danh mục con
-                    $('.pl-2').slideUp(300);
-                } else {
-                    // Hiển thị các danh mục con
-                    $('.pl-2').slideDown(300);
-                }
-            })
-            // --- End Logic Hide, Show Sub Category ---
-
-
-
-            $('#btn-delete-all').on('click', function(e) {
+            $('#btn-move-to-trash').on('click', function(e) {
 
                 let confirmMessage = confirm("{{ __('message.confirm_move_to_trash_all_item') }}");
 

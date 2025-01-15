@@ -55,6 +55,7 @@ return [
     'categories' => 'Danh mục',
     'categories_parent' => 'Danh mục cha',
     'category_name_child' => 'Tên danh mục con',
+    'category_all' => 'Tất cả danh mục',
     'category' => [
         'id' => 'ID',
         'parent_id' => 'ID cha',
@@ -211,8 +212,8 @@ return [
         'video' => 'Video',
         'views' => 'Lượt xem',
         'content' => 'Nội dung',
-        'thumbnail' => 'Hình thu nhỏ',
-        'sku' => 'Mã sản phẩm (SKU)',
+        'thumbnail' => 'Ảnh',
+        'sku' => 'Mã kho',
         'price' => 'Giá',
         'sale_price' => 'Giá khuyến mãi',
         'sale_price_start_at' => 'Bắt đầu khuyến mãi',
@@ -240,6 +241,9 @@ return [
     ],
 
     'product_stocks' => 'Tồn kho',
+    'product_stock_in_stock' => 'Còn hàng',
+    'product_stock_out_of_stock' => 'Hết hàng',
+    'product_stock_low_stock' => 'Sắp hết hàng',
     'product_stock' => [
         'id' => 'ID',
         'product_id' => 'ID sản phẩm',
@@ -351,6 +355,12 @@ return [
     ],
 
     'action' => 'Hành động',
+    'status' => 'Trạng thái',
+    'status_all' => 'Tất cả trạng thái',
+    'general' => 'Tổng quan',
+    'inventory' => 'Kho',
+    'setup' => 'Cài đặt',
+    'images' => 'Ảnh',
 
     'enter_name' => 'Nhập tên',
     'enter_ordinal' => 'Nhập thứ tự hiển thị',
