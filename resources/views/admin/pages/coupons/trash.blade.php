@@ -19,17 +19,9 @@
             <strong>{{ session('success') }}</strong>
         </div>
     @endif
-
-    @if ($errors->has('message'))
-        <div class="alert alert-danger" role="alert">
-            <strong>{{ $errors->first('message') }}</strong>
-        </div>
-    @endif
-
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
-
                 <div class="card-body">
                     <div class="title-header">
                         <div class="d-flex align-items-center">
@@ -42,27 +34,19 @@
                         </div>
                     </div>
                     <div class="show-box">
-                        <div class="selection-box">
-                            <label>Hiển Thị:</label>
-                            <select class="form-control" id="per_page">
-                                <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                                <option value="30" {{ request('per_page') == 30 ? 'selected' : '' }}>30</option>
-                                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                                <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        <div class="selection-box"><label>Hiển Thị:</label>
+                            <select class="form-control">
+                                <option value="30">30</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
                             </select>
                             <label>Số Lượng Mỗi Trang</label>
                         </div>
+                        <div class="datepicker-wrap"></div>
                         <div class="table-search">
                             <label for="role-search" class="form-label">Tìm Kiếm:</label>
-                            <input type="search" id="role-search" name="searchKey" class="form-control">
+                            <input type="search" id="role-search" class="form-control">
                         </div>
-                        <a href="{{ route('admin.coupons.trash') }}"
-                            class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
-                            <i class="ri-delete-bin-line"></i>
-                            {{ __('message.trash') }}
-                            <span
-                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $couponsIntrash }}</span>
-                        </a>
                     </div>
                     <div>
                         <div class="table-responsive datatable-wrapper border-table">
@@ -125,19 +109,16 @@
                                             <td>
                                                 <ul id="actions">
                                                     <li>
-                                                        <a href="{{ route('admin.coupons.show', ['coupon' => $coupon->id]) }}"
-                                                            class="btn-detail">
-                                                            <i class="ri-eye-line"></i>
-                                                        </a>
+                                                        <form action="{{ route('admin.coupons.restore', $coupon->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button class="btn-restore">
+                                                                <i class="ri-refresh-line"></i>
+                                                            </button>
+                                                        </form>
                                                     </li>
                                                     <li>
-                                                        <a href="{{ route('admin.coupons.edit', ['coupon' => $coupon->id]) }}"
-                                                            class="btn-edit">
-                                                            <i class="ri-pencil-line"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <form action="{{ route('admin.coupons.destroy', $coupon->id) }}"
+                                                        <form action="{{ route('admin.coupons.force-destroy', $coupon->id) }}"
                                                             method="POST">
                                                             @csrf
                                                             @method('DELETE')
@@ -156,6 +137,7 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- END TABLE -->
 
                 <!-- START PAGINATION -->
@@ -182,13 +164,6 @@
             $('#check-all').change(function() {
                 // Lấy tất cả các checkbox trong bảng và thay đổi trạng thái của chúng
                 $('.custom-control-input.checkbox_animated').prop('checked', $(this).prop('checked'));
-            });
-            // Phân Dòng 10 , 30 , 50 , 100
-            $('#per_page').change(function() {
-                var perPage = $(this).val();
-                var url = new URL(window.location.href);
-                url.searchParams.set('per_page', perPage);
-                window.location.href = url.toString();
             });
         });
     </script>

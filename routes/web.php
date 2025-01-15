@@ -245,8 +245,13 @@ Route::prefix('/admin')
 
                 Route::put('/{coupon}', 'update')->name('update');   
 
-                Route::delete('/destroy', 'destroy')->name('destroy');
+                Route::delete('/{coupon}/destroy', 'destroy')->name('destroy');
 
+                Route::get('/trash','trash')->name('trash');
+
+                Route::post('/{coupon}/restore','restore')->name('restore');
+
+                Route::delete('/{coupon}/force-destroy','forceDestroy')->name('force-destroy');
             });
 
         
