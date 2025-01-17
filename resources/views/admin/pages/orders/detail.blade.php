@@ -33,6 +33,14 @@
                 transform: rotate(360deg);
             }
         }
+
+        .printOrder {
+            display: none
+        }
+
+        .printOrder.active {
+            display: block;
+        }
     </style>
 @endpush
 
@@ -131,10 +139,21 @@
                         <div class="col-sm-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <div class="title-header ng-star-inserted">
+                                    <div class="title-header ng-star-inserted"
+                                        style="justify-content: space-between; flex-wrap: wrap;">
                                         <div class="d-flex align-items-center">
                                             <h5>Mã Đơn Hàng <span></span></h5>
                                         </div>
+                                        <select class="font-serif form-select form-select-sm orderStatus"
+                                            style="width: unset" id="select_status">
+                                            <option value="1">Chờ xử lý</option>
+                                            <option value="2">Đang xử lý</option>
+                                            <option value="3">Đang giao hàng</option>
+                                            <option value="4">Đã giao hàng</option>
+                                            <option value="5">Giao hàng thất bại</option>
+                                            <option value="6">Hoàn thành</option>
+                                            <option value="7">Đã hủy</option>
+                                        </select>
                                     </div>
                                     <div class="tracking-wrapper table-responsive">
                                         <table class="table product-table">
@@ -178,77 +197,75 @@
                                             <div class="d-flex align-items-center">
                                                 <h5>Hóa đơn</h5>
                                             </div>
-                                            <div button="" class="ng-star-inserted"><button
+                                            <div button="" class="ng-star-inserted printOrder"><button
                                                     class="btn btn-animation btn-sm ms-auto" id="printOrder">Xuất đơn
                                                     hàng
                                                     <i class="ri-download-2-fill"></i>
                                                 </button>
-                                                <div id="orderDetails" style="display:none;">
-                                                    <!-- Nội dung đơn hàng sẽ được tạo ở đây -->
-                                                </div>
                                             </div>
                                         </div>
-                                        <div class="tracking-total tracking-wrapper">
-                                            <ul>
-                                                <li>Tổng cộng <span></span></li>
-                                                <li>Phí ship <span></span></li>
-                                                <li>Voucher</li>
-                                                <li class="d-flex justify-content-end">
-                                                    <p></p>
-                                                </li>
-                                                <li>Giảm giá <span class="text-danger"></span></li>
-                                                <li>Thành tiền <span class="text-danger"></span></li>
-                                            </ul>
-                                        </div>
+                                    </div>
+                                    <div class="tracking-total tracking-wrapper">
+                                        <ul>
+                                            <li>Tổng cộng <span></span></li>
+                                            <li>Phí ship <span></span></li>
+                                            <li>Voucher</li>
+                                            <li class="d-flex justify-content-end">
+                                                <p></p>
+                                            </li>
+                                            <li>Giảm giá <span class="text-danger"></span></li>
+                                            <li>Thành tiền <span class="text-danger"></span></li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="title-header ng-star-inserted">
-                                            <div class="d-flex align-items-center">
-                                                <h5>Thông tin</h5>
-                                            </div>
-                                        </div>
-                                        <div class="customer-detail tracking-wrapper">
-                                            <ul>
-                                                <li><label>Tên:</label>
-                                                    <h4></h4>
-                                                </li>
-                                                <li><label>Số điện thoại:</label>
-                                                    <h4></h4>
-                                                </li>
-
-                                                <li><label>Giao đến:</label>
-                                                    <h4>
-                                                    </h4>
-                                                </li>
-                                                <li><label>Ghi chú:</label>
-                                                    <h4></h4>
-                                                </li>
-                                                <li><label>Phương thức thanh toán:</label>
-                                                    <h4></h4>
-                                                </li>
-                                                <li><label>Thanh toán:</label>
-                                                    <h4></h4>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
+
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="title-header ng-star-inserted">
+                                        <div class="d-flex align-items-center">
+                                            <h5>Thông tin</h5>
+                                        </div>
+                                    </div>
+                                    <div class="customer-detail tracking-wrapper">
+                                        <ul>
+                                            <li><label>Tên:</label>
+                                                <h4></h4>
+                                            </li>
+                                            <li><label>Số điện thoại:</label>
+                                                <h4></h4>
+                                            </li>
+
+                                            <li><label>Giao đến:</label>
+                                                <h4>
+                                                </h4>
+                                            </li>
+                                            <li><label>Ghi chú:</label>
+                                                <h4></h4>
+                                            </li>
+                                            <li><label>Phương thức thanh toán:</label>
+                                                <h4></h4>
+                                            </li>
+                                            <li><label>Thanh toán:</label>
+                                                <h4></h4>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
+    </div>
     </div>
 @endsection
 
@@ -274,6 +291,9 @@
 
             let dataDetailOrder;
 
+            const pathSegments = window.location.pathname.split('/');
+            const orderId = pathSegments[pathSegments.length - 1];
+
             function fillOrderDetails(orderId) {
 
                 $("#loading-icon").show();
@@ -284,6 +304,15 @@
                         let amountAllItems = 0;
                         // return;
                         $(".title-header span").text(`#${data[0].order.code}`);
+                        $("#select_status").val(data[0].order.order_statuses[0].id);
+
+                        if (data[0].order.order_statuses[0].id == 1) {
+                            $(".printOrder").addClass("active");
+                        } else {
+                            $(".printOrder").removeClass("active");
+
+                        }
+
 
                         const tbody = $(".product-table tbody");
                         tbody.empty();
@@ -356,11 +385,37 @@
             }
 
 
+            $('.orderStatus').on('change', function() {
 
-            const pathSegments = window.location.pathname.split('/');
-            const orderId = pathSegments[pathSegments.length - 1];
+                const selectedValue = $(this).val();
 
-            console.log(orderId);
+                console.log(selectedValue);
+                console.log(orderId);
+
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/api/orders/updateOrderStatus',
+                    type: 'POST',
+                    data: {
+                        order_id: orderId,
+                        status_id: selectedValue
+                    },
+                    success: function(response) {
+                        if (response.status == 200) {
+                            if (selectedValue == 1) {
+                                $(".printOrder").addClass("active");
+                            } else {
+                                $(".printOrder").removeClass("active");
+
+                            }
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:", error);
+                    }
+                });
+            });
+
+
 
 
             if (!isNaN(parseInt(orderId))) {

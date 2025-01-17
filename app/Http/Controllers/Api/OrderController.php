@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\Api\Admin\OrderService;
+use Exception;
 use Illuminate\Http\Request;
+use PDF;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Response;
 
-use Barryvdh\DomPDF\Facade\Pdf;
 class OrderController extends Controller
 {
     /**
@@ -49,45 +52,107 @@ class OrderController extends Controller
 
     public function generateInvoice(Request $request)
     {
+        $data = $request->input('orderData');
+        // Kiểm tra dữ liệu
+        if (empty($data)) {
+            return back()->with('error', 'Dữ liệu đơn hàng không hợp lệ.');
+        }
 
-        $orderData = $request->input('orderData');
-        // return response()->json($orderData);
+        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-        $pdf = Pdf::loadView('admin.pages.invoices_order', ['orderData' => $orderData]);
+        $pdf->SetAuthor('Nicola Asuni');
+        $pdf->SetTitle('Incoice');
+        $html = view()->make("admin.pages.invoices_order", ['dataOrder' => $data])->render();
+        $pdf->AddPage();
+        $pdf->SetFont('dejavusans', '', 8);
+        $pdf->writeHTML($html, true, false, true, false, '');
 
+        return $pdf->Output("name", "I");
 
-        return $pdf->stream('invoice.pdf', ['Attachment' => 0]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function generateInvoiceAll(Request $request)
     {
-        //
+
+        // Kiểm tra dữ liệu
+
+        try {
+
+            $activeTab = $request->input('activeTab');
+
+
+            $orders = $this->orderService->getOrdersByStatus($activeTab);
+
+            $ordersArray = $orders->toArray();
+
+
+            $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+            $pdf->SetAuthor('Nicola Asuni');
+            $pdf->SetTitle('Incoice');
+            foreach ($ordersArray as $key => $data) {
+                $html = view()->make("admin.pages.invoices_order_list", ['dataOrder' => $data])->render();
+                $pdf->AddPage();
+                $pdf->SetFont('dejavusans', '', 8);
+                $pdf->writeHTML($html, true, false, true, false, '');
+            }
+
+            return $pdf->Output("name", "I");
+
+
+
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+        // if (empty($data)) {
+        //     return back()->with('error', 'Dữ liệu đơn hàng không hợp lệ.');
+        // }
+
+        // $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        // $pdf->SetAuthor('Nicola Asuni');
+        // $pdf->SetTitle('Incoice');
+        // $html = view()->make("admin.pages.invoices_order", ['dataOrder' => $data])->render();
+        // $pdf->AddPage();
+        // $pdf->SetFont('dejavusans', '', 8);
+        // $pdf->writeHTML($html, true, false, true, false, '');
+
+        // return $pdf->Output("name", "I");
+
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function changeStatusOrder(Request $request)
     {
-        //
-    }
+        try {
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+            $idOrder = $request->input("order_id");
+            $idStatus = $request->input("status_id");
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+            $this->orderService->changeStatusOrder($idOrder, $idStatus);
+
+
+            return response()->json([
+                'message' => 'Query executed successfully',
+                'status' => Response::HTTP_OK,
+
+            ]);
+        } catch (Exception $e) {
+
+
+
+            return response()->json([
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+                'sql' => [
+                    'eloquent' => null,
+                    'queryBuilder' => null,
+                ],
+            ]);
+        }
     }
 }

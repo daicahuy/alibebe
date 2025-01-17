@@ -15,7 +15,6 @@ class OrderController extends Controller
 
     public function index()
     {
-        // dd(OrderStatusType::PENDING);
         return view('admin.pages.orders.list');
     }
 

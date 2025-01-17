@@ -21,5 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/orders/list', [OrderController::class, 'index'])->name('index');
 Route::get('/orders/list/count', [OrderController::class, 'countByStatus'])->name('countByStatus');
+Route::post('/orders/updateOrderStatus', [OrderController::class, 'changeStatusOrder'])->name('changeStatusOrder');
 Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->name('getOrderDetail');
 Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');
+Route::post('/orders/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');

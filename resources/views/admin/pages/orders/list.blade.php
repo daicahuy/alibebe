@@ -34,6 +34,15 @@
             }
         }
 
+        .btn-download-all {
+            display: none;
+        }
+
+        .btn-download-all.active {
+            display: block;
+        }
+
+
         .order-status-tabs>div>div {
             flex: 0 0 10%;
             /* Mỗi item chiếm 25% chiều rộng */
@@ -257,7 +266,9 @@
             <div class="title-header option-title">
                 <h5>Danh Sách Đơn Hàng</h5>
 
-                <a href="#" class="btn btn-solid" style="height: 35px;line-height:17px">Download all orders</a>
+                <button class="btn btn-solid btn-download-all" id="btn-print-all" style="height: 35px;line-height:17px">In
+                    tất cả đơn
+                    hàng</button>
             </div>
             {{-- Start trạng thái --}}
             <div class="p-4">
@@ -315,11 +326,17 @@
                     <table class="table all-package order-table theme-table" id="orderTable">
                         <thead>
                             <tr>
+                                <th class="sm-width">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" id="checkbox-table"
+                                            class="custom-control-input checkbox_animated">
+                                    </div>
+                                </th>
                                 <th class="px-4 py-2">Mã Đơn Hàng </th>
                                 <th class="px-4 py-2">Thời Gian</th>
                                 <th class="px-4 py-2">Họ Tên</th>
                                 <th class="px-4 py-2">Phương Thức Thanh Toán</th>
-                                <th class="px-4 py-2">Tổng</th>
+                                <th class="px-4 py-2">Tổng(VND)</th>
                                 <th class="px-4 py-2">Trạng Thái</th>
                                 <th class="px-4 py-2 text-right">Khác</th>
                             </tr>
@@ -403,6 +420,9 @@
     <script>
         $(document).ready(function() {
 
+
+
+
             $('.btn-order').on('click', function() {
                 // Xóa lớp active khỏi tất cả các nút
                 $('.btn-order').removeClass('active');
@@ -442,7 +462,6 @@
                     },
                     success: function(response) {
                         renderTable(response.orders, response.totalPages);
-                        console.log("response: " + response.totalPages)
                         if (response
                             .totalPages
                         ) { // giả sử response có thuộc tính totalRecords chứa tổng số bản ghi
@@ -475,17 +494,19 @@
                 if (orders.length === 0) {
                     $("#orderTable tbody").append(`
             <tr>
-              <td colspan="4" style="text-align: center;">Không có dữ liệu</td>
-              <td colspan="4" style="text-align: center;"></td>
-              <td colspan="4" style="text-align: center;"></td>
-              <td colspan="4" style="text-align: center;"></td>
-              <td colspan="4" style="text-align: center;"></td>
+              <p>Không có dữ liệu</p>
             </tr>
           `);
                 } else {
                     orders.forEach(order => {
                         $("#orderTable tbody").append(`
-                        <tr>
+                        <tr data-id="${order.id}">
+                                <td>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" value=${order.id}
+                                        class="custom-control-input checkbox_animated checkbox-input">
+                                    </div>
+                                </td>
                                 <td class="px-4 py-2"><span
                                         class="font-semibold uppercase text-xs">${ order.code }</span></td>
                                 <td class="px-4 py-2"><span class="text-sm">${ convertDate(order.created_at) }</span></td>
@@ -496,14 +517,14 @@
                                 <td class="px-4 py-2"><span
                                         class="text-sm font-semibold">${ formatCurrency(order.total_amount) }</span></td>
                                 <td class="px-4 py-2 text-xs">
-                                    <select class="font-serif form-select form-select-sm orderStatus">
-                                        <option value="1">Chờ xử lý</option>
-                                        <option value="2">Đang xử lý</option>
-                                        <option value="3">Đang giao hàng</option>
-                                        <option value="4">Đã giao hàng</option>
-                                        <option value="5">Giao hàng thất bại</option>
-                                        <option value="6">Hoàn thành</option>
-                                        <option value="7">Đã hủy</option>
+                                    <select class="font-serif form-select form-select-sm orderStatus" id="select_status">
+                                        <option ${order.order_statuses[0].pivot.order_status_id == "1" ? "selected" : ""} value="1">Chờ xử lý</option>
+                                        <option ${order.order_statuses[0].pivot.order_status_id == "2" ? "selected" : ""} value="2">Đang xử lý</option>
+                                        <option ${order.order_statuses[0].pivot.order_status_id == "3" ? "selected" : ""} value="3">Đang giao hàng</option>
+                                        <option ${order.order_statuses[0].pivot.order_status_id == "4" ? "selected" : ""} value="4">Đã giao hàng</option>
+                                        <option ${order.order_statuses[0].pivot.order_status_id == "5" ? "selected" : ""} value="5">Giao hàng thất bại</option>
+                                        <option ${order.order_statuses[0].pivot.order_status_id == "6" ? "selected" : ""} value="6">Hoàn thành</option>
+                                        <option ${order.order_statuses[0].pivot.order_status_id == "7" ? "selected" : ""} value="7">Đã hủy</option>
                                     </select>
                                 </td>
 
@@ -570,21 +591,84 @@
                 $(".tab").removeClass("active");
                 $(this).addClass("active");
                 activeTab = $(this).data("status");
+                if (activeTab == 1) {
+                    $('.btn-download-all').addClass('active');
+                } else {
+                    $('.btn-download-all').removeClass('active');
+
+                }
                 currentPage = 1; // Reset về trang đầu tiên
                 $('#pagination').twbsPagination('destroy');
                 fetchOrders();
             });
 
+            $('#orderTable').on('change', '.orderStatus', function() {
+                var selectedValue = $(this).val();
+                //  Lấy idOrder.  Giả sử idOrder nằm trong thuộc tính data-id của hàng tương ứng.
+                var idOrder = $(this).closest('tr').data('id');
 
+                //  Xử lý selectedValue và idOrder ở đây. Ví dụ: gửi lên server bằng AJAX
+
+
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/api/orders/updateOrderStatus',
+                    type: 'POST',
+                    data: {
+                        order_id: idOrder,
+                        status_id: selectedValue
+                    },
+                    success: function(response) {
+                        if (response.status == 200) {
+                            fetchOrders(true);
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:", error);
+                    }
+                });
+            });
 
             // Khởi tạo lần đầu
             fetchOrders(true);
 
+            if (activeTab === 1) {
+                $('.btn-download-all').addClass('active');
+            }
+
+            $("#btn-print-all").click(() => {
+                console.log("load")
+                fetch(`http://127.0.0.1:8000/api/orders/invoice`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                'content') // Nếu dùng Laravel
+                        },
+                        body: JSON.stringify({
+                            activeTab: activeTab
+                        }) // orderData là dữ liệu đơn hàng của bạn
+                    })
+                    .then((response) => {
+
+                        return response.blob();
+                    }) // response.blob() nếu muốn trả về file pdf trực tiếp. response.json() nếu trả về đường dẫn
+                    .then(blob => {
+                        //Tạo link download
+                        const url = window.URL.createObjectURL(blob);
+                        window.open(url); // Mở PDF trong tab mới
+                        fetchOrders(true);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
 
 
 
+            })
 
         });
+
+
 
 
         $('#is_unlimited').change(function() {

@@ -12,15 +12,6 @@
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
 </head>
 
-<?php
-function formatCurrencyVND($number)
-{
-    // Định dạng số thành dạng 123.123,00
-    return number_format($number, 2, ',', '.');
-}
-
-?>
-
 <style>
     .container {
         width: 80%;
@@ -136,7 +127,7 @@ function formatCurrencyVND($number)
         <!-- Order Information -->
         <div class="order-info d-flex flex-row" style="align-items: center; justify-content: center">
             <div>
-                <p><strong>Mã Đơn Hàng:</strong> {{ $dataOrder[0]['order']['code'] }}</p>
+                <p><strong>Mã Đơn Hàng:</strong> {{ $dataOrder['code'] }}</p>
             </div>
 
         </div>
@@ -150,9 +141,9 @@ function formatCurrencyVND($number)
                 </tr>
             </thead>
             <tbody>
-                @foreach ($dataOrder as $item)
+                @foreach ($dataOrder['order_items'] as $item)
                     <tr>
-                        <td>{{ $item['name'] }}</td>
+                        <td class="td_name">{{ $item['name'] }}</td>
                         <td>{{ $item['name_variant'] }}</td>
                     </tr>
                 @endforeach
@@ -160,16 +151,17 @@ function formatCurrencyVND($number)
         </table>
 
         <!-- Total Price -->
-        <div class="total">Tổng Tiền: {{ formatCurrencyVND($dataOrder[0]['order']['total_amount']) }}đ</div>
+        <div class="total">Tổng Tiền: {{ number_format($dataOrder['total_amount'], 2, ',', '.') }}đ</div>
 
         <!-- Customer Information -->
         <div class="customer-info">
             <h3>Thông Tin Người Nhận</h3>
-            <p><strong>Họ và Tên:</strong> {{ $dataOrder[0]['order']['fullname'] }}</p>
-            <p><strong>Số Điện Thoại:</strong> {{ $dataOrder[0]['order']['phone_number'] }}</p>
-            <p><strong>Địa Chỉ: </strong> {{ $dataOrder[0]['order']['address'] }}
+            <p><strong>Họ và Tên:</strong> {{ $dataOrder['fullname'] }}
             </p>
-            <p><strong>Note: </strong> {{ $dataOrder[0]['order']['note'] }}
+            <p><strong>Số Điện Thoại:</strong> {{ $dataOrder['phone_number'] }}</p>
+            <p><strong>Địa Chỉ: </strong> {{ $dataOrder['address'] }}
+            </p>
+            <p><strong>Note: </strong> {{ $dataOrder['note'] }}
             </p>
         </div>
 

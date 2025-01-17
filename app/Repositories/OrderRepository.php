@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Repositories;
+use App\Enums\OrderStatusType;
 
 use App\Models\Order;
 use DB;
@@ -39,6 +40,25 @@ class OrderRepository extends BaseRepository
 
         return $query->paginate($limit, ['*'], 'page', $page);
     }
+    public function getOrdersByStatus(int $activeTab)
+    {
+        $query = Order::query()->with([
+            'orderItems',
+            'orderStatuses' => function ($query) use ($activeTab) {
+                $query->where('order_status_id', $activeTab);
+            }
+        ]);
+        $query->whereHas('orderStatuses', function ($query) use ($activeTab) {
+            $query->where('order_status_id', $activeTab);
+        });
+        $orders = $query->get();
+        DB::table('order_order_status')
+            ->where('order_status_id', $activeTab)
+            ->update(['order_status_id' => 2]);
+
+        return $orders;
+    }
+
 
     public function countOrdersByStatus(array $filters): \Illuminate\Database\Eloquent\Collection
     {
@@ -63,6 +83,8 @@ class OrderRepository extends BaseRepository
         $orderStatusCounts = $orderStatusCounts->get();
         return $orderStatusCounts;
     }
+
+
 
 
 
