@@ -58,11 +58,19 @@ Route::prefix('/admin')
 
                 Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
 
-                Route::put('/restore', 'restore')->name('restore');              
+                Route::put('/{category}/restore', 'restore')->name('restore');              
 
-                Route::delete('/delete/{category}', 'delete')->name('delete');
+                Route::delete('{category}/delete', 'delete')->name('delete');
                 
                 Route::delete('/{category}', 'destroy')->name('destroy');
+
+
+                // 
+                Route::put('/bulk-restore',  'bulkRestore')->name('bulkRestore');
+
+                Route::delete('/bulk-destroy',  'bulkDestroy')->name('bulkDestroy');
+
+                Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
 
             });
 

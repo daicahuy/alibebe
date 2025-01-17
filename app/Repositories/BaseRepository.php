@@ -74,10 +74,6 @@ abstract class BaseRepository
         return $this->model->forceDelete($id);
     }
 
-   //Hoặc sử dụng findOrFailWithTrashed để ném lỗi nếu không tìm thấy
-   public function findOrFailWithTrashed(int $id)
-   {
-       return $this->model->withTrashed()->findOrFail($id);
-   }
+   
 
 }

@@ -71,7 +71,14 @@
 
                         </div>
                         <!-- END HEADER TABLE -->
-
+                        
+                        @if (session('msg'))
+                            <div class="alert alert-{{ session('type') }} alert-dismissible fade show" role="alert">
+                                <strong>{{ session('msg') }}</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
 
 
                         <!-- START TABLE -->
@@ -137,7 +144,8 @@
                                                 <td class="cursor-pointer">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch switch-sm"><input type="checkbox"
-                                                                id="{{ $item->id }}" value="{{ $item->id }}"><span
+                                                                id="is_active" value="1"
+                                                                {{ $item->is_active == 1 ? 'checked' : '' }}><span
                                                                 class="switch-state"></span></label>
                                                     </div>
                                                 </td>
@@ -162,7 +170,8 @@
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <form action="" method="POST">
+                                                            <form action="{{ route('admin.categories.delete', $item) }}"
+                                                                method="POST">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" class="btn-delete"

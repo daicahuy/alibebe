@@ -37,10 +37,11 @@
                                         </h5>
                                     </div>
 
-                                    
 
-                                    @if ($errors->any())
-                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+
+                                    {{-- @if ($errors->any())
+                                        <div class="alert alert-danger alert-dismissible fade show"
+                                            role="alert">
                                             <strong>{{ __('message.error') }}</strong> {{ __('message.error_message') }}
                                             <ul>
                                                 @foreach ($errors->all() as $error)
@@ -52,7 +53,7 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="alert"
                                                 aria-label="Close"></button>
                                         </div>
-                                    @endif
+                                    @endif --}}
 
 
                                     <form action="{{ route('admin.categories.store') }}" method="POST"
@@ -81,8 +82,11 @@
                                                 {{ __('form.select_icon') }}
                                             </label>
                                             <div class="col-sm-9">
-                                                <input type="file" name="icon" id="icon" class="form-control">
-                                                <div class="invalid-feedback"></div>
+                                                <input type="file" name="icon" id="icon"
+                                                    class="form-control @error('icton') is-invalid @enderror">
+                                                @error('icon')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
@@ -93,9 +97,12 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="name" id="name"
-                                                    class="form-control is-invalid"
+                                                    value="{{ old('name') }}"
+                                                    class="form-control @error('name') is-invalid @enderror"
                                                     placeholder="{{ __('form.enter_name') }}">
-                                                <div class="invalid-feedback">Vui lòng nhập tên</div>
+                                                @error('name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
@@ -106,9 +113,14 @@
                                                 <span class="theme-color ms-2 required-dot ">*</span>
                                             </label>
                                             <div class="col-sm-9">
-                                                <input type="number" name="ordinal" id="ordinal" class="form-control"
+                                                <input type="number" name="ordinal" id="ordinal"
+                                                    value="{{ old('ordinal') }}"
+                                                    class="form-control @error('ordinal') is-invalid @enderror"
                                                     placeholder="{{ __('form.enter_ordinal') }}">
-                                                <div class="invalid-feedback"></div>
+                                                @error('ordinal')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+
                                             </div>
                                         </div>
 
@@ -120,7 +132,8 @@
                                                 <select name="parent_id" class="form-select">
                                                     <option value="">Chọn danh mục cha</option>
                                                     @foreach ($parent as $item)
-                                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                        <option value="{{ $item->id }}">
+                                                            {{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                                 <div class="invalid-feedback"></div>

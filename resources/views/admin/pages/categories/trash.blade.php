@@ -45,11 +45,13 @@
                                     </option>
                                 </select>
                                 <label>{{ __('message.items_per_page') }}</label>
-                                <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
+                                <button type="button"
+                                    class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
                                     id="btn-restore-all">
                                     {{ __('message.restore_all') }}
                                 </button>
-                                <button class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
+                                <button type="button"
+                                    class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
                                     id="btn-delete-all">
                                     {{ __('message.delete_all') }}
                                 </button>
@@ -84,7 +86,7 @@
                                         <tr>
                                             <th class="sm-width">
                                                 <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" id="checkbox-table"
+                                                    <input type="checkbox" id="select-all"
                                                         class="custom-control-input checkbox_animated">
                                                 </div>
                                             </th>
@@ -110,26 +112,31 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($listTrash as $category)
+                                        @foreach ($listTrash as $trash)
                                             <tr>
                                                 <td>
                                                     <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" id="checkbox-table"
+                                                        <input type="checkbox" id="ids[]" value="{{ $trash->id }}"
                                                             class="custom-control-input checkbox_animated checkbox-input">
                                                     </div>
                                                 </td>
-                                                <td class="cursor-pointer sm-width"> {{ $category->id }}
+                                                <td class="cursor-pointer sm-width"> {{ $trash->id }}
 
                                                 </td>
                                                 <td class="cursor-pointer sm-width">
-                                                    <img alt="image" class="tbl-image icon-image"
-                                                        src="{{ Storage::url($category->icon) }}">
+                                                    @if ($trash->icon)
+                                                        <img alt="image" class="tbl-image icon-image"
+                                                            src="{{ Storage::url($trash->icon) }}">
+                                                    @else
+                                                        <img alt="image" class="tbl-image icon-image"
+                                                            src="{{ asset('/theme/admin/assets/images/categories/no-image.svg') }}">
+                                                    @endif
                                                 </td>
                                                 <td class="cursor-pointer">
 
                                                     <div>
-                                                        <a href="{{ route('admin.categories.show', $category) }}"
-                                                            class="fs-6 fw-bold w-100">{{ $category->name }} </a>
+                                                        <a href="{{ route('admin.categories.show', $trash) }}"
+                                                            class="fs-6 fw-bold w-100">{{ $trash->name }} </a>
 
                                                         <div class="ms-5 ps-md-4 ps-sm-2">
                                                             {{-- @foreach ($cate->categories as $child)
@@ -148,25 +155,24 @@
                                                 <td class="cursor-pointer">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch switch-sm"><input type="checkbox"
-                                                                id="{{ $category->is_active }}"
-                                                                value="{{ $category->is_active }}"
-                                                                {{ $category->is_active == 1 ? 'checked' : '' }}><span><span
-                                                                    class="switch-state"></span></label>
+                                                                id="is_active" value="1"
+                                                                {{ $trash->is_active == 1 ? 'checked' : '' }}>
+                                                            <span class="switch-state"></span></label>
                                                     </div>
                                                 </td>
                                                 <td class="cursor-pointer">
 
-                                                    {{ $category->created_at }}
+                                                    {{ $trash->created_at }}
 
                                                 </td>
                                                 <td class="cursor-pointer">
 
-                                                    {{ $category->updated_at }}
+                                                    {{ $trash->updated_at }}
 
                                                 </td>
                                                 <td class="cursor-pointer">
 
-                                                    {{ $category->deleted_at }}
+                                                    {{ $trash->deleted_at }}
 
                                                 </td>
                                                 {{-- <td>
@@ -179,7 +185,8 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <form action="#!" method="POST">
+                                                            <form action="{{ route('admin.categories.restore', $trash) }}"
+                                                                method="POST">
                                                                 @csrf
                                                                 @method('PUT')
                                                                 <button type="submit" class="btn-restore">
@@ -188,8 +195,7 @@
                                                             </form>
                                                         </li>
                                                         <li>
-                                                            <form
-                                                                action="{{ route('admin.categories.destroy', $category) }}"
+                                                            <form action="{{ route('admin.categories.destroy', $trash) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('DELETE')
@@ -238,56 +244,155 @@
         $(document).ready(function() {
 
             // --- Logic Checkbox ---
-            $('#checkbox-table').on('click', function() {
+            // $('#checkbox-table').on('click', function() {
 
-                if ($(this).prop('checked')) {
-                    $('#btn-delete-all').removeClass('visually-hidden');
-                    $('#btn-restore-all').removeClass('visually-hidden');
-                } else {
-                    $('#btn-delete-all').addClass('visually-hidden');
-                    $('#btn-restore-all').addClass('visually-hidden');
-                }
+            //     if ($(this).prop('checked')) {
+            //         $('#btn-delete-all').removeClass('visually-hidden');
+            //         $('#btn-restore-all').removeClass('visually-hidden');
+            //     } else {
+            //         $('#btn-delete-all').addClass('visually-hidden');
+            //         $('#btn-restore-all').addClass('visually-hidden');
+            //     }
 
+            //     $('.checkbox-input').prop('checked', $(this).prop('checked'));
+            // });
+
+            // $('.checkbox-input').on('click', function() {
+
+            //     const total = $('.checkbox-input').length;
+            //     const checked = $('.checkbox-input:checked').length;
+
+            //     $('#checkbox-table').prop('checked', total === checked);
+
+            //     if ($(this).prop('checked')) {
+            //         $('#btn-delete-all').removeClass('visually-hidden');
+            //         $('#btn-restore-all').removeClass('visually-hidden');
+            //     } else {
+            //         let isAnotherInputChecked = false;
+            //         $('.checkbox-input').not($(this)).each((index, checkboxInput) => {
+            //             if ($(checkboxInput).prop('checked')) {
+            //                 isAnotherInputChecked = true;
+            //                 return;
+            //             }
+            //         })
+
+            //         if (!isAnotherInputChecked) {
+            //             $('#btn-delete-all').addClass('visually-hidden');
+            //             $('#btn-restore-all').addClass('visually-hidden');
+            //             $('#checkbox-table').prop('checked', false);
+            //         }
+            //     }
+            // });
+
+            // //////
+
+            // --- Logic Checkbox ---
+            $('#select-all').on('click', function() {
                 $('.checkbox-input').prop('checked', $(this).prop('checked'));
+                toggleBulkActionButtons();
             });
 
             $('.checkbox-input').on('click', function() {
-
                 const total = $('.checkbox-input').length;
                 const checked = $('.checkbox-input:checked').length;
-
-                $('#checkbox-table').prop('checked', total === checked);
-
-                if ($(this).prop('checked')) {
-                    $('#btn-delete-all').removeClass('visually-hidden');
-                    $('#btn-restore-all').removeClass('visually-hidden');
-                } else {
-                    let isAnotherInputChecked = false;
-                    $('.checkbox-input').not($(this)).each((index, checkboxInput) => {
-                        if ($(checkboxInput).prop('checked')) {
-                            isAnotherInputChecked = true;
-                            return;
-                        }
-                    })
-
-                    if (!isAnotherInputChecked) {
-                        $('#btn-delete-all').addClass('visually-hidden');
-                        $('#btn-restore-all').addClass('visually-hidden');
-                        $('#checkbox-table').prop('checked', false);
-                    }
-                }
+                $('#select-all').prop('checked', total === checked);
+                toggleBulkActionButtons();
             });
+
+            function toggleBulkActionButtons() {
+                if ($('.checkbox-input:checked').length > 0) {
+                    $('#btn-restore-all').removeClass('visually-hidden');
+                    $('#btn-delete-all').removeClass('visually-hidden');
+                } else {
+                    $('#btn-restore-all').addClass('visually-hidden');
+                    $('#btn-delete-all').addClass('visually-hidden');
+                }
+            }
+            toggleBulkActionButtons();
+
+
+            // --- Xử lý submit bằng AJAX ---
+            $('#btn-restore-all').on('click', function() {
+                handleBulkAction('restore');
+            });
+
+            $('#btn-delete-all').on('click', function() {
+                handleBulkAction('destroy');
+            });
+
+            function handleBulkAction(action) {
+                let checkedIds = [];
+                $('.checkbox-input:checked').each(function() {
+                    checkedIds.push($(this).val());
+                });
+
+                if (checkedIds.length === 0) {
+                    alert("Vui lòng chọn ít nhất một mục.");
+                    return;
+                }
+
+                let url = '';
+                if (action === 'restore') {
+                    url = "{{ route('admin.categories.bulkRestore') }}";
+                } else if (action === 'destroy') {
+                    url = "{{ route('admin.categories.bulkDestroy') }}";
+                }
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        bulk_ids: checkedIds,
+                        _method: action === 'restore' ? 'PUT' : 'DELETE'
+                    },
+                    success: function(response) {
+                        console.log("Response từ server:", response); // Log toàn bộ response
+
+                        if (response && typeof response === 'object') { // Kiểm tra response là object
+                            if (response.success === true) { // Kiểm tra kiểu dữ liệu của success
+                                alert(response.message ||
+                                "Thực hiện thành công."); // Sử dụng giá trị mặc định nếu message rỗng
+                                location.reload();
+                            } else if (response.success ===
+                                false) { // Kiểm tra kiểu dữ liệu của success
+                                alert(response.message ||
+                                "Đã có lỗi xảy ra."); // Sử dụng giá trị mặc định nếu message rỗng
+                                // In thêm chi tiết lỗi nếu có
+                                if (response.errors) {
+                                    console.error("Chi tiết lỗi:", response.errors);
+                                    // Hiển thị chi tiết lỗi cho người dùng (ví dụ: alert từng lỗi)
+                                    for (const key in response.errors) {
+                                        alert(response.errors[key]);
+                                    }
+                                }
+                            } else {
+                                console.error("Response.success không đúng định dạng:", response
+                                    .success);
+                                alert("Đã có lỗi xảy ra khi xử lý yêu cầu.");
+                            }
+                        } else {
+                            console.error("Response không đúng định dạng:", response);
+                            alert("Đã có lỗi xảy ra khi xử lý yêu cầu.");
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi AJAX:", error);
+                        alert("Đã xảy ra lỗi. Vui lòng thử lại.");
+                    }
+                });
+            }
             // --- End Logic Checkbox ---
 
 
-            $('#btn-delete-all').on('click', function(e) {
+            // $('#btn-delete-all').on('click', function(e) {
 
-                let confirmMessage = confirm("{{ __('message.confirm_delete_all_item') }}");
+            //     let confirmMessage = confirm("{{ __('message.confirm_delete_all_item') }}");
 
-                if (confirmMessage) {
-                    console.log('Move to trash');
-                }
-            })
+            //     if (confirmMessage) {
+            //         console.log('Move to trash');
+            //     }
+            // })
 
         });
     </script>

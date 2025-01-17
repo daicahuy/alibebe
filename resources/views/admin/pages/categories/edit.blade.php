@@ -38,7 +38,8 @@
                                     </div>
 
                                     @if (session('msg'))
-                                        <div class="alert alert-{{session('type')}} alert-dismissible fade show" role="alert">
+                                        <div class="alert alert-{{ session('type') }} alert-dismissible fade show"
+                                            role="alert">
                                             <strong>{{ session('msg') }}</strong>
                                             <button type="button" class="btn-close" data-bs-dismiss="alert"
                                                 aria-label="Close"></button>
@@ -46,7 +47,7 @@
                                     @endif
 
                                     {{-- errors --}}
-                                    @if ($errors->any())
+                                    {{-- @if ($errors->any())
                                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                             <strong>{{ __('message.error') }}</strong> {{ __('message.error_message') }}
                                             <ul>
@@ -59,7 +60,7 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="alert"
                                                 aria-label="Close"></button>
                                         </div>
-                                    @endif
+                                    @endif --}}
 
 
                                     <form action="{{ route('admin.categories.update', $findId) }}" method="POST"
@@ -87,8 +88,11 @@
                                                 {{ __('form.select_icon') }}
                                             </label>
                                             <div class="col-sm-9">
-                                                <input type="file" name="icon" id="icon" class="form-control">
-                                                <div class="invalid-feedback"></div>
+                                                <input type="file" name="icon" id="icon"
+                                                    class="form-control @error('icon') is-invalid @enderror">
+                                                @error('icon')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
@@ -97,75 +101,86 @@
                                                 {{ __('form.category.name') }}
                                                 <span class="theme-color ms-2 required-dot ">*</span>
                                             </label>
-                                            <div class="col-sm-9">
+                                            <v class="col-sm-9">
                                                 <input type="text" name="name" id="name"
-                                                    value="{{ $findId->name }}" class="form-control is-invalid"
+                                                    value="{{ $findId->name }}"
+                                                    class="form-control @error('name') is-invalid @enderror"
                                                     placeholder="{{ __('form.enter_name') }}">
-                                                <div class="invalid-feedback">Vui lòng nhập tên</div>
-                                            </div>
+                                                @error('name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+
                                         </div>
-
-
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0" for="ordinal">
-                                                {{ __('form.category.ordinal') }}
-                                                <span class="theme-color ms-2 required-dot ">*</span>
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <input type="number" name="ordinal" id="ordinal" class="form-control"
-                                                    value="{{ $findId->ordinal }}"
-                                                    placeholder="{{ __('form.enter_ordinal') }}">
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0">
-                                                {{ __('form.categories_parent') }}
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <select name="parent_id" class="form-select">
-                                                    <option value="">Chọn danh mục cha</option>
-                                                    @foreach ($parentCate as $item)
-                                                        <option {{ $findId->parent_id === $item->id ? 'selected' : '' }}
-                                                            value="{{ $item->id }}">
-                                                            {{ $item->name }}</option>
-                                                    @endforeach
-
-
-                                                </select>
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0">
-                                                {{ __('form.category.is_active') }}
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <div class="form-check form-switch ps-0">
-                                                    <label class="switch">
-                                                        <input type="checkbox" name="is_active" value="{{ $findId->is_active }}"
-                                                            {{ $findId->is_active == 1 ? 'checked' : '' }}>
-                                                           
-                                                        <span class="switch-state"></span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <button class="btn btn-theme ms-auto mt-4" type="submit">
-                                            {{ __('message.update') }}
-                                        </button>
-                                    </form>
                                 </div>
+
+
+                                <div class="align-items-center g-2 mb-4 row">
+                                    <label class="col-sm-3 form-label-title mb-0" for="ordinal">
+                                        {{ __('form.category.ordinal') }}
+                                        <span class="theme-color ms-2 required-dot ">*</span>
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <input type="number" name="ordinal" id="ordinal"
+                                            class="form-control @error('ordinal') is-invalid @enderror"
+                                            value="{{ $findId->ordinal }}" placeholder="{{ __('form.enter_ordinal') }}">
+                                        @error('ordinal')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="align-items-center g-2 mb-4 row">
+                                    <label class="col-sm-3 form-label-title mb-0">
+                                        {{ __('form.categories_parent') }}
+                                    </label>
+                                    <div class="col-sm-9">
+                                        {{-- Nếu có child thì không cho chọn parent, chỉ chơi 2 cấp --}}
+                                        <select name="parent_id" class="form-select"
+                                            {{ $findId->categories->isNotEmpty() ? 'disabled' : '' }}>
+
+                                            <option value="">Chọn danh mục cha</option>
+
+                                            @foreach ($parentCate as $item)
+                                                <option {{ $findId->parent_id === $item->id ? 'selected' : '' }}
+                                                    value="{{ $item->id }} ">
+                                                    {{ $item->name }}
+                                                </option>
+                                            @endforeach
+
+
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="align-items-center g-2 mb-4 row">
+                                    <label class="col-sm-3 form-label-title mb-0">
+                                        {{ __('form.category.is_active') }}
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <div class="form-check form-switch ps-0">
+                                            <label class="switch">
+                                                <input type="checkbox" name="is_active" value="1"
+                                                    {{ $findId->is_active == 1 ? 'checked' : '' }}>
+
+                                                <span class="switch-state"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-theme ms-auto mt-4" type="submit">
+                                    {{ __('message.update') }}
+                                </button>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
+
         </div>
+    </div>
     </div>
 @endsection
 

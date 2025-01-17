@@ -52,6 +52,8 @@
                                     id="btn-move-to-trash-all">
                                     {{ __('message.move_to_trash') }}
                                 </button>
+                                <input type="hidden" id="selected-category-ids" name="selected_category_ids" value="">
+
                                 <a href="{{ route('admin.categories.trash') }}"
                                     class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
                                     <i class="ri-delete-bin-line"></i>
@@ -128,8 +130,11 @@
                                             <tr>
                                                 <td>
                                                     <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" id="checkbox-table"
+                                                        <input type="checkbox" id="checkbox-{{ $cate->id }}"
+                                                            value="{{ $cate->id }}"
                                                             class="custom-control-input checkbox_animated checkbox-input">
+                                                        <label class="custom-control-label"
+                                                            for="checkbox-{{ $cate->id }}"></label>
                                                     </div>
                                                 </td>
                                                 <td class="cursor-pointer sm-width"> {{ $cate->id }}
@@ -199,8 +204,7 @@
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <form
-                                                                action="{{ route('admin.categories.delete', $cate) }}"
+                                                            <form action="{{ route('admin.categories.delete', $cate) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('DELETE')
@@ -249,41 +253,41 @@
         $(document).ready(function() {
 
             // --- Logic Checkbox ---
-            $('#checkbox-table').on('click', function() {
+            // $('#checkbox-table').on('click', function() {
 
-                if ($(this).prop('checked')) {
-                    $('#btn-move-to-trash-all').removeClass('visually-hidden');
-                } else {
-                    $('#btn-move-to-trash-all').addClass('visually-hidden');
-                }
+            //     if ($(this).prop('checked')) {
+            //         $('#btn-move-to-trash-all').removeClass('visually-hidden');
+            //     } else {
+            //         $('#btn-move-to-trash-all').addClass('visually-hidden');
+            //     }
 
-                $('.checkbox-input').prop('checked', $(this).prop('checked'));
-            });
+            //     $('.checkbox-input').prop('checked', $(this).prop('checked'));
+            // });
 
-            $('.checkbox-input').on('click', function() {
+            // $('.checkbox-input').on('click', function() {
 
-                const total = $('.checkbox-input').length;
-                const checked = $('.checkbox-input:checked').length;
+            //     const total = $('.checkbox-input').length;
+            //     const checked = $('.checkbox-input:checked').length;
 
-                $('#checkbox-table').prop('checked', total === checked);
+            //     $('#checkbox-table').prop('checked', total === checked);
 
-                if ($(this).prop('checked')) {
-                    $('#btn-move-to-trash-all').removeClass('visually-hidden');
-                } else {
-                    let isAnotherInputChecked = false;
-                    $('.checkbox-input').not($(this)).each((index, checkboxInput) => {
-                        if ($(checkboxInput).prop('checked')) {
-                            isAnotherInputChecked = true;
-                            return;
-                        }
-                    })
+            //     if ($(this).prop('checked')) {
+            //         $('#btn-move-to-trash-all').removeClass('visually-hidden');
+            //     } else {
+            //         let isAnotherInputChecked = false;
+            //         $('.checkbox-input').not($(this)).each((index, checkboxInput) => {
+            //             if ($(checkboxInput).prop('checked')) {
+            //                 isAnotherInputChecked = true;
+            //                 return;
+            //             }
+            //         })
 
-                    if (!isAnotherInputChecked) {
-                        $('#btn-move-to-trash-all').addClass('visually-hidden');
-                        $('#checkbox-table').prop('checked', false);
-                    }
-                }
-            });
+            //         if (!isAnotherInputChecked) {
+            //             $('#btn-move-to-trash-all').addClass('visually-hidden');
+            //             $('#checkbox-table').prop('checked', false);
+            //         }
+            //     }
+            // });
             // --- End Logic Checkbox ---
 
 
@@ -305,14 +309,94 @@
 
 
 
-            $('#btn-move-to-trash-all').on('click', function(e) {
+            // $('#btn-move-to-trash-all').on('click', function(e) {
 
-                let confirmMessage = confirm("{{ __('message.confirm_move_to_trash_all_item') }}");
+            //     let confirmMessage = confirm("{{ __('message.confirm_move_to_trash_all_item') }}");
 
-                if (confirmMessage) {
-                    console.log('Move to trash');
+            //     if (confirmMessage) {
+            //         console.log('Move to trash');
+            //     }
+            // })
+
+
+            // xử lý hàng loạt
+
+            // --- Logic Checkbox ---
+            $('#checkbox-table').on('click', function() {
+                const isChecked = $(this).prop('checked');
+                $('.checkbox-input').prop('checked', isChecked);
+                updateSelectedCategoryIds();
+                toggleBulkActionButton();
+            });
+
+            $('.checkbox-input').on('click', function() {
+                $('#checkbox-table').prop('checked', $('.checkbox-input:checked').length === $(
+                    '.checkbox-input').length);
+                updateSelectedCategoryIds();
+                toggleBulkActionButton();
+            });
+
+            function updateSelectedCategoryIds() {
+                const selectedIds = $('.checkbox-input:checked').map(function() {
+                    return $(this).val();
+                }).toArray();
+                $('#selected-category-ids').val(selectedIds.join(','));
+            }
+
+            function toggleBulkActionButton() {
+                $('#btn-move-to-trash-all').toggleClass('visually-hidden', $('.checkbox-input:checked').length ===
+                    0);
+            }
+
+            toggleBulkActionButton(); // Gọi lần đầu để ẩn nút nếu không có checkbox nào được chọn ban đầu
+
+            // --- Xử lý sự kiện click nút "Xóa tất cả" ---
+            $('#btn-move-to-trash-all').on('click', function() {
+                const selectedIds = $('#selected-category-ids').val();
+                if (!selectedIds) {
+                    alert('Vui lòng chọn ít nhất một danh mục.');
+                    return;
                 }
-            })
+
+                if (confirm("{{ __('message.confirm_move_to_trash_all_item') }}")) {
+                    $.ajax({
+                        url: '{{ route('admin.categories.bulkTrash') }}',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            category_ids: selectedIds,
+                        },
+                        success: function(response) {
+                            console.log("Response:", response);
+                            if (response && typeof response === 'object') {
+                                if (response.success === true) {
+                                    alert(response.message || "Đã xóa thành công.");
+                                    location.reload(); // Hoặc cập nhật UI mà không cần reload
+                                } else if (response.success === false) {
+                                    alert(response.message || "Đã có lỗi xảy ra.");
+                                    if (response.errors) {
+                                        console.error("Lỗi chi tiết:", response.errors);
+                                        for (const key in response.errors) {
+                                            alert(response.errors[key]);
+                                        }
+                                    }
+                                } else {
+                                    console.error("response.success không đúng định dạng:",
+                                        response.success);
+                                    alert("Đã có lỗi xảy ra trong quá trình xử lý.");
+                                }
+                            } else {
+                                console.error("Response không đúng định dạng:", response);
+                                alert("Đã có lỗi xảy ra trong quá trình xử lý.");
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Lỗi AJAX:", error);
+                            alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+                        }
+                    });
+                }
+            });
 
         });
     </script>

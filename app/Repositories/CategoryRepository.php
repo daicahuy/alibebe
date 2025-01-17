@@ -14,33 +14,52 @@ class CategoryRepository extends BaseRepository
     }
 
 
-
     // Tự viết hàm truy vấn mới
-    public function getAllCate()//list category gốc, (parent_id = NULL) và con nếu có, dành cho list có phân trang
+    // list category gốc, (parent_id = NULL) và con nếu có, dành cho list có phân trang
+    public function getAllCate()
     {
-        return $this->model->whereNull('parent_id')->with('categories')->paginate(5);
+        return $this->model->whereNull('parent_id')->with('categories')->orderBy('id', 'desc')->paginate(5);
     }
+
+
+    // Lấy nguyên cateory gốc
     public function getParent()
     {
         return $this->model->whereNull('parent_id')->get();
 
     }
+
+
+    // Lấy nguyên category con
     public function getChild($id)//show 
     {
         return $this->model->where('id', $id)->with('categories')->first();
     }
 
+
+    // Lấy danh sách xóa mềm
     public function getTrash()
     {
         return $this->model->onlyTrashed()->paginate(5);
     }
 
-    public function deleteM($id)
+
+    //Tìm danh mục đã bị xóa mềm findOrFailWithTrashed để ném lỗi nếu không tìm thấy: trả về instance của model
+    public function findOrFailWithTrashed(int $id)
     {
-        return $this->model->where('id', $id)->delete();
+        return $this->model->withTrashed()->findOrFail($id);
     }
-    public function forceDeleteM(int $id)
+
+
+    //    Lấy 1 danh mục bao gồm cả child && products: true: lấy cả products, false: không lấy
+    public function findWithChild(int $id, bool $loadProducts = true)
     {
-        return $this->model->where('id', $id)->forceDelete();
+        $query = $this->model->where('id', $id)->with('categories');
+        if ($loadProducts) {
+            $query->with('products');
+        }
+        return $query->first();
     }
+
+
 }

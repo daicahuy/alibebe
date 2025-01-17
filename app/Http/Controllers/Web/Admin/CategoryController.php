@@ -28,12 +28,16 @@ class CategoryController extends Controller
     public function trash()
     {
         $listTrash = $this->categoryService->trash();
+
         // dd($listTrash); // Kiểm tra dữ liệu NHẬN ĐƯỢC từ service
+
         if (is_array($listTrash) && !$listTrash['success']) {
+
             return back()->with([
                 'msg' => $listTrash['message'],
                 'type' => 'danger'
             ]);
+
         }
         // dd($listTrash);
 
@@ -92,7 +96,7 @@ class CategoryController extends Controller
     public function edit($id)
     {
         $edit = $this->categoryService->edit($id);
-
+        // dd($edit);  
         if ($edit['success']) {
 
             return view('admin.pages.categories.edit', [
@@ -145,17 +149,38 @@ class CategoryController extends Controller
         }
     }
 
-    public function restore(Request $request)
+    public function restore($id)
     {
+        $response = $this->categoryService->restore($id);
 
+        if ($response['success']) {
+
+            $listTrash = $this->categoryService->trash();
+
+            return redirect() // chuyển hướng url
+
+                ->route('admin.categories.trash', $listTrash)
+
+                ->with([
+                    'msg' => $response['message'],
+                    'type' => 'success'
+                ]);
+
+        } else {
+
+            return back()->with([
+                'msg' => $response['message'],
+                'type' => 'danger'
+            ]);
+        }
     }
 
-    public function delete(Category $category)
+    public function delete($id)
     {
-        // dd($category);  
-        $delete = $this->categoryService->delete($category->id);
+        // dd($request);  
+        $response = $this->categoryService->delete($id);
 
-        if ($delete['success']) {
+        if ($response['success']) {
 
             $listCategory = $this->categoryService->index();
 
@@ -164,7 +189,7 @@ class CategoryController extends Controller
                 ->route('admin.categories.index', $listCategory)
 
                 ->with([
-                    'msg' => $delete['message'],
+                    'msg' => $response['message'],
                     'type' => 'success'
                 ]);
 
@@ -172,7 +197,7 @@ class CategoryController extends Controller
         } else {
 
             return back()->with([
-                'msg' => $delete['message'],
+                'msg' => $response['message'],
                 'type' => 'danger'
             ]);
         }
@@ -180,8 +205,11 @@ class CategoryController extends Controller
     // Xoa cứng
     public function destroy($id)
     {
-        $category = Category::withTrashed()->findOrFail($id); // Tìm cả bản ghi đã bị xóa mềm
-        $destroy = $this->categoryService->destroy($category->id);
+        // lưu ý Route Model Binding mặc định tìm bản ghi chưa xóa mềm, nên khi dùng sẽ bị 404
+
+        // $category = Category::withTrashed()->findOrFail($id); // Tìm cả bản ghi đã bị xóa mềm
+
+        $destroy = $this->categoryService->destroy($id);
 
         if ($destroy['success']) {
 
@@ -208,4 +236,31 @@ class CategoryController extends Controller
         }
     }
 
+    // xử lý hàng loạt
+
+    // Xoá và khôi phục trong trash
+    // Xử lý hàng loạt
+    public function bulkDestroy(Request $request)
+    {
+        // dd($request->all()); 
+        $response = $this->categoryService->bulkDestroy($request->input('bulk_ids'));
+        return response()->json($response);
+    }
+
+    public function bulkRestore(Request $request)
+    {
+        $response = $this->categoryService->bulkRestore($request->input('bulk_ids'));
+        return response()->json($response);
+    }
+
+    // Hàm chung để trả về response cho cả đơn và hàng loạt (redirect cho đơn, json cho hàng loạt)
+
+
+
+    public function bulkTrash(Request $request)
+{
+    $categoryIds = explode(',', $request->input('category_ids')); // Chuyển chuỗi thành mảng
+    $response = $this->categoryService->bulkTrash($categoryIds);
+    return response()->json($response);
+}
 }
