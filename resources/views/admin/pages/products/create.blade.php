@@ -90,7 +90,7 @@
                                                             <div tab="general" class="tab">
                                                                 <div class="align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0" for="name">
-                                                                        Name
+                                                                        {{ __('form.product.name') }}
                                                                         <span class="theme-color ms-2 required-dot">*</span>
                                                                     </label>
                                                                     <div class="col-sm-9"><input id="name"
@@ -102,7 +102,7 @@
 
                                                                 <div class="align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0" for="short_description">
-                                                                        Short Description
+                                                                        {{ __('form.product.short_description') }}
                                                                         <span class="theme-color ms-2 required-dot">*</span>
                                                                     </label>
                                                                     <div class="col-sm-9">
@@ -115,14 +115,11 @@
 
                                                                 <div class="align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0" for="description">
-                                                                        Description
+                                                                        {{ __('form.product.description') }}
                                                                         <span class="theme-color ms-2 required-dot">*</span>
                                                                     </label>
                                                                     <div class="col-sm-9">
-                                                                        <div id="editor">
-                                                                            <p>Hello from CKEditor 5!</p>
-                                                                        </div>
-                                                                        {{-- <textarea id="summernote" name="editordata" class="custom-editor"></textarea> --}}
+                                                                        <div id="editor"></div>
                                                                     </div>
                                                                 </div>
 

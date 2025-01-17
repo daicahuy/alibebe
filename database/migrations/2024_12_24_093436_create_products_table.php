@@ -20,9 +20,9 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('name_link', 50)->nullable();
             $table->string('slug')->unique();
-            $table->string('video')->nullable();
             $table->unsignedInteger('views')->default(0);
-            $table->text('content')->nullable();
+            $table->string('short_description')->nullable();
+            $table->text('description')->nullable();
             $table->string('thumbnail');
             $table->decimal('price', 11, 2)->nullable();
             $table->decimal('sale_price', 11, 2)->nullable();
