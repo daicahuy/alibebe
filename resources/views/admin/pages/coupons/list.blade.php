@@ -77,16 +77,30 @@
                                             </div>
                                         </th>
                                         <th class="sm-width"> STT </th>
-                                        <th class="cursor-pointer"> Mã Giảm
+                                        <th class="cursor-pointer"> Mã Giảm Giá
                                             <div class="filter-arrow"></div>
                                         </th>
+                                        <th class="cursor-pointer"> Loại Giảm Giá
+                                            <div class="filter-arrow"></div>
+                                        </th>
+                                        <th class="cursor-pointer"> Giá Trị Giảm Giá
+                                            <div class="filter-arrow"></div>
+                                        </th>
+                                        <th class="cursor-pointer"> Số Lần Sử Dụng Tối Đa
+                                            <div class="filter-arrow"></div>
+                                        </th>
+                                        <th class="cursor-pointer"> Số Mã Đã Được Sử Dụng
+                                            <div class="filter-arrow"></div>
+                                        </th>
+                                        <th>Đang Hoạt Động</th>
+                                        <th>Có Hạn</th>
                                         <th class="cursor-pointer"> Ngày Bắt Đầu
                                             <div class="filter-arrow"></div>
                                         </th>
                                         <th class="cursor-pointer"> Ngày Kết Thúc
                                             <div class="filter-arrow"></div>
                                         </th>
-                                        <th> Trạng Thái</th>
+                                        <th>Trạng Thái</th>
                                         <th>Hành Động</th>
                                     </tr>
                                 </thead>
@@ -106,11 +120,20 @@
                                             <td class="cursor-pointer">
                                                 <div>{{ $coupon->code }}</div>
                                             </td>
+
                                             <td class="cursor-pointer">
-                                                {{ \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') }}
+                                                <div>
+                                                    {{ $coupon->discount_type === 0 ? 'Giảm Theo Giá Cố Định' : 'Giảm Theo Phần Trăm' }}
+                                                </div>
                                             </td>
                                             <td class="cursor-pointer">
-                                                {{ \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') }}
+                                                <div>{{ $coupon->discount_value }}</div>
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                <div>{{ $coupon->usage_limit }}</div>
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                <div>{{ $coupon->usage_count }}</div>
                                             </td>
                                             <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
@@ -122,6 +145,18 @@
                                                     </label>
                                                 </div>
                                             </td>
+                                            <td class="cursor-pointer">
+                                               {{ $coupon->is_expired === 1 ? 'Có Thời Hạn' : 'Không Có Thời Hạn'}}
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                {{ \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') }}
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                {{ \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') }}
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                {{ $coupon->end_date <= now() ? 'Hết Hạn' : 'Chưa Hết Hạn' }}
+                                            </td>                                            
                                             <td>
                                                 <ul id="actions">
                                                     <li>

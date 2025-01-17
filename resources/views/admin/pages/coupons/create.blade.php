@@ -166,11 +166,9 @@
                                                         <label class="switch">
                                                             <input type="checkbox" id="is_expired" name="is_expired"
                                                                 formcontrolname="is_expired" value="1"
-                                                                class="ng-untouched ng-pristine ng-valid @error('is_expired')
-                                                                    is-invalid
-                                                                @enderror">
+                                                                class="ng-untouched ng-pristine ng-valid @error('is_expired') is-invalid @enderror"
+                                                                {{ old('is_expired') == '1' ? 'checked' : '' }}>
                                                             <span class="switch-state"></span>
-
                                                         </label>
                                                     </div>
                                                     @error('is_expired')
@@ -260,7 +258,7 @@
                                                 <div class="col-sm-9">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch">
-                                                            <input type="checkbox" id="is_apply_all"
+                                                            <input type="checkbox" id="is_apply_all" name="is_apply_all "
                                                                 formcontrolname="is_apply_all"
                                                                 class="ng-untouched ng-pristine ng-valid">
                                                             <span class="switch-state"></span>

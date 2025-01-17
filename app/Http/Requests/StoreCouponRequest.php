@@ -26,6 +26,9 @@ class StoreCouponRequest extends FormRequest
      */
     public function rules(): array
     {
+        $isExpired = $this->input('is_expired');
+        $allProducts = $this->input('is_apply_all');
+        dd($allProducts);
         return [
             'code' => [
                 'required',
@@ -91,11 +94,11 @@ class StoreCouponRequest extends FormRequest
                 Rule::in([0, 1])
             ],
             'start_date' => [
-                'nullable',
+                $isExpired == CouponExpiredType::EXPIRED ? 'required' : 'nullable',
                 'date'
             ],
             'end_date' => [
-                'nullable',
+                $isExpired == CouponExpiredType::EXPIRED ? 'required' : 'nullable',
                 'date',
                 'after_or_equal:start_date'
             ],
@@ -114,7 +117,7 @@ class StoreCouponRequest extends FormRequest
                 'array'
             ],
             'coupon_restrictions.valid_products' => [
-                'required',
+                $allProducts == 'on' ? 'nullable' : 'required',
                 'array'
             ],
         ];

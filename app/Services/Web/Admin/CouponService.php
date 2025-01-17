@@ -8,6 +8,7 @@ use App\Models\Coupon;
 use App\Repositories\CategoryRepository;
 use App\Repositories\CouponRepository;
 use App\Repositories\CouponRestrictionRepository;
+use App\Repositories\OrderRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,17 +19,20 @@ class CouponService
     public CouponRestrictionRepository $couponRestrictionRepository;
     public ProductRepository $productRepository;
     public CategoryRepository $categoryRepository;
+    public OrderRepository $orderRepository;
 
     public function __construct(
         CouponRepository $couponRepository,
         CouponRestrictionRepository $couponRestrictionRepository,
         ProductRepository $productRepository,
-        CategoryRepository $categoryRepository
+        CategoryRepository $categoryRepository,
+        OrderRepository $orderRepository
     ) {
         $this->couponRepository = $couponRepository;
         $this->couponRestrictionRepository = $couponRestrictionRepository;
         $this->productRepository = $productRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->orderRepository = $orderRepository;
     }
 
     public function showCategories()
@@ -50,7 +54,8 @@ class CouponService
             ->pagination(['*'], $perPage, ['id', 'DESC'], ['orders', 'users', 'restriction']);
     }
     // Hiển Thị Chi Tiết Mã Giảm Giá
-    public function getCouponById(Coupon $coupon) {
+    public function getCouponById(Coupon $coupon)
+    {
         return $this->couponRepository->findById($coupon->id);
     }
 
@@ -87,57 +92,104 @@ class CouponService
                 'coupon_id' => $coupon->id
             ];
 
+            // Kiểm tra nếu checkbox 'is_apply_all' được chọn
+            if (isset($data['is_apply_all']) && $data['is_apply_all'] == 'on') {
+                // Lấy tất cả sản phẩm từ bảng products
+                $products = $this->showProducts();
+                $restrictionsData['valid_products'] = json_encode($products->pluck('id')->toArray());
+            } else {
+                // Lưu các sản phẩm được chọn từ request
+                $restrictionsData['valid_products'] = json_encode($data['coupon_restrictions']['valid_products']);
+            }
+
             // Lưu ràng buộc nếu có
             if (!empty($restrictionsData)) {
                 $this->couponRestrictionRepository->create($restrictionsData);
             }
 
             DB::commit();
+            return [
+                'status' => true,
+                'message' => 'Thêm Mới Mã Giảm Giá Thành Công'
+            ];
         } catch (\Throwable $th) {
             DB::rollBack();
             Log::error("Error in CouponService::store", [
                 'message' => $th->getMessage(),
                 'data' => $data
             ]);
-            throw $th;
+            return [
+                'status' => false,
+                'message' => 'Có Lỗi Xảy Ra , Vui Lòng Thử Lại !!!'
+            ];
         }
     }
     // Xóa mềm mã giảm giá
     public function deleteCoupon($couponId)
     {
         try {
-            $coupon = $this->couponRepository->findByIdWithRelation($couponId, ['restriction']);
+            $coupon = $this->couponRepository->findByIdWithRelation($couponId, ['restriction', 'orders']);
+            if ($coupon->orders()->exists()) {
+                return [
+                    'status' => false,
+                    'message' => 'Mã Này Đang Được Sử Dụng, Không Được Xóa !!!'
+                ];
+            }
             $this->couponRepository->update($couponId, [
                 'is_active' => 0
             ]);
+
             if ($coupon->restriction) {
                 $coupon->restriction->delete();
-            }
+            };
+
             $coupon->delete();
+
+            return [
+                'status' => true,
+                'message' => 'Đưa Vào Thùng Rác Thành Công !!!'
+            ];
         } catch (\Throwable $th) {
             Log::error("Error in CouponService::deleteCoupon", [
                 'message' => $th->getMessage()
             ]);
-            throw $th;
+            return [
+                'status' => false,
+                'message' => 'Có lỗi xảy ra , Vui Lòng Thử Lại !!!'
+            ];
         }
     }
+
     // Xóa cứng mã giảm giá
     public function forceDeleteCoupon($couponId)
     {
         DB::beginTransaction();
         try {
-            $coupon = $this->couponRepository->findCouponDestroyedWithRelation($couponId, ['restriction']);
+            $coupon = $this->couponRepository->findCouponDestroyedWithRelation($couponId, ['restriction', 'orders']);
+            if ($coupon->orders()->exists()) {
+                return [
+                    'status' => false,
+                    'message' => 'Mã Này Đang Được Sử Dụng, Không Được Xóa !!!'
+                ];
+            }
             if ($coupon->restriction) {
                 $coupon->restriction->forceDelete();
             }
             $coupon->forceDelete();
             DB::commit();
+            return [
+                'status' => true,
+                'message' => 'Xóa Mã Giảm Giá Thành Công !!!'
+            ];
         } catch (\Throwable $th) {
             Log::error("Error in CouponService::ForceDeleteCoupon", [
                 'message' => $th->getMessage()
             ]);
             DB::rollBack();
-            throw $th;
+            return [
+                'status' => false,
+                'message' => 'Có Lỗi Xảy Ra , Vui Lòng Thử Lại !!!'
+            ];
         }
     }
     // Lấy tất cả mã giảm giá ở trong thùng rác
@@ -157,12 +209,19 @@ class CouponService
             $this->couponRepository->update($couponId, [
                 'is_active' => 1
             ]);
+            return [
+                'status' => true,
+                'message' => 'Khôi Phục Mã Giảm Giá Thành Công !!!' . $coupon->title
+            ];
         } catch (\Throwable $th) {
             Log::error("Error in CouponService::restoreOneCoupon", [
                 'message' => $th->getMessage()
             ]);
             DB::rollBack();
-            throw $th;
+            return [
+                'status' => false,
+                'message' => 'Có Lỗi Xảy Ra , Vui Lòng Thử Lại !!!'
+            ];
         }
     }
 }

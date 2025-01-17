@@ -136,7 +136,6 @@
                                 </form>
                             </div>
                         </div>
-
                         {{-- Tab 2: Bảng Ràng Buộc --}}
                         <div class="tab-pane fade" id="bindings" role="tabpanel" aria-labelledby="restriction">
                             <div class="table-responsive">
