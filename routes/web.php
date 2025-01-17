@@ -152,7 +152,7 @@ Route::prefix('/admin')
 
                 Route::put('/{brand}', 'update')->name('update');   
 
-                Route::delete('/destroy', 'destroy')->name('destroy');
+                Route::delete('/{brand}', 'destroy')->name('destroy');
 
             });
 

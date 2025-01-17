@@ -28,7 +28,7 @@
                         <div class="col-sm-12">
                             <div class="card">
                                 <div class="card-body">
-                                  
+
 
                                     <div class="title-header option-title">
                                         <h5>
@@ -39,14 +39,16 @@
                                         </h5>
                                     </div>
                                     <form action="{{ route('admin.brands.store') }}" method="POST"
-                                        class="theme-form theme-form-2 mega-form mt-4" enctype="multipart/form-data" novalidate >
+                                        class="theme-form theme-form-2 mega-form mt-4" enctype="multipart/form-data"
+                                        novalidate>
                                         @csrf
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0" for="logo">
                                                 {{ __('form.select_logo') }}
                                             </label>
                                             <div class="col-sm-9">
-                                                <input type="file" name="logo" id="logo" class="form-control" value="{{ old('logo')}}">
+                                                <input type="file" name="logo" id="logo" class="form-control"
+                                                    value="{{ old('logo') }}">
                                                 @error('logo')
                                                     <div class="text-danger"> {{ $message }}</div>
                                                 @enderror
@@ -61,10 +63,11 @@
                                             <div class="col-sm-9">
                                                 <input type="text" name="name" id="name"
                                                     class="form-control  @error('name') is-invalid @enderror"
-                                                    placeholder="{{ __('form.enter_brand_name') }}" value="{{ old('name')}}">
-                                                    @error('name')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                    placeholder="{{ __('form.enter_brand_name') }}"
+                                                    value="{{ old('name') }}">
+                                                @error('name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
@@ -76,7 +79,8 @@
                                                 <div class="form-check form-switch ps-0">
                                                     <input type="hidden" name="is_active" value="0">
                                                     <label class="switch">
-                                                        <input type="checkbox" name="is_active" id="is_active" value="1" value="{{ old('is_active')}}" checked>
+                                                        <input type="checkbox" name="is_active" id="is_active"
+                                                            value="1" value="{{ old('is_active') }}" checked>
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>

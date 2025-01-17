@@ -36,16 +36,17 @@
 
                                         </h5>
                                     </div>
-                                    <form action="{{ route('admin.brands.store') }}" method="POST"
-                                        class="theme-form theme-form-2 mega-form mt-4" novalidate>
+                                    <form action="{{ route('admin.brands.update',$brand) }}" method="POST"
+                                        class="theme-form theme-form-2 mega-form mt-4" enctype="multipart/form-data" novalidate>
                                         @csrf
+                                        @method('PUT')
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0">
                                                 {{ __('form.brand.logo') }}
                                             </label>
                                             <div class="col-sm-9">
-                                                <img alt="image" class="tbl-image"
-                                                    src="{{ asset('/theme/admin/assets/images/product/1.png') }}">
+                                                <img alt="image" class="tbl-image" style="max-height: 200px; object-fit: contain;"
+                                                    src="{{ Storage::url($brand->logo) }}">
                                             </div>
                                         </div>
 
@@ -54,7 +55,10 @@
                                                 {{ __('form.select_logo') }}
                                             </label>
                                             <div class="col-sm-9">
-                                                <input type="file" name="logo" id="logo" class="form-control">
+                                                <input type="file" name="logo" id="logo" class="form-control" value="{{$brand->logo}}">
+                                                @error('logo')
+                                                 <div class="text-danger">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
@@ -65,9 +69,11 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="name" id="name"
-                                                    class="form-control is-invalid"
-                                                    placeholder="{{ __('form.enter_brand_name') }}">
-                                                <div class="invalid-feedback">Vui lòng nhập tên thương hiệu</div>
+                                                    class="form-control @error('name') is-invalid @enderror"
+                                                    placeholder="{{ __('form.enter_brand_name') }}" value="{{$brand->name}}">
+                                                @error('name')
+                                                <div class="invalid-feedback">{{$message}}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
@@ -77,8 +83,9 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <div class="form-check form-switch ps-0">
+                                                    <input type="hidden" name="is_active" value="0">
                                                     <label class="switch">
-                                                        <input type="checkbox" name="is_active" value="1" checked>
+                                                        <input type="checkbox" name="is_active" value="1"  @checked($brand->is_active)>
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>

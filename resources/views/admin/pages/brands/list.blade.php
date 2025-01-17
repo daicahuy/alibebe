@@ -18,6 +18,16 @@
 {{-- ================================== --}}
 
 @section('content')
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class="container-fuild">
         <div class="row">
             <div class="col-sm-12">
@@ -38,13 +48,11 @@
                         <!-- HEADER TABLE -->
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                <select class="form-control">
-                                    <option value="15">15
-                                    </option>
-                                    <option value="30">30
-                                    </option>
-                                    <option value="45">45
-                                    </option>
+                                <select class="form-control" id="per_page">
+                                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="30" {{ request('per_page') == 30 ? 'selected' : '' }}>30</option>
+                                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
                                 </select>
                                 <label>{{ __('message.items_per_page') }}</label>
                                 <button class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
@@ -60,7 +68,7 @@
                             <form action="" method="GET">
                                 <div class="table-search">
                                     <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword">
+                                    <input type="search" class="form-control" name="_keyword" id="keyWord" >
                                 </div>
                             </form>
 
@@ -102,66 +110,71 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($brands as $brand)
-                                        <tr>
-                                            <td>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" id="checkbox-table"
-                                                        class="custom-control-input checkbox_animated checkbox-input">
-                                                </div>
-                                            </td>
-                                            <td class="cursor-pointer sm-width"> 
-                                                {{$brand->id}}
-                                            </td>
-                                            <td class="cursor-pointer sm-width">
-                                                <img alt="image" class="tbl-image w-100 h-auto"
-                                                    src="{{  Storage::url($brand->logo)}}">
-                                            </td>
-                                            <td class="cursor-pointer">
+                                            <tr>
+                                                <td>
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" id="checkbox-table"
+                                                            class="custom-control-input checkbox_animated checkbox-input">
+                                                    </div>
+                                                </td>
+                                                <td class="cursor-pointer sm-width">
+                                                    {{ $brand->id }}
+                                                </td>
+                                                <td class="cursor-pointer sm-width">
+                                                    <img alt="image" class="tbl-image "
+                                                        style="max-height: 200px; object-fit: contain;"
+                                                        src="{{ Storage::url($brand->logo) }}">
+                                                </td>
+                                                <td class="cursor-pointer">
 
-                                                <a href="#!" class="fs-6 fw-bold w-100">{{$brand->name}}</a>
+                                                    <a href="#!" class="fs-6 fw-bold w-100">{{ $brand->name }}</a>
 
-                                            </td>
+                                                </td>
 
-                                            <td class="cursor-pointer">
-                                                <div class="form-check form-switch ps-0">
-                                                    <label class="switch switch-sm"><input type="checkbox" id="status-0"
-                                                            value="1" {{$brand->is_active ? 'checked' : ''}}><span class="switch-state"></span></label>
-                                                </div>
-                                            </td>
-                                            <td class="cursor-pointer">
+                                                <td class="cursor-pointer">
+                                                    <div class="form-check form-switch ps-0">
+                                                        <label class="switch switch-sm"><input type="checkbox"
+                                                                id="status-0" value="1"
+                                                                {{ $brand->is_active ? 'checked' : '' }}><span
+                                                                class="switch-state"></span></label>
+                                                    </div>
+                                                </td>
+                                                <td class="cursor-pointer">
 
-                                                {{$brand->created_at}}
+                                                    {{ $brand->created_at }}
 
-                                            </td>
-                                            <td class="cursor-pointer">
+                                                </td>
+                                                <td class="cursor-pointer">
 
-                                                {{$brand->updated_at}}
+                                                    {{ $brand->updated_at }}
 
-                                            </td>
+                                                </td>
 
 
-                                            <td>
-                                                <ul id="actions">
-                                                    <li>
-                                                        <a href="{{ route('admin.brands.edit',$brand->id ) }}" class="btn-edit">
-                                                            <i class="ri-pencil-line"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <form action="" method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn-delete"
-                                                                onclick="return confirm('{{ __('message.confirm_delete_all_item') }}')">
-                                                                <i class="ri-delete-bin-line"></i>
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
+                                                <td>
+                                                    <ul id="actions">
+                                                        <li>
+                                                            <a href="{{ route('admin.brands.edit', $brand->id) }}"
+                                                                class="btn-edit">
+                                                                <i class="ri-pencil-line"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <form action="{{ route('admin.brands.destroy', $brand->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn-delete"
+                                                                    onclick="return confirm('{{ __('message.confirm_delete_all_item') }}')">
+                                                                    <i class="ri-delete-bin-line"></i>
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
                                         @endforeach
-                                       
+
                                     </tbody>
                                 </table>
                             </div>
@@ -243,6 +256,30 @@
                     console.log('Move to trash');
                 }
             })
+
+            // #
+            $('#per_page').change(function() {
+                var perPage = $(this).val();
+                var url = new URL(window.location.href);
+                url.searchParams.set('per_page', perPage);
+                window.location.href = url.toString();
+            });
+
+            // search #
+            $(document).ready(function() {
+                // Attach keyup event to the search input field
+                $('#role-search').on('keyup', function() {
+                    // Get the search keyword
+                    let keyword = $(this).val().toLowerCase();
+
+                    // Filter table rows based on the keyword
+                    $('#brand-table tbody tr').filter(function() {
+                        // Toggle visibility of the row
+                        $(this).toggle($(this).text().toLowerCase().indexOf(keyword) > -1);
+                    });
+                });
+            });
+
 
         });
     </script>
