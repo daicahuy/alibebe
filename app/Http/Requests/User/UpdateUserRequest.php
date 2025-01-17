@@ -26,10 +26,8 @@ class UpdateUserRequest extends FormRequest
         return [
             'phone_number'    => ['required', 'string', Rule::unique('users')->ignore($userId), 'max:20'],
             'email'           => ['required', 'email', Rule::unique('users')->ignore($userId), 'max:100'],
-            'password'        => ['required', 'string', 'min:8','confirmed'],
             'fullname'        => ['required', 'string', 'max:100'],
             'role'            => ['required', Rule::in(0, 1, 2)],
-            'status'          => ['required', Rule::in(0, 1)],
         ];
     }
 }

@@ -10,7 +10,9 @@ use App\Http\Controllers\Web\Admin\OrderController;
 use App\Http\Controllers\Web\Admin\ProductController;
 use App\Http\Controllers\Web\Admin\ReviewController;
 use App\Http\Controllers\Web\Admin\TagController;
-use App\Http\Controllers\Web\Admin\UserController;
+use App\Http\Controllers\Web\Admin\UserCustomerController;
+use App\Http\Controllers\Web\Admin\UserEmployeeController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -196,7 +198,28 @@ Route::prefix('/admin')
 
                 Route::prefix('/customer')
                     ->name('customer.')
-                    ->controller(UserController::class)
+                    ->controller(UserCustomerController::class)
+                    ->group(function() {
+
+                        Route::get('/', 'index')->name('index');
+                
+                        Route::post('/', 'store')->name('store');
+        
+                        Route::get('/show/{user}', 'show')->name('show');
+
+                        Route::get('/edit/{user}', 'edit')->name('edit');
+        
+                        Route::put('/update/{user}', 'update')->name('update');
+
+                        Route::get('/lock', 'lock')->name('lock');
+
+                        Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
+
+                    });
+
+                    Route::prefix('/employee')
+                    ->name('employee.')
+                    ->controller(UserEmployeeController::class)
                     ->group(function() {
 
                         Route::get('/', 'index')->name('index');
@@ -212,6 +235,8 @@ Route::prefix('/admin')
                         Route::put('/update/{user}', 'update')->name('update');
 
                         Route::get('/lock', 'lock')->name('lock');
+
+                        Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
 
                     });
 

@@ -31,14 +31,25 @@
                                     <div class="title-header option-title">
                                         <h5>
                                             <a class="link"
-                                                href="{{ route('admin.users.customer.index') }}">{{ __('form.users') }}</a>
+                                                href="{{ route('admin.users.employee.index') }}">{{ __('form.user_employee') }}</a>
                                             <span class="fs-6 fw-light">></span> {{ __('message.add_new') }}
 
                                         </h5>
 
                                     </div>
+                                    @if (session('success'))
+                                        <div class="alert alert-success">
+                                            {{ session('success') }}
+                                        </div>
+                                    @endif
 
-                                    <form action="{{ route('admin.users.customer.store') }}" method="POST"
+                                    @if (session('error'))
+                                        <div class="alert alert-danger">
+                                            {{ session('error') }}
+                                        </div>
+                                    @endif
+
+                                    <form action="{{ route('admin.users.employee.store') }}" method="POST"
                                         class="theme-form theme-form-2 mega-form mt-4" novalidate>
                                         @csrf
 
@@ -89,7 +100,6 @@
                                             </div>
                                         </div>
 
-                                        
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0" for="password">
                                                 {{ __('form.user.password') }}
@@ -99,7 +109,7 @@
                                                 <div class="input-group">
                                                     <input type="password" name="password" id="password"
                                                         class="form-control @error('password') is-invalid @enderror"
-                                                        placeholder="{{ __('form.enter_password') }}" value="{{ old('password') }}">
+                                                        placeholder="{{ __('form.enter_password') }}">
                                                     <span class="input-group-text toggle-password" toggle="#password">
                                                         <i class="ri-eye-off-line toggle-icon"></i>
                                                     </span>
@@ -120,7 +130,7 @@
                                                     <input type="password" name="password_confirmation"
                                                         id="password_confirmation"
                                                         class="form-control @error('password_confirmation') is-invalid @enderror"
-                                                        placeholder="{{ __('form.enter_confirm_password') }}" value="{{ old('password_confirmation') }}">
+                                                        placeholder="{{ __('form.enter_confirm_password') }}">
                                                     <span class="input-group-text toggle-password"
                                                         toggle="#password_confirmation">
                                                         <i class="ri-eye-off-line toggle-icon"></i>
@@ -131,6 +141,7 @@
                                                 @enderror
                                             </div>
                                         </div>
+
 
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0">
@@ -151,19 +162,6 @@
                                             </div>
                                         </div>
 
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0">
-                                                {{ __('form.user.status') }}
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <div class="form-check form-switch ps-0">
-                                                    <label class="switch">
-                                                        <input type="checkbox" name="status" value="1" checked>
-                                                        <span class="switch-state"></span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
 
                                         <button class="btn btn-theme ms-auto mt-4"
                                             type="submit">{{ __('message.add_new') }}</button>

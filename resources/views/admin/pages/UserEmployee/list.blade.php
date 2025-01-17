@@ -25,16 +25,27 @@
                     <div class="card-body">
                         <div class="title-header">
                             <div class="d-flex align-items-center">
-                                <h5>{{ __('form.users') }}</h5>
+                                <h5>{{ __('form.user_employee') }}</h5>
                             </div>
                             <div>
                                 <a class="align-items-center btn btn-theme d-flex"
-                                    href="{{ route('admin.users.customer.create') }}">
+                                    href="{{ route('admin.users.employee.create') }}">
                                     <i class="ri-add-line"></i>
                                     {{ __('message.add') . ' ' . __('form.users') }}
                                 </a>
                             </div>
                         </div>
+                        @if (session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger">
+                                {{ session('error') }}
+                            </div>
+                        @endif
 
                         <!-- HEADER TABLE -->
                         <div class="show-box">
@@ -52,30 +63,24 @@
                                     id="btn-lock-all">
                                     {{ __('message.lock_all') }}
                                 </button>
-                                <a href="{{ route('admin.users.customer.lock') }}"
+                                <a href="{{ route('admin.users.employee.lock') }}"
                                     class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
                                     <i class="ri-lock-line"></i>
                                     {{ __('message.lock_list') }}
                                     <span
-                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">10</span>
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $totalUserLock }}</span>
                                 </a>
                             </div>
                             <div class="datepicker-wrap">
 
                             </div>
 
-                            <div>
-                                <select name="" class="form-select">
-                                    <option value="">{{ __('form.user_all') }}</option>
-                                    <option value="">{{ __('form.user_customer') }}</option>
-                                    <option value="">{{ __('form.user_employee') }}</option>
-                                </select>
-                            </div>
-
-                            <form action="" method="GET">
+                            <form action="{{ route('admin.users.employee.index') }}" method="GET">
                                 <div class="table-search">
-                                    <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword">
+                                    <label class="form-label">{{ __('message.search') }} :</label>
+                                    <input type="search" class="form-control" name="_keyword"
+                                        value="{{ request('_keyword') }}">
+                                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
                                 </div>
                             </form>
 
@@ -128,18 +133,18 @@
                                                 <td>{{ $item->id }}</td>
                                                 <td class="cursor-pointer">
                                                     <div class="user-round">
-                                                        <h4>{{ $item->avatar }}</h4>
+                                                        <h4>U</h4>
                                                     </div>
                                                 </td>
                                                 <td class="cursor-pointer">{{ $item->fullname }}</td>
                                                 <td class="cursor-pointer">{{ $item->email }}</td>
                                                 <td class="cursor-pointer">
                                                     @if ($item->role == 0)
-                                                    <span>{{ __('form.user_customer') }}</span>
+                                                        <span>{{ __('form.user_employee') }}</span>
                                                     @elseif ($item->role == 1)
-                                                    <span>{{ __('form.user_employee') }}</span>
+                                                        <span>{{ __('form.user_employee') }}</span>
                                                     @else
-                                                    <span>{{ __('form.user_admin') }}</span>
+                                                        <span>{{ __('form.user_admin') }}</span>
                                                     @endif
 
                                                 </td>
@@ -147,7 +152,8 @@
                                                 <td class="cursor-pointer">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch switch-sm">
-                                                            <input type="checkbox" id="status-0" value="0">
+                                                            <input type="checkbox" id="status-0" value=""
+                                                                {{ $item->status == 1 ? 'checked' : '' }}>>
                                                             <span class="switch-state"></span>
                                                         </label>
                                                     </div>
@@ -155,19 +161,21 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.users.customer.show', $item->id) }}"
+                                                            <a href="{{ route('admin.users.employee.show', $item->id) }}"
                                                                 class="btn-detail">
                                                                 <i class="ri-eye-line"></i>
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <a href="{{ route('admin.users.customer.edit', $item->id) }}"
+                                                            <a href="{{ route('admin.users.employee.edit', $item->id) }}"
                                                                 class="btn-edit">
                                                                 <i class="ri-pencil-line"></i>
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <form action="" method="POST">
+                                                            <form
+                                                                action="{{ route('admin.users.employee.lockUser', $item->id) }}"
+                                                                method="POST">
                                                                 @csrf
                                                                 @method('PUT')
                                                                 <button type="submit" class="btn-lock"

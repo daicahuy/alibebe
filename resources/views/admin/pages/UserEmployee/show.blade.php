@@ -30,14 +30,25 @@
                                 <div class="card-body">
                                     <div class="title-header option-title">
                                         <h5>
-                                            <a class="link"
-                                                href="{{ route('admin.users.customer.index') }}">{{ __('form.users') }}</a>
-                                            <span class="fs-6 fw-light">></span> {{ __('message.detail') }}
+
+
+                                            @if ($ShowUser->status == 1)
+                                                <a class="link"
+                                                    href="{{ route('admin.users.employee.index') }}">{{ __('form.user_employee') }}</a>
+                                                <span class="fs-6 fw-light">></span> {{ __('message.detail') }}
+                                            @else
+                                                <a class="link"
+                                                    href="{{ route('admin.users.employee.index') }}">{{ __('form.user_employee') }}</a>
+                                                <span class="fs-6 fw-light">></span>
+                                                <a class="link"
+                                                    href="{{ route('admin.users.employee.lock') }}">{{ __('message.lock_list') }}</a>
+                                                <span class="fs-6 fw-light">></span> {{ __('message.detail') }}
+                                            @endif
 
                                         </h5>
                                     </div>
 
-                                    <form action="{{ route('admin.users.customer.store') }}" method="POST"
+                                    <form action="{{ route('admin.users.employee.store') }}" method="POST"
                                         class="theme-form theme-form-2 mega-form mt-4" novalidate>
                                         @csrf
 
@@ -48,7 +59,7 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="fullname" id="fullname" class="form-control"
-                                                    value="{{$ShowUser->fullname}}" disabled>
+                                                    value="{{ $ShowUser->fullname }}" disabled>
                                             </div>
                                         </div>
 
@@ -59,7 +70,7 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="phone_number" id="phone_number"
-                                                    class="form-control" value="{{$ShowUser->phone_number}}" disabled>
+                                                    class="form-control" value="{{ $ShowUser->phone_number }}" disabled>
                                             </div>
                                         </div>
 
@@ -70,7 +81,7 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="email" name="email" id="email" class="form-control"
-                                                value="{{$ShowUser->email}}" disabled>
+                                                    value="{{ $ShowUser->email }}" disabled>
                                             </div>
                                         </div>
 
@@ -81,7 +92,7 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="role" id="role" class="form-control"
-                                                value="{{$roleLabel}}" disabled>
+                                                    value="{{ $roleLabel }}" disabled>
                                             </div>
                                         </div>
 
@@ -92,7 +103,8 @@
                                             <div class="col-sm-9">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch">
-                                                        <input type="checkbox" name="status" value="1" checked disabled>
+                                                        <input type="checkbox" name="status" value=""
+                                                            {{ $ShowUser->status == 1 ? 'checked' : '' }} disabled>
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>

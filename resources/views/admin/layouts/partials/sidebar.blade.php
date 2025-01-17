@@ -124,6 +124,12 @@
                                 </a>
                                 <ul class="sidebar-submenu"></ul>
                             </li>
+                            <li>
+                                <a href="{{ route('admin.users.employee.index') }}" class="{{ Request::is('admin/users*') ? 'active' : '' }}">
+                                    <div>{{ __('form.user_staff') }}</div>
+                                </a>
+                                <ul class="sidebar-submenu"></ul>
+                            </li>
                             {{-- <li>
                                 <a href="/fastkart-admin/role">
                                     <div>Role</div>

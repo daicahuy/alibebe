@@ -25,14 +25,21 @@
                     <div class="card-body">
                         <div class="title-header">
                             <div class="d-flex align-items-center">
-                                <h5>
-                                    <a href="{{ route('admin.users.customer.index') }}"
-                                        class="link">{{ __('form.users') }}</a>
-                                    <span class="fs-6 fw-light">></span> {{ __('message.lock_list') }}
-                                </h5>
+                                <h5>{{ __('form.users') }}</h5>
                             </div>
-                        </div>
 
+                        </div>
+                        @if (session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger">
+                                {{ session('error') }}
+                            </div>
+                        @endif
                         <!-- HEADER TABLE -->
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
@@ -45,29 +52,31 @@
                                     </option>
                                 </select>
                                 <label>{{ __('message.items_per_page') }}</label>
-                                <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
-                                    id="btn-unlock-all">
-                                    {{ __('message.unlock_all') }}
+                                <button class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
+                                    id="btn-lock-all">
+                                    {{ __('message.lock_all') }}
                                 </button>
+                                <a href="{{ route('admin.users.customer.lock') }}"
+                                    class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
+                                    <i class="ri-lock-line"></i>
+                                    {{ __('message.lock_list') }}
+                                    <span
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $totalUserLock }}</span>
+                                </a>
                             </div>
                             <div class="datepicker-wrap">
 
                             </div>
 
-                            <div>
-                                <select name="" class="form-select">
-                                    <option value="">{{ __('form.user_all') }}</option>
-                                    <option value="">{{ __('form.user_customer') }}</option>
-                                    <option value="">{{ __('form.user_employee') }}</option>
-                                </select>
-                            </div>
-
-                            <form action="" method="GET">
+                            <form action="{{ route('admin.users.customer.index') }}" method="GET">
                                 <div class="table-search">
-                                    <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword">
+                                    <label class="form-label">{{ __('message.search') }} :</label>
+                                    <input type="search" class="form-control" name="_keyword"
+                                        value="{{ request('_keyword') }}">
+                                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
                                 </div>
                             </form>
+
 
                         </div>
                         <!-- END HEADER TABLE -->
@@ -107,8 +116,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-
-                                        @foreach ($UsersLock as $item)
+                                        @foreach ($ListUsers as $item)
                                             <tr>
                                                 <td>
                                                     <div class="custom-control custom-checkbox">
@@ -119,7 +127,7 @@
                                                 <td>{{ $item->id }}</td>
                                                 <td class="cursor-pointer">
                                                     <div class="user-round">
-                                                        <h4>{{ $item->avatar }}</h4>
+                                                        <h4>U</h4>
                                                     </div>
                                                 </td>
                                                 <td class="cursor-pointer">{{ $item->fullname }}</td>
@@ -138,7 +146,8 @@
                                                 <td class="cursor-pointer">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch switch-sm">
-                                                            <input type="checkbox" id="status-0" value="0">
+                                                            <input type="checkbox" id="status-0" value=""
+                                                                {{ $item->status == 1 ? 'checked' : '' }}>>
                                                             <span class="switch-state"></span>
                                                         </label>
                                                     </div>
@@ -158,12 +167,14 @@
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <form action="" method="POST">
+                                                            <form
+                                                                action="{{ route('admin.users.customer.lockUser', $item->id) }}"
+                                                                method="POST">
                                                                 @csrf
                                                                 @method('PUT')
                                                                 <button type="submit" class="btn-lock"
                                                                     onclick="return confirm('{{ __('message.confirm_lock_user') }}')">
-                                                                    <i class="ri-delete-bin-line"></i>
+                                                                    <i class="ri-lock-line"></i>
                                                                 </button>
                                                             </form>
                                                         </li>
@@ -181,7 +192,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-                             {{$UsersLock->links()}}
+                            {{ $ListUsers->links() }}
                         </div>
                         <!-- END PAGINATIOn -->
 
@@ -210,9 +221,9 @@
             $('#checkbox-table').on('click', function() {
 
                 if ($(this).prop('checked')) {
-                    $('#btn-unlock-all').removeClass('visually-hidden');
+                    $('#btn-lock-all').removeClass('visually-hidden');
                 } else {
-                    $('#btn-unlock-all').addClass('visually-hidden');
+                    $('#btn-lock-all').addClass('visually-hidden');
                 }
 
                 $('.checkbox-input').prop('checked', $(this).prop('checked'));
@@ -226,7 +237,7 @@
                 $('#checkbox-table').prop('checked', total === checked);
 
                 if ($(this).prop('checked')) {
-                    $('#btn-unlock-all').removeClass('visually-hidden');
+                    $('#btn-lock-all').removeClass('visually-hidden');
                 } else {
                     let isAnotherInputChecked = false;
                     $('.checkbox-input').not($(this)).each((index, checkboxInput) => {
@@ -237,7 +248,7 @@
                     })
 
                     if (!isAnotherInputChecked) {
-                        $('#btn-unlock-all').addClass('visually-hidden');
+                        $('#btn-lock-all').addClass('visually-hidden');
                         $('#checkbox-table').prop('checked', false);
                     }
                 }
@@ -245,9 +256,13 @@
             // --- End Logic Checkbox ---
 
 
-            $('#btn-unlock-all').on('click', function(e) {
+            $('#btn-lock-all').on('click', function(e) {
 
+                let confirmMessage = confirm("{{ __('message.confirm_lock_all_user') }}");
 
+                if (confirmMessage) {
+                    console.log('Move to trash');
+                }
             })
 
         });

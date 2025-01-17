@@ -17,6 +17,7 @@ return [
     'confirm_delete_item' => 'Bạn có chắc xóa bản ghi này không ?',
     'confirm_delete_all_item' => 'Bạn có chắc xóa các bản ghi đã chọn không ?',
     'confirm_lock_user' => 'Bạn có chắc muốn khóa người dùng này lại không ?',
+    'confirm_unlock_user' => 'Bạn có chắc muốn bỏ khóa người dùng này lại không ?',
     'confirm_lock_all_user' => 'Bạn có chắc muốn khóa tất cả người dùng đã chọn không ?',
     'lock_all' => 'Khóa tất cả',
     'unlock_all' => 'Mở khóa tất cả',
