@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class CreateAttributeRequest extends FormRequest
+class UpdateAttributeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +22,9 @@ class CreateAttributeRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->route('attribute')->id;
         return [
-           'name' => ['required', 'string', 'max:255', Rule::unique('attributes')],
+           'name' => ['required', 'string', 'max:255', Rule::unique('attributes')->ignore($id)],
             'is_variant' => ['nullable', Rule::in([0, 1])],
             'is_active' => ['nullable', Rule::in([0, 1])],
         ];

@@ -3,28 +3,32 @@
 namespace App\Repositories;
 
 use App\Models\Attribute;
+use App\Models\Product;
 
-class AttributeRepository extends BaseRepository {
-    
+class AttributeRepository extends BaseRepository
+{
+
     public function getModel()
     {
         return Attribute::class;
     }
-    public function getAllAttributeRepository()
+    public function getAllAttributeRepository($perpage = 15, $filter = null)
     {
-        $attributes = Attribute::with('attributeValues')
-        ->orderBy('id', 'desc')
-        ->paginate(5);
-        
-        // Sử dụng map() khi không phân trang và transform khi phân trang
-        // map() không thay đổi Collection ban đầu mà trả về một Collection mới.
-        // transform() thay đổi trực tiếp Conllection.
-        // $attributes->getCollection()->transform(function ($attribute) {
-        //     $attribute->attributeValues = $attribute->attributeValues->toArray();
-        //     return $attribute;
-        // });
-
+        if ($filter !== null) {
+            $attributes = Attribute::with('attributeValues')
+                ->where('is_variant', $filter)
+                ->orderBy('id', 'desc')
+                ->paginate($perpage);
+        } else {
+            $attributes = Attribute::with('attributeValues')
+                ->orderBy('id', 'desc')
+                ->paginate($perpage);
+        }
         return $attributes;
-
     }
+
+    // public function AttributeHasProduct()
+    // {
+    //    $attributeHasProduct = Product::con
+    // }
 }

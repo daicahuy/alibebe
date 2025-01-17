@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CreateAttributeRequest;
+use App\Http\Requests\StoreAttributeRequest;
+use App\Http\Requests\UpdateAttributeRequest;
 use App\Models\Attribute;
 use App\Services\Web\Admin\AttributeService;
 use Illuminate\Http\Request;
@@ -15,9 +16,10 @@ class AttributeController extends Controller
     {
         $this->attributeService = $attributeService;
     }
-    public function index()
+    public function index(Request $request)
     {
-        $data = $this->attributeService->getAllAttributeService();
+        $filter = $request->input('filter', null);
+        $data = $this->attributeService->getAllAttributeService($request,$filter);
         // dd($attibutes);
         return view('admin.pages.attributes.list',compact('data'));
     }
@@ -27,10 +29,10 @@ class AttributeController extends Controller
         return view('admin.pages.attributes.create');
     }
 
-    public function store(CreateAttributeRequest $request)
+    public function store(StoreAttributeRequest $request)
     {
             $this->attributeService->store($request);
-            return redirect()->route('admin.attributes.index')->with('create_success','Thêm mới thành công!');
+            return redirect()->route('admin.attributes.index')->with('success','Thêm mới thành công!');
     }
 
     public function edit(Attribute $attribute)
@@ -38,13 +40,16 @@ class AttributeController extends Controller
         return view('admin.pages.attributes.edit',compact('attribute'));
     }
 
-    public function update(Request $request, Attribute $attribute)
+    public function update(UpdateAttributeRequest $request, Attribute $attribute)
     {
-
+        $this->attributeService->update($request,$attribute);
+        return redirect()->route('admin.attributes.edit',$attribute->id)->with('success','Cập nhật thành công!');
     }
 
     public function destroy(Request $request)
     {
-        
+        $id = $request->input('id'); 
+        $this->attributeService->delete($id);
+        return redirect()->route('admin.attributes.index')->with('success','Xóa thành công!');
     }
 }

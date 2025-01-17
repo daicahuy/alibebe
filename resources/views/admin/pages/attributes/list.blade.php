@@ -18,13 +18,10 @@
 {{-- ================================== --}}
 
 @section('content')
-@if(session('create_success'))
+@if(session('success'))
     <div class="alert alert-success">
-        {{ session('create_success') }}
+        {{ session('success') }}
     </div>
-        {{-- <script>
-            alert("{{ session('success') }}");
-        </script> --}}
 @endif
     <div class="container-fuild">
         <div class="row">
@@ -47,12 +44,18 @@
                         <!-- HEADER TABLE -->
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                <select class="form-control">
-                                    <option value="15">15
+                                <select class="form-control" onchange="window.location.href=this.value;">
+                                    <option value="{{ route('admin.attributes.index', ['perpage' => 15]) }}" 
+                                        @if(request()->input('perpage') == 15) selected @endif>
+                                        15
                                     </option>
-                                    <option value="30">30
+                                    <option value="{{ route('admin.attributes.index', ['perpage' => 30]) }}" 
+                                        @if(request()->input('perpage') == 30) selected @endif>
+                                        30
                                     </option>
-                                    <option value="45">45
+                                    <option value="{{ route('admin.attributes.index', ['perpage' => 45]) }}" 
+                                        @if(request()->input('perpage') == 45) selected @endif>
+                                        45
                                     </option>
                                 </select>
                                 <label>{{ __('message.items_per_page') }}</label>
@@ -75,10 +78,16 @@
                             @endcomponent
                             <!-- End Switch Button -->
                             <div class="d-inline-block">
-                                <select name="" class="form-select">
-                                    <option>{{ __('form.attribute_all') }}</option>
-                                    <option value="0">{{ __('form.attribute_specifications') }}</option>
-                                    <option value="1">{{ __('form.attribute_variants') }}</option>
+                                <select name="" class="form-select" onchange="window.location.href=this.value;">
+                                    <option value="{{ route('admin.attributes.index', ['filter' => '']) }}" 
+                                        @if (request()->input('filter') === '') selected @endif>
+                                        {{ __('form.attribute_all') }}</option>
+                                    <option value="{{ route('admin.attributes.index', ['filter' => 0]) }}"
+                                        @if (request()->input('filter') === '0') selected @endif>
+                                        {{ __('form.attribute_specifications') }}</option>
+                                    <option value="{{ route('admin.attributes.index', ['filter' => 1]) }}"
+                                        @if (request()->input('filter') === '1') selected @endif>
+                                        {{ __('form.attribute_variants') }}</option>
                                 </select>
                             </div>
 
@@ -192,9 +201,10 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <form action="" method="POST">
+                                                        <form action="{{ route('admin.attributes.destroy') }}" method="POST">
                                                             @csrf
                                                             @method('DELETE')
+                                                            <input type="hidden" name="id" value="{{ $atb->id }}">
                                                             <button type="submit" class="btn-delete"
                                                                 onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
                                                                 <i class="ri-delete-bin-line"></i>

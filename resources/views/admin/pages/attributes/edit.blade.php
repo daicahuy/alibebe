@@ -18,9 +18,13 @@
 {{-- ================================== --}}
 
 @section('content')
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
     <div class="container-fuild">
         <div class="row m-0">
-
             <div class="col-xl-8 p-0 m-auto">
                 <div class="container-fluid">
                     <div class="row">
@@ -36,9 +40,10 @@
 
                                         </h5>
                                     </div>
-                                    <form action="" method="POST" class="theme-form theme-form-2 mega-form mt-4"
+                                    <form action="{{ route('admin.attributes.update',$attribute->id) }}" method="POST" class="theme-form theme-form-2 mega-form mt-4"
                                         novalidate>
                                         @csrf
+                                        @method('PUT')
 
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0" for="name">
@@ -47,9 +52,11 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="name" id="name"
-                                                    class="form-control is-invalid" value="{{$attribute->name}}"
+                                                    class="form-control @error('name') is-invalid @enderror" value="{{$attribute->name}}"
                                                     placeholder="{{ __('form.enter_attribute_name') }}">
-                                                <div class="invalid-feedback">Vui lòng nhập tên thuộc tính</div>
+                                                    @error('name')
+                                                    <div class="invalid-feedback">{{$message}}</div>
+                                                    @enderror
                                             </div>
                                         </div>
 
@@ -60,7 +67,7 @@
                                             <div class="col-sm-9">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch">
-                                                        <input type="checkbox" name="is_variant" value="1" checked>
+                                                        <input type="checkbox" name="is_variant" value="1" {{ $attribute->is_variant ? 'checked' : '' }}>
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>
@@ -74,7 +81,7 @@
                                             <div class="col-sm-9">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch">
-                                                        <input type="checkbox" name="is_active" value="1" checked>
+                                                        <input type="checkbox" name="is_active" value="1" {{ $attribute->is_active ? 'checked' : '' }}>
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>
