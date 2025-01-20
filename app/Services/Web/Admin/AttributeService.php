@@ -19,11 +19,13 @@ class AttributeService
         $this->attributeRepository = $attributeRepository;
     }
 
-    public function getAllAttributeService(Request $request, $filter = null)
+    public function getAllAttributeService(Request $request, $filter = null,$_keyword = null)
     {
         try {
             $perpage = $request->input('perpage', 15);
-            return $this->attributeRepository->getAllAttributeRepository($perpage, $filter);
+            $sortColumn = $request->input('sortColumn');
+            $sortDirection = $request->input('sortDirection', 'desc');
+            return $this->attributeRepository->getAllAttributeRepository($perpage, $filter,$_keyword, $sortColumn, $sortDirection);
         } catch (\Throwable $th) {
             Log::error(
                 __CLASS__ . "@" . __FUNCTION__,
@@ -66,9 +68,19 @@ class AttributeService
     public function delete(int $id)
     {
         try {
-            
-            $data = $this->attributeRepository->findById($id);
-            return $data->delete();
+            return $this->attributeRepository->delete($id);
+        } catch (\Throwable $th) {
+            Log::error(
+                __CLASS__ . "@" . __FUNCTION__,
+                ['error' => $th->getMessage()]
+            );
+            throw $th;
+        }
+    }
+    public function deleteAll(array $ids)
+    {
+        try {
+            return $this->attributeRepository->deleteAll($ids);
         } catch (\Throwable $th) {
             Log::error(
                 __CLASS__ . "@" . __FUNCTION__,

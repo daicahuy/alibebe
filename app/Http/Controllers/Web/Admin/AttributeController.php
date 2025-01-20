@@ -16,12 +16,15 @@ class AttributeController extends Controller
     {
         $this->attributeService = $attributeService;
     }
-    public function index(Request $request)
+    public function index(Request $request,$sortColumn = null, $sortDirection = 'desc')
     {
         $filter = $request->input('filter', null);
-        $data = $this->attributeService->getAllAttributeService($request,$filter);
+        $keyword = $request->input('_keyword');
+        // $sortColumn = $request->input('sortColumn');
+        // $sortDirection = $request->input('sortDirection', 'desc');
+        $data = $this->attributeService->getAllAttributeService($request,$filter,$keyword);
         // dd($attibutes);
-        return view('admin.pages.attributes.list',compact('data'));
+        return view('admin.pages.attributes.list',compact('data', 'sortColumn', 'sortDirection'));
     }
 
     public function create()
@@ -48,8 +51,19 @@ class AttributeController extends Controller
 
     public function destroy(Request $request)
     {
-        $id = $request->input('id'); 
-        $this->attributeService->delete($id);
-        return redirect()->route('admin.attributes.index')->with('success','Xóa thành công!');
+        $id = $request->input('id');
+        $ids = $request->input('ids',[]);
+        try {
+            if($id){
+                $this->attributeService->delete($id);
+            }else if( $ids){
+                $idsArray = explode(',', $ids); // Chuyển chuỗi IDs thành mảng
+                $this->attributeService->deleteAll($idsArray); // Gọi phương thức xóa tất cả trong service
+            }else{}
+            return redirect()->route('admin.attributes.index')->with('success','Xóa thành công!');
+        } catch (\Exception $e) {
+            // Trả về thông báo lỗi qua session
+            return redirect()->route('admin.attributes.index')->with('error', $e->getMessage());
+        }
     }
 }
