@@ -72,7 +72,7 @@
                             </div>
                             <div>
                                 <select name="" class="form-select">
-                                    <option value="">{{ __('form.status_all') }}</option>
+                                    <option value="">{{ __('form.product_stock_status_all') }}</option>
                                     <option value="">{{ __('form.product_stock_in_stock') }}</option>
                                     <option value="">{{ __('form.product_stock_out_of_stock') }}</option>
                                     <option value="">{{ __('form.product_stock_low_stock') }}</option>
@@ -130,7 +130,7 @@
                                                     <div><i class="ri-arrow-up-s-fill"></i></div>
                                                 </div>
                                             </th>
-                                            <th class="cursor-pointer">{{ __('form.status') }}</th>
+                                            <th class="cursor-pointer">{{ __('form.product_stock_status') }}</th>
                                             <th class="cursor-pointer">{{ __('form.product.is_active') }}</th>
                                             <th>{{ __('form.action') }}</th>
                                         </tr>

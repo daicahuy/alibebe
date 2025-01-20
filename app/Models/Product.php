@@ -13,20 +13,21 @@ class Product extends Model
     protected $fillable = [
         'brand_id',
         'name',
-        'name_link',
         'slug',
         'views',
         'short_description',
         'description',
         'thumbnail',
+        'type',
         'sku',
         'price',
         'sale_price',
         'sale_price_start_at',
         'sale_price_end_at',
-        'type',
+        'is_sale',
+        'is_featured',
+        'is_trending',
         'is_active',
-        'start_at'
     ];
 
     public function isSingle()
@@ -89,19 +90,9 @@ class Product extends Model
         return $this->belongsToMany(Tag::class);
     }
 
-    public function productFeatures()
-    {
-        return $this->hasMany(Product::class);
-    }
-
     public function productAccessories()
     {
         return $this->belongsToMany(Product::class, 'product_accessory', 'product_id', 'product_accessory_id');
-    }
-
-    public function productLinks()
-    {
-        return $this->belongsToMany(Product::class, 'product_link', 'product_id', 'product_link_id');
     }
 
     public function productGallery()
