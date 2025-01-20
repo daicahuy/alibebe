@@ -52,7 +52,9 @@
                                     id="btn-move-to-trash-all">
                                     {{ __('message.move_to_trash') }}
                                 </button>
-                                <input type="hidden" id="selected-category-ids" name="selected_category_ids" value="">
+                                {{-- input ẩn lưu ids --}}
+                                {{-- <input type="hidden" id="selected-category-ids" name="selected_category_ids"
+                                    value=""> --}}
 
                                 <a href="{{ route('admin.categories.trash') }}"
                                     class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
@@ -130,11 +132,10 @@
                                             <tr>
                                                 <td>
                                                     <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" id="checkbox-{{ $cate->id }}"
-                                                            value="{{ $cate->id }}"
+                                                        <input type="checkbox" id="" value="{{ $cate->id }}"
                                                             class="custom-control-input checkbox_animated checkbox-input">
-                                                        <label class="custom-control-label"
-                                                            for="checkbox-{{ $cate->id }}"></label>
+                                                        {{-- <label class="custom-control-label"
+                                                            for="checkbox-{{ $cate->id }}"></label> --}}
                                                     </div>
                                                 </td>
                                                 <td class="cursor-pointer sm-width"> {{ $cate->id }}
@@ -252,42 +253,111 @@
     <script>
         $(document).ready(function() {
 
-            // --- Logic Checkbox ---
-            // $('#checkbox-table').on('click', function() {
 
-            //     if ($(this).prop('checked')) {
-            //         $('#btn-move-to-trash-all').removeClass('visually-hidden');
-            //     } else {
-            //         $('#btn-move-to-trash-all').addClass('visually-hidden');
-            //     }
+            // --- Logic Checkbox --- 
+            $('#checkbox-table').on('click', function() {
+                
+                 $('.checkbox-input').prop('checked', $(this).prop('checked'));
+                toggleBulkActionButton();
 
-            //     $('.checkbox-input').prop('checked', $(this).prop('checked'));
-            // });
+            });
 
-            // $('.checkbox-input').on('click', function() {
+            $('.checkbox-input').on('click', function() {
 
-            //     const total = $('.checkbox-input').length;
-            //     const checked = $('.checkbox-input:checked').length;
+                const total = $('.checkbox-input').length;
+                const checked = $('.checkbox-input:checked').length;
 
-            //     $('#checkbox-table').prop('checked', total === checked);
+                $('#checkbox-table').prop('checked', total === checked);
+                toggleBulkActionButton();
 
-            //     if ($(this).prop('checked')) {
-            //         $('#btn-move-to-trash-all').removeClass('visually-hidden');
-            //     } else {
-            //         let isAnotherInputChecked = false;
-            //         $('.checkbox-input').not($(this)).each((index, checkboxInput) => {
-            //             if ($(checkboxInput).prop('checked')) {
-            //                 isAnotherInputChecked = true;
-            //                 return;
-            //             }
-            //         })
+            });
 
-            //         if (!isAnotherInputChecked) {
-            //             $('#btn-move-to-trash-all').addClass('visually-hidden');
-            //             $('#checkbox-table').prop('checked', false);
-            //         }
-            //     }
-            // });
+
+            // --- Xử lý sự kiện click nút "Xóa tất cả" ---
+            $('#btn-move-to-trash-all').on('click', function() {
+                handleBulkAction(); // 6.1 Gọi hàm xử lý
+            });
+
+            //  Hàm ẩn/hiện nút "Xóa tất cả"
+            function toggleBulkActionButton() {
+                if ($('.checkbox-input:checked').length > 0) {
+                    $('#btn-move-to-trash-all').removeClass('visually-hidden'); // checkbox => hiện
+                } else {
+                    $('#btn-move-to-trash-all').addClass('visually-hidden'); //  ẩn
+                }
+            }
+            toggleBulkActionButton(); // 5. Gọi hàm lần đầu khi trang tải
+
+            // Lấy ids và gửi AJAX request
+            function handleBulkAction() {
+
+                const selectedIds = [];
+                $('.checkbox-input:checked').each(function() {
+                    selectedIds.push($(this).val());
+                });
+
+                if (selectedIds.length == 0) { // 6.2 Kiểm tra nếu không có ID nào được chọn
+                    alert('Vui lòng chọn ít nhất một danh mục.');
+                    return; // Dừng thực thi nếu không có ID
+                }
+
+                if (confirm(
+                        "{{ __('message.confirm_move_to_trash_all_item') }}"
+                    )) {
+                    $.ajax({ // Gửi AJAX request
+                        url: '{{ route('admin.categories.bulkTrash') }}', //  URL của route xử lý
+                        method: 'POST', //  Phương thức POST
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            category_ids: selectedIds,
+                        },
+
+                        success: function(response) {
+                            console.log("data:", selectedIds);
+
+                            console.log("Response:", response);
+
+                            if (response && typeof response === 'object') {
+
+                                if (response.success === true) {
+
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Thành công!',
+                                        html: response.message,
+                                        timer: 1500, // Tự động đóng sau 1.5 giây
+                                        showConfirmButton: false,
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+
+                                } else {
+
+                                    // let errorMessage = "Đã có lỗi xảy ra.";
+
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Lỗi!',
+                                        html: response.message,
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                }
+
+                            } else {
+                                console.error("Response không đúng định dạng:", response);
+                                alert("Đã có lỗi xảy ra trong quá trình xử lý.");
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Lỗi AJAX:", error);
+                            alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+                        }
+                    });
+                }
+
+            }
+
             // --- End Logic Checkbox ---
 
 
@@ -309,94 +379,109 @@
 
 
 
-            // $('#btn-move-to-trash-all').on('click', function(e) {
-
-            //     let confirmMessage = confirm("{{ __('message.confirm_move_to_trash_all_item') }}");
-
-            //     if (confirmMessage) {
-            //         console.log('Move to trash');
-            //     }
-            // })
 
 
             // xử lý hàng loạt
 
-            // --- Logic Checkbox ---
-            $('#checkbox-table').on('click', function() {
-                const isChecked = $(this).prop('checked');
-                $('.checkbox-input').prop('checked', isChecked);
-                updateSelectedCategoryIds();
-                toggleBulkActionButton();
-            });
 
-            $('.checkbox-input').on('click', function() {
-                $('#checkbox-table').prop('checked', $('.checkbox-input:checked').length === $(
-                    '.checkbox-input').length);
-                updateSelectedCategoryIds();
-                toggleBulkActionButton();
-            });
+            // --- Logic Checkbox --- GPT
+            // $('#checkbox-table').on('click', function() { //  "Chọn tất cả"
+            //     const isChecked = $(this).prop('checked');
+            //     $('.checkbox-input').prop('checked', isChecked);
+            //     toggleBulkActionButton(); // 1.4 Ẩn/hiện nút "Xóa tất cả"
+            // });
 
-            function updateSelectedCategoryIds() {
-                const selectedIds = $('.checkbox-input:checked').map(function() {
-                    return $(this).val();
-                }).toArray();
-                $('#selected-category-ids').val(selectedIds.join(','));
-            }
+            // $('.checkbox-input').on('click', function() { //  Click vào từng checkbox con
+            //     const total = $('.checkbox-input').length;
+            //     const checked = $('.checkbox-input:checked').length;
+            //     $('#checkbox-table').prop('checked', total === checked);
+            //     toggleBulkActionButton();
+            // });
 
-            function toggleBulkActionButton() {
-                $('#btn-move-to-trash-all').toggleClass('visually-hidden', $('.checkbox-input:checked').length ===
-                    0);
-            }
+            // function toggleBulkActionButton() { //  Hàm ẩn/hiện nút "Xóa tất cả"
+            //     if ($('.checkbox-input:checked').length > 0) {
+            //         $('#btn-move-to-trash-all').removeClass('visually-hidden'); // checkbox => hiện
+            //     } else {
+            //         $('#btn-move-to-trash-all').addClass('visually-hidden'); //  ẩn
+            //     }
+            // }
 
-            toggleBulkActionButton(); // Gọi lần đầu để ẩn nút nếu không có checkbox nào được chọn ban đầu
 
             // --- Xử lý sự kiện click nút "Xóa tất cả" ---
-            $('#btn-move-to-trash-all').on('click', function() {
-                const selectedIds = $('#selected-category-ids').val();
-                if (!selectedIds) {
-                    alert('Vui lòng chọn ít nhất một danh mục.');
-                    return;
-                }
+            // $('#btn-move-to-trash-all').on('click', function() {
+            //     handleBulkAction(); // 6.1 Gọi hàm xử lý
+            // });
 
-                if (confirm("{{ __('message.confirm_move_to_trash_all_item') }}")) {
-                    $.ajax({
-                        url: '{{ route('admin.categories.bulkTrash') }}',
-                        method: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            category_ids: selectedIds,
-                        },
-                        success: function(response) {
-                            console.log("Response:", response);
-                            if (response && typeof response === 'object') {
-                                if (response.success === true) {
-                                    alert(response.message || "Đã xóa thành công.");
-                                    location.reload(); // Hoặc cập nhật UI mà không cần reload
-                                } else if (response.success === false) {
-                                    alert(response.message || "Đã có lỗi xảy ra.");
-                                    if (response.errors) {
-                                        console.error("Lỗi chi tiết:", response.errors);
-                                        for (const key in response.errors) {
-                                            alert(response.errors[key]);
-                                        }
-                                    }
-                                } else {
-                                    console.error("response.success không đúng định dạng:",
-                                        response.success);
-                                    alert("Đã có lỗi xảy ra trong quá trình xử lý.");
-                                }
-                            } else {
-                                console.error("Response không đúng định dạng:", response);
-                                alert("Đã có lỗi xảy ra trong quá trình xử lý.");
-                            }
-                        },
-                        error: function(error) {
-                            console.error("Lỗi AJAX:", error);
-                            alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
-                        }
-                    });
-                }
-            });
+            // Lấy ids và gửi AJAX request
+            // function handleBulkAction() {
+
+            //     const selectedIds = [];
+            //     $('.checkbox-input:checked').each(function() {
+            //         selectedIds.push($(this).val());
+            //     });
+
+            //     if (selectedIds.length == 0) { // 6.2 Kiểm tra nếu không có ID nào được chọn
+            //         alert('Vui lòng chọn ít nhất một danh mục.');
+            //         return; // Dừng thực thi nếu không có ID
+            //     }
+
+            //     if (confirm(
+            //             "{{ __('message.confirm_move_to_trash_all_item') }}"
+            //         )) {
+            //         $.ajax({ // Gửi AJAX request
+            //             url: '{{ route('admin.categories.bulkTrash') }}', //  URL của route xử lý
+            //             method: 'POST', //  Phương thức POST
+            //             data: {
+            //                 _token: '{{ csrf_token() }}',
+            //                 category_ids: selectedIds,
+            //             },
+
+            //             success: function(response) {
+            //                 console.log("data:", selectedIds);
+
+            //                 console.log("Response:", response);
+
+            //                 if (response && typeof response === 'object') {
+
+            //                     if (response.success === true) {
+
+            //                         Swal.fire({
+            //                             icon: 'success',
+            //                             title: 'Thành công!',
+            //                             html: response.message,
+            //                             timer: 1500, // Tự động đóng sau 1.5 giây
+            //                             showConfirmButton: false,
+            //                         }).then(() => {
+            //                             location.reload();
+            //                         });
+
+            //                     } else {
+
+            //                         // let errorMessage = "Đã có lỗi xảy ra.";
+
+            //                         Swal.fire({
+            //                             icon: 'error',
+            //                             title: 'Lỗi!',
+            //                             html: response.message,
+            //                         }).then(() => {
+            //                             location.reload();
+            //                         });
+            //                     }
+
+            //                 } else {
+            //                     console.error("Response không đúng định dạng:", response);
+            //                     alert("Đã có lỗi xảy ra trong quá trình xử lý.");
+            //                 }
+            //             },
+            //             error: function(error) {
+            //                 console.error("Lỗi AJAX:", error);
+            //                 alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+            //             }
+            //         });
+            //     }
+
+            // }
+
 
         });
     </script>

@@ -66,13 +66,15 @@ Route::prefix('/admin')
 
 
                 // 
-                Route::put('/bulk-restore',  'bulkRestore')->name('bulkRestore');
+                Route::post('/bulk-restore',  'bulkRestore')->name('bulkRestore');
 
-                Route::delete('/bulk-destroy',  'bulkDestroy')->name('bulkDestroy');
+                Route::post('/bulk-destroy',  'bulkDestroy')->name('bulkDestroy');
 
                 Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
 
             });
+//
+
 
         // PRODUCTS
         Route::prefix('/products')

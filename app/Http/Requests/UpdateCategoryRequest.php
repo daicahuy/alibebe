@@ -25,11 +25,11 @@ class UpdateCategoryRequest extends FormRequest
     {
         return [
             'parent_id' => 'nullable|integer|exists:categories,id',
-            'icon' => 'nullable|image|max:2048',
+            'icon' => 'nullable|image:svg|max:2048|mimes:svg',
             'name' => [
                 'required',
                 'string',
-                'max:100',
+                'max:50',
                 Rule::unique('categories', 'name')->ignore($this->category->id)
             ],
             // 'slug' => 'required|string|max:100|unique:categories,slug',
@@ -62,7 +62,7 @@ class UpdateCategoryRequest extends FormRequest
     {
         return [
             'name.required'     => __('validation.required', ['attribute' => __('form.category.name')]),
-            'name.max'          => __('validation.max.string', ['attribute' => __('form.category.name'), 'max' => 100]),
+            'name.max'          => __('validation.max.string', ['attribute' => __('form.category.name'), 'max' => 50]),
             'name.unique'       => __('validation.unique', ['attribute' => __('form.category.name')]),
             'parent_id.integer' => __('validation.integer', ['attribute' => __('form.category.parent_id')]),
             'parent_id.exists'  => __('validation.exists', ['attribute' => __('form.category.parent_id')]),

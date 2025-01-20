@@ -197,6 +197,7 @@
     <script>
         $(document).ready(function() {
 
+            
         });
     </script>
 @endpush

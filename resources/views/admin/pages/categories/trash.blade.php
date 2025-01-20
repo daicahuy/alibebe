@@ -244,61 +244,55 @@
         $(document).ready(function() {
 
             // --- Logic Checkbox ---
-            // $('#checkbox-table').on('click', function() {
+            $('#select-all').on('click', function() {
 
-            //     if ($(this).prop('checked')) {
-            //         $('#btn-delete-all').removeClass('visually-hidden');
-            //         $('#btn-restore-all').removeClass('visually-hidden');
-            //     } else {
-            //         $('#btn-delete-all').addClass('visually-hidden');
-            //         $('#btn-restore-all').addClass('visually-hidden');
-            //     }
+                $('.checkbox-input').prop('checked', $(this).prop('checked'));
+                toggleBulkActionButtons();
 
+            });
+            // toggleBulkActionButtons();
+
+            $('.checkbox-input').on('click', function() {
+
+                const total = $('.checkbox-input').length;
+                const checked = $('.checkbox-input:checked').length;
+
+                $('#checkbox-table').prop('checked', total === checked);
+                toggleBulkActionButtons();
+
+            });
+
+            // chạy hàm khi load trang
+            toggleBulkActionButtons();
+
+
+            // click  button
+            $('#btn-restore-all').on('click', function() {
+                handleBulkAction('restore');
+            });
+
+            $('#btn-delete-all').on('click', function() {
+                let confirmMessage = confirm("{{ __('message.confirm_delete_all_item') }}");
+
+                if (confirmMessage) {
+                    handleBulkAction('destroy');
+                }
+
+            });
+            // --- Logic Checkbox ---
+            // $('#select-all').on('click', function() {
             //     $('.checkbox-input').prop('checked', $(this).prop('checked'));
+            //     toggleBulkActionButtons();
             // });
 
             // $('.checkbox-input').on('click', function() {
-
             //     const total = $('.checkbox-input').length;
             //     const checked = $('.checkbox-input:checked').length;
-
-            //     $('#checkbox-table').prop('checked', total === checked);
-
-            //     if ($(this).prop('checked')) {
-            //         $('#btn-delete-all').removeClass('visually-hidden');
-            //         $('#btn-restore-all').removeClass('visually-hidden');
-            //     } else {
-            //         let isAnotherInputChecked = false;
-            //         $('.checkbox-input').not($(this)).each((index, checkboxInput) => {
-            //             if ($(checkboxInput).prop('checked')) {
-            //                 isAnotherInputChecked = true;
-            //                 return;
-            //             }
-            //         })
-
-            //         if (!isAnotherInputChecked) {
-            //             $('#btn-delete-all').addClass('visually-hidden');
-            //             $('#btn-restore-all').addClass('visually-hidden');
-            //             $('#checkbox-table').prop('checked', false);
-            //         }
-            //     }
+            //     $('#select-all').prop('checked', total === checked);
+            //     toggleBulkActionButtons();
             // });
 
-            // //////
-
-            // --- Logic Checkbox ---
-            $('#select-all').on('click', function() {
-                $('.checkbox-input').prop('checked', $(this).prop('checked'));
-                toggleBulkActionButtons();
-            });
-
-            $('.checkbox-input').on('click', function() {
-                const total = $('.checkbox-input').length;
-                const checked = $('.checkbox-input:checked').length;
-                $('#select-all').prop('checked', total === checked);
-                toggleBulkActionButtons();
-            });
-
+            // Hàm ẩn/hiên button 
             function toggleBulkActionButtons() {
                 if ($('.checkbox-input:checked').length > 0) {
                     $('#btn-restore-all').removeClass('visually-hidden');
@@ -308,19 +302,13 @@
                     $('#btn-delete-all').addClass('visually-hidden');
                 }
             }
-            toggleBulkActionButtons();
+
 
 
             // --- Xử lý submit bằng AJAX ---
-            $('#btn-restore-all').on('click', function() {
-                handleBulkAction('restore');
-            });
-
-            $('#btn-delete-all').on('click', function() {
-                handleBulkAction('destroy');
-            });
-
             function handleBulkAction(action) {
+
+                // Truyền ids vào mảng
                 let checkedIds = [];
                 $('.checkbox-input:checked').each(function() {
                     checkedIds.push($(this).val());
@@ -340,36 +328,35 @@
 
                 $.ajax({
                     url: url,
-                    type: 'POST',
+                    method: 'POST',
                     data: {
                         _token: "{{ csrf_token() }}",
                         bulk_ids: checkedIds,
-                        _method: action === 'restore' ? 'PUT' : 'DELETE'
+                        // _method: action === 'restore' ? 'PUT' : 'DELETE'
                     },
                     success: function(response) {
-                        console.log("Response từ server:", response); // Log toàn bộ response
+                        console.log("Response từ server:", response);
 
                         if (response && typeof response === 'object') { // Kiểm tra response là object
-                            if (response.success === true) { // Kiểm tra kiểu dữ liệu của success
-                                alert(response.message ||
-                                "Thực hiện thành công."); // Sử dụng giá trị mặc định nếu message rỗng
-                                location.reload();
-                            } else if (response.success ===
-                                false) { // Kiểm tra kiểu dữ liệu của success
-                                alert(response.message ||
-                                "Đã có lỗi xảy ra."); // Sử dụng giá trị mặc định nếu message rỗng
-                                // In thêm chi tiết lỗi nếu có
-                                if (response.errors) {
-                                    console.error("Chi tiết lỗi:", response.errors);
-                                    // Hiển thị chi tiết lỗi cho người dùng (ví dụ: alert từng lỗi)
-                                    for (const key in response.errors) {
-                                        alert(response.errors[key]);
-                                    }
-                                }
+                            if (response.success === true) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Thành công!',
+                                    text: response.message,
+                                    timer: 1500, // Tự động đóng sau 1.5 giây
+                                    showConfirmButton: false,
+                                }).then(() => {
+                                    location.reload();
+                                });
+
                             } else {
-                                console.error("Response.success không đúng định dạng:", response
-                                    .success);
-                                alert("Đã có lỗi xảy ra khi xử lý yêu cầu.");
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi!',
+                                    html: response.message,
+                                }).then(() => {
+                                    location.reload();
+                                });
                             }
                         } else {
                             console.error("Response không đúng định dạng:", response);
@@ -387,12 +374,9 @@
 
             // $('#btn-delete-all').on('click', function(e) {
 
-            //     let confirmMessage = confirm("{{ __('message.confirm_delete_all_item') }}");
-
-            //     if (confirmMessage) {
-            //         console.log('Move to trash');
-            //     }
+            //    
             // })
+
 
         });
     </script>

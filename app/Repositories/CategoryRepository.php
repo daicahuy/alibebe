@@ -18,7 +18,7 @@ class CategoryRepository extends BaseRepository
     // list category gốc, (parent_id = NULL) và con nếu có, dành cho list có phân trang
     public function getAllCate()
     {
-        return $this->model->whereNull('parent_id')->with('categories')->orderBy('id', 'desc')->paginate(5);
+        return $this->model->whereNull('parent_id')->with('categories')->orderBy('updated_at', 'desc')->paginate(5);
     }
 
 
@@ -40,7 +40,7 @@ class CategoryRepository extends BaseRepository
     // Lấy danh sách xóa mềm
     public function getTrash()
     {
-        return $this->model->onlyTrashed()->paginate(5);
+        return $this->model->onlyTrashed()->orderBy('updated_at', 'desc')->paginate(5);
     }
 
 
@@ -61,5 +61,15 @@ class CategoryRepository extends BaseRepository
         return $query->first();
     }
 
-
+    // Lấy danh sách cate + relattion 
+    public function getBulkTrash($ids)
+    {
+        return $this->model->whereIn('id', $ids)->with('categories')->get();
+    }
+    //
+    // Lấy danh mục đã xóa mềm theo mảng ids, nối với get(), delete(), update()
+    public function getwithTrashIds(array $ids)
+    {
+        return $this->model->withTrashed()->whereIn('id', $ids);
+    }
 }

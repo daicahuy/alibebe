@@ -4,10 +4,11 @@ namespace App\Services\Web\Admin;
 
 use App\Models\Category;
 use App\Repositories\CategoryRepository;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
+use PHPUnit\Event\Runtime\PHP;
 
 class CategoryService
 {
@@ -138,7 +139,7 @@ class CategoryService
     }
 
 
-    // Trash can
+    // Trash 
     public function trash()
     {
         try {
@@ -313,9 +314,10 @@ class CategoryService
                 return ['success' => false, 'message' => 'Danh mục không tồn tại'];
             }
 
-            $data->is_active = 1;
-            $data->deleted_at = null;
-            $restore = $data->save();
+            // $data->is_active = 1;
+            // $data->deleted_at = null;
+            // $restore = $data->save();
+            $restore = $this->categoryRepo->update($id, ['is_active' => 1, 'deleted_at' => null]);
             // dd(compact('data'));
 
             // $restore = $this->categoryRepo->update($id, $data);
@@ -336,7 +338,7 @@ class CategoryService
 
     // Xử lý hàng loạt
 
-    // Trang trash (xóa cứng, khôi phục)
+    // Trang trash xóa cứng,
     public function bulkDestroy($ids)
     {
         // dd($ids);
@@ -346,42 +348,50 @@ class CategoryService
 
         $failedIds = [];
         $successIds = [];
+        DB::beginTransaction();
         try {
-            foreach ($ids as $id) {
-                try {
-                    $category = Category::withTrashed()->find($id);
-                    if (!$category) {
-                        $failedIds[] = $id;
-                        continue;
-                    }
 
-                    $imageOld = $category->icon;
-                    if ($category->forceDelete()) {
-                        if ($imageOld && Storage::exists($imageOld)) {
-                            Storage::delete($imageOld);
-                        }
-                        $successIds[] = $id;
-                    } else {
-                        $failedIds[] = $id;
-                    }
-                } catch (\Throwable $th) {
-                    Log::error(__METHOD__, ['error' => $th->getMessage(), 'id' => $id]);
-                    $failedIds[] = $id;
+            $categories = $this->categoryRepo->getwithTrashIds($ids)->get();
+            // Xóa các file liên quan trước khi xóa bản ghi
+            foreach ($categories as $category) {
+                $imageOld = $category->icon;
+                if ($imageOld && Storage::exists($imageOld)) {
+                    Storage::delete($imageOld);
                 }
             }
 
-            $message = '';
-            $status = true;
+            $deletedCount = $this->categoryRepo->getwithTrashIds($ids)->forceDelete();
+            if ($deletedCount !== $ids) {
 
-            if (count($failedIds) > 0) {
-                $message .= "Đã có lỗi xảy ra với các ID sau: " . implode(", ", $failedIds) . ". ";
-                $status = false;
-            }
-            if (count($successIds) > 0) {
-                $message .= "Đã xóa thành công các ID sau: " . implode(", ", $successIds) . ". ";
-            }
+                $deletedIds = $this->categoryRepo->getwithTrashIds($ids)
+                    ->doesntExist() ? $ids : Category::withTrashed()
+                        ->whereIn('id', $ids)
+                        ->pluck('id')->toArray();
 
-            return ['success' => $status, 'message' => $message];
+                $failedIds = array_diff($ids, $deletedIds);
+
+                Log::warning(
+                    __METHOD__ . " - Số lượng category xóa không khớp",
+                    [
+                        'expected' => count($ids),
+                        'actual' => $deletedCount,
+                        'category_ids' => $ids,
+                        'deleted_ids' => $deletedIds,
+                        'failed_ids' => $failedIds,
+                    ]
+                );
+            } else {
+                $successIds[] = $ids;
+
+            }
+            DB::commit();
+
+
+            return [
+                'success' => true,
+                'message' => 'Xóa thành công [' . $deletedCount . '] danh mục.',
+                'restored_count' => $deletedCount,
+            ];
 
         } catch (\Throwable $th) {
             Log::error(__METHOD__, ['error' => $th->getMessage(), 'ids' => $ids]);
@@ -389,82 +399,173 @@ class CategoryService
         }
     }
 
-    public function bulkRestore($ids)
+    public function bulkRestore($categoryIds)
     {
-        if (!$ids || !is_array($ids) || empty($ids)) {
-            return ['success' => false, 'message' => 'Vui lòng chọn ít nhất một mục.'];
-        }
-        $failedIds = [];
         try {
-            foreach ($ids as $id) {
-                $category = Category::withTrashed()->find($id);
-                if (!$category) {
-                    $failedIds[] = $id;
-                    continue;
-                }
-                if (!$this->restore($category->id)['success']) {
-                    $failedIds[] = $id;
-                }
+            if (!$categoryIds || !is_array($categoryIds) || empty($categoryIds)) {
+                return ['success' => false, 'message' => 'Vui lòng chọn ít nhất một mục.'];
             }
-            if (count($failedIds) > 0) {
-                $message = "Đã có lỗi xảy ra với các ID sau: " . implode(", ", $failedIds);
-                $status = false;
-            } else {
-                $message = 'Đã khôi phục thành công các mục được chọn.';
-                $status = true;
+            $failedIds = [];
+            $successIds = [];
+            DB::beginTransaction();
+            try {
+                $restoreCount = $this->categoryRepo->getwithTrashIds($categoryIds)
+                    ->update(['is_active' => 1, 'deleted_at' => null]);
+
+                DB::commit();
+
+
+            } catch (\Throwable $innerError) {
+                DB::rollBack();
+                Log::error(
+                    __METHOD__ . ' - Inner Transaction Error',
+                    [
+                        'error' => $innerError->getMessage(),
+                        'category_ids' => $categoryIds,
+                    ]
+                );
+                return [
+                    'success' => false,
+                    'message' => 'Đã có lỗi trong quá trình khôi phục. Vui lòng thử lại sau.',
+                ]; // Trả về thông báo lỗi cụ thể hơn
             }
-            return ['success' => $status, 'message' => $message];
+
+
+            // if (count($failedIds) > 0) {
+            //     $message = "Đã có lỗi xảy ra với các ID sau: " . implode(", ", $failedIds);
+            //     $status = false;
+            // } else {
+            //     $message = 'Đã khôi phục thành công các ID:' . implode(", ", $successIds);
+            //     $status = true;
+            // }
+
+            return [
+                'success' => true,
+                'message' => 'Khôi phục thành công [' . $restoreCount . '] danh mục.',
+                'restored_count' => $restoreCount,
+            ];
+
         } catch (\Throwable $th) {
-            Log::error(__METHOD__, ['error' => $th->getMessage(), 'ids' => $ids]);
+            Log::error(__METHOD__, ['error' => $th->getMessage(), 'categoryIds' => $categoryIds]);
             return ['success' => false, 'message' => 'Đã xảy ra lỗi, vui lòng thử lại sau.'];
         }
     }
 
 
+    // xoa mềm
+    public function bulkTrash(array $categoryIds)
+    {
+        try {
 
-    public function bulkTrash(array $categoryIds): array
-{
-    try {
-        if (empty($categoryIds)) {
-            return ['success' => false, 'message' => 'Vui lòng chọn ít nhất một danh mục.'];
-        }
-
-        $successIds = [];
-        $failedIds = [];
-
-        foreach ($categoryIds as $categoryId) {
-            try {
-                $category = Category::find($categoryId);
-                if ($category) {
-                    $category->is_active = 0; // Đặt is_active thành false (xóa mềm)
-                    $category->deleted_at = now(); // Đặt deleted_at thành thời gian hiện tại
-                    $category->save();
-                    $successIds[] = $categoryId;
-                } else {
-                    $failedIds[] = $categoryId;
-                }
-            } catch (\Throwable $th) {
-                Log::error(__METHOD__, ['error' => $th->getMessage(), 'category_id' => $categoryId]);
-                $failedIds[] = $categoryId;
+            if (!$categoryIds || !is_array($categoryIds) || empty($categoryIds)) {
+                return ['success' => false, 'message' => 'Vui lòng chọn ít nhất một mục.'];
             }
+
+            $successIds = [];
+            $failedIds = [];
+            $childrenIds = [];
+            $productsIds = [];
+
+            // Lấy danh sách cate + relation theo Ids
+            $categoies = $this->categoryRepo->getBulkTrash($categoryIds);
+
+            // check lỗi
+            // $valiCate = [];
+
+            foreach ($categoies as $category) {
+
+                if ($category->categories->isNotEmpty()) {
+                    $childrenIds[] = $category->id;
+
+                } elseif ($category->products->isNotEmpty()) {
+                    $productsIds[] = $category->id;
+
+                } else {
+                    $valiCate[] = $category->id;
+                }
+            }
+
+            DB::beginTransaction();
+
+            try {
+
+                if (!empty($valiCate)) {
+
+                    // Số lượng xóa thực tế ko khớp với số lượng validate check
+
+                    $deleteCount = $this->categoryRepo->getwithTrashIds($valiCate)->delete();
+
+                    if ($deleteCount !== count($valiCate)) {
+
+                        $failedIds = array_diff($valiCate, $successIds); // Lấy ra các phần tử không trùng nhau
+                        Log::warning(
+                            __METHOD__ . " - Số lượng category xóa không khớp",
+                            [
+                                'expected' => count($valiCate),
+                                'actual' => $deleteCount,
+                                'valid_category_ids' => $valiCate,
+                                'success_ids' => $successIds,
+                            ]
+                        );
+
+                    } else {
+                        $successIds = $valiCate; //chiều thuận
+                    }
+                }
+
+                DB::commit();
+            } catch (\Throwable $innerError) {
+
+                DB::rollBack();
+                Log::error(
+                    __METHOD__ . ' -Inner Transaction Error',
+                    [
+                        'error' => $innerError->getMessage(),
+                        'category_ids' => $categoryIds
+                    ]
+                );
+                throw $innerError; //ném exception ra try catch bên ngoài
+            }
+
+
+            $message = '';
+            $status = true;
+
+
+            //    chuyển mảng => chuỗi,
+            if (!empty($failedIds)) {
+                $message .= "Đã có lỗi xảy ra với các ID: " . implode(", ", $failedIds) . '.' . PHP_EOL;
+                $status = false;
+            }
+
+            if (!empty($childrenIds)) {
+                $message .= "Có danh mục ở ID: " . implode(", ", $childrenIds) . '.' . PHP_EOL;
+                $status = false;
+
+            }
+
+            if (!empty($productsIds)) {
+                $message .= "Có sản phẩm ở ID: " . implode(", ", $productsIds) . '.' . PHP_EOL;
+                $status = false;
+
+            }
+
+            if (!empty($successIds)) {
+                $message .= "Đã chuyển vào thùng rác thành công  ID: " . implode(", ", $successIds) . '.';
+            }
+
+
+
+            return [
+                'success' => $status,
+                'message' => nl2br($message), // Chuyển đổi newline  thành <br>
+                'failed_ids' => $failedIds
+            ];
+
+        } catch (\Throwable $th) {
+            Log::error(__METHOD__, ['error' => $th->getMessage(), 'category_ids' => $categoryIds]);
+            return ['success' => false, 'message' => 'Đã có lỗi tổng quan. Vui lòng thử lại sau.'];
         }
-
-        $message = '';
-        $status = true;
-
-        if (!empty($failedIds)) {
-            $message .= "Đã có lỗi xảy ra với các ID: " . implode(", ", $failedIds) . ". ";
-            $status = false;
-        }
-        if (!empty($successIds)) {
-            $message .= "Đã chuyển vào thùng rác thành công các ID: " . implode(", ", $successIds) . ". ";
-        }
-
-        return ['success' => $status, 'message' => $message];
-
-    } catch (\Throwable $th) {
-        Log::error(__METHOD__, ['error' => $th->getMessage(), 'category_ids' => $categoryIds]);
-        return ['success' => false, 'message' => 'Đã có lỗi tổng quan. Vui lòng thử lại sau.'];
     }
-}
+    //
 }

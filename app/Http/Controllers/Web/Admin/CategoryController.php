@@ -177,9 +177,9 @@ class CategoryController extends Controller
 
     public function delete($id)
     {
-        // dd($request);  
-        $response = $this->categoryService->delete($id);
 
+        $response = $this->categoryService->delete($id);
+        // dd($response);
         if ($response['success']) {
 
             $listCategory = $this->categoryService->index();
@@ -242,7 +242,7 @@ class CategoryController extends Controller
     // Xử lý hàng loạt
     public function bulkDestroy(Request $request)
     {
-        // dd($request->all()); 
+        // dd($request->input('bulk_ids')); 
         $response = $this->categoryService->bulkDestroy($request->input('bulk_ids'));
         return response()->json($response);
     }
@@ -255,12 +255,22 @@ class CategoryController extends Controller
 
     // Hàm chung để trả về response cho cả đơn và hàng loạt (redirect cho đơn, json cho hàng loạt)
 
-
+    // private function handleResponse($response) {
+    //     if ($response['success']) {
+    //         return redirect()->route('admin.categories.trash')->with(['msg' => $response['message'], 'type' => 'success']);
+    //     } else {
+    //         return back()->with(['msg' => $response['message'], 'type' => 'danger']);
+    //     }
+    // }
 
     public function bulkTrash(Request $request)
-{
-    $categoryIds = explode(',', $request->input('category_ids')); // Chuyển chuỗi thành mảng
-    $response = $this->categoryService->bulkTrash($categoryIds);
-    return response()->json($response);
-}
+    {
+
+        // $categoryIds = explode(',', $request->input('category_ids')); // Chuyển chuỗi thành mảng
+        $categoryIds = $request->input('category_ids');
+        $response = $this->categoryService->bulkTrash($categoryIds);
+        // dd($response);
+        return response()->json($response);
+    }
+    //
 }
