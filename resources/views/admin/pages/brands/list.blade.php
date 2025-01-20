@@ -65,17 +65,16 @@
 
                             </div>
 
-                            <form action="" method="GET">
+                            <form action="{{ route('admin.brands.index') }}" method="GET">
                                 <div class="table-search">
                                     <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword" id="keyWord" >
+                                    <input type="search" class="form-control" name="_keyword"
+                                        value="{{ request('_keyword') }}" placeholder="Tìm kiếm theo tên ">
                                 </div>
                             </form>
 
                         </div>
                         <!-- END HEADER TABLE -->
-
-
 
                         <!-- START TABLE -->
                         <div>
@@ -256,31 +255,18 @@
                     console.log('Move to trash');
                 }
             })
-
-            // #
+        });
+        // #
             $('#per_page').change(function() {
                 var perPage = $(this).val();
                 var url = new URL(window.location.href);
+
                 url.searchParams.set('per_page', perPage);
+                if ($('input[name="_keyword"]').val()) {
+                    url.searchParams.set('_keyword', $('input[name="_keyword"]').val());
+                }
                 window.location.href = url.toString();
             });
 
-            // search #
-            $(document).ready(function() {
-                // Attach keyup event to the search input field
-                $('#role-search').on('keyup', function() {
-                    // Get the search keyword
-                    let keyword = $(this).val().toLowerCase();
-
-                    // Filter table rows based on the keyword
-                    $('#brand-table tbody tr').filter(function() {
-                        // Toggle visibility of the row
-                        $(this).toggle($(this).text().toLowerCase().indexOf(keyword) > -1);
-                    });
-                });
-            });
-
-
-        });
     </script>
 @endpush

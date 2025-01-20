@@ -12,11 +12,16 @@ class BrandRepository extends BaseRepository
     {
         return Brand::class;
     }
-    public function pagination15BrandAsc(int $perPage)
+    public function pagination15BrandAsc(int $perPage, ?string $keyWord = null)
     {
-        return $this->pagination(['*'], $perPage, ['id', 'ASC']);
-    }
+        $query = Brand::query();
 
+        if ($keyWord) {
+            $query->where('name', 'like', '%' . $keyWord . '%'); // Tìm kiếm theo tên
+        }
+
+        return $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
+    }
 
     public function brandHasProducts(int $brandId)
     {

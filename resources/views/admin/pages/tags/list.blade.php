@@ -38,13 +38,11 @@
                         <!-- HEADER TABLE -->
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                <select class="form-control">
-                                    <option value="15">15
-                                    </option>
-                                    <option value="30">30
-                                    </option>
-                                    <option value="45">45
-                                    </option>
+                                <select class="form-control" id="per_page">
+                                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="30" {{ request('per_page') == 30 ? 'selected' : '' }}>30</option>
+                                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
                                 </select>
                                 <label>{{ __('message.items_per_page') }}</label>
                                 <button class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
@@ -57,10 +55,11 @@
 
                             </div>
 
-                            <form action="" method="GET">
+                            <form action="{{ route('admin.tags.index') }}" method="GET">
                                 <div class="table-search">
                                     <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword">
+                                    <input type="search" class="form-control" name="_keyword"
+                                        value="{{ request('_keyword') }}" placeholder="Tìm kiếm theo tên ">
                                 </div>
                             </form>
 
@@ -94,49 +93,54 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" id="checkbox-table"
-                                                        class="custom-control-input checkbox_animated checkbox-input">
-                                                </div>
-                                            </td>
-                                            <td class="cursor-pointer sm-width"> 1</td>
-                                            <td class="cursor-pointer">
-                                                <a href="#!" class="fs-6 fw-bold w-100">Asus</a>
-                                            </td>
-                                            <td class="cursor-pointer">
+                                        @foreach ($tags as $tag)
+                                            <tr>
+                                                <td>
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" id="checkbox-table"
+                                                            class="custom-control-input checkbox_animated checkbox-input">
+                                                    </div>
+                                                </td>
+                                                <td class="cursor-pointer sm-width"> {{ $tag->id }}</td>
+                                                <td class="cursor-pointer">
+                                                    <a href="#!" class="fs-6 fw-bold w-100">{{ $tag->name }}</a>
+                                                </td>
+                                                <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                    {{ $tag->created_at }}
 
-                                            </td>
-                                            <td class="cursor-pointer">
+                                                </td>
+                                                <td class="cursor-pointer">
 
-                                                22/12/2024
+                                                    {{ $tag->updated_at }}
 
-                                            </td>
+                                                </td>
 
 
-                                            <td>
-                                                <ul id="actions">
-                                                    <li>
-                                                        <a href="{{ route('admin.tags.edit', 1) }}" class="btn-edit">
-                                                            <i class="ri-pencil-line"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <form action="" method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn-delete"
-                                                                onclick="return confirm('{{ __('message.confirm_delete_all_item') }}')">
-                                                                <i class="ri-delete-bin-line"></i>
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
+                                                <td>
+                                                    <ul id="actions">
+                                                        <li>
+                                                            <a href="{{ route('admin.tags.edit', $tag->id) }}"
+                                                                class="btn-edit">
+                                                                <i class="ri-pencil-line"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <form action="{{ route('admin.tags.destroy', $tag->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn-delete"
+                                                                    onclick="return confirm('{{ __('message.confirm_delete_all_item') }}')">
+                                                                    <i class="ri-delete-bin-line"></i>
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+
                                     </tbody>
                                 </table>
                             </div>
@@ -219,6 +223,13 @@
                 }
             })
 
+        });
+        // #
+        $('#per_page').change(function() {
+            var perPage = $(this).val();
+            var url = new URL(window.location.href);
+            url.searchParams.set('per_page', perPage);
+            window.location.href = url.toString();
         });
     </script>
 @endpush

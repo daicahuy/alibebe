@@ -18,10 +18,11 @@ class BrandService
         $this->brandReponsitory = $brandRepository;
     }
 
-    public function listBrand15BrandAsc(int $perPage)
+    public function listBrand15BrandAsc(int $perPage, string $keyWord = null)
     {
-        return $this->brandReponsitory->pagination15BrandAsc($perPage);
+        return $this->brandReponsitory->pagination15BrandAsc($perPage, $keyWord);
     }
+
     public function StoreBrand(StoreBrandRequest $request)
     {
         try {

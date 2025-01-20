@@ -18,9 +18,11 @@ class BrandController extends Controller
     }
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10); // Mặc định là 10 nếu không có tham số
-        $brands = $this->brandService->listBrand15BrandAsc($perPage);
-        return view('admin.pages.brands.list', compact('brands', 'perPage'));
+        $keyWord = $request->input('_keyword'); // Lấy giá trị từ input search
+        $perPage = $request->get('per_page', 10); 
+        $brands = $this->brandService->listBrand15BrandAsc($perPage, $keyWord);
+
+        return view('admin.pages.brands.list', compact('brands', 'perPage', 'keyWord'));
     }
 
 
@@ -33,7 +35,7 @@ class BrandController extends Controller
     {
 
         $this->brandService->StoreBrand($request);
-        return redirect()->route('admin.brands.index')->with('success', 'Brand created successfully!');
+        return redirect()->route('admin.brands.index')->with('success', 'Thêm mới thương hiệu thành công!');
 
     }
 
@@ -45,7 +47,7 @@ class BrandController extends Controller
     public function update(UpdateBrandRequest $request, Brand $brand)
     {
         $this->brandService->UpdateBrand($request, $brand);
-        return redirect()->route('admin.brands.index')->with('success', 'Brand Update Successfully!');
+        return redirect()->route('admin.brands.index')->with('success', 'Cập nhật thương hiệu thành công!');
 
     }
 
@@ -55,9 +57,9 @@ class BrandController extends Controller
         $deleted = $this->brandService->destroyBrand($id);
         // return back()->with('success','Delete breand SuccessFully!');
         if ($deleted) {
-            return back()->with('success', 'Delete Brand Successfully!');
+            return back()->with('success', 'Xóa thương hiệu thành công!');
         } else {
-            return back()->with('error', 'This brand has products and cannot be deleted.');
+            return back()->with('error', 'Không thể xóa được thương hiệu do đã có sản phẩm liên kết.');
         }
 
 
