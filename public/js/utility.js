@@ -18,7 +18,6 @@ function convertDate(dateConverter) {
 }
 
 function formatCurrency(money) {
-    console.log("formatCurrency", money);
     const parts = parseFloat(money).toFixed(2).split("."); // Tách phần nguyên và phần thập phân
     const integerPart = parts[0];
     const decimalPart = parts[1];

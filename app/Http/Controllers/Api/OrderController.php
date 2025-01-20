@@ -36,18 +36,17 @@ class OrderController extends Controller
         ]);
     }
 
-    public function countByStatus(Request $request)
-    {
-        $filters = $request->all();
-        $counts = $this->orderService->countOrdersByStatus($filters);
-        return response()->json($counts);
-    }
+
 
     public function getOrderDetail(int $idOrder)
     {
 
         $listItemOrder = $this->orderService->getOrderDetail($idOrder);
-        return response()->json($listItemOrder);
+        $listStatusHistory = $this->orderService->getListStatusHistory($idOrder);
+        return response()->json([
+            "listItemOrder" => $listItemOrder,
+            'listStatusHistory' => $listStatusHistory
+        ]);
     }
 
     public function generateInvoice(Request $request)
@@ -80,8 +79,14 @@ class OrderController extends Controller
 
             $activeTab = $request->input('activeTab');
 
+            $idOrders = $request->input('idOrders');
 
-            $orders = $this->orderService->getOrdersByStatus($activeTab);
+            if ($activeTab) {
+                $orders = $this->orderService->getOrdersByStatus($activeTab);
+            }
+            if ($idOrders) {
+                $orders = $this->orderService->getOrdersByID($idOrders);
+            }
 
             $ordersArray = $orders->toArray();
 
@@ -132,6 +137,9 @@ class OrderController extends Controller
             $idOrder = $request->input("order_id");
             $idStatus = $request->input("status_id");
 
+            // dd($idOrder);
+
+
             $this->orderService->changeStatusOrder($idOrder, $idStatus);
 
 
@@ -142,16 +150,41 @@ class OrderController extends Controller
             ]);
         } catch (Exception $e) {
 
+            return response()->json([
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
 
+    public function countByStatus(Request $request)
+    {
+        $filters = $request->all();
+        $counts = $this->orderService->countOrdersByStatus($filters);
+        return response()->json($counts);
+    }
+
+    public function getOrderOrderByStatus(Request $request)
+    {
+        try {
+
+            $idOrder = $request->input("order_id");
+            $data = $this->orderService->getOrderOrderStatusByID($idOrder);
+
+
+            return response()->json([
+                "data" => $data,
+                'message' => 'Query executed successfully',
+                'status' => Response::HTTP_OK,
+
+            ]);
+        } catch (Exception $e) {
 
             return response()->json([
                 'message' => 'An error occurred: ' . $e->getMessage(),
                 'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
                 'data' => [],
-                'sql' => [
-                    'eloquent' => null,
-                    'queryBuilder' => null,
-                ],
             ]);
         }
     }

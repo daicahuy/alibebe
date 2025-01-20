@@ -15,7 +15,7 @@ class OrderItemRepository extends BaseRepository
     public function getOrderDetail(int $idOrder)
     {
         $query = OrderItem::query()->with([
-            'order' => function ($query) {
+            'order' => function ($query) use ($idOrder) {
                 $query->with('payment')->with("orderStatuses"); // Giả sử bạn đã define relationship 'payment' trong model Order
             }
         ])->where("order_id", $idOrder)->with("product");

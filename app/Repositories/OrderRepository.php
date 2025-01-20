@@ -28,7 +28,11 @@ class OrderRepository extends BaseRepository
                     $q->where('order_status_id', $value);
                 });
             } elseif ($key == 'search' && isset($value)) {
-                $query->where('fullname', 'LIKE', '%' . $value . '%');
+                $query->where(function ($query1) use ($value) {
+                    $query1->where('orders.fullname', 'LIKE', "%{$value}%")
+                        ->orWhere('orders.code', 'LIKE', "%{$value}%")
+                        ->orWhere('orders.phone_number', 'LIKE', "%{$value}%");
+                });
             } elseif ($key == 'startDate' && isset($value)) {
                 $query->whereDate('created_at', '>=', $value);
             } elseif ($key == 'endDate' && isset($value)) {
@@ -52,9 +56,18 @@ class OrderRepository extends BaseRepository
             $query->where('order_status_id', $activeTab);
         });
         $orders = $query->get();
-        DB::table('order_order_status')
-            ->where('order_status_id', $activeTab)
-            ->update(['order_status_id' => 2]);
+
+        return $orders;
+    }
+
+    public function getOrdersByID(array $idOrders)
+    {
+        $query = Order::query()->with([
+            'orderItems',
+
+        ])->whereIn("id", $idOrders);
+
+        $orders = $query->get();
 
         return $orders;
     }
@@ -71,7 +84,12 @@ class OrderRepository extends BaseRepository
             if ($key === 'order_status_id' && isset($value)) {
                 $orderStatusCounts->where('order_order_status.order_status_id', $value);
             } elseif ($key === 'search' && isset($value)) {
-                $orderStatusCounts->where('orders.fullname', 'LIKE', "%{$value}%");
+                $orderStatusCounts->where(function ($query) use ($value) {
+                    $query->where('orders.fullname', 'LIKE', "%{$value}%")
+                        ->orWhere('orders.code', 'LIKE', "%{$value}%")
+                        ->orWhere('orders.phone_number', 'LIKE', "%{$value}%");
+                });
+                ;
             } elseif ($key === 'startDate' && isset($value)) {
                 $orderStatusCounts->whereDate('orders.created_at', '>=', $value);
             } elseif ($key === 'endDate' && isset($value)) {
@@ -83,6 +101,9 @@ class OrderRepository extends BaseRepository
         $orderStatusCounts = $orderStatusCounts->get();
         return $orderStatusCounts;
     }
+
+
+
 
 
 

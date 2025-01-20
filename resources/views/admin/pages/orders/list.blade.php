@@ -11,6 +11,30 @@
 
 @push('css')
     <style>
+        .all-package .sm-width {
+            width: 43px;
+        }
+
+        .page-link {
+            background-color: #0da487;
+            color: #fff;
+        }
+
+        .page-link.active,
+        .active>.page-link {
+            color: #fff;
+
+            background-color: #85f6df;
+            border-color: #85f6df;
+        }
+
+        .page-link:hover {
+            z-index: 2;
+            color: #fff;
+            background-color: #85f6df;
+            border-color: #85f6df;
+        }
+
         #loading-icon-load {
             display: flex;
             justify-content: center;
@@ -192,6 +216,7 @@
     {{-- Start Lọc --}}
     <div class="tabs">
         <div class="card layout_filter shadow-sm">
+            <input type="hidden" id="selected-category-ids" name="selected_category_ids" value="">
             <div class="card-body">
                 <div>
                     <form>
@@ -199,7 +224,7 @@
                             <!-- Tìm kiếm theo tên khách hàng -->
                             <div class="col-md-4">
                                 <input class="form-control form-control-sm" type="search" name="search" id="search"
-                                    placeholder="Search by Customer Name">
+                                    placeholder="Tìm kiếm bằng code,SDT hoặc tên khách hàng">
                             </div>
 
 
@@ -263,12 +288,19 @@
     <div class="card card-table mt-2">
 
         <div class="card-body">
-            <div class="title-header option-title">
-                <h5>Danh Sách Đơn Hàng</h5>
-
-                <button class="btn btn-solid btn-download-all" id="btn-print-all" style="height: 35px;line-height:17px">In
-                    tất cả đơn
-                    hàng</button>
+            <div class="title-header option-title"
+                style="display: flex; justify-content: space-between; align-items: center;">
+                <h5>Danh Sách Đơn Hàng<span id="count_selected_item"></span></h5>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                    <div id="select-change-status-items"></div>
+                    <button class="btn btn-solid visually-hidden " id="btn-move-to-trash-all"
+                        style="height: 35px;line-height:17px">In
+                        đơn hàng được chọn</button>
+                    <button class="btn btn-solid btn-download-all" id="btn-print-all"
+                        style="height: 35px;line-height:17px">In
+                        tất cả đơn
+                        hàng</button>
+                </div>
             </div>
             {{-- Start trạng thái --}}
             <div class="p-4">
@@ -277,46 +309,42 @@
                         <div class="col">
                             <button class="tab active btn-order" data-status = "{{ OrderStatusType::PENDING }}"
                                 type="submit">
-                                Chờ xử lý (<span class="count">0</span>)
+                                Chờ xử lý <span class="count"></span>
                             </button>
                         </div>
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::PROCESSING }}" type="submit">
-                                Đang xử lý (<span class="count">0</span>)
+                                Đang xử lý <span class="count"></span>
                             </button>
                         </div>
 
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::SHIPPING }}" type="submit">
-                                Đang giao (<span class="count">0</span>)
+                                Đang giao <span class="count"></span>
                             </button>
                         </div>
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::DELIVERED }}" type="submit">
-                                Đã giao (<span class="count">0</span>)
+                                Đã giao <span class="count"></span>
                             </button>
                         </div>
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::CANCEL }}" type="submit">
-                                Hủy hàng (<span class="count">0</span>)
+                                Hủy hàng <span class="count"></span>
                             </button>
                         </div>
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::COMPLETED }}" type="submit">
-                                Hoàn thành (<span class="count">0</span>)
+                                Hoàn thành <span class="count"></span>
                             </button>
                         </div>
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::FAILED_DELIVERY }}"
                                 type="submit">
-                                Giao hàng thất bại (<span class="count">0</span>)
+                                Giao hàng thất bại <span class="count"></span>
                             </button>
                         </div>
-                        <div class="col">
-                            <button class=" btn-order text-danger notReceived" type="submit">
-                                Giải quyết xung đột (2)
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -334,10 +362,12 @@
                                 </th>
                                 <th class="px-4 py-2">Mã Đơn Hàng </th>
                                 <th class="px-4 py-2">Thời Gian</th>
-                                <th class="px-4 py-2">Họ Tên</th>
+                                <th class="px-4 py-2" style="width: 280px; text-align: left;">Thông tin khách hàng</th>
                                 <th class="px-4 py-2">Phương Thức Thanh Toán</th>
                                 <th class="px-4 py-2">Tổng(VND)</th>
-                                <th class="px-4 py-2">Trạng Thái</th>
+                                <th class="px-4 py-2">Trạng Thái Thanh Toán</th>
+
+                                <th class="px-4 py-2">Trạng Thái Đơn Hàng</th>
                                 <th class="px-4 py-2 text-right">Khác</th>
                             </tr>
                         </thead>
@@ -368,17 +398,26 @@
     {{-- MODALS --}}
     @component('components.modal.confirm', [
         'id' => 'modalConfirm',
-        'title' => 'Minh chứng của bạn',
+        'title' => 'Xem minh chứng',
     ])
         <form action="">
             @csrf
             <div class="align-items-center g-2 mb-4 row">
                 <label class="col-sm-3 form-label-title mb-0 text-start" for="icon">
-                    Minh chứng
+                    Ảnh đơn hàng
                 </label>
                 <div class="col-sm-9">
-                    <input type="file" name="icon" id="icon" class="form-control">
-                    <div class="invalid-feedback"></div>
+                    <img src="" alt="" width="60px" height="80px" class=""
+                        style="object-fit: cover">
+                </div>
+            </div>
+
+            <div class="align-items-center g-2 mb-4 row">
+                <label class="col-sm-3 form-label-title mb-0 text-start" for="name">
+                    Tình trạng:
+                </label>
+                <div class="" style="width: unset;">
+                    Khách chưa nhận được hàng
                 </div>
             </div>
 
@@ -438,9 +477,9 @@
             });
 
 
-            let activeTab = 1;
-            let currentPage = 1;
-            const itemsPerPage = 5;
+
+
+
 
             // Hàm gọi API để lấy dữ liệu
             function fetchOrders(updateCounts = false) {
@@ -476,6 +515,7 @@
                             });
                         }
                         if (updateCounts) updateTabCounts(search, startDate, endDate);
+
                     },
                     error: function() {
                         alert("Error fetching data from API");
@@ -503,33 +543,73 @@
                         <tr data-id="${order.id}">
                                 <td>
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" value=${order.id}
+                                        <input type="checkbox" value=${order.id} id="checkbox-${order.id}"
                                         class="custom-control-input checkbox_animated checkbox-input">
                                     </div>
                                 </td>
                                 <td class="px-4 py-2"><span
                                         class="font-semibold uppercase text-xs">${ order.code }</span></td>
                                 <td class="px-4 py-2"><span class="text-sm">${ convertDate(order.created_at) }</span></td>
-                                <td class="px-4 py-2 text-xs"><span class="text-sm">${ order.fullname }</span>
+                                <td class="px-4 py-2 text-xs" style="text-align: left">
+                                    <span class="block">
+													<b>Tên: </b>
+													${order.fullname}
+												</span>
+                                                <span class="block">
+													<b>Số điện thoại: </b>
+													${order.phone_number}
+												</span>
+                                                <span class="block">
+													<b>Địa chỉ: </b>
+													${order.address}
+												</span>
                                 </td>
                                 <td class="px-4 py-2"><span
                                         class="text-sm font-semibold">${ order.payment.name }</span></td>
                                 <td class="px-4 py-2"><span
                                         class="text-sm font-semibold">${ formatCurrency(order.total_amount) }</span></td>
+                                        <td class="px-4 py-2"><span
+                                        class="text-sm font-semibold">${ order.is_paid == 1 ? "Đã thanh toán" : "Chưa thanh toán" }</span></td>
                                 <td class="px-4 py-2 text-xs">
-                                    <select class="font-serif form-select form-select-sm orderStatus" id="select_status">
-                                        <option ${order.order_statuses[0].pivot.order_status_id == "1" ? "selected" : ""} value="1">Chờ xử lý</option>
-                                        <option ${order.order_statuses[0].pivot.order_status_id == "2" ? "selected" : ""} value="2">Đang xử lý</option>
-                                        <option ${order.order_statuses[0].pivot.order_status_id == "3" ? "selected" : ""} value="3">Đang giao hàng</option>
-                                        <option ${order.order_statuses[0].pivot.order_status_id == "4" ? "selected" : ""} value="4">Đã giao hàng</option>
-                                        <option ${order.order_statuses[0].pivot.order_status_id == "5" ? "selected" : ""} value="5">Giao hàng thất bại</option>
-                                        <option ${order.order_statuses[0].pivot.order_status_id == "6" ? "selected" : ""} value="6">Hoàn thành</option>
-                                        <option ${order.order_statuses[0].pivot.order_status_id == "7" ? "selected" : ""} value="7">Đã hủy</option>
-                                    </select>
+
+                                    
+                                    ${order.order_statuses[0].pivot.order_status_id == 6 ? 
+                                          `<div _ngcontent-ng-c1063460097="" class="ng-star-inserted span-completed">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="status-completed"><span>Hoàn thành</span></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>` :
+(order.order_statuses[0].pivot.order_status_id == 7 ? 
+`<div _ngcontent-ng-c1063460097="" class="ng-star-inserted span-failed">
+                                                                                            <div class="status-failed"><span>Đã hủy</span></div>
+                                                                                        </div>` :
+`
+                                                        <select class="font-serif form-select form-select-sm orderStatus" id="select_status">
+                                                            <option ${order.order_statuses[0].pivot.order_status_id == "1" ? "selected" : ""} ${activeTab>=1 ? "disabled" : ""} value="1">Chờ xử lý</option>
+                                                            <option ${order.order_statuses[0].pivot.order_status_id == "2" ? "selected" : ""} ${activeTab>=2 ? "disabled" : ""} value="2">Đang xử lý</option>
+                                                            <option ${order.order_statuses[0].pivot.order_status_id == "3" ? "selected" : ""} ${activeTab>=3 ? "disabled" : ""} value="3">Đang giao hàng</option>
+                                                            <option ${order.order_statuses[0].pivot.order_status_id == "4" ? "selected" : ""} ${activeTab>=4 ? "disabled" : ""} value="4">Đã giao hàng</option>
+                                                            <option ${order.order_statuses[0].pivot.order_status_id == "5" ? "selected" : ""} ${activeTab>=5 ? "disabled" : ""} value="5">Giao hàng thất bại</option>
+                                                            <option ${order.order_statuses[0].pivot.order_status_id == "6" ? "selected" : ""} ${activeTab>=6 ? "disabled" : ""} value="6">Hoàn thành</option>
+                                                            <option ${order.order_statuses[0].pivot.order_status_id == "7" ? "selected" : ""} ${activeTab>=7 ? "disabled" : ""} value="7">Đã hủy</option>
+                                                        </select>
+                                                                                                                                                                            `
+                                               )
+                                        }
                                 </td>
 
                                 <td>
                                     <ul id="actions">
+                                        ${order.order_statuses[0].pivot.employee_evidence != null 
+                                            && order.order_statuses[0].pivot.customer_confirmation==0 ? `
+                                                                                <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                                    <div class="status-pending">
+                                                                                        <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                
+                                                                                
+                                                                                ` : `
+                                                                                
+                                                                                `}
                                         <li>
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
@@ -543,16 +623,113 @@
                             </tr>
             `);
                     });
+
+                    $('.status-pending span').on("click", function() {
+                        const orderId = $(this).data(
+                            'configorder'); // Lấy orderId từ thuộc tính data-configOrder
+                        // Thêm mã để xử lý orderId nếu cần (ví dụ, gửi lên server)
+                        callApiGetOrderOrderStatus(orderId);
+
+
+
+                        $('#modalConfirm').modal('show'); // Hiển thị modal
+                    });
                 }
-
-
             }
 
-            // Hàm cập nhật số lượng order trên các tab
+
+            function callApiGetOrderOrderStatus(idOrder) {
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/api/orders/getOrderStatus',
+                    type: 'POST',
+                    data: {
+                        order_id: idOrder,
+                    },
+                    success: function(response) {
+
+                        console.log(response.data);
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:", error);
+                    }
+                });
+            }
+
+            function callApiChangeStatusListOrder(idOrders, idStatus) {
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/api/orders/updateOrderStatus',
+                    type: 'POST',
+                    data: {
+                        order_id: idOrders,
+                        status_id: idStatus
+                    },
+                    success: function(response) {
+
+                        if (response.status == 200) {
+                            fetchOrders();
+                            $('#select-change-status-items').empty();
+                            $("#count_selected_item").text(``)
+                            $('.btn-download-all').addClass('active');
+                            $('#selected-category-ids').val('');
+
+                            toggleBulkActionButton();
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:", error);
+                    }
+                });
+            }
+
+            function updateSelectedIds() { // 3. Hàm cập nhật input ẩn
+                const selectedIds = $('.checkbox-input:checked').map(
+                    function() { // 3.1 Lấy mảng các ID của checkbox được chọn
+                        return $(this).val(); // 3.2 Lấy giá trị (value) của checkbox (chính là ID category)
+                    }).toArray(); // 3.3 Chuyển đổi kết quả sang mảng JavaScript
+
+                const checkedCount = selectedIds.length
+                $('#select-change-status-items').empty();
+
+                if (checkedCount) {
+                    $("#count_selected_item").text(`(Đã chọn ${checkedCount})`)
+                    $('.btn-download-all').removeClass('active');
+                    const selectHtmlStatus = `
+                    <select class="font-serif form-select form-select-sm orderStatusList" id="select_status_list">
+                        <option ${activeTab == "1" ? "selected" : ""} ${activeTab>=1 ? "disabled" : ""} value="1">Chờ xử lý</option>
+                        <option ${activeTab == "2" ? "selected" : ""} ${activeTab>=2 ? "disabled" : ""} value="2">Đang xử lý</option>
+                        <option ${activeTab == "3" ? "selected" : ""} ${activeTab>=3 ? "disabled" : ""} value="3">Đang giao hàng</option>
+                        <option ${activeTab == "4" ? "selected" : ""} ${activeTab>=4 ? "disabled" : ""} value="4">Đã giao hàng</option>
+                        <option ${activeTab == "5" ? "selected" : ""} ${activeTab>=5 ? "disabled" : ""} value="5">Giao hàng thất bại</option>
+                        <option ${activeTab == "6" ? "selected" : ""} ${activeTab>=6 ? "disabled" : ""} value="6">Hoàn thành</option>
+                        <option ${activeTab == "7" ? "selected" : ""} ${activeTab>=7 ? "disabled" : ""} value="7">Đã hủy</option>
+                    </select>
+                    
+                    `
+                    $('#select-change-status-items').append(selectHtmlStatus);
+
+                    $('#select_status_list').on("change", function() {
+                        const selectedStatusChangeList = $(this).val();
+                        callApiChangeStatusListOrder(selectedIds, selectedStatusChangeList);
+                    });
+                } else {
+                    $('#select-change-status-items').empty();
+                    $("#count_selected_item").text(``)
+                    if (activeTab == 2) {
+                        $('.btn-download-all').addClass('active');
+                    }
+
+                }
+                $('#selected-category-ids').val(selectedIds.join(',')); // 3.4 Gán chuỗi ID vào input ẩn
+            }
+
+            function toggleBulkActionButton() { // 4. Hàm ẩn/hiện nút "Xóa tất cả"
+                $('#btn-move-to-trash-all').toggleClass('visually-hidden', !(activeTab === 2 && $(
+                    '#selected-category-ids').val() !== ''));
+            }
+
             function updateTabCounts(search, startDate, endDate) {
                 $(".tab").each(function() {
                     const status = $(this).data("status");
-
                     $.ajax({
                         url: "http://127.0.0.1:8000/api/orders/list/count",
                         method: "GET",
@@ -563,11 +740,19 @@
                             endDate,
                         },
                         success: function(response) {
+                            if (search == "" && startDate == "" && endDate == "") {
+                                $(this).find(".count").text("");
+                            }
                             if (response[0]) {
-                                $(this).find(".count").text(response[0].count);
+                                if (search == "" && startDate == "" && endDate == "") {
+                                    $(this).find(".count").text("");
+                                } else {
+
+                                    $(this).find(".count").text(`(${response[0].count})`);
+                                }
 
                             } else {
-                                $(this).find(".count").text(0);
+                                $(this).find(".count").text("");
 
                             }
                         }.bind(this),
@@ -577,6 +762,61 @@
                     });
                 });
             }
+
+            let activeTab = 1;
+            let currentPage = 1;
+            const itemsPerPage = 5;
+            if (activeTab === 2) {
+                $('.btn-download-all').addClass('active');
+            }
+            $('#checkbox-table').on('click', function() { // 1. Click vào checkbox "Chọn tất cả"
+                const isChecked = $(this).prop(
+                    'checked'); // 1.1 Lấy trạng thái checked của checkbox "Chọn tất cả"
+                $('.checkbox-input').prop('checked',
+                    isChecked); // 1.2 Đặt trạng thái checked cho tất cả checkbox con
+
+                updateSelectedIds(); // 1.3 Cập nhật input ẩn chứa ID được chọn
+                toggleBulkActionButton(); // 1.4 Ẩn/hiện nút "Xóa tất cả"
+            });
+
+            $('#orderTable tbody').on('click', '.checkbox-input', function() {
+                $('#checkbox-table').prop('checked', $('.checkbox-input:checked').length === $(
+                    '.checkbox-input').length);
+                updateSelectedIds();
+                toggleBulkActionButton();
+            });
+
+            $('#btn-move-to-trash-all').on('click', function() {
+                const selectedIds = $('#selected-category-ids').val(); // 6.1 Lấy chuỗi ID từ input ẩn
+                const selectedIdsArray = selectedIds ? selectedIds.split(',') : [];
+                fetch(`http://127.0.0.1:8000/api/orders/invoice`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                'content') // Nếu dùng Laravel
+                        },
+                        body: JSON.stringify({
+                            idOrders: selectedIdsArray
+                        }) // orderData là dữ liệu đơn hàng của bạn
+                    })
+                    .then((response) => {
+
+                        return response.blob();
+                    }) // response.blob() nếu muốn trả về file pdf trực tiếp. response.json() nếu trả về đường dẫn
+                    .then(blob => {
+                        //Tạo link download
+                        const url = window.URL.createObjectURL(blob);
+                        window.open(url); // Mở PDF trong tab mới
+
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+
+            })
+
+
 
             // Xử lý sự kiện lọc
             $("#filterButton").click(function(e) {
@@ -591,8 +831,18 @@
                 $(".tab").removeClass("active");
                 $(this).addClass("active");
                 activeTab = $(this).data("status");
-                if (activeTab == 1) {
+                $('.checkbox-input:checked').prop('checked', false);
+                $('#checkbox-table').prop('checked', false);
+                $("#count_selected_item").text("")
+                // Đặt giá trị của #selected-category-ids thành rỗng
+                $('#selected-category-ids').val('');
+                $('#select-change-status-items').empty()
+
+                $('#btn-move-to-trash-all').toggleClass('visually-hidden', !(activeTab === 2 && $(
+                    '#selected-category-ids').val() != ''))
+                if (activeTab == 2) {
                     $('.btn-download-all').addClass('active');
+
                 } else {
                     $('.btn-download-all').removeClass('active');
 
@@ -608,8 +858,6 @@
                 var idOrder = $(this).closest('tr').data('id');
 
                 //  Xử lý selectedValue và idOrder ở đây. Ví dụ: gửi lên server bằng AJAX
-
-
                 $.ajax({
                     url: 'http://127.0.0.1:8000/api/orders/updateOrderStatus',
                     type: 'POST',
@@ -619,7 +867,12 @@
                     },
                     success: function(response) {
                         if (response.status == 200) {
-                            fetchOrders(true);
+                            fetchOrders();
+                            $('#select-change-status-items').empty();
+                            $("#count_selected_item").text(``)
+                            $('.btn-download-all').addClass('active');
+                            $('#selected-category-ids').val('');
+                            toggleBulkActionButton();
                         }
                     },
                     error: function(error) {
@@ -628,15 +881,8 @@
                 });
             });
 
-            // Khởi tạo lần đầu
-            fetchOrders(true);
-
-            if (activeTab === 1) {
-                $('.btn-download-all').addClass('active');
-            }
 
             $("#btn-print-all").click(() => {
-                console.log("load")
                 fetch(`http://127.0.0.1:8000/api/orders/invoice`, {
                         method: 'POST',
                         headers: {
@@ -656,7 +902,7 @@
                         //Tạo link download
                         const url = window.URL.createObjectURL(blob);
                         window.open(url); // Mở PDF trong tab mới
-                        fetchOrders(true);
+
                     })
                     .catch(error => {
                         console.error('Error:', error);
@@ -665,6 +911,12 @@
 
 
             })
+
+            // Khởi tạo lần đầu
+            fetchOrders();
+            toggleBulkActionButton();
+
+
 
         });
 

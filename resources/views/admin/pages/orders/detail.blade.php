@@ -41,6 +41,30 @@
         .printOrder.active {
             display: block;
         }
+
+        .orderStatus {
+            display: none;
+        }
+
+        .orderStatus.active {
+            display: block;
+        }
+
+        .span-completed {
+            display: none;
+        }
+
+        .span-completed.active {
+            display: block;
+        }
+
+        .span-failed {
+            display: none;
+        }
+
+        .span-failed.active {
+            display: block;
+        }
     </style>
 @endpush
 
@@ -62,75 +86,15 @@
         <div class="row g-2">
             <div class="col-xxl-9">
                 <div class="mb-4 ng-star-inserted">
-                    <div class="tracking-panel">
+                    <div class="tracking-panel" id="time-line-status">
                         <ul>
-                            <li class="ng-star-inserted active">
-                                <div class="panel-content">
-                                    <div class="icon"><img alt="image" class="img-fluid"
-                                            src="/theme/admin/assets/svg/pending.svg" width="100px">
-                                    </div>
-                                    <div>
-                                        <div class="status">Chờ xử lý</div>
-                                        <div>12:07:12 <span>27/12/2024</span></div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="ng-star-inserted active">
-                                <div class="panel-content">
-                                    <div class="icon"><img alt="image" class="img-fluid"
-                                            src="/theme/admin/assets/svg/processing.svg" width="100px">
-                                    </div>
-                                    <div>
-                                        <div class="status">Đã lấy hàng</div>
-                                        <div>12:07:12 <span>27/12/2024</span></div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="d-none ng-star-inserted active">
-                                <div class="panel-content">
-                                    <div class="icon"><img alt="image" class="img-fluid"
-                                            src="/theme/admin/assets/svg/cancelled.svg" width="100px">
-                                    </div>
-                                    <div>
-                                        <div class="status">Hủy hàng</div>
-                                        <div>12:07:12 <span>27/12/2024</span></div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="ng-star-inserted d-none active">
-                                <div class="panel-content">
-                                    <div class="icon"><img alt="image" class="img-fluid"
-                                            src="/theme/admin/assets/svg/tracking/shipped.svg">
-                                    </div>
-                                    <div class="status">Shipped</div>
-                                </div>
-                            </li>
-                            <li class="ng-star-inserted d-none">
-                                <div class="panel-content">
-                                    <div class="icon"><img alt="image" class="img-fluid"
-                                            src="/theme/admin/assets/svg/tracking/out-for-delivery.svg"></div>
-                                    <div class="status">Out For Delivery</div>
-                                </div>
-                            </li>
-                            <li class="ng-star-inserted delivered-box">
-                                <div class="panel-content">
-                                    <div class="icon"><img alt="image" class="img-fluid"
-                                            src="/theme/admin/assets/svg/tracking/delivered.svg">
-                                    </div>
-                                    <div class="status">Delivered</div>
-                                </div>
-                            </li>
-                            <li class="cancelled-box ng-star-inserted">
-                                <div class="panel-content">
-                                    <div class="icon"><img alt="image" class="img-fluid"
-                                            src="/theme/admin/assets/svg/cancelled.svg" width="100px">
-                                    </div>
-                                    <div>
-                                        <div class="status">Hủy hàng</div>
-                                        <div>12:07:12 <span>27/12/2024</span></div>
-                                    </div>
-                                </div>
-                            </li>
+
+
+
+
+
+
+
                         </ul>
                     </div>
                 </div>
@@ -142,18 +106,18 @@
                                     <div class="title-header ng-star-inserted"
                                         style="justify-content: space-between; flex-wrap: wrap;">
                                         <div class="d-flex align-items-center">
-                                            <h5>Mã Đơn Hàng <span></span></h5>
+                                            <h5>Mã Đơn Hàng <span class="span-code"></span></h5>
                                         </div>
-                                        <select class="font-serif form-select form-select-sm orderStatus"
-                                            style="width: unset" id="select_status">
-                                            <option value="1">Chờ xử lý</option>
-                                            <option value="2">Đang xử lý</option>
-                                            <option value="3">Đang giao hàng</option>
-                                            <option value="4">Đã giao hàng</option>
-                                            <option value="5">Giao hàng thất bại</option>
-                                            <option value="6">Hoàn thành</option>
-                                            <option value="7">Đã hủy</option>
-                                        </select>
+                                        <div id="select-change-status">
+
+                                        </div>
+
+                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted span-completed">
+                                            <div class="status-completed"><span>Hoàn thành</span></div>
+                                        </div>
+                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted span-failed">
+                                            <div class="status-failed"><span>Đã hủy</span></div>
+                                        </div>
                                     </div>
                                     <div class="tracking-wrapper table-responsive">
                                         <table class="table product-table">
@@ -283,7 +247,6 @@
     <script>
         $(document).ready(function() {
 
-            console.log("Loading")
 
             let CouponDiscountType_FIX_AMOUNT = <?php echo json_encode($CouponDiscountType_FIX_AMOUNT); ?>;
             let CouponDiscountType_PERCENT = <?php echo json_encode($CouponDiscountType_PERCENT); ?>;
@@ -297,27 +260,138 @@
             function fillOrderDetails(orderId) {
 
                 $("#loading-icon").show();
-
+                $("#time-line-status ul").empty();
                 fetch(`http://127.0.0.1:8000/api/orders/${orderId}`)
                     .then(response => response.json())
                     .then(data => {
                         let amountAllItems = 0;
-                        // return;
-                        $(".title-header span").text(`#${data[0].order.code}`);
-                        $("#select_status").val(data[0].order.order_statuses[0].id);
+                        data.listStatusHistory.forEach((item) => {
+                            let htmlStatusTimeLine = '';
+                            switch (item.order_status_id) {
+                                case 1:
+                                    htmlStatusTimeLine = `
+                                <li class="ng-star-inserted active">
+                                <div class="panel-content">
+                                    <div class="icon"><img alt="image" class="img-fluid"
+                                            src="/theme/admin/assets/svg/pending.svg" width="100px">
+                                    </div>
+                                    <div>
+                                        <div class="status">Chờ xử lý</div>
+                                    </div>
+                                </div>
+                            </li>
+                                `
+                                    break;
+                                case 2:
+                                    htmlStatusTimeLine = `
+                                    <li class="ng-star-inserted active">
+                                <div class="panel-content">
+                                    <div class="icon"><img alt="image" class="img-fluid"
+                                            src="/theme/admin/assets/svg/processing.svg" width="100px">
+                                    </div>
+                                    <div>
+                                        <div class="status">Đang xử lý</div>
+                                    </div>
+                                </div>
+                            </li>
+                                `
+                                    break;
+                                case 3:
+                                    htmlStatusTimeLine = `
+                                    <li class="ng-star-inserted active">
+                                <div class="panel-content">
+                                    <div class="icon"><img alt="image" class="img-fluid"
+                                            src="/theme/admin/assets/svg/shiped.svg" width="100px">
+                                    </div>
+                                    <div>
+                                        <div class="status">Đang giao hàng</div>
+                                    </div>
+                                </div>
+                            </li>
+                                `
+                                    break;
+                                case 4:
+                                    htmlStatusTimeLine = `
+                                    
+                            <li class="ng-star-inserted active">
+                                <div class="panel-content">
+                                    <div class="icon"><img alt="image" class="img-fluid"
+                                            src="/theme/admin/assets/svg/delivered.svg" width="100px">
+                                    </div>
+                                    <div>
+                                        <div class="status">Đã giao hàng</div>
+                                    </div>
+                                </div>
+                            </li>
+                                `
+                                    break;
+                                case 5:
+                                    htmlStatusTimeLine = `
+                                    <li class="ng-star-inserted active">
+                                <div class="panel-content">
+                                    <div class="icon"><img alt="image" class="img-fluid"
+                                            src="/theme/admin/assets/svg/cancelled.svg" width="100px">
+                                    </div>
+                                    <div>
+                                        <div class="status">Giao hàng thất bại</div>
+                                    </div>
+                                </div>
+                            </li>
+                                `
+                                    break;
+                                case 7:
+                                    htmlStatusTimeLine = `
+                                    <li class="ng-star-inserted cancelled-box active">
+                                <div class="panel-content">
+                                    <div class="icon"><img alt="image" class="img-fluid"
+                                            src="/theme/admin/assets/svg/cancelled.svg" width="100px">
+                                    </div>
+                                    <div>
+                                        <div class="status">Hủy hàng</div>
+                                    </div>
+                                </div>
+                            </li>
+                                `
+                                    break;
+                                case 6:
+                                    htmlStatusTimeLine = `
+                                   
+                            <li class="ng-star-inserted active">
+                                <div class="panel-content">
+                                    <div class="icon"><img alt="image" class="img-fluid"
+                                            src="/theme/admin/assets/svg/delivered.svg" width="100px">
+                                    </div>
+                                    <div>
+                                        <div class="status">Hoàn thành</div>
+                                    </div>
+                                </div>
+                            </li>
+                                `
+                                    break;
 
-                        if (data[0].order.order_statuses[0].id == 1) {
+                                default:
+                                    break;
+                            }
+
+                            $("#time-line-status ul").append(htmlStatusTimeLine);
+
+                        })
+
+                        // return;
+                        $(".title-header .span-code").text(`#${data.listItemOrder[0].order.code}`);
+                        $("#select_status").val(data.listItemOrder[0].order.order_statuses[0].id);
+
+                        if (data.listItemOrder[0].order.order_statuses[0].id == 2) {
                             $(".printOrder").addClass("active");
                         } else {
                             $(".printOrder").removeClass("active");
-
                         }
 
-
+                        $('#select-change-status').empty();
                         const tbody = $(".product-table tbody");
                         tbody.empty();
-                        dataDetailOrder = data
-                        data.forEach(dataProduct => {
+                        dataDetailOrder = data.listItemOrder
+                        data.listItemOrder.forEach(dataProduct => {
                             amountAllItems += dataProduct.price_variant * dataProduct.quantity_variant;
                             const row = `
                     <tr class="ng-star-inserted">
@@ -335,43 +409,105 @@
                         totalList.find("li:nth-child(1) span").text(`${formatCurrency(amountAllItems)}(VND)`);
                         totalList.find("li:nth-child(2) span").text(`Miễn ship`);
 
-                        console.log("data[0].coupon_id", data[0].coupon_id)
-                        if (data[0].order.coupon_discount_type == CouponDiscountType_PERCENT) {
+                        if (data.listItemOrder[0].order.coupon_discount_type == CouponDiscountType_PERCENT) {
                             totalList.find("li:nth-child(4) p").text(
-                                `${data[0].order.coupon_code}:  ${data[0].order.coupon_discount_value}%`);
+                                `${data.listItemOrder[0].order.coupon_code}:  ${data.listItemOrder[0].order.coupon_discount_value}%`
+                            );
                             totalList.find("li:nth-child(5) span").text(
-                                `-${formatCurrency(amountAllItems*data[0].order.coupon_discount_value/100)}(VND)`
+                                `-${formatCurrency(amountAllItems*data.listItemOrder[0].order.coupon_discount_value/100)}(VND)`
                             );
                             totalList.find("li:nth-child(6) span").text(
-                                `${formatCurrency(amountAllItems - amountAllItems*data[0].order.coupon_discount_value/100)}(VND)`
+                                `${formatCurrency(amountAllItems - amountAllItems*data.listItemOrder[0].order.coupon_discount_value/100)}(VND)`
                             );
 
-                        } else if (data[0].order.coupon_discount_type == CouponDiscountType_FIX_AMOUNT) {
+                        } else if (data.listItemOrder[0].order.coupon_discount_type ==
+                            CouponDiscountType_FIX_AMOUNT) {
                             totalList.find("li:nth-child(4) p").text(
-                                `${data[0].order.coupon_code}:  `);
+                                `${data.listItemOrder[0].order.coupon_code}:  `);
                             totalList.find("li:nth-child(5) span").text(
-                                `-${formatCurrency(data[0].order.coupon_discount_value)}(VND)`
+                                `-${formatCurrency(data.listItemOrder[0].order.coupon_discount_value)}(VND)`
                             );
                             totalList.find("li:nth-child(6) span").text(
-                                `${formatCurrency(amountAllItems - data[0].order.coupon_discount_value)}(VND)`
+                                `${formatCurrency(amountAllItems - data.listItemOrder[0].order.coupon_discount_value)}(VND)`
                             );
                         }
 
-                        $(".btn-animation").attr("href", data.invoice_url);
+                        $(".btn-animation").attr("href", data.listItemOrder.invoice_url);
 
                         //Cập nhật thông tin khách hàng
                         const customerDetail = $(".customer-detail ul");
-                        customerDetail.find("li:nth-child(1) h4").text(`${data[0].order.fullname}`);
-                        customerDetail.find("li:nth-child(2) h4").text(`${data[0].order.phone_number}`);
-                        customerDetail.find("li:nth-child(3) h4").text(`${data[0].order.address}`);
-                        customerDetail.find("li:nth-child(4) h4").text(`${data[0].order.note??""}`);
-                        customerDetail.find("li:nth-child(5) h4").text(`${data[0].order.payment.name}`);
-                        if (data[0].order.is_paid == 1) {
+                        customerDetail.find("li:nth-child(1) h4").text(
+                            `${data.listItemOrder[0].order.fullname}`);
+                        customerDetail.find("li:nth-child(2) h4").text(
+                            `${data.listItemOrder[0].order.phone_number}`);
+                        customerDetail.find("li:nth-child(3) h4").text(
+                            `${data.listItemOrder[0].order.address}`);
+                        customerDetail.find("li:nth-child(4) h4").text(
+                            `${data.listItemOrder[0].order.note??""}`);
+                        customerDetail.find("li:nth-child(5) h4").text(
+                            `${data.listItemOrder[0].order.payment.name}`);
+                        if (data.listItemOrder[0].order.is_paid == 1) {
                             customerDetail.find("li:nth-child(6) h4").text(`Đã thanh toán`);
                         } else {
                             customerDetail.find("li:nth-child(6) h4").text(`Chưa thanh toán`);
                         }
 
+                        const selectHtmlStatus = `
+                        <select class="font-serif form-select form-select-sm orderStatus" style="width: unset" id="select_status">
+                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "1" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=1 ? "disabled" : ""} value="1">Chờ xử lý</option>
+                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "2" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=2 ? "disabled" : ""} value="2">Đang xử lý</option>
+                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "3" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=3 ? "disabled" : ""} value="3">Đang giao hàng</option>
+                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "4" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=4 ? "disabled" : ""} value="4">Đã giao hàng</option>
+                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "5" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=5 ? "disabled" : ""} value="5">Giao hàng thất bại</option>
+                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "6" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=6 ? "disabled" : ""} value="6">Hoàn thành</option>
+                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "7" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=7 ? "disabled" : ""} value="7">Đã hủy</option>
+                         </select>
+                    
+                    `
+                        $('#select-change-status').append(selectHtmlStatus);
+
+                        if (data.listItemOrder[0].order.order_statuses[0].id == 7) {
+                            $(".span-failed").addClass("active");
+                            $(".span-completed").removeClass("active");
+                            $(".orderStatus").removeClass("active");
+                        } else if (data.listItemOrder[0].order.order_statuses[0].id == 6) {
+                            $(".span-failed").removeClass("active");
+                            $(".span-completed").addClass("active");
+                            $(".orderStatus").removeClass("active");
+                        } else {
+                            $(".span-failed").removeClass("active");
+                            $(".span-completed").removeClass("active");
+                            $(".orderStatus").addClass("active");
+                        }
+
+                        $('.orderStatus').on('change', function() {
+
+                            const selectedValue = $(this).val();
+
+                            $.ajax({
+                                url: 'http://127.0.0.1:8000/api/orders/updateOrderStatus',
+                                type: 'POST',
+                                data: {
+                                    order_id: orderId,
+                                    status_id: selectedValue
+                                },
+                                success: function(response) {
+                                    if (response.status == 200) {
+                                        fillOrderDetails(orderId);
+                                        if (selectedValue == 1) {
+                                            $(".printOrder").addClass("active");
+                                        } else {
+                                            $(".printOrder").removeClass("active");
+
+                                        }
+                                    }
+                                },
+                                error: function(error) {
+                                    console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                        error);
+                                }
+                            });
+                        });
 
                     })
                     .catch(error => {
@@ -385,35 +521,6 @@
             }
 
 
-            $('.orderStatus').on('change', function() {
-
-                const selectedValue = $(this).val();
-
-                console.log(selectedValue);
-                console.log(orderId);
-
-                $.ajax({
-                    url: 'http://127.0.0.1:8000/api/orders/updateOrderStatus',
-                    type: 'POST',
-                    data: {
-                        order_id: orderId,
-                        status_id: selectedValue
-                    },
-                    success: function(response) {
-                        if (response.status == 200) {
-                            if (selectedValue == 1) {
-                                $(".printOrder").addClass("active");
-                            } else {
-                                $(".printOrder").removeClass("active");
-
-                            }
-                        }
-                    },
-                    error: function(error) {
-                        console.error("Lỗi cập nhật trạng thái đơn hàng:", error);
-                    }
-                });
-            });
 
 
 
@@ -427,7 +534,6 @@
             $("#printOrder").click(function() {
 
 
-                console.log(dataDetailOrder);
                 fetch(`http://127.0.0.1:8000/api/orders/invoice/${orderId}`, {
                         method: 'POST',
                         headers: {
