@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Enums\UserGroupType;
 use App\Models\Coupon;
 
 class CouponRepository extends BaseRepository
@@ -16,12 +17,25 @@ class CouponRepository extends BaseRepository
         return $this->model->with($relations)->find($id);
     }
 
+    public function findByIdsWithRelation($ids, array $relations)
+    {
+        // ép buộc chuỗi id thành mảng loại bỏ dấu ,
+        if(!is_array($ids)) {
+            $ids = explode(',',$ids);
+        }
+        return $this->model
+            ->with($relations)
+            ->whereIn('id', $ids)
+            ->get();
+    }
+
     public function trash()
     {
         return $this->model->onlyTrashed()->paginate(10);
     }
 
-    public function countCouponInTrash() {
+    public function countCouponInTrash()
+    {
         return $this->model->onlyTrashed()->count();
     }
 

@@ -69,6 +69,18 @@ class CouponController extends Controller
         }
     }
 
+    public function destroySelected()
+    {
+        $couponIds = request('selected_coupons');
+        
+        $result = $this->couponService->deleteSelectedCoupons($couponIds);
+
+        if ($result['status']) {
+            return redirect()->route('admin.coupons.trash')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
 
     public function trash()
     {

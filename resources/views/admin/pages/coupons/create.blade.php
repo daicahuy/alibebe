@@ -193,7 +193,6 @@
                                                             class="btn btn-outline-secondary">
                                                             <i class="ri-calendar-line"></i>
                                                         </button>
-
                                                     </div>
                                                     @error('start_date')
                                                         <div class="alert alert-danger mt-2">{{ $message }}</div>
@@ -233,13 +232,11 @@
                                                 <div class="col-sm-9">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch">
-                                                            <input type="checkbox" id="status" name="is_active"
-                                                                formcontrolname="status" value="1"
-                                                                class="ng-untouched ng-pristine ng-valid @error('is_active')
-                                                                    is-invalid
-                                                                @enderror">
+                                                            <input type="checkbox" id="is_active" name="is_active"
+                                                                formcontrolname="is_active" value="1"
+                                                                class="ng-untouched ng-pristine ng-valid @error('is_active') is-invalid @enderror"
+                                                                {{ old('is_active') == '1' ? 'checked' : '' }}>
                                                             <span class="switch-state"></span>
-
                                                         </label>
                                                         @error('is_active')
                                                             <div class="alert alert-danger mt-2">{{ $message }}</div>
@@ -255,10 +252,11 @@
                                                 <label class="col-sm-3 form-label-title mb-0" for="is_apply_all">
                                                     Chấp Nhận Cho Tất Cả Sản Phẩm
                                                 </label>
+                                                {{-- <input type="checkbox" name="is_apply_all"> --}}
                                                 <div class="col-sm-9">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch">
-                                                            <input type="checkbox" id="is_apply_all" name="is_apply_all "
+                                                            <input type="checkbox" id="is_apply_all" name="is_apply_all"
                                                                 formcontrolname="is_apply_all"
                                                                 class="ng-untouched ng-pristine ng-valid">
                                                             <span class="switch-state"></span>

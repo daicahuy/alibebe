@@ -89,13 +89,13 @@
                                 <div class="col-sm-6">
                                     <label for="start-date" class="form-label">{{ __('form.coupon.start_date') }}:</label>
                                     <input type="text" id="start-date" class="form-control"
-                                        value="{{ \Carbon\Carbon::parse($coupon->start_date)->format('d M Y h:i A') }}"
+                                        value=" {{ $coupon->start_date? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}"
                                         readonly>
                                 </div>
                                 <div class="col-sm-6">
                                     <label for="end-date" class="form-label">{{ __('form.coupon.end_date') }}:</label>
                                     <input type="text" id="end-date" class="form-control"
-                                        value="{{ \Carbon\Carbon::parse($coupon->end_date)->format('d M Y h:i A') }}"
+                                        value="{{ $coupon->end_date? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}"
                                         readonly>
                                 </div>
                             </div>
@@ -124,7 +124,6 @@
                                 </div>
                             </div>
 
-
                             <div class="d-flex">
                                 <a href="{{ route('admin.coupons.edit', $coupon->id) }}"
                                     class="btn btn-primary me-2">Chỉnh Sửa</a>
@@ -147,10 +146,33 @@
                                             <th>Giá Trị</th>
                                         </tr>
                                     </thead>
+
+                                    @foreach ($coupon->restriction->toArray() as $key => $value)
+                                        <tbody class="table-light">
+                                            <td>{{ $key }}</td>
+                                            <td>
+                                                @switch($key)
+                                                    @case('updated_at')
+                                                        {{ isset($value) ? $value : 'N/A' }}
+                                                    @break
+
+                                                    @case('deleted_at')
+                                                        {{ isset($value) ? $value : 'N/A' }}
+                                                    @break
+
+                                                    @case('created_at')
+                                                        {{ isset($value) ? $value : 'N/A' }}
+                                                    @break
+
+                                                    @default
+                                                        {{ $value }}
+                                                @endswitch
+                                            </td>
+                                        </tbody>
+                                    @endforeach
                                 </table>
                             </div>
                         </div>
-
                     </div> {{-- End Tab Content --}}
                 </div>
             </div>

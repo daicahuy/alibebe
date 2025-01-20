@@ -28,7 +28,6 @@ class StoreCouponRequest extends FormRequest
     {
         $isExpired = $this->input('is_expired');
         $allProducts = $this->input('is_apply_all');
-        dd($allProducts);
         return [
             'code' => [
                 'required',
@@ -56,12 +55,29 @@ class StoreCouponRequest extends FormRequest
             'discount_value' => [
                 'required',
                 'numeric',
-                'min:0'
+                'min:0',
+                function ($attribute, $value, $fail) {
+                    // Kiểm tra nếu discount_type là PERCENT và giá trị nằm ngoài khoảng 1 - 100%
+                    if (request('discount_type') == CouponDiscountType::PERCENT && ($value < 0 || $value > 100)) {
+                        $fail('Giá trị giảm giá phải nằm trong khoảng 1 - 100%.');
+                    }
+
+                    // Kiểm tra nếu discount_type là PERCENT và giá trị vượt quá 85%
+                    if (request('discount_type') == CouponDiscountType::PERCENT && $value > 85) {
+                        $fail('Giá trị giảm giá không được vượt quá 85%.');
+                    }
+
+                    $productPrice = request('price');
+                    if (request('discount_type') == CouponDiscountType::FIX_AMOUNT && $value > $productPrice) {
+                        $fail('Giá trị giảm giá không được lớn hơn giá trị của sản phẩm.');
+                    }
+                }
             ],
             'usage_limit' => [
                 'nullable',
                 'integer',
-                'min:0'
+                'min:0',
+                'max:100'
             ],
             'usage_count' => [
                 'nullable',

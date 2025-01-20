@@ -252,6 +252,8 @@ Route::prefix('/admin')
                 Route::post('/{coupon}/restore','restore')->name('restore');
 
                 Route::delete('/{coupon}/force-destroy','forceDestroy')->name('force-destroy');
+
+                Route::delete('/destroy-selected','destroySelected')->name('destroy-selected');
             });
 
         
