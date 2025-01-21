@@ -19,10 +19,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/orders/list', [OrderController::class, 'index'])->name('index');
-Route::get('/orders/list/count', [OrderController::class, 'countByStatus'])->name('countByStatus');
-Route::post('/orders/updateOrderStatus', [OrderController::class, 'changeStatusOrder'])->name('changeStatusOrder');
-Route::post('/orders/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');
-Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->name('getOrderDetail');
+Route::prefix('/orders')
+    ->name('api.orders.')
+    ->group(function () {
+
+        Route::get('/list', [OrderController::class, 'index'])->name('index');
+        Route::get('/list/count', [OrderController::class, 'countByStatus'])->name('countByStatus');
+        Route::post('/updateOrderStatus', [OrderController::class, 'changeStatusOrder'])->name('changeStatusOrder');
+        Route::post('/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');
+        Route::post('/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
+
+
+    });
 Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');
-Route::post('/orders/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
+Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->name('getOrderDetail');

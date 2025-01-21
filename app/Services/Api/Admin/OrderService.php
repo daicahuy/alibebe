@@ -38,6 +38,11 @@ class OrderService
         return $this->orderOrderStatusRepository->changeStatusOrder($idOrder, $idStatus);
     }
 
+    public function changeNoteStatusOrder($idOrder, $note)
+    {
+        return $this->orderOrderStatusRepository->changeNoteStatusOrder($idOrder, $note);
+    }
+
     public function getOrdersByStatus(int $activeTab)
     {
         return $this->orderRepository->getOrdersByStatus($activeTab);

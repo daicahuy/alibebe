@@ -136,11 +136,17 @@ class OrderController extends Controller
 
             $idOrder = $request->input("order_id");
             $idStatus = $request->input("status_id");
+            $note = $request->input("note");
 
-            // dd($idOrder);
 
+            if ($note) {
+                $this->orderService->changeNoteStatusOrder($idOrder, $note);
 
-            $this->orderService->changeStatusOrder($idOrder, $idStatus);
+            } else {
+
+                $this->orderService->changeStatusOrder($idOrder, $idStatus);
+            }
+
 
 
             return response()->json([

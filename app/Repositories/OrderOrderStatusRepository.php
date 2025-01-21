@@ -18,11 +18,11 @@ class OrderOrderStatusRepository extends BaseRepository
     {
         return DB::transaction(function () use ($idOrder, $idStatus) {
             if (is_array($idOrder)) {
-                OrderOrderStatus::query()
-                    ->whereIn('order_id', $idOrder)
-                    ->update(['order_status_id' => $idStatus]);
                 foreach ($idOrder as $orderId) {
-                    OrderOrderStatus::create([
+                    OrderOrderStatus::query()
+                        ->where('order_id', $idOrder)
+                        ->update(['order_status_id' => $idStatus]);
+                    HistoryOrderStatus::create([
                         'order_id' => $orderId,
                         'order_status_id' => $idStatus,
                     ]);
@@ -39,6 +39,20 @@ class OrderOrderStatusRepository extends BaseRepository
                 ]);
                 return true;
             }
+        });
+
+    }
+
+    public function changeNoteStatusOrder($idOrder, $note)
+    {
+        return DB::transaction(function () use ($idOrder, $note) {
+
+            OrderOrderStatus::query()
+                ->where('order_id', $idOrder)
+                ->update(['note' => $note]);
+            ;
+            return true;
+
         });
 
     }

@@ -485,7 +485,7 @@
                             const selectedValue = $(this).val();
 
                             $.ajax({
-                                url: 'http://127.0.0.1:8000/api/orders/updateOrderStatus',
+                                url: '{{ route('api.orders.changeStatusOrder') }}',
                                 type: 'POST',
                                 data: {
                                     order_id: orderId,

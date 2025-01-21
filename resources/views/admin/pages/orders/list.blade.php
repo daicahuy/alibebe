@@ -400,15 +400,16 @@
         'id' => 'modalConfirm',
         'title' => 'Xem minh chứng',
     ])
-        <form action="">
+        <form id="formConfirmCheckOrder" method="POST">
             @csrf
+            <input type="text" hidden value="" name="order_id" class="hiddenIDIgnore">
             <div class="align-items-center g-2 mb-4 row">
                 <label class="col-sm-3 form-label-title mb-0 text-start" for="icon">
                     Ảnh đơn hàng
                 </label>
                 <div class="col-sm-9">
-                    <img src="" alt="" width="60px" height="80px" class=""
-                        style="object-fit: cover">
+                    <img src="" alt="" width="150px" height="200px" id="img-checkout-order"
+                        class="" style="object-fit: cover">
                 </div>
             </div>
 
@@ -416,8 +417,8 @@
                 <label class="col-sm-3 form-label-title mb-0 text-start" for="name">
                     Tình trạng:
                 </label>
-                <div class="" style="width: unset;">
-                    Khách chưa nhận được hàng
+                <div class="" style="width: unset;" id="checkout-order-status">
+
                 </div>
             </div>
 
@@ -427,7 +428,7 @@
                     <span class="theme-color ms-2 required-dot ">*</span>
                 </label>
                 <div class="col-sm-9">
-                    <textarea name="" id="" cols="15" class="form-control"></textarea>
+                    <textarea name="note" id="text-note-checkout-order" cols="15" class="form-control"></textarea>
                 </div>
             </div>
 
@@ -459,7 +460,33 @@
     <script>
         $(document).ready(function() {
 
+            $('#formConfirmCheckOrder').on("submit", function(event) {
+                event.preventDefault();
 
+                const note = $("#modalConfirm #text-note-checkout-order").val();
+
+                const order_id = $("#modalConfirm .hiddenIDIgnore").val();
+
+                $.ajax({
+                    url: '{{ route('api.orders.changeStatusOrder') }}',
+                    type: 'POST',
+                    data: {
+                        order_id: order_id,
+                        note: note
+                    },
+                    success: function(response) {
+
+                        if (response.status == 200) {
+
+                            alert("Cập nhật thành công.");
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:", error);
+                    }
+                });
+
+            });
 
 
             $('.btn-order').on('click', function() {
@@ -489,7 +516,7 @@
                 $("#loading-icon").show();
                 // Gọi API
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/orders/list",
+                    url: '{{ route('api.orders.index') }}',
                     method: "GET",
                     data: {
                         order_status_id: activeTab,
@@ -500,6 +527,7 @@
                         limit: itemsPerPage,
                     },
                     success: function(response) {
+
                         renderTable(response.orders, response.totalPages);
                         if (response
                             .totalPages
@@ -514,7 +542,11 @@
                                 }
                             });
                         }
-                        if (updateCounts) updateTabCounts(search, startDate, endDate);
+                        if (updateCounts) {
+
+                            updateTabCounts(search, startDate, endDate);
+
+                        }
 
                     },
                     error: function() {
@@ -575,23 +607,23 @@
                                     
                                     ${order.order_statuses[0].pivot.order_status_id == 6 ? 
                                           `<div _ngcontent-ng-c1063460097="" class="ng-star-inserted span-completed">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="status-completed"><span>Hoàn thành</span></div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>` :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="status-completed"><span>Hoàn thành</span></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>` :
 (order.order_statuses[0].pivot.order_status_id == 7 ? 
 `<div _ngcontent-ng-c1063460097="" class="ng-star-inserted span-failed">
-                                                                                            <div class="status-failed"><span>Đã hủy</span></div>
+                                                                                        <div class="status-failed"><span>Đã hủy</span></div>
                                                                                         </div>` :
 `
-                                                        <select class="font-serif form-select form-select-sm orderStatus" id="select_status">
-                                                            <option ${order.order_statuses[0].pivot.order_status_id == "1" ? "selected" : ""} ${activeTab>=1 ? "disabled" : ""} value="1">Chờ xử lý</option>
-                                                            <option ${order.order_statuses[0].pivot.order_status_id == "2" ? "selected" : ""} ${activeTab>=2 ? "disabled" : ""} value="2">Đang xử lý</option>
-                                                            <option ${order.order_statuses[0].pivot.order_status_id == "3" ? "selected" : ""} ${activeTab>=3 ? "disabled" : ""} value="3">Đang giao hàng</option>
-                                                            <option ${order.order_statuses[0].pivot.order_status_id == "4" ? "selected" : ""} ${activeTab>=4 ? "disabled" : ""} value="4">Đã giao hàng</option>
-                                                            <option ${order.order_statuses[0].pivot.order_status_id == "5" ? "selected" : ""} ${activeTab>=5 ? "disabled" : ""} value="5">Giao hàng thất bại</option>
-                                                            <option ${order.order_statuses[0].pivot.order_status_id == "6" ? "selected" : ""} ${activeTab>=6 ? "disabled" : ""} value="6">Hoàn thành</option>
-                                                            <option ${order.order_statuses[0].pivot.order_status_id == "7" ? "selected" : ""} ${activeTab>=7 ? "disabled" : ""} value="7">Đã hủy</option>
-                                                        </select>
-                                                                                                                                                                            `
+                                                                                        <select class="font-serif form-select form-select-sm orderStatus" id="select_status">
+                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "1" ? "selected" : ""} ${activeTab>=1 ? "disabled" : ""} value="1">Chờ xử lý</option>
+                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "2" ? "selected" : ""} ${activeTab>=2 ? "disabled" : ""} value="2">Đang xử lý</option>
+                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "3" ? "selected" : ""} ${activeTab>=3 ? "disabled" : ""} value="3">Đang giao hàng</option>
+                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "4" ? "selected" : ""} ${activeTab>=4 ? "disabled" : ""} value="4">Đã giao hàng</option>
+                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "5" ? "selected" : ""} ${activeTab>=5 ? "disabled" : ""} value="5">Giao hàng thất bại</option>
+                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "6" ? "selected" : ""} ${activeTab>=6 ? "disabled" : ""} value="6">Hoàn thành</option>
+                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "7" ? "selected" : ""} ${activeTab>=7 ? "disabled" : ""} value="7">Đã hủy</option>
+                                                                                        </select>
+                                                                                                                                                                        `
                                                )
                                         }
                                 </td>
@@ -600,16 +632,16 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                    <div class="status-pending">
-                                                                                        <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                    </div>
-                                                                                </div>
-                                                                                
-                                                                                
-                                                                                ` : `
-                                                                                
-                                                                                `}
+                                                                                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                                                            <div class="status-pending">
+                                                                                                                <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        
+                                                                                                        
+                                                                                                        ` : `
+                                                                                                        
+                                                                                                        `}
                                         <li>
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
@@ -640,14 +672,27 @@
 
             function callApiGetOrderOrderStatus(idOrder) {
                 $.ajax({
-                    url: 'http://127.0.0.1:8000/api/orders/getOrderStatus',
+                    url: '{{ route('api.orders.getOrderOrderByStatus') }}',
                     type: 'POST',
                     data: {
                         order_id: idOrder,
                     },
                     success: function(response) {
+                        console.log(response.data[0])
+                        $("#modalConfirm #img-checkout-order").attr("src",
+                            `${response.data[0].employee_evidence}`);
+                        if (response.data[0].customer_confirmation == 1) {
+                            $("#modalConfirm #checkout-order-status").text(
+                                "Khách hàng đã nhận được hàng");
+                        } else if (response.data[0].customer_confirmation == 0) {
+                            $("#modalConfirm #checkout-order-status").text(
+                                "Khách hàng chưa nhận được hàng");
+                        }
+                        $("#modalConfirm #text-note-checkout-order").val(
+                            `${response.data[0].note?response.data[0].note:""}`);
 
-                        console.log(response.data);
+                        $("#modalConfirm .hiddenIDIgnore").val(`${response.data[0].order_id}`)
+
                     },
                     error: function(error) {
                         console.error("Lỗi cập nhật trạng thái đơn hàng:", error);
@@ -657,7 +702,7 @@
 
             function callApiChangeStatusListOrder(idOrders, idStatus) {
                 $.ajax({
-                    url: 'http://127.0.0.1:8000/api/orders/updateOrderStatus',
+                    url: '{{ route('api.orders.changeStatusOrder') }}',
                     type: 'POST',
                     data: {
                         order_id: idOrders,
@@ -665,13 +710,15 @@
                     },
                     success: function(response) {
 
+                        console.log("response", response)
                         if (response.status == 200) {
-                            fetchOrders();
+
+                            $('#checkbox-table').prop('checked', false);
                             $('#select-change-status-items').empty();
                             $("#count_selected_item").text(``)
                             $('.btn-download-all').addClass('active');
                             $('#selected-category-ids').val('');
-
+                            fetchOrders(true);
                             toggleBulkActionButton();
                         }
                     },
@@ -731,7 +778,7 @@
                 $(".tab").each(function() {
                     const status = $(this).data("status");
                     $.ajax({
-                        url: "http://127.0.0.1:8000/api/orders/list/count",
+                        url: '{{ route('api.orders.countByStatus') }}',
                         method: "GET",
                         data: {
                             order_status_id: status,
@@ -859,7 +906,7 @@
 
                 //  Xử lý selectedValue và idOrder ở đây. Ví dụ: gửi lên server bằng AJAX
                 $.ajax({
-                    url: 'http://127.0.0.1:8000/api/orders/updateOrderStatus',
+                    url: '{{ route('api.orders.changeStatusOrder') }}',
                     type: 'POST',
                     data: {
                         order_id: idOrder,
@@ -867,7 +914,8 @@
                     },
                     success: function(response) {
                         if (response.status == 200) {
-                            fetchOrders();
+                            fetchOrders(true);
+                            $('#checkbox-table').prop('checked', false);
                             $('#select-change-status-items').empty();
                             $("#count_selected_item").text(``)
                             $('.btn-download-all').addClass('active');
