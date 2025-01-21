@@ -44,12 +44,5 @@ class UserCustomerService
             return false;
         }
     }
-    public function lockUser(int $id)
-    {
-        try {
-            // return $this->userRepository->update($id,'');
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
-    }
+  
 }

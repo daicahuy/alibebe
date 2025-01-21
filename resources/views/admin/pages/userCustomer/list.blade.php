@@ -72,8 +72,8 @@
                                 <div class="table-search">
                                     <label class="form-label">{{ __('message.search') }} :</label>
                                     <input type="search" class="form-control" name="_keyword"
-                                        value="{{ request('_keyword') }}">
-                                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                                        value="{{ request('_keyword') }}" placeholder ="Tìm kiếm bằng tên, email, sđt...">
+                                    <button type="submit" class="btn btn-primary" >Tìm kiếm</button>
                                 </div>
                             </form>
 
