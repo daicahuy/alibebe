@@ -4,6 +4,7 @@ namespace App\Services\Web\Admin;
 
 use App\Models\Category;
 use App\Repositories\CategoryRepository;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -25,11 +26,18 @@ class CategoryService
 
 
     // List
-    public function index()
+    public function index($perPage)
     {
+        // dd($perPage);
         try {
-
-            $listCategory = $this->categoryRepo->getAllCate();
+            $perPage ?? 5;
+            $listCategory = $this->categoryRepo->paginationM(
+                ['*'],
+                'parent_id',
+                $perPage,
+                ['updated_at', 'DESC'],
+                ['categories']
+            );
 
             // return $listCategory;
             return compact('listCategory');
@@ -53,7 +61,7 @@ class CategoryService
         try {
 
             $show = $this->categoryRepo->getChild($id);
-
+            // dd($show);
             return compact('show');
             // return $show;
 
@@ -115,7 +123,20 @@ class CategoryService
 
             $imageOld = $this->categoryRepo->findById($id)->icon; // lấy đường dẫn ảnh cũ
 
+            // dd($cateOld);
             $this->categoryRepo->update($id, $data);
+
+            $ids = [];
+            $childCate = $this->categoryRepo->getChild($id);
+            foreach ($childCate->categories as $cate) {
+                $ids[] = $cate->id;
+            }
+            // dd($ids);
+            // dd($childCate);
+            if ($data['is_active'] == 0 && !empty($childCate)) {
+                $this->categoryRepo->whereIn($ids)->update(['is_active' => 0]);
+            }
+
 
             // Nếu không upload ảnh mới thì anh cũ sẽ không bị xóa
             if (!empty($data['icon']) && !empty($imageOld) && Storage::exists($imageOld)) {
@@ -338,7 +359,7 @@ class CategoryService
 
     // Xử lý hàng loạt
 
-    // Trang trash xóa cứng,
+    // Xóa cứng,
     public function bulkDestroy($ids)
     {
         // dd($ids);
@@ -351,8 +372,9 @@ class CategoryService
         DB::beginTransaction();
         try {
 
+            // xóa image
             $categories = $this->categoryRepo->getwithTrashIds($ids)->get();
-            // Xóa các file liên quan trước khi xóa bản ghi
+
             foreach ($categories as $category) {
                 $imageOld = $category->icon;
                 if ($imageOld && Storage::exists($imageOld)) {
@@ -361,12 +383,11 @@ class CategoryService
             }
 
             $deletedCount = $this->categoryRepo->getwithTrashIds($ids)->forceDelete();
-            if ($deletedCount !== $ids) {
+
+            if ($deletedCount !== count($ids)) {
 
                 $deletedIds = $this->categoryRepo->getwithTrashIds($ids)
-                    ->doesntExist() ? $ids : Category::withTrashed()
-                        ->whereIn('id', $ids)
-                        ->pluck('id')->toArray();
+                    ->pluck('id')->toArray();
 
                 $failedIds = array_diff($ids, $deletedIds);
 
@@ -381,7 +402,7 @@ class CategoryService
                     ]
                 );
             } else {
-                $successIds[] = $ids;
+                $successIds = $ids;
 
             }
             DB::commit();
@@ -399,6 +420,7 @@ class CategoryService
         }
     }
 
+    // Khôi phục
     public function bulkRestore($categoryIds)
     {
         try {
@@ -427,17 +449,8 @@ class CategoryService
                 return [
                     'success' => false,
                     'message' => 'Đã có lỗi trong quá trình khôi phục. Vui lòng thử lại sau.',
-                ]; // Trả về thông báo lỗi cụ thể hơn
+                ];
             }
-
-
-            // if (count($failedIds) > 0) {
-            //     $message = "Đã có lỗi xảy ra với các ID sau: " . implode(", ", $failedIds);
-            //     $status = false;
-            // } else {
-            //     $message = 'Đã khôi phục thành công các ID:' . implode(", ", $successIds);
-            //     $status = true;
-            // }
 
             return [
                 'success' => true,
@@ -491,11 +504,19 @@ class CategoryService
 
                 if (!empty($valiCate)) {
 
-                    // Số lượng xóa thực tế ko khớp với số lượng validate check
+                    // Số lượng xóa success ko khớp với số lượng validate check
 
                     $deleteCount = $this->categoryRepo->getwithTrashIds($valiCate)->delete();
 
                     if ($deleteCount !== count($valiCate)) {
+
+                        // lấy lại các id đã xóa mềm
+
+                        $deletedids = $this->categoryRepo->getwithTrashIds($valiCate)
+                            ->pluck('id') //chỉ lấy id
+                            ->toArray(); //chuyển collection thành mảng
+
+                        $successIds = $deletedids;
 
                         $failedIds = array_diff($valiCate, $successIds); // Lấy ra các phần tử không trùng nhau
                         Log::warning(
@@ -566,6 +587,70 @@ class CategoryService
             Log::error(__METHOD__, ['error' => $th->getMessage(), 'category_ids' => $categoryIds]);
             return ['success' => false, 'message' => 'Đã có lỗi tổng quan. Vui lòng thử lại sau.'];
         }
+
+
+
+
     }
+    // search
+    public function search($keyword, $perPage = null)
+    {
+
+        $perPageUse = $perPage ?? 5;
+        $query = $this->categoryRepo->serach($keyword);
+        $result = $query->paginate($perPageUse)->withQueryString();
+        return $result;
+
+        // if (empty($keyword)) {
+        //     return [
+        //         'success' => false,
+        //         'message' => 'Vui lòng nhập tên danh mục',
+        //         'listCategory' => $result,
+        //         'keyword' => $keyword
+        //     ];
+        // }
+
+
+        // if ($result) {
+        //     return [
+        //         'success' => true,
+        //         'message' => 'Tìm thấy ' . count($result) . ' kết quả',
+        //         'listCategory' => $result,
+        //         'keyword' => $keyword
+        //     ];
+        // }
+        // return [
+        //     'success' => false,
+        //     'message' => 'Không tìm thấy kết quả phù hợp',
+        //     'listCategory' => $result,
+        //     'keyword' => $keyword
+        // ];
+
+
+    }
+
+    // public function searchParent(int $perPage = null, $parent = 'parent_id'): Paginator
+    // {
+    //     $perPageUse = $perPage ?? 5;
+    //     return $this->categoryRepo->paginationM(
+    //         ['*'],
+    //         $parent,
+    //         $perPage,
+    //         ['updated_at', 'DESC'],
+    //         ['categories']
+    //     );
+    // }
+
+    // public function searchAll(int $perPage = null): Paginator
+    // {
+    //     $perPageUse = $perPage ?? 5;
+    //     return $this->categoryRepo->paginationM(
+    //         ['*'],
+    //         null,
+    //         $perPage,
+    //         ['updated_at', 'DESC'],
+    //         ['categories']
+    //     );
+    // }
     //
 }

@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Category;
 use App\Services\Web\Admin\CategoryService;
+use Illuminate\Contracts\Pagination\Paginator;
 
 class CategoryRepository extends BaseRepository
 {
@@ -16,6 +17,40 @@ class CategoryRepository extends BaseRepository
 
     // Tự viết hàm truy vấn mới
     // list category gốc, (parent_id = NULL) và con nếu có, dành cho list có phân trang
+    public function paginationM(
+        array $columns = ['*'],
+        $parentId = 'parent_id',
+        int $perPage = 5,
+        array $orderBy = ['updated_at', 'DESC'],
+        array $relations = ['categories']
+    ) {
+        return $this->model->select($columns)
+            ->whereNull($parentId)
+            ->with($relations)
+            ->orderBy($orderBy[0], $orderBy[1])
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    // search
+    public function serach($keyword, $parentId = null)
+    {
+        $query = $this->model->query();
+
+        // if ($parentId !== null) {
+        //     $query->whereNull($parentId);
+        // }
+
+        if (trim($keyword) !== '') {
+            $query->where(function ($query) use ($keyword) {
+                $query->where('name', 'like', "%{$keyword}%");
+            });
+        } else {
+            $query->whereNull('parent_id');
+        }
+        return $query;
+    }
+
     public function getAllCate()
     {
         return $this->model->whereNull('parent_id')->with('categories')->orderBy('updated_at', 'desc')->paginate(5);
@@ -33,7 +68,7 @@ class CategoryRepository extends BaseRepository
     // Lấy nguyên category con
     public function getChild($id)//show 
     {
-        return $this->model->where('id', $id)->with('categories')->first();
+        return $this->model->with('categories')->find($id);
     }
 
 
@@ -51,7 +86,7 @@ class CategoryRepository extends BaseRepository
     }
 
 
-    //    Lấy 1 danh mục bao gồm cả child && products: true: lấy cả products, false: không lấy
+    //    Lấy 1 danh mục bao gồm cả child && (products: true: lấy cả products, false: không lấy)
     public function findWithChild(int $id, bool $loadProducts = true)
     {
         $query = $this->model->where('id', $id)->with('categories');
@@ -72,4 +107,18 @@ class CategoryRepository extends BaseRepository
     {
         return $this->model->withTrashed()->whereIn('id', $ids);
     }
+
+    // Lấy danh mục con (child)
+    // public function getChild
+    // update child isactive
+    public function updateChildIsactive($ids, $isActive)
+    {
+        return $this->model->whereIn('id', $ids)->update(['is_active' => $isActive]);
+    }
+
+    public function whereIn($ids)
+    {
+        return $this->model->whereIn('id', $ids);
+    }
+
 }

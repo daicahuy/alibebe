@@ -37,24 +37,28 @@
                         </div>
 
                         <!-- HEADER TABLE -->
+                        <form action="{{ route('admin.categories.search') }}" method="GET">
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                <select class="form-control">
-                                    <option value="15">15
-                                    </option>
-                                    <option value="30">30
-                                    </option>
-                                    <option value="45">45
-                                    </option>
-                                </select>
+                                <form action="{{ route('admin.categories.index') }}" method="GET">
+                                    <select class="form-control" name="per_page"
+                                     onchange="this.form.submit()"
+                                     >
+                                        {{-- Thêm name và onchange --}}
+                                        <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5</option>
+                                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                                        <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
+                                        {{-- <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>Tất cả --}}
+                                        </option>
+                                    </select>
+                                </form>
+
                                 <label>{{ __('message.items_per_page') }}</label>
                                 <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
                                     id="btn-move-to-trash-all">
                                     {{ __('message.move_to_trash') }}
                                 </button>
-                                {{-- input ẩn lưu ids --}}
-                                {{-- <input type="hidden" id="selected-category-ids" name="selected_category_ids"
-                                    value=""> --}}
+
 
                                 <a href="{{ route('admin.categories.trash') }}"
                                     class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
@@ -78,11 +82,14 @@
                             @endcomponent
                             <!-- End Switch Button -->
 
+                                <div class="table-search">
+                                    <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
+                                    <input type="search" class="form-control" name="_keyword" id="role-search"
+                                        value="{{ $keyword ?? '' }}">
+                                    <button type="submit" class="btn btn-primary">{{ __('message.search') }}</button>
+                                </div>
+                            </form>
 
-                            <div class="table-search">
-                                <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                <input type="search" class="form-control" name="_keyword">
-                            </div>
 
                         </div>
                         <!-- END HEADER TABLE -->
@@ -228,7 +235,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-                            {{ $listCategory->links() }}
+                            {{ $listCategory->appends(request()->query())->links() }}
                         </div>
                         <!-- END PAGINATIOn -->
 
@@ -256,8 +263,8 @@
 
             // --- Logic Checkbox --- 
             $('#checkbox-table').on('click', function() {
-                
-                 $('.checkbox-input').prop('checked', $(this).prop('checked'));
+
+                $('.checkbox-input').prop('checked', $(this).prop('checked'));
                 toggleBulkActionButton();
 
             });

@@ -18,9 +18,14 @@ class CategoryController extends Controller
     {
         $this->categoryService = $categoryService;
     }
-    public function index()
+
+
+    public function index(Request $request)
     {
-        $listCategory = $this->categoryService->index();
+        $perPage = $request->input('per_page', 5);
+        // dd($perPage);
+        // $perPage ?? 5;
+        $listCategory = $this->categoryService->index($perPage);
         // dd($listCategory);
         return view('admin.pages.categories.list', $listCategory);
     }
@@ -72,7 +77,7 @@ class CategoryController extends Controller
 
         if ($response['success']) {
 
-            $listCategory = $this->categoryService->index();
+            $listCategory = $this->categoryService->index(5);
 
             return redirect() // chuyển hướng url
 
@@ -123,12 +128,11 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, Category $category)
     {
         $data = $request->validated();
-
         $response = $this->categoryService->update($category->id, $data);
 
         if ($response['success']) {
 
-            $listCategory = $this->categoryService->index();
+            $listCategory = $this->categoryService->index(5);
 
             return redirect() // chuyển hướng url
 
@@ -182,7 +186,7 @@ class CategoryController extends Controller
         // dd($response);
         if ($response['success']) {
 
-            $listCategory = $this->categoryService->index();
+            $listCategory = $this->categoryService->index(5);
 
             return redirect() // chuyển hướng url
 
@@ -266,11 +270,36 @@ class CategoryController extends Controller
     public function bulkTrash(Request $request)
     {
 
-        // $categoryIds = explode(',', $request->input('category_ids')); // Chuyển chuỗi thành mảng
+
         $categoryIds = $request->input('category_ids');
         $response = $this->categoryService->bulkTrash($categoryIds);
         // dd($response);
         return response()->json($response);
     }
     //
+
+
+    // search
+    public function search(Request $request)
+    {
+        $keyword = $request->get('_keyword');
+        $keyword = trim($keyword);
+        $perPage = $request->input('per_page', 5);
+        // if (empty($keyword)) {
+        //     $listCategory = $this->categoryService->searchParent(null, $perPage);
+        //     $mesage = null;
+        // } else {
+            $listCategory = $this->categoryService->search($keyword, $perPage);
+            // if ($listCategory->isEmpty()) {
+            //     $message = 'Không tìm thấy kết quả phù hợp.';
+            // } else {
+            //     $message = 'Tìm thấy kết quả.';
+            // }
+        // }
+        // $listCategory = $this->categoryService->search($keyword, $perPage);
+        // dd($listCategory);
+        return view('admin.pages.categories.list', compact('listCategory', 'keyword'));
+
+
+    }
 }

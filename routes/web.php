@@ -65,12 +65,15 @@ Route::prefix('/admin')
                 Route::delete('/{category}', 'destroy')->name('destroy');
 
 
-                // 
+                // bulk
                 Route::post('/bulk-restore',  'bulkRestore')->name('bulkRestore');
 
                 Route::post('/bulk-destroy',  'bulkDestroy')->name('bulkDestroy');
 
                 Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
+
+                // search
+                route::get('/search','search')->name('search');
 
             });
 //
