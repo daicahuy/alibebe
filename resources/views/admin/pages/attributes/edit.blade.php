@@ -44,7 +44,7 @@
                                         novalidate>
                                         @csrf
                                         @method('PUT')
-
+                                        {{-- Name --}}
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0" for="name">
                                                 {{ __('form.attribute.name') }}
@@ -59,7 +59,7 @@
                                                     @enderror
                                             </div>
                                         </div>
-
+                                        {{-- Is_variant --}}
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0">
                                                 {{ __('form.attribute.is_variant') }}
@@ -73,7 +73,7 @@
                                                 </div>
                                             </div>
                                         </div>
-
+                                        {{-- Is_active --}}
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0">
                                                 {{ __('form.attribute.is_active') }}
@@ -87,7 +87,7 @@
                                                 </div>
                                             </div>
                                         </div>
-
+                                        {{-- Button  --}}
                                         <button class="btn btn-theme ms-auto mt-4" type="submit">
                                             {{ __('message.edit') }}
                                         </button>

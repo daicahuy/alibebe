@@ -46,7 +46,7 @@ class AttributeRepository extends BaseRepository
 
         // Kiểm tra liên kết trong bảng attribute_values
         if ($attribute->attributeValues()->exists()) {
-            throw new \Exception('Không thể xóa thuộc tính vì thuộc tính đang được sử dụng.');
+            throw new \Exception('Không thể vì thuộc tính đang có giá trị.');
         }
         return $attribute->forceDelete();
     }

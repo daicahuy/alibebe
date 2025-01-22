@@ -7,7 +7,6 @@ use App\Http\Requests\UpdateAttributeRequest;
 use App\Models\Attribute;
 use App\Repositories\AttributeRepository;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 

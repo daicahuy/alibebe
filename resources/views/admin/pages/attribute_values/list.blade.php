@@ -18,6 +18,16 @@
 {{-- ================================== --}}
 
 @section('content')
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
     <div class="container-fuild">
         <div class="row">
             <div class="col-sm-12">
@@ -33,7 +43,7 @@
                             </div>
                             <div>
                                 <a class="align-items-center btn btn-theme d-flex"
-                                    href="{{ route('admin.attributes.attribute_values.create', ['attribute' => 1]) }}">
+                                    href="{{ route('admin.attributes.attribute_values.create', ['attribute' => $attribute->id]) }}">
                                     <i class="ri-add-line"></i>
                                     {{ __('message.add') . ' ' . __('form.attribute_values') }}
                                 </a>
@@ -43,12 +53,18 @@
                         <!-- HEADER TABLE -->
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                <select class="form-control">
-                                    <option value="15">15
+                                <select class="form-control" onchange="window.location.href=this.value;">
+                                    <option value="{{ route('admin.attributes.attribute_values.index', ['attribute' =>$attribute->id,'perpage' => 15]) }}" 
+                                        @if(request()->input('perpage') == 15) selected @endif>
+                                        15
                                     </option>
-                                    <option value="30">30
+                                    <option value="{{ route('admin.attributes.attribute_values.index', ['attribute' =>$attribute->id,'perpage' => 30]) }}" 
+                                        @if(request()->input('perpage') == 30) selected @endif>
+                                        30
                                     </option>
-                                    <option value="45">45
+                                    <option value="{{ route('admin.attributes.attribute_values.index', ['attribute' =>$attribute->id,'perpage' => 45]) }}" 
+                                        @if(request()->input('perpage') == 45) selected @endif>
+                                        45
                                     </option>
                                 </select>
                                 <label>{{ __('message.items_per_page') }}</label>
@@ -86,21 +102,53 @@
                                                         class="custom-control-input checkbox_animated">
                                                 </div>
                                             </th>
-                                            <th class="sm-width">{{ __('form.attribute_value.id') }}</th>
+                                            <th class="sm-width">{{ __('form.attribute_value.id') }}
+                                                  <div class="filter-arrow" onclick="sortTable('id')">
+                                                    <div>
+                                                        <i
+                                                            class="{{ request()->get('sortColumn') === 'id' && request()->get('sortDirection') === 'asc' ? 'ri-arrow-up-s-fill'
+                                                                : (request()->get('sortColumn') === 'id' && request()->get('sortDirection') === 'desc' ? 'ri-arrow-down-s-fill' : 'ri-arrow-up-s-fill') }}"></i>
+                                                    </div>
+                                                </div>
+                                            </th>
                                             <th class="cursor-pointer">
                                                 {{ __('form.attribute_value.value') }}
-                                                <div class="filter-arrow">
-                                                    <div><i class="ri-arrow-up-s-fill"></i></div>
+                                                  <div class="filter-arrow" onclick="sortTable('value')">
+                                                    <div>
+                                                        <i
+                                                            class="{{ request()->get('sortColumn') === 'value' && request()->get('sortDirection') === 'asc' ? 'ri-arrow-up-s-fill'
+                                                                : (request()->get('sortColumn') === 'value' && request()->get('sortDirection') === 'desc' ? 'ri-arrow-down-s-fill' : 'ri-arrow-up-s-fill') }}"></i>
+                                                    </div>
                                                 </div>
                                             </th>
                                             <th>
                                                 {{ __('form.attribute_value.is_active') }}
-                                                <div class="filter-arrow">
-                                                    <div><i class="ri-arrow-up-s-fill"></i></div>
+                                                  <div class="filter-arrow" onclick="sortTable('is_active')">
+                                                    <div>
+                                                        <i
+                                                            class="{{ request()->get('sortColumn') === 'is_active' && request()->get('sortDirection') === 'asc' ? 'ri-arrow-up-s-fill'
+                                                                : (request()->get('sortColumn') === 'is_active' && request()->get('sortDirection') === 'desc' ? 'ri-arrow-down-s-fill' : 'ri-arrow-up-s-fill') }}"></i>
+                                                    </div>
                                                 </div>
                                             </th>
-                                            <th>{{ __('form.attribute_value.created_at') }}</th>
-                                            <th>{{ __('form.attribute_value.updated_at') }}</th>
+                                            <th>{{ __('form.attribute_value.created_at') }}
+                                                  <div class="filter-arrow" onclick="sortTable('created_at')">
+                                                    <div>
+                                                        <i
+                                                            class="{{ request()->get('sortColumn') === 'created_at' && request()->get('sortDirection') === 'asc' ? 'ri-arrow-up-s-fill'
+                                                                : (request()->get('sortColumn') === 'created_at' && request()->get('sortDirection') === 'desc' ? 'ri-arrow-down-s-fill' : 'ri-arrow-up-s-fill') }}"></i>
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <th>{{ __('form.attribute_value.updated_at') }}
+                                                  <div class="filter-arrow" onclick="sortTable('updated_at')">
+                                                    <div>
+                                                        <i
+                                                            class="{{ request()->get('sortColumn') === 'updated_at' && request()->get('sortDirection') === 'asc' ? 'ri-arrow-up-s-fill'
+                                                                : (request()->get('sortColumn') === 'updated_at' && request()->get('sortDirection') === 'desc' ? 'ri-arrow-down-s-fill' : 'ri-arrow-up-s-fill') }}"></i>
+                                                    </div>
+                                                </div>
+                                            </th>
                                             <th>{{ __('form.action') }}</th>
                                         </tr>
                                     </thead>
@@ -139,14 +187,15 @@
                                             <td>
                                                 <ul id="actions">
                                                     <li>
-                                                        <a href="{{ route('admin.attributes.attribute_values.edit', ['attribute' => 1, 'attributeValue' => 1]) }}" class="btn-edit">
+                                                        <a href="{{ route('admin.attributes.attribute_values.edit', ['attribute' => $attribute->id , 'attributeValue' => $atb_value->id]) }}" class="btn-edit">
                                                             <i class="ri-pencil-line"></i>
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <form action="" method="POST">
+                                                        <form action="{{ route('admin.attributes.attribute_values.destroy', ['attribute' => $attribute->id])}}" method="POST">
                                                             @csrf
                                                             @method('DELETE')
+                                                            <input type="hidden" name="id" value="{{ $atb_value->id }}">
                                                             <button type="submit" class="btn-delete"
                                                                 onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
                                                                 <i class="ri-delete-bin-line"></i>
@@ -166,7 +215,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-
+                            {{$attributeValues->links()}}
                         </div>
                         <!-- END PAGINATIOn -->
 
@@ -239,5 +288,23 @@
             })
 
         });
+    </script>
+    {{-- Sắp xếp --}}
+    <script>
+        function sortTable(column) {
+            // Lấy URL hiện tại
+            let url = new URL(window.location.href);
+
+            // Kiểm tra chiều sắp xếp hiện tại
+            let currentDirection = url.searchParams.get('sortDirection') || 'desc';
+            let newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+
+            // Cập nhật query parameters
+            url.searchParams.set('sortColumn', column);
+            url.searchParams.set('sortDirection', newDirection);
+
+            // Điều hướng tới URL mới
+            window.location.href = url.toString();
+        }
     </script>
 @endpush
