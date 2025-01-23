@@ -23,11 +23,37 @@ class BrandRepository extends BaseRepository
         return $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
     }
 
-    public function brandHasProducts(int $brandId)
+
+    public function delete(int $id)
     {
-        return Brand::join('products', 'products.brand_id', '=', 'brands.id')
-            ->where('brands.id', $brandId)
-            ->count('products.id') > 0;
+        $brand = $this->findById($id);
+
+        // Kiểm tra liên kết trong bảng attribute_values
+        if ($brand->products()->exists()) {
+            throw new \Exception('Không thể xóa vì thuộc tính đang có giá trị.');
+        }
+        return $brand->forceDelete();
     }
+    public function deleteAll(array $ids)
+    {
+        $Brands = Brand::whereIn('id', $ids)->get();
+        $BrandIdsWithProducts = [];
+    
+        // Kiểm tra tất cả các thương hiệu có liên kết với sản phẩm
+        foreach ($Brands as $Brand) {
+            if ($Brand->products()->exists()) {
+                $BrandIdsWithProducts[] = $Brand->id;
+            }
+        }
+    
+        if (!empty($BrandIdsWithProducts)) {
+            $BrandIdsList = implode(', ', $BrandIdsWithProducts);
+            throw new \Exception("Không thể xóa vì các thương hiệu sau đang liên kết với sản phẩm: {$BrandIdsList}.");
+        }
+    
+        // Nếu không có thương hiệu nào liên kết, tiến hành xóa
+        return Brand::whereIn('id', $ids)->delete();
+    }
+
 
 }

@@ -4,6 +4,7 @@ namespace App\Services\Web\Admin;
 
 use App\Http\Requests\StoreBrandRequest;
 use App\Http\Requests\UpdateBrandRequest;
+use App\Http\Requests\UpdateIsActiveRequest;
 use App\Models\Brand;
 use App\Repositories\BrandRepository;
 use Illuminate\Support\Facades\Log;
@@ -49,6 +50,21 @@ class BrandService
             throw $th;
         }
     }
+    public function updateStatus(UpdateIsActiveRequest $request, Brand $brand)
+    {
+        try {
+            // Kiểm tra giá trị truyền vào
+            Log::info('Trạng thái trước cập nhật: ' . $brand->is_active);
+            Log::info('Trạng thái sau cập nhật: ' . $request->status);
+            $brand->is_active = $request->status;
+            $brand->save();
+
+            return response()->json(['message' => 'Cập nhật trạng thái thành công!']);
+        } catch (\Throwable $th) {
+            Log::error(__CLASS__ . "@" . __FUNCTION__, ['error' => $th->getMessage()]);
+            return response()->json(['message' => 'Cập nhật trạng thái thất bại!'], 500);
+        }
+    }
     public function UpdateBrand(UpdateBrandRequest $request, Brand $brand)
     {
         $data = $request->validated();
@@ -79,26 +95,28 @@ class BrandService
             }
         }
     }
-    public function BrandHasProduct(int $brandId)
-    {
-        return $this->brandReponsitory->brandHasProducts($brandId);
-    }
-    public function destroyBrand($id)
+    public function delete(int $id)
     {
         try {
-
-            if ($this->BrandHasProduct($id)) {
-                return false;
-            }
-            $data = $this->brandReponsitory->findById($id);
-            return $data->delete();
+            return $this->brandReponsitory->delete($id);
         } catch (\Throwable $th) {
-            //throw $th;
             Log::error(
                 __CLASS__ . "@" . __FUNCTION__,
                 ['error' => $th->getMessage()]
             );
-            return false;
+            throw $th;
         }
     }
+
+    public function deleteAll(array $ids)
+    {
+        try {
+
+            return $this->brandReponsitory->deleteAll($ids);
+        } catch (\Throwable $th) {
+            Log::error(__CLASS__ . "@" . __FUNCTION__, ['error' => $th->getMessage()]);
+            throw $th; // Truyền tiếp lỗi lên Controller
+        }
+    }
+
 }

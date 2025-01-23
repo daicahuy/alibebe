@@ -36,10 +36,10 @@
 
                                         </h5>
                                     </div>
-                                    <form action="{{ route('admin.tags.store') }}" method="POST"
+                                    <form action="{{ route('admin.tags.update',$tag) }}" method="POST"
                                         class="theme-form theme-form-2 mega-form mt-4" novalidate>
                                         @csrf
-
+                                        @method('PUT')
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0" for="name">
                                                 {{ __('form.tag.name') }}
@@ -47,9 +47,11 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="name" id="name"
-                                                    class="form-control is-invalid"
-                                                    placeholder="{{ __('form.enter_tag_name') }}">
-                                                <div class="invalid-feedback">Vui lòng nhập tên thẻ</div>
+                                                    class="form-control @error('name') is-invalid @enderror"
+                                                    placeholder="{{ __('form.enter_tag_name') }}" value="{{$tag->name}}">
+                                                @error('name')
+                                                <div class="invalid-feedback">{{$message}}</div>
+                                                @enderror
                                             </div>
                                         </div>
 

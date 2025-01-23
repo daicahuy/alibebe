@@ -18,6 +18,16 @@
 {{-- ================================== --}}
 
 @section('content')
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class="container-fuild">
         <div class="row">
             <div class="col-sm-12">
@@ -45,10 +55,16 @@
                                     <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
                                 </select>
                                 <label>{{ __('message.items_per_page') }}</label>
-                                <button class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
-                                    id="btn-delete-all">
-                                    {{ __('message.delete_all') }}
-                                </button>
+                                <form action="{{ route('admin.tags.destroy') }}" method="POST" id="delete-all-form">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="ids" id="ids-to-delete" value="">
+                                    <button
+                                        class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
+                                        id="btn-delete-all">
+                                        {{ __('message.delete_all') }}
+                                    </button>
+                                </form>
 
                             </div>
                             <div class="datepicker-wrap">
@@ -98,7 +114,7 @@
                                                 <td>
                                                     <div class="custom-control custom-checkbox">
                                                         <input type="checkbox" id="checkbox-table"
-                                                            class="custom-control-input checkbox_animated checkbox-input">
+                                                            class="custom-control-input checkbox_animated checkbox-input" value="{{$tag->id}}">
                                                     </div>
                                                 </td>
                                                 <td class="cursor-pointer sm-width"> {{ $tag->id }}</td>
@@ -126,15 +142,17 @@
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <form action="{{ route('admin.tags.destroy', $tag->id) }}"
-                                                                method="POST">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn-delete"
-                                                                    onclick="return confirm('{{ __('message.confirm_delete_all_item') }}')">
-                                                                    <i class="ri-delete-bin-line"></i>
-                                                                </button>
-                                                            </form>
+                                                            <form action="{{ route('admin.tags.destroy') }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <input type="hidden" name="id"
+                                                                value="{{ $tag->id }}">
+                                                            <button type="submit" class="btn-delete"
+                                                                onclick="return confirm('{{ __('message.confirm_delete_all_item') }}')">
+                                                                <i class="ri-delete-bin-line"></i>
+                                                            </button>
+                                                        </form>
                                                         </li>
                                                     </ul>
                                                 </td>
@@ -174,7 +192,6 @@
 @push('js')
     <script>
         $(document).ready(function() {
-
             // --- Logic Checkbox ---
             $('#checkbox-table').on('click', function() {
 
@@ -213,15 +230,31 @@
             });
             // --- End Logic Checkbox ---
 
-
             $('#btn-delete-all').on('click', function(e) {
+                e.preventDefault();
 
-                let confirmMessage = confirm("{{ __('message.confirm_delete_all_all_item') }}");
+                let selectedIds = [];
+                $('.checkbox-input:checked').each(function() {
+                    selectedIds.push($(this).val());
+                });
 
-                if (confirmMessage) {
-                    console.log('Move to trash');
+                if (selectedIds.length > 0) {
+                    let confirmMessage = confirm("{{ __('message.confirm_delete_all_item') }}");
+                    if (confirmMessage) {
+                        const firstId = selectedIds[0]; // Lấy ID đầu tiên làm tham số `brand`
+                        const form = $('#delete-all-form');
+
+                        // Cập nhật action URL của form với giá trị `brand`
+                        form.attr('action', form.attr('action').replace('/0', `/${firstId}`));
+
+                        // Gán danh sách ID vào input ẩn
+                        $('#ids-to-delete').val(selectedIds.join(','));
+                        form.submit();
+                    }
+                } else {
+                    alert("{{ __('message.no_item_selected') }}");
                 }
-            })
+            });
 
         });
         // #
