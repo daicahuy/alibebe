@@ -11,6 +11,7 @@ return [
     'add' => 'Thêm',
     'add_new' => 'Thêm mới',
     'detail' => 'Chi tiết',
+    'restore' => 'Khôi Phục',
 
     'confirm_move_to_trash_all_item' => 'Bạn có chắc chuyển các bản ghi đã chọn vào thùng rác không ?',
     'confirm_move_to_trash_item' => 'Bạn có chắc chuyển bản ghi này vào thùng rác không ?',
@@ -35,4 +36,5 @@ return [
     'update' => 'Cập nhật',
 
     'dashboard' => 'Bảng điều khiển',
+    'confirm_restore_out_trash_item' => 'Bạn có chắc khôi phục lại bản ghi không ?'
 ];

@@ -177,6 +177,8 @@ class CouponService
             ];
         }
     }
+    // chỉnh sửa mã giảm giá
+    public function update() {}
     // Xóa mềm mã giảm giá
     public function deleteCoupon($couponId)
     {
@@ -218,7 +220,7 @@ class CouponService
     {
         DB::beginTransaction();
         try {
-            $coupon = $this->couponRepository->findCouponDestroyedWithRelation($couponId, ['restriction', 'orders']);
+            $coupon = $this->couponRepository->findCouponDestroyedWithRelation($couponId, ['restriction', 'orders', 'users']);
             if ($coupon->orders()->exists()) {
                 return [
                     'status' => false,
@@ -228,6 +230,11 @@ class CouponService
             if ($coupon->restriction) {
                 $coupon->restriction->forceDelete();
             }
+
+            if ($coupon->users()->exists()) {
+                $coupon->users()->sync([]);
+            }
+
             $coupon->forceDelete();
             DB::commit();
             return [
@@ -249,20 +256,27 @@ class CouponService
     public function deleteSelectedCoupons($couponIds)
     {
         try {
+            // Đảm bảo couponIds là mảng số nguyên
+            if (!is_array($couponIds)) {
+                $couponIds = explode(',', $couponIds);
+            }
 
-            $coupon = $this->couponRepository->findByIdsWithRelation($couponIds, ['restriction', 'orders']);
+            $couponIds = array_map('intval', $couponIds);
 
-            dd($coupon);
+            $coupons = $this->couponRepository->findByIdsWithRelation($couponIds, ['restriction', 'orders']);
 
-            $this->couponRepository->update($couponIds, [
+            $this->couponRepository->updateCouponsStatus($couponIds, [
                 'is_active' => 0
             ]);
 
-            if ($coupon->restriction) {
-                $coupon->restriction->delete();
-            };
+            foreach ($coupons as $coupon) {
 
-            $coupon->delete();
+                if ($coupon->restriction) {
+                    $coupon->restriction->delete();
+                }
+
+                $coupon->delete();
+            }
 
             return [
                 'status' => true,
@@ -288,16 +302,20 @@ class CouponService
     {
         try {
             $coupon = $this->couponRepository->findCouponDestroyedWithRelation($couponId, ['restriction']);
+
             $coupon->restore();
+
             if ($coupon->restriction) {
                 $coupon->restriction->restore();
             }
+
             $this->couponRepository->update($couponId, [
                 'is_active' => 1
             ]);
+
             return [
                 'status' => true,
-                'message' => 'Khôi Phục Mã Giảm Giá Thành Công !!!' . $coupon->title
+                'message' => 'Khôi Phục Mã Giảm Giá Thành Công !!! Mã Giảm Giá - ' . $coupon->title
             ];
         } catch (\Throwable $th) {
             Log::error("Error in CouponService::restoreOneCoupon", [
@@ -308,6 +326,68 @@ class CouponService
                 'status' => false,
                 'message' => 'Có Lỗi Xảy Ra , Vui Lòng Thử Lại !!!'
             ];
+        }
+    }
+
+    public function restoreSelectedCoupon($couponIds)
+    {
+        try {
+
+            if (!is_array($couponIds)) {
+                $couponIds = explode(',', $couponIds);
+            }
+
+            $couponIds = array_map('intval', $couponIds);
+
+            $coupons = $this->couponRepository->findCouponDestroyedByIdsWithRelation($couponIds, ['restriction']);
+
+            $this->couponRepository->updateCouponsStatus($couponIds, ['is_active' => 1]);
+
+            foreach ($coupons as $coupon) {
+
+                if ($coupon->restriction) {
+                    $coupon->restriction->restore();
+                }
+
+                $coupon->restore();
+            }
+
+            return [
+                'status' => true,
+                'message' => 'Khôi Phục Mã Giảm Giá Thành Công !!!'
+            ];
+        } catch (\Throwable $th) {
+            Log::error("Error in CouponService::restoreOneCoupon", [
+                'message' => $th->getMessage()
+            ]);
+            return [
+                'status' => false,
+                'message' => 'Có Lỗi Xảy Ra , Vui Lòng Thử Lại !!!'
+            ];
+        }
+    }
+
+    // API - update status 
+
+    public function apiUpdateStatus(string $id, $couponStatus)
+    {
+        try {
+
+            $this->couponRepository->update($id,['is_active' => $couponStatus]);
+
+            return response()->json([
+                'message' => 'Cập Nhật Thành Công !!!',
+                'status' => true
+            ]);
+        } catch (\Throwable $th) {
+            Log::error("Error in CouponService::" . __FUNCTION__, [
+                'message' => $th->getMessage()
+            ]);
+            return response()->json([
+                'message' => 'Cập Nhật Thất Bại !!!',
+                'errors' => $th->getMessage(),
+                'status' => false,
+            ], 404);
         }
     }
 }

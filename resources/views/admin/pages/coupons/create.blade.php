@@ -217,7 +217,6 @@
                                                             id="endDatePickerBtn">
                                                             <i class="ri-calendar-line"></i>
                                                         </button>
-
                                                     </div>
                                                     @error('end_date')
                                                         <div class="alert alert-danger mt-2">{{ $message }}</div>
@@ -332,7 +331,7 @@
                                                         <input type="number" id="min_order_value"
                                                             name="coupon_restrictions[min_order_value]"
                                                             formcontrolname="min_order_value"
-                                                            class="form-control @error('min_order_value')
+                                                            class="form-control @error('coupon_restrictions.min_order_value')
                                                                 invalid
                                                             @enderror"
                                                             placeholder="Enter min order value">
@@ -340,7 +339,7 @@
                                                     <p class="help-text">*Xác định
                                                         giá trị đơn hàng tối thiểu cần thiết để sử dụng phiếu giảm giá.
                                                     </p>
-                                                    @error('min_order_value')
+                                                    @error('coupon_restrictions.min_order_value')
                                                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                                                     @enderror
                                                 </div>
@@ -353,14 +352,13 @@
                                                 <div class="col-sm-9">
                                                     <input type="number" id="coupon_restrictions[max_discount_value]"
                                                         name="coupon_restrictions[max_discount_value]"
-                                                        formcontrolname="coupon_restrictions[max_discount_value]"
-                                                        class="form-control ng-untouched ng-pristine ng-valid @error('coupon_restrictions[max_discount_value]')
-                                                            in-valid
+                                                        class="form-control @error('coupon_restrictions.max_discount_value')
+                                                            invalid
                                                         @enderror"
                                                         placeholder="Enter value">
                                                     <p class="help-text">*Chỉ định
                                                         số tiền tối đa có thể sử dụng trong một phiếu giảm giá.</p>
-                                                    @error('coupon_restrictions[max_discount_value]')
+                                                    @error('coupon_restrictions.max_discount_value')
                                                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                                                     @enderror
                                                 </div>

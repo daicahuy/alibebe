@@ -42,7 +42,7 @@ Route::prefix('/admin')
         Route::prefix('/categories')
             ->name('categories.')
             ->controller(CategoryController::class)
-            ->group(function() {
+            ->group(function () {
 
                 Route::get('/', 'index')->name('index');
 
@@ -58,19 +58,18 @@ Route::prefix('/admin')
 
                 Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
 
-                Route::put('/restore', 'restore')->name('restore');              
+                Route::put('/restore', 'restore')->name('restore');
 
                 Route::delete('/delete', 'delete')->name('delete');
 
                 Route::delete('/destroy', 'destroy')->name('destroy');
-
             });
 
         // PRODUCTS
         Route::prefix('/products')
             ->name('products.')
             ->controller(ProductController::class)
-            ->group(function() {
+            ->group(function () {
 
                 Route::get('/', 'index')->name('index');
 
@@ -86,19 +85,18 @@ Route::prefix('/admin')
 
                 Route::put('/{product}', 'update')->name('update');
 
-                Route::put('/restore', 'restore')->name('restore');              
+                Route::put('/restore', 'restore')->name('restore');
 
                 Route::delete('/delete', 'delete')->name('delete');
 
                 Route::delete('/destroy', 'destroy')->name('destroy');
-
             });
 
         // ATTRIBUTES
         Route::prefix('/attributes')
             ->name('attributes.')
             ->controller(AttributeController::class)
-            ->group(function() {
+            ->group(function () {
 
                 Route::get('/', 'index')->name('index');
 
@@ -108,7 +106,7 @@ Route::prefix('/admin')
 
                 Route::get('/edit/{attribute}', 'edit')->name('edit');
 
-                Route::put('/{attribute}', 'update')->name('update');   
+                Route::put('/{attribute}', 'update')->name('update');
 
                 Route::delete('/destroy', 'destroy')->name('destroy');
 
@@ -117,7 +115,7 @@ Route::prefix('/admin')
                     ->name('attribute_values.')
                     ->controller(AttributeValueController::class)
                     ->where(['attribute' => '[0-9]+'])
-                    ->group(function() {
+                    ->group(function () {
 
                         Route::get('/', 'index')->name('index');
 
@@ -127,12 +125,10 @@ Route::prefix('/admin')
 
                         Route::get('/edit/{attributeValue}', 'edit')->name('edit');
 
-                        Route::put('/{attributeValue}', 'update')->name('update');   
+                        Route::put('/{attributeValue}', 'update')->name('update');
 
                         Route::delete('/destroy', 'destroy')->name('destroy');
-                    
                     });
-
             });
 
 
@@ -140,7 +136,7 @@ Route::prefix('/admin')
         Route::prefix('/brands')
             ->name('brands.')
             ->controller(BrandController::class)
-            ->group(function() {
+            ->group(function () {
 
                 Route::get('/', 'index')->name('index');
 
@@ -150,17 +146,16 @@ Route::prefix('/admin')
 
                 Route::get('/edit/{brand}', 'edit')->name('edit');
 
-                Route::put('/{brand}', 'update')->name('update');   
+                Route::put('/{brand}', 'update')->name('update');
 
                 Route::delete('/destroy', 'destroy')->name('destroy');
-
             });
 
         // TAGS
         Route::prefix('/tags')
             ->name('tags.')
             ->controller(TagController::class)
-            ->group(function() {
+            ->group(function () {
 
                 Route::get('/', 'index')->name('index');
 
@@ -170,31 +165,29 @@ Route::prefix('/admin')
 
                 Route::get('/edit/{tag}', 'edit')->name('edit');
 
-                Route::put('/{tag}', 'update')->name('update');   
+                Route::put('/{tag}', 'update')->name('update');
 
                 Route::delete('/destroy', 'destroy')->name('destroy');
-
             });
 
         // ORDERS
         Route::prefix('/orders')
             ->name('orders.')
             ->controller(OrderController::class)
-            ->group(function() {
+            ->group(function () {
 
                 Route::get('/', 'index')->name('index');
 
                 Route::get('/{order}', 'show')->name('show')->where(['order' => '[0-9]+']);
 
                 Route::put('/{order}', 'update')->name('update');
-
             });
 
         // USERS
         Route::prefix('/users')
             ->name('users.')
             ->controller(UserController::class)
-            ->group(function() {
+            ->group(function () {
 
                 Route::get('/', 'index')->name('index');
 
@@ -209,29 +202,27 @@ Route::prefix('/admin')
                 Route::get('/edit/{user}', 'edit')->name('edit');
 
                 Route::put('/{user}', 'update')->name('update');
-
             });
-        
+
 
         // REVIEWS
         Route::prefix('/reviews')
             ->name('reviews.')
             ->controller(ReviewController::class)
-            ->group(function() {
+            ->group(function () {
 
                 Route::get('/', 'index')->name('index');
 
                 Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
 
                 Route::put('/{review}', 'update')->name('update');
-
             });
-        
+
         // COUPONS
         Route::prefix('/coupons')
             ->name('coupons.')
             ->controller(CouponController::class)
-            ->group(function() {
+            ->group(function () {
 
                 Route::get('/', 'index')->name('index');
 
@@ -243,18 +234,20 @@ Route::prefix('/admin')
 
                 Route::get('/edit/{coupon}', 'edit')->name('edit');
 
-                Route::put('/{coupon}', 'update')->name('update');   
+                Route::put('/{coupon}', 'update')->name('update');
 
                 Route::delete('/{coupon}/destroy', 'destroy')->name('destroy');
 
-                Route::get('/trash','trash')->name('trash');
+                Route::get('/trash', 'trash')->name('trash');
 
-                Route::post('/{coupon}/restore','restore')->name('restore');
+                Route::post('/{coupon}/restore', 'restore')->name('restore');
 
-                Route::delete('/{coupon}/force-destroy','forceDestroy')->name('force-destroy');
+                Route::post('/restore-selected', 'restoreSelected')->name('restore-selected');
 
-                Route::delete('/destroy-selected','destroySelected')->name('destroy-selected');
+                Route::delete('/{coupon}/force-destroy', 'forceDestroy')->name('force-destroy');
+
+                Route::delete('/destroy-selected', 'destroySelected')->name('destroy-selected');
+
+                Route::post('/update-coupon-status/{id}',  'apiUpdateStatus');
             });
-
-        
     });

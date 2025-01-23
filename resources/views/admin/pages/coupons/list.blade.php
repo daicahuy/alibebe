@@ -74,135 +74,139 @@
 
                         </div>
 
-                        <div class="table-search">
-                            <label for="role-search" class="form-label">Tìm Kiếm:</label>
-                            <input type="search" id="role-search" name="searchKey" class="form-control">
-                        </div>
+                        <form action="" method="GET">
+                            <div class="row">
+                                <div class="table-search col-sm-6">
+                                    <label for="role-search" class="form-label">Tìm Kiếm:</label>
+                                    <input type="search" id="role-search" name="searchKey" class="form-control">
+                                </div>
+                                <div class="col-sm-6">
+                                    <button type="submit" class="btn-theme">Search</button>
+                                </div>
+                            </div>
+                        </form>
+
                     </div>
-
-                    <div class="table-responsive datatable-wrapper border-table">
-                        <table class="table all-package theme-table no-footer">
-                            <thead>
-                                <tr>
-                                    <th class="sm-width">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" id="checkbox-table"
-                                                class="custom-control-input checkbox_animated">
-                                        </div>
-                                    </th>
-                                    <th class="sm-width"> STT </th>
-                                    <th class="cursor-pointer"> Mã Giảm Giá
-                                        <div class="filter-arrow"></div>
-                                    </th>
-                                    <th class="cursor-pointer"> Loại Giảm Giá
-                                        <div class="filter-arrow"></div>
-                                    </th>
-                                    <th class="cursor-pointer"> Giá Trị Giảm Giá
-                                        <div class="filter-arrow"></div>
-                                    </th>
-                                    <th class="cursor-pointer"> Số Lần Sử Dụng Tối Đa
-                                        <div class="filter-arrow"></div>
-                                    </th>
-                                    <th class="cursor-pointer"> Số Mã Đã Được Sử Dụng
-                                        <div class="filter-arrow"></div>
-                                    </th>
-                                    <th>Nhóm Người Dùng</th>
-                                    <th>Đang Hoạt Động</th>
-                                    <th>Có Hạn</th>
-                                    <th class="cursor-pointer"> Ngày Bắt Đầu
-                                        <div class="filter-arrow"></div>
-                                    </th>
-                                    <th class="cursor-pointer"> Ngày Kết Thúc
-                                        <div class="filter-arrow"></div>
-                                    </th>
-                                    <th>Trạng Thái</th>
-                                    <th>Hành Động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($coupons as $coupon)
+                    <div>
+                        <div class="table-responsive datatable-wrapper border-table mt-3">
+                            <table class="table all-package theme-table no-footer">
+                                <thead>
                                     <tr>
-                                        <td>
+                                        <th class="sm-width">
                                             <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" id="checkbox-table" value="{{ $coupon->id }}"
-                                                    class="custom-control-input checkbox_animated checkbox-input">
+                                                <input type="checkbox" id="checkbox-table"
+                                                    class="custom-control-input checkbox_animated">
                                             </div>
-                                        </td>
-                                        <td class="cursor-pointer sm-width">{{ $coupon->id }}</td>
-                                        <td class="cursor-pointer">
-                                            <div>{{ $coupon->code }}</div>
-                                        </td>
-
-                                        <td class="cursor-pointer">
-                                            <div>
-                                                {{ $coupon->discount_type === 0 ? 'Giảm Theo Giá Cố Định' : 'Giảm Theo Phần Trăm' }}
-                                            </div>
-                                        </td>
-                                        <td class="cursor-pointer">
-                                            <div>{{ $coupon->discount_value }}</div>
-                                        </td>
-                                        <td class="cursor-pointer">
-                                            <div>{{ $coupon->usage_limit }}</div>
-                                        </td>
-                                        <td class="cursor-pointer">
-                                            <div>{{ $coupon->usage_count }}</div>
-                                        </td>
-                                        <td class="cursor-pointer">
-                                            <div>{{ $coupon->user_group }}</div>
-                                        </td>
-                                        <td class="cursor-pointer">
-                                            <div class="form-check form-switch ps-0">
-                                                <label class="switch switch-sm">
-                                                    <input type="checkbox" id="status-{{ $coupon->id }}"
-                                                        value="{{ $coupon->is_active }}"
-                                                        @if ($coupon->is_active === 1) checked @endif>
-                                                    <span class="switch-state"></span>
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td class="cursor-pointer">
-                                            {{ $coupon->is_expired === 1 ? 'Có Thời Hạn' : 'Vĩnh Viễn' }}
-                                        </td>
-                                        <td class="cursor-pointer">
-                                            {{ $coupon->start_date? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}
-                                        </td>
-                                        <td class="cursor-pointer">
-                                            {{ $coupon->end_date? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}
-                                        </td>
-                                        <td class="cursor-pointer">
-                                            {{ !isset($coupon->end_date) && $coupon->end_date <= now() && $coupon->is_expired === 1 ? 'Hết Hạn' : 'Chưa Hết Hạn' }}
-                                        </td>
-                                        <td>
-                                            <ul id="actions">
-                                                <li>
-                                                    <a href="{{ route('admin.coupons.show', ['coupon' => $coupon->id]) }}"
-                                                        class="btn-detail">
-                                                        <i class="ri-eye-line"></i>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="{{ route('admin.coupons.edit', ['coupon' => $coupon->id]) }}"
-                                                        class="btn-edit">
-                                                        <i class="ri-pencil-line"></i>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <form action="{{ route('admin.coupons.destroy', $coupon->id) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn-delete"
-                                                            onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
-                                                            <i class="ri-delete-bin-line"></i>
-                                                        </button>
-                                                    </form>
-                                                </li>
-                                            </ul>
-                                        </td>
+                                        </th>
+                                        <th class="sm-width"> STT </th>
+                                        <th class="cursor-pointer"> Mã Giảm Giá
+                                            <div class="filter-arrow"></div>
+                                        </th>
+                                        <th class="cursor-pointer"> Loại Giảm Giá
+                                            <div class="filter-arrow"></div>
+                                        </th>
+                                        <th class="cursor-pointer"> Giá Trị Giảm Giá
+                                            <div class="filter-arrow"></div>
+                                        </th>
+                                        <th class="cursor-pointer"> Số Lần Sử Dụng Tối Đa
+                                            <div class="filter-arrow"></div>
+                                        </th>
+                                        <th>Nhóm Người Dùng</th>
+                                        <th>Đang Hoạt Động</th>
+                                        <th>Có Hạn</th>
+                                        <th class="cursor-pointer"> Ngày Bắt Đầu
+                                            <div class="filter-arrow"></div>
+                                        </th>
+                                        <th class="cursor-pointer"> Ngày Kết Thúc
+                                            <div class="filter-arrow"></div>
+                                        </th>
+                                        <th>Trạng Thái</th>
+                                        <th>Hành Động</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach ($coupons as $coupon)
+                                        <tr>
+                                            <td>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" id="checkbox-table" value="{{ $coupon->id }}"
+                                                        class="custom-control-input checkbox_animated checkbox-input">
+                                                </div>
+                                            </td>
+                                            <td class="cursor-pointer sm-width">{{ $coupon->id }}</td>
+                                            <td class="cursor-pointer">
+                                                <div>{{ $coupon->code }}</div>
+                                            </td>
+
+                                            <td class="cursor-pointer">
+                                                <div>
+                                                    {{ $coupon->discount_type === 0 ? 'Giảm Theo Giá Cố Định' : 'Giảm Theo Phần Trăm' }}
+                                                </div>
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                <div>{{ $coupon->discount_value }}</div>
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                <div>{{ $coupon->usage_limit }}</div>
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                <div>{{ $coupon->user_group }}</div>
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                <div class="form-check form-switch ps-0">
+                                                    <label class="switch switch-sm">
+                                                        <input type="checkbox" class="coupon-status-toggle"
+                                                            id="status-{{ $coupon->id }}" name="is_active"
+                                                            value="{{ $coupon->is_active }}"
+                                                            @if ($coupon->is_active === 1) checked @endif>
+                                                        <span class="switch-state"></span>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                {{ $coupon->is_expired === 1 ? 'Có Thời Hạn' : 'Vĩnh Viễn' }}
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                {{ $coupon->start_date? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                {{ $coupon->end_date? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}
+                                            </td>
+                                            <td class="cursor-pointer">
+                                                {{ !isset($coupon->end_date) && $coupon->end_date <= now() && $coupon->is_expired === 1 ? 'Hết Hạn' : 'Chưa Hết Hạn' }}
+                                            </td>
+                                            <td>
+                                                <ul id="actions">
+                                                    <li>
+                                                        <a href="{{ route('admin.coupons.show', ['coupon' => $coupon->id]) }}"
+                                                            class="btn-detail">
+                                                            <i class="ri-eye-line"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="{{ route('admin.coupons.edit', ['coupon' => $coupon->id]) }}"
+                                                            class="btn-edit">
+                                                            <i class="ri-pencil-line"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <form action="{{ route('admin.coupons.destroy', $coupon->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn-delete"
+                                                                onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
+                                                                <i class="ri-delete-bin-line"></i>
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 <!-- END TABLE -->
@@ -261,6 +265,27 @@
                 url.searchParams.set('per_page', perPage);
                 window.location.href = url.toString();
             });
+            // Cập Nhật Trạng Thái
+            $('.coupon-status-toggle').change(function() {
+                var couponId = $(this).attr('id').split('-')[1];
+                var newStatus = $(this).is(':checked') ? 1 : 0;
+
+                $.ajax({
+                    url: '/admin/coupons/update-coupon-status/' + couponId,
+                    method: 'POST',
+                    data: {
+                        is_active: newStatus,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                       
+                    },
+                    error: function(xhr, status, error) {
+                        
+                    }
+                });
+            });
+
         });
     </script>
 @endpush

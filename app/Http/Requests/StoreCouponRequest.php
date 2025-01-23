@@ -61,16 +61,6 @@ class StoreCouponRequest extends FormRequest
                     if (request('discount_type') == CouponDiscountType::PERCENT && ($value < 0 || $value > 100)) {
                         $fail('Giá trị giảm giá phải nằm trong khoảng 1 - 100%.');
                     }
-
-                    // Kiểm tra nếu discount_type là PERCENT và giá trị vượt quá 85%
-                    if (request('discount_type') == CouponDiscountType::PERCENT && $value > 85) {
-                        $fail('Giá trị giảm giá không được vượt quá 85%.');
-                    }
-
-                    $productPrice = request('price');
-                    if (request('discount_type') == CouponDiscountType::FIX_AMOUNT && $value > $productPrice) {
-                        $fail('Giá trị giảm giá không được lớn hơn giá trị của sản phẩm.');
-                    }
                 }
             ],
             'usage_limit' => [
@@ -126,7 +116,18 @@ class StoreCouponRequest extends FormRequest
             'coupon_restrictions.max_discount_value' => [
                 'required',
                 'numeric',
-                'min:0'
+                'min:0',
+                function ($attribute, $value, $fail) {
+                    // Kiểm tra nếu discount_type là PERCENT và giá trị vượt mức 85%
+                    if (request('discount_type') == CouponDiscountType::PERCENT && $value > 85) {
+                        $fail('Giá trị Tối Đa Giảm Giá Không Được Hơn 85%.');
+                    }
+
+                    // Kiểm tra nếu discount_type là FIX_AMOUNT và max_discount_value không được lớn hơn discount_value
+                    if (request('discount_type') == CouponDiscountType::FIX_AMOUNT && (float)$value > (float)request('discount_value')) {
+                        $fail('Giá trị tối đa giảm giá không được lớn hơn giá trị giảm giá.');
+                    }
+                }
             ],
             'coupon_restrictions.valid_categories' => [
                 'required',

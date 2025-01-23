@@ -136,6 +136,16 @@
                             </div>
                         </div>
                         {{-- Tab 2: Bảng Ràng Buộc --}}
+                        @php
+                            $fieldsMapping = [
+                                'updated_at' => 'Cập Nhật Lần Cuối',
+                                'deleted_at' => 'Đã Xóa',
+                                'created_at' => 'Ngày Tạo',
+                                'max_discount_value' => 'Hạn Mức Tối Đa',
+                                'min_order_value' => 'Giá Trị Đơn Hàng Tối Thiểu',
+                            ];
+                        @endphp
+
                         <div class="tab-pane fade" id="bindings" role="tabpanel" aria-labelledby="restriction">
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover table-borderless align-middle">
@@ -149,7 +159,9 @@
 
                                     @foreach ($coupon->restriction->toArray() as $key => $value)
                                         <tbody class="table-light">
-                                            <td>{{ $key }}</td>
+                                            <td>
+                                                {{ $fieldsMapping[$key] ?? ucfirst(str_replace('_', ' ', $key)) }}
+                                            </td>
                                             <td>
                                                 @switch($key)
                                                     @case('updated_at')
@@ -170,6 +182,7 @@
                                             </td>
                                         </tbody>
                                     @endforeach
+
                                 </table>
                             </div>
                         </div>

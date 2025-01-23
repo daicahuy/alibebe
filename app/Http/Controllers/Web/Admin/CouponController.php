@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Enums\UserGroupType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCouponRequest;
+use App\Http\Requests\UpdateCouponRequest;
 use App\Models\Coupon;
 use App\Services\Web\Admin\CouponService;
 use Illuminate\Http\Request;
@@ -53,10 +54,12 @@ class CouponController extends Controller
 
     public function edit(Coupon $coupon)
     {
-        return view('admin.pages.coupons.edit');
+        dd($coupon);
+        $coupon = $coupon->with('restriction')->findOrFail($coupon->id);
+        return view('admin.pages.coupons.edit', compact($coupon));
     }
 
-    public function update(Request $request, Coupon $coupon) {}
+    public function update(UpdateCouponRequest $request, Coupon $coupon) {}
 
     public function destroy(Coupon $coupon)
     {
@@ -72,7 +75,7 @@ class CouponController extends Controller
     public function destroySelected()
     {
         $couponIds = request('selected_coupons');
-        
+
         $result = $this->couponService->deleteSelectedCoupons($couponIds);
 
         if ($result['status']) {
@@ -106,5 +109,28 @@ class CouponController extends Controller
         } else {
             return back()->withErrors(['message' => $result['message']]);
         }
+    }
+    public function restoreSelected()
+    {
+        $couponIds = request('selected_coupons');
+        $result = $this->couponService->restoreSelectedCoupon($couponIds);
+        if ($result['status']) {
+            return redirect()->route('admin.coupons.index')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+
+
+    // api
+    public function apiUpdateStatus($id)
+    {
+        // Lấy trạng thái mới từ request
+        $couponStatus = request('is_active');
+
+        // Gọi Service để cập nhật trạng thái mã giảm giá
+        $result = $this->couponService->apiUpdateStatus($id, $couponStatus);
+
+        return response()->json($result);
     }
 }
