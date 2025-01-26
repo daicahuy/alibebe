@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\CouponDiscountType;
 use App\Enums\UserGroupType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCouponRequest;
@@ -54,12 +55,31 @@ class CouponController extends Controller
 
     public function edit(Coupon $coupon)
     {
-        dd($coupon);
-        $coupon = $coupon->with('restriction')->findOrFail($coupon->id);
-        return view('admin.pages.coupons.edit', compact($coupon));
+        $coupon = $coupon->with('restriction',)->findOrFail($coupon->id);
+        $categories = $this->couponService->showCategories();
+        $products = $this->couponService->showProducts();
+        $userGroupTypes = UserGroupType::getKeys();
+
+        $selectedCategories = json_decode($coupon->restriction->valid_categories);
+        $selectedProducts = json_decode($coupon->restriction->valid_products);
+
+        $discountTypes = CouponDiscountType::asArray();
+
+        return view('admin.pages.coupons.edit', compact(
+            'coupon',
+            'categories',
+            'products',
+            'userGroupTypes',
+            'discountTypes',
+            'selectedCategories',
+            'selectedProducts'
+        ));
     }
 
-    public function update(UpdateCouponRequest $request, Coupon $coupon) {}
+    public function update(UpdateCouponRequest $request, Coupon $coupon)
+    {
+        $this->couponService->update($request->validated());
+    }
 
     public function destroy(Coupon $coupon)
     {
@@ -101,6 +121,20 @@ class CouponController extends Controller
         }
     }
 
+    public function forceDestroySelected()
+    {
+        $couponIds = request('selected_coupons');
+
+        $result = $this->couponService->forceDeleteSelectedCoupons($couponIds);
+
+        if ($result['status']) {
+            return redirect()->route('admin.coupons.trash')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+
+
     public function restore(string $id)
     {
         $result = $this->couponService->restoreOneCoupon($id);
@@ -110,6 +144,7 @@ class CouponController extends Controller
             return back()->withErrors(['message' => $result['message']]);
         }
     }
+
     public function restoreSelected()
     {
         $couponIds = request('selected_coupons');
@@ -120,6 +155,28 @@ class CouponController extends Controller
             return back()->withErrors(['message' => $result['message']]);
         }
     }
+
+    public function searchCoupon()
+    {
+        // Lấy searchKey từ query string (nếu có)
+        $searchKey = request('searchKey', '');
+        $searchKey = trim($searchKey);
+        $perPage = request('per_page', 10); // Đặt số lượng bản ghi trên mỗi trang
+
+        // Lấy kết quả tìm kiếm với phân trang
+        $coupons = $this->couponService->searchCouponWithSeachKey($searchKey, $perPage);
+
+        // Đảm bảo tham số searchKey và perPage vẫn xuất hiện trong URL khi phân trang
+        $coupons = $coupons->appends([
+            'searchKey' => $searchKey,
+            'per_page' => $perPage,
+        ]);
+
+        // Trả về view với dữ liệu phân trang và từ khóa tìm kiếm (nếu có)
+        return view('admin.pages.coupons.list', compact('coupons', 'searchKey'));
+    }
+
+
 
 
     // api

@@ -248,6 +248,11 @@ Route::prefix('/admin')
 
                 Route::delete('/destroy-selected', 'destroySelected')->name('destroy-selected');
 
+                Route::delete('/force-destroy-selected', 'forceDestroySelected')->name('force-destroy-selected');
+
+                Route::get('/search','searchCoupon')->name('search');
+
+                // api
                 Route::post('/update-coupon-status/{id}',  'apiUpdateStatus');
             });
     });

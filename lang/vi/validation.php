@@ -186,6 +186,23 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'code' => 'Mã giảm giá',
+        'title' => 'Tiêu đề',
+        'description' => 'Mô tả',
+        'discount_type' => 'Loại giảm giá',
+        'discount_value' => 'Giá trị giảm giá',
+        'usage_limit' => 'Giới hạn sử dụng',
+        'usage_count' => 'Số lần sử dụng',
+        'user_group' => 'Nhóm người dùng',
+        'is_expired' => 'Có hạn',
+        'is_active' => 'Đang hoạt động',
+        'start_date' => 'Ngày bắt đầu',
+        'end_date' => 'Ngày kết thúc',
+        'coupon_restrictions.min_order_value' => 'Giá trị đơn hàng tối thiểu',
+        'coupon_restrictions.max_discount_value' => 'Giá trị tối đa giảm giá',
+        'coupon_restrictions.valid_categories' => 'Danh mục hợp lệ',
+        'coupon_restrictions.valid_products' => 'Sản phẩm hợp lệ',
+    ],
 
 ];

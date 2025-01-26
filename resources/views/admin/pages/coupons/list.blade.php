@@ -14,29 +14,19 @@
 {{-- ================================== --}}
 
 @section('content')
-    @if (session()->has('success'))
-        <div class="alert alert-primary" role="alert">
-            <strong>{{ session('success') }}</strong>
-        </div>
-    @endif
-
-    @if ($errors->has('message'))
-        <div class="alert alert-danger" role="alert">
-            <strong>{{ $errors->first('message') }}</strong>
-        </div>
-    @endif
-
+    <!-- Kiểm tra thông báo flash -->
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
                     <div class="title-header">
                         <div class="d-flex align-items-center">
-                            <h5>Mã Giảm Giá</h5>
+                            <h5>{{ __('form.coupons') }}</h5>
                         </div>
-                        <div button="button">
+                        <div>
                             <a class="align-items-center btn btn-theme d-flex" href="{{ route('admin.coupons.create') }}">
-                                <i class="ri-add-line"></i> Thêm Mã Giảm Giá
+                                <i class="ri-add-line"></i>
+                                {{ __('message.add') . ' ' . __('form.coupons') }}
                             </a>
                         </div>
                     </div>
@@ -56,7 +46,8 @@
                                 @csrf
                                 @method('DELETE')
                                 <input type="hidden" name="selected_coupons" id="selected_coupons">
-                                <button type="submit" class="btn btn-outline btn-sm" id="btn-move-to-trash-all">
+                                <button type="submit" class="btn btn-outline btn-sm" style="display:none;"
+                                    id="btn-move-to-trash-all">
                                     {{ __('message.move_to_trash') }}
                                 </button>
                             </form>
@@ -74,14 +65,14 @@
 
                         </div>
 
-                        <form action="" method="GET">
+                        <form action="{{ route('admin.coupons.search') }}" method="GET">
                             <div class="row">
-                                <div class="table-search col-sm-6">
+                                <div class="table-search col-sm-8">
                                     <label for="role-search" class="form-label">Tìm Kiếm:</label>
                                     <input type="search" id="role-search" name="searchKey" class="form-control">
                                 </div>
-                                <div class="col-sm-6">
-                                    <button type="submit" class="btn-theme">Search</button>
+                                <div class="col-sm-4">
+                                    <button type="submit" class="btn btn-theme">Search</button>
                                 </div>
                             </div>
                         </form>
@@ -111,9 +102,7 @@
                                         <th class="cursor-pointer"> Số Lần Sử Dụng Tối Đa
                                             <div class="filter-arrow"></div>
                                         </th>
-                                        <th>Nhóm Người Dùng</th>
                                         <th>Đang Hoạt Động</th>
-                                        <th>Có Hạn</th>
                                         <th class="cursor-pointer"> Ngày Bắt Đầu
                                             <div class="filter-arrow"></div>
                                         </th>
@@ -150,9 +139,6 @@
                                                 <div>{{ $coupon->usage_limit }}</div>
                                             </td>
                                             <td class="cursor-pointer">
-                                                <div>{{ $coupon->user_group }}</div>
-                                            </td>
-                                            <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch switch-sm">
                                                         <input type="checkbox" class="coupon-status-toggle"
@@ -162,9 +148,6 @@
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>
-                                            </td>
-                                            <td class="cursor-pointer">
-                                                {{ $coupon->is_expired === 1 ? 'Có Thời Hạn' : 'Vĩnh Viễn' }}
                                             </td>
                                             <td class="cursor-pointer">
                                                 {{ $coupon->start_date? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}
@@ -232,10 +215,8 @@
     <script>
         $(document).ready(function() {
             // --- Logic Checkbox ---
-            $('#btn-move-to-trash-all').addClass('visually-hidden');
-
             $('#checkbox-table').on('click', function() {
-                $('#btn-move-to-trash-all').toggleClass('visually-hidden', !$(this).prop('checked'));
+                $('#btn-move-to-trash-all').css('display', !$(this).prop('checked') ? 'none' : 'block');
                 $('.checkbox-input').prop('checked', $(this).prop('checked'));
                 updateSelectedCoupons();
             });
@@ -252,11 +233,28 @@
                 $('.checkbox-input:checked').each(function() {
                     selectedCoupons.push($(this).val());
                 });
-                $('#selected_coupons').val(selectedCoupons.join(
-                    ',')); // Cập nhật input hidden với danh sách selected
-                $('#btn-move-to-trash-all').toggleClass('visually-hidden', selectedCoupons.length === 0);
+                $('#selected_coupons').val(selectedCoupons.join(','));
+                $('#btn-move-to-trash-all').css('display', selectedCoupons.length === 0 ? 'none' : 'block');
             }
             // --- End Logic Checkbox ---
+
+            @if (session()->has('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: '{{ session('success') }}',
+                    timer: 2000
+                });
+            @endif
+
+            @if ($errors->has('message'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Có lỗi xảy ra',
+                    text: '{{ $errors->first('message') }}',
+                    showConfirmButton: true
+                });
+            @endif
 
             // Phân Dòng 10 , 30 , 50 , 100
             $('#per_page').change(function() {
@@ -265,27 +263,47 @@
                 url.searchParams.set('per_page', perPage);
                 window.location.href = url.toString();
             });
+
             // Cập Nhật Trạng Thái
-            $('.coupon-status-toggle').change(function() {
-                var couponId = $(this).attr('id').split('-')[1];
-                var newStatus = $(this).is(':checked') ? 1 : 0;
+            $('.coupon-status-toggle').on('change', function() {
+                const $toggle = $(this);
+                var couponId = parseInt($(this).attr('id').split('-')[1]);
+                const newStatus = $toggle.is(':checked') ? 1 : 0;
 
                 $.ajax({
-                    url: '/admin/coupons/update-coupon-status/' + couponId,
+                    url: `/admin/coupons/update-coupon-status/${couponId}`,
                     method: 'POST',
                     data: {
                         is_active: newStatus,
-                        _token: '{{ csrf_token() }}'
+                        _token: $('meta[name="csrf-token"]').attr('content')
                     },
+                    dataType: 'json',
                     success: function(response) {
-                       
+                        console.log('Response from server:', response);
+                        Swal.fire({
+                            icon: response.status ? 'success' : 'error',
+                            // title: response.status ? 'Thành công!' : 'Lỗi!',
+                            text: response.message,
+                            timer: response.status ? 1500 : undefined,
+                            showConfirmButton: response.status
+                        }).then(() => {
+                            if (response.status) {
+                                $toggle.prop('checked', newStatus === 1);
+                            }
+                        });
                     },
-                    error: function(xhr, status, error) {
-                        
+                    error: function(xhr) {
+                        const errorMessage = xhr.responseJSON ?
+                            xhr.responseJSON.message :
+                            'Có lỗi xảy ra khi gửi yêu cầu';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: errorMessage
+                        });
                     }
                 });
             });
-
         });
     </script>
 @endpush

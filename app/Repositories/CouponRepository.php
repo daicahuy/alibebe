@@ -12,6 +12,17 @@ class CouponRepository extends BaseRepository
         return Coupon::class;
     }
 
+    // tìm kiểm tên hoặc mô tả mã giảm giá 
+    public function searchCoupon($searchKey, $perPage)
+    {
+        $query = $this->model
+            ->where("code", "LIKE", "%$searchKey%")
+            ->orWhere("title", "LIKE", "%$searchKey%");
+    
+        // Phân trang với số bản ghi trên mỗi trang
+        return $query->paginate($perPage);
+    }
+
     // tìm kiếm 1 với quan hệ
     public function findByIdWithRelation($id, array $relations)
     {
@@ -50,10 +61,11 @@ class CouponRepository extends BaseRepository
 
         return $coupon;
     }
+    // tìm nhiều mã giảm giá đã được xóa với mối quan hệ
     public function findCouponDestroyedByIdsWithRelation($ids, array $relations)
     {
-        $coupon = $this->model->onlyTrashed()->whereIn('id', $ids)->get();
-        
+        $coupon = $this->model->withTrashed()->whereIn('id', $ids)->get();
+
         // Áp dụng onlyTrashed cho từng quan hệ được truyền vào
         foreach ($relations as $relation) {
             $coupon->load([$relation => function ($query) {
@@ -67,6 +79,6 @@ class CouponRepository extends BaseRepository
     // thay đổi trạng thái nhiều mã giảm giá
     public function updateCouponsStatus($ids, array $data)
     {
-        return $this->model->onlyTrashed()->whereIn('id', $ids)->update($data);
+        return $this->model->withTrashed()->whereIn('id', $ids)->update($data);
     }
 }
