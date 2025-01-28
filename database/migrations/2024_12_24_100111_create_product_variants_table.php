@@ -17,12 +17,10 @@ return new class extends Migration
             $table->foreignIdFor(Product::class)->constrained();
             $table->string('sku')->unique()->nullable();
             $table->decimal('price', 11, 2);
-            $table->decimal('sale_price', 11, 2);
-            $table->timestamp('sale_price_start_at')->nullable();
-            $table->timestamp('sale_price_end_at')->nullable();
+            $table->decimal('sale_price', 11, 2)->nullable();
             $table->string('thumbnail');
+            $table->boolean('is_active');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

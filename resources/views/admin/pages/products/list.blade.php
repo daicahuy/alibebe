@@ -110,8 +110,8 @@
                                                 </div>
                                             </th>
                                             <th>{{ __('form.product.sku') }}</th>
-                                            <th class="cursor-pointer sm-width">{{ __('form.product.thumbnail') }}</th>
-                                            <th class="cursor-pointer md-width">
+                                            <th class="cursor-pointer sm-width">{{ __('form.images') }}</th>
+                                            <th class="cursor-pointer">
                                                 {{ __('form.product.name') }}
                                                 <div class="filter-arrow">
                                                     <div><i class="ri-arrow-up-s-fill"></i></div>

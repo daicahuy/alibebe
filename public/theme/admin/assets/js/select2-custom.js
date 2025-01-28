@@ -5,7 +5,6 @@ setTimeout(function () {
         // Single Search Select
         $(".select2").select2({
             width: "100%",
-            allowClear: true,
             templateResult: formatOption,
             templateSelection: formatOption,
             search: false,

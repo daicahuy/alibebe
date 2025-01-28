@@ -30,6 +30,7 @@ return [
 
     'cancel' => 'Hủy',
     'delete' => 'Xóa',
+    'create' => 'Tạo',
 
     'edit' => 'Chỉnh sửa',
     'update' => 'Cập nhật',

@@ -28056,7 +28056,7 @@ strong ~ p {
 .btn-warning:hover {
     background-color: #fff;
     border: 1px solid #747dc6;
-    color: #747dc6;
+    color: #747dc6 !important;
 }
 
 .input-air-warning {
@@ -33595,7 +33595,7 @@ p.help-text {
 }
 
 .md-width {
-    width: 180px;
+    width: 120px!important;
 }
 
 .tbl-image {
