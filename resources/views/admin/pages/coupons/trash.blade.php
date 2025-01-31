@@ -87,32 +87,42 @@
                                                 class="custom-control-input checkbox_animated">
                                         </div>
                                     </th>
-                                    <th class="sm-width"> STT </th>
-                                    <th class="cursor-pointer"> Mã Giảm Giá
-                                        <div class="filter-arrow"></div>
+                                    <th class="sm-width cursor-pointer">
+                                        <a
+                                            href="{{ route('admin.coupons.index', ['sortField' => 'id', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                            ID
+                                            @if (request('sortField') === 'id')
+                                                <span>{{ request('sortDirection') === 'asc' ? '▲' : '▼' }}</span>
+                                            @endif
+                                        </a>
                                     </th>
-                                    <th class="cursor-pointer"> Loại Giảm Giá
-                                        <div class="filter-arrow"></div>
+                                    <th class="cursor-pointer">
+                                        <a href="{{route('admin.coupons.index',['sortField' => 'code','sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc'])}}">
+                                            Mã
+                                            @if (request('sortField') === 'code')
+                                                <span>{{ request('sortDirection') === 'asc' ? '▲' : '▼' }}</span>
+                                            @endif
+                                        </a>
                                     </th>
-                                    <th class="cursor-pointer"> Giá Trị Giảm Giá
-                                        <div class="filter-arrow"></div>
+                                    <th class="cursor-pointer">
+                                        <a href="{{route('admin.coupons.index',['sortField' => 'title','sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc'])}}">
+                                           Tiêu Đề
+                                            @if (request('sortField') === 'title')
+                                                <span>{{ request('sortDirection') === 'asc' ? '▲' : '▼' }}</span>
+                                            @endif
+                                        </a>
                                     </th>
-                                    <th class="cursor-pointer"> Số Lần Sử Dụng Tối Đa
-                                        <div class="filter-arrow"></div>
-                                    </th>
+                                    <th class="cursor-pointer"> Loại Giảm Giá</th>
+                                    <th class="cursor-pointer"> Giá Trị Giảm Giá</th>
                                     <th>Đang Hoạt Động</th>
-                                    <th class="cursor-pointer"> Ngày Bắt Đầu
-                                        <div class="filter-arrow"></div>
-                                    </th>
-                                    <th class="cursor-pointer"> Ngày Kết Thúc
-                                        <div class="filter-arrow"></div>
-                                    </th>
-                                    <th>Trạng Thái</th>
+                                    <th class="cursor-pointer"> Ngày Bắt Đầu</th>
+                                    <th class="cursor-pointer"> Ngày Kết Thúc</th>
+                                    <th class="cursor-pointer"> Ngày Xóa</th>
                                     <th>Hành Động</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (empty($coupons))
+                                @if (!$coupons)
                                     <tr>
                                         <td colspan="10">Không có mã giảm giá nào trong thùng rác.</td>
                                     </tr>
@@ -129,17 +139,16 @@
                                             <td class="cursor-pointer">
                                                 <div>{{ $coupon->code }}</div>
                                             </td>
-
+                                            <td class="cursor-pointer">
+                                                <div>{{ $coupon->title }}</div>
+                                            </td>
                                             <td class="cursor-pointer">
                                                 <div>
-                                                    {{ $coupon->discount_type === 0 ? 'Giảm Theo Giá Cố Định' : 'Giảm Theo Phần Trăm' }}
+                                                    {{ $coupon->discount_type === 0 ? 'Tiền' : 'Phần Trăm' }}
                                                 </div>
                                             </td>
                                             <td class="cursor-pointer">
                                                 <div>{{ $coupon->discount_value }}</div>
-                                            </td>
-                                            <td class="cursor-pointer">
-                                                <div>{{ $coupon->usage_limit }}</div>
                                             </td>
                                             <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
@@ -158,7 +167,7 @@
                                                 {{ $coupon->end_date? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}
                                             </td>
                                             <td class="cursor-pointer">
-                                                {{ !isset($coupon->end_date) && $coupon->end_date <= now() && $coupon->is_expired === 1 ? 'Hết Hạn' : 'Chưa Hết Hạn' }}
+                                                {{ $coupon->deleted_at? \Carbon\Carbon::parse($coupon->deleted_at)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}
                                             </td>
                                             <td>
                                                 <ul id="actions">

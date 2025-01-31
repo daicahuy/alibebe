@@ -53,11 +53,11 @@ class CouponService
         return $this->couponRepository->countCouponInTrash();
     }
     // Lất Tất Cả Dữ Liệu Mã Giảm Giá cùng với các Mối Quan Hệ (orders , users , restriction)
-    public function getAllCoupons($perPage)
+    public function getAllCoupons($perPage, $sortField = 'id', $sortDirection = 'DESC')
     {
         return $this->couponRepository
-            ->pagination(['*'], $perPage, ['id', 'DESC'], ['orders', 'users', 'restriction']);
-    }
+            ->pagination(['*'], $perPage, [$sortField, $sortDirection], ['orders', 'users', 'restriction']);
+    }    
     // Hiển Thị Chi Tiết Mã Giảm Giá
     public function getCouponById(Coupon $coupon)
     {
@@ -178,9 +178,8 @@ class CouponService
         }
     }
     // chỉnh sửa mã giảm giá
-    public function update(array $data)
+    public function update(array $data,$couponId)
     {
-        dd($data);
         DB::beginTransaction();
         try {
             // Chia nhỏ dữ liệu từ $data
@@ -200,7 +199,9 @@ class CouponService
             ];
 
             // Lưu thông tin mã giảm giá vào bảng coupons
-            $coupon = $this->couponRepository->create($couponData);
+            $coupon = $this->couponRepository->findByIdWithRelation($couponId,['restriction','orders','users']);
+            
+            $coupon->update($couponData);
 
             $user_group = request('user_group');
 
@@ -216,7 +217,7 @@ class CouponService
 
                 $userIds = $allUsers->pluck('id')->toArray();
 
-                $coupon->users()->attach($userIds);
+                $coupon->users()->sync($userIds);
             } else if ($user_group == UserGroupType::NEWBIE) {
                 $curentDate = now();
                 // giới hạn thời gian
@@ -234,7 +235,7 @@ class CouponService
 
                 $newUserIds = $newUsers->pluck('id')->toArray();
 
-                $coupon->users()->attach($newUserIds);
+                $coupon->users()->sync($newUserIds);
             } else {
                 $users = $this->userRepository->getUsersByGroupAndLoyaltyPoints($user_group);
                 if ($users->isEmpty()) {
@@ -245,7 +246,7 @@ class CouponService
                 }
                 $userIds = $users->pluck('id')->toArray();
 
-                $coupon->users()->attach($userIds);
+                $coupon->users()->sync($userIds);
             }
 
             // Lấy dữ liệu ràng buộc
@@ -270,15 +271,17 @@ class CouponService
                     : json_encode([]);  // Gán giá trị mặc định là mảng rỗng nếu không có valid_products
             }
 
+            $restrictionId = $coupon->restriction->id;
+
             // Lưu ràng buộc nếu có
             if (!empty($restrictionsData)) {
-                $this->couponRestrictionRepository->create($restrictionsData);
+                $this->couponRestrictionRepository->update($restrictionId,$restrictionsData);
             }
 
             DB::commit();
             return [
                 'status' => true,
-                'message' => 'Thêm Mới Mã Giảm Giá Thành Công'
+                'message' => 'Thay Đổi Giảm Giá Thành Công'
             ];
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -464,9 +467,9 @@ class CouponService
         }
     }
     // Lấy tất cả mã giảm giá ở trong thùng rác
-    public function getAllCouponsInTrash()
+    public function getAllCouponsInTrash($perPage, $sortField = 'id', $sortDirection = 'DESC')
     {
-        return $this->couponRepository->trash();
+        return $this->couponRepository->trash(['*'], $perPage, [$sortField, $sortDirection], ['orders', 'users', 'restriction']);
     }
     // Khôi Phục 1 mã giảm giá
     public function restoreOneCoupon($couponId)
@@ -555,7 +558,6 @@ class CouponService
             return collect(); // Trả về một collection rỗng nếu có lỗi
         }
     }
-
 
     // API - update status 
 

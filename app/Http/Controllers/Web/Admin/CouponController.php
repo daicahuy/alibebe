@@ -22,10 +22,17 @@ class CouponController extends Controller
     public function index()
     {
         $perPage = request('per_page', 10);
-        $coupons = $this->couponService->getAllCoupons($perPage);
+        $sortField = request('sortField', 'id'); // Mặc định là 'id'
+        $sortDirection = request('sortDirection', 'DESC'); // Mặc định là 'DESC'
+        
+        // Lấy danh sách mã giảm giá dựa trên sắp xếp
+        $coupons = $this->couponService->getAllCoupons($perPage, $sortField, $sortDirection);
+        
+        // Đếm số mã giảm giá trong thùng rác
         $couponsIntrash = $this->couponService->countCouponInTrash();
+    
         return view('admin.pages.coupons.list', compact('coupons', 'couponsIntrash'));
-    }
+    }    
 
     public function show(Coupon $coupon)
     {
@@ -78,7 +85,13 @@ class CouponController extends Controller
 
     public function update(UpdateCouponRequest $request, Coupon $coupon)
     {
-        $this->couponService->update($request->validated());
+        $result = $this->couponService->update($request->validated(),$coupon->id);
+
+        if ($result['status']) {
+            return redirect()->route('admin.coupons.edit',$coupon)->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
     }
 
     public function destroy(Coupon $coupon)
@@ -107,7 +120,11 @@ class CouponController extends Controller
 
     public function trash()
     {
-        $coupons = $this->couponService->getAllCouponsInTrash();
+        $perPage = request('per_page', 10);
+        $sortField = request('sortField', 'id'); // Mặc định là 'id'
+        $sortDirection = request('sortDirection', 'DESC'); // Mặc định là 'DESC'
+        
+        $coupons = $this->couponService->getAllCouponsInTrash($perPage,$sortField,$sortDirection);
         return view('admin.pages.coupons.trash', compact('coupons'));
     }
 
@@ -175,9 +192,6 @@ class CouponController extends Controller
         // Trả về view với dữ liệu phân trang và từ khóa tìm kiếm (nếu có)
         return view('admin.pages.coupons.list', compact('coupons', 'searchKey'));
     }
-
-
-
 
     // api
     public function apiUpdateStatus($id)

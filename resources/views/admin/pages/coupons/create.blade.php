@@ -42,7 +42,7 @@
                                                 href="#restriction-panel" class="nav-link" id="ngb-nav-1"
                                                 data-bs-toggle="tab" role="tab" aria-controls="restriction-panel"
                                                 aria-selected="false" aria-disabled="false">
-                                                <i class="ri-close-circle-line"></i> Hạn Chế
+                                                <i class="ri-close-circle-line"></i> Hợp Lệ
                                             </a>
                                         </li>
                                         <li id="usage" class="nav-item" role="presentation"> <a href="#usage-panel"
@@ -246,7 +246,7 @@
                                         </div>
                                         <div class="tab-pane fade" id="restriction-panel" role="tabpanel"
                                             aria-labelledby="ngb-nav-1">
-                                            <h3>Cài đặt hạn chế</h3>
+                                            <h3>Cài đặt Hợp Lệ</h3>
                                             <div class="align-items-center g-2 mb-4 row">
                                                 <label class="col-sm-3 form-label-title mb-0" for="is_apply_all">
                                                     Chấp Nhận Cho Tất Cả Sản Phẩm

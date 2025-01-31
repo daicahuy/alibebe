@@ -18,7 +18,7 @@ class CouponRepository extends BaseRepository
         $query = $this->model
             ->where("code", "LIKE", "%$searchKey%")
             ->orWhere("title", "LIKE", "%$searchKey%");
-    
+
         // Phân trang với số bản ghi trên mỗi trang
         return $query->paginate($perPage);
     }
@@ -37,9 +37,18 @@ class CouponRepository extends BaseRepository
             ->get();
     }
     // lấy danh sách thùng rác
-    public function trash()
-    {
-        return $this->model->onlyTrashed()->latest('id')->paginate(10);
+    public function trash(
+        array $columns = ['*'],
+        int $perPage = 15,
+        array $orderBy = ['id', 'DESC'],
+        array $relations = [],
+    ) {
+        return $this->model
+            ->onlyTrashed()
+            ->select($columns)->with($relations)
+            ->orderBy($orderBy[0], $orderBy[1])
+            ->paginate($perPage)
+            ->withQueryString();
     }
     // đếm số lượng mã giảm giá trong thùng rác
     public function countCouponInTrash()
