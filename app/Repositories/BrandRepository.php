@@ -12,17 +12,35 @@ class BrandRepository extends BaseRepository
     {
         return Brand::class;
     }
-    public function pagination15BrandAsc(int $perPage, ?string $keyWord = null)
+    public function pagination15BrandAsc(int $perPage, ?string $keyWord = null, string $sort = null, string $order = null)
     {
         $query = Brand::query();
 
         if ($keyWord) {
             $query->where('name', 'like', '%' . $keyWord . '%'); // Tìm kiếm theo tên
         }
-
-        return $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
+        if($sort){
+            $query->orderBy($sort,$order);
+        }else{
+             $query->orderBy('created_at', 'desc');
+        }
+        return $query->where('is_active','=','1')->paginate($perPage);
+        
     }
+    public function hiddenIsActive(int $perPage, ?string $keyWord = null, string $sort = null, string $order = null)  {
+        $query = Brand::query();
 
+        if ($keyWord) {
+            $query->where('name', 'like', '%' . $keyWord . '%'); // Tìm kiếm theo tên
+        }
+        if($sort){
+            $query->orderBy($sort,$order);
+        }else{
+             $query->orderBy('created_at', 'desc');
+        }
+        return $query->where('is_active','=','0')->paginate($perPage);
+        
+    }
 
     public function delete(int $id)
     {
@@ -34,6 +52,8 @@ class BrandRepository extends BaseRepository
         }
         return $brand->forceDelete();
     }
+    
+
     public function deleteAll(array $ids)
     {
         $Brands = Brand::whereIn('id', $ids)->get();

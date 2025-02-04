@@ -19,8 +19,10 @@ class TagController extends Controller
     {
         $keyWord = $request->input('_keyword');
         $perPage = $request->get('per_page',10);
-        $tags = $this->tagService->listTag15($perPage, $keyWord);
-        return view('admin.pages.tags.list',compact('tags','perPage','keyWord'));
+        $sort = $request->get('sort', 'created_at'); // Lấy giá trị cột cần sắp xếp, mặc định là `name`
+        $order = $request->get('order', 'desc'); // Lấy giá trị thứ tự sắp xếp, mặc định là `desc`
+        $tags = $this->tagService->listTag15($perPage, $keyWord,$sort,$order);
+        return view('admin.pages.tags.list',compact('tags','perPage','keyWord','sort','order'));
     }
 
     public function create()

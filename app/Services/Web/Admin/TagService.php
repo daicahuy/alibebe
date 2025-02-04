@@ -16,8 +16,8 @@ class TagService
     {
          $this->TagRepository = $tagRepository;
     }
-    public function listTag15(int $perPage, string $keyWord = null) {
-        return $this->TagRepository->getIndexTag($perPage, $keyWord);
+    public function listTag15(int $perPage, string $keyWord = null , string $sort = null , string $order = null) {
+        return $this->TagRepository->getIndexTag($perPage, $keyWord,$sort,$order);
     }
     public function storeTag(StoreTagRequest $storeTagRequest)  {
         try {

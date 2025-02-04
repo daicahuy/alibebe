@@ -11,13 +11,18 @@ class TagRepository extends BaseRepository
     {
         return Tag::class;
     }
-    public function getIndexTag(int $perPage, string $keyWord = null)
+    public function getIndexTag(int $perPage, string $keyWord = null, string $sort = null, string $order = null)
     {
         $query = Tag::query();
+        
         if ($keyWord) {
             $query->where('name', 'like', '%' . $keyWord . '%');
+        } elseif ($sort) {
+            $query->orderBy($sort, $order);
+        } else {
+            $query->orderBy('created_at', 'asc');
         }
-        return $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
+        return $query->paginate($perPage);
     }
     public function delete(int $id)
     {

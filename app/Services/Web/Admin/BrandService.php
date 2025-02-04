@@ -19,11 +19,14 @@ class BrandService
         $this->brandReponsitory = $brandRepository;
     }
 
-    public function listBrand15BrandAsc(int $perPage, string $keyWord = null)
+    public function listBrand15BrandAsc(int $perPage, string $keyWord = null , string $sort = 'name', string $order = 'desc')
     {
-        return $this->brandReponsitory->pagination15BrandAsc($perPage, $keyWord);
+        return $this->brandReponsitory->pagination15BrandAsc($perPage, $keyWord, $sort, $order);
     }
-
+    public function listHidden(int $perPage, string $keyWord = null , string $sort = 'name', string $order = 'desc')
+    {
+        return $this->brandReponsitory->hiddenIsActive($perPage, $keyWord, $sort, $order);
+    }
     public function StoreBrand(StoreBrandRequest $request)
     {
         try {
@@ -50,19 +53,23 @@ class BrandService
             throw $th;
         }
     }
-    public function updateStatus(UpdateIsActiveRequest $request, Brand $brand)
+    public function updateStatus(Brand $brand, bool $status): array
     {
         try {
-            // Kiểm tra giá trị truyền vào
-            Log::info('Trạng thái trước cập nhật: ' . $brand->is_active);
-            Log::info('Trạng thái sau cập nhật: ' . $request->status);
-            $brand->is_active = $request->status;
+            Log::info("Updating Brand ID {$brand->id} status from {$brand->is_active} to {$status}");
+
+            // Cập nhật trạng thái
+            $brand->is_active = $status;
             $brand->save();
 
-            return response()->json(['message' => 'Cập nhật trạng thái thành công!']);
+            return [
+                'success' => true,
+                'message' => 'Cập nhật trạng thái thành công!',
+                'status' => $brand->is_active,
+            ];
         } catch (\Throwable $th) {
-            Log::error(__CLASS__ . "@" . __FUNCTION__, ['error' => $th->getMessage()]);
-            return response()->json(['message' => 'Cập nhật trạng thái thất bại!'], 500);
+            Log::error("Error updating Brand status", ['error' => $th->getMessage()]);
+            throw new \Exception('Cập nhật trạng thái thất bại!');
         }
     }
     public function UpdateBrand(UpdateBrandRequest $request, Brand $brand)

@@ -65,9 +65,9 @@
                                         {{ __('message.delete_all') }}
                                     </button>
                                 </form>
-                                <a href="{{ route('admin.brands.hidden') }}"
-                                    class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2">
-                                    Ẩn
+                                <a href="{{ route('admin.brands.index') }}"
+                                    class="align-items-center btn btn-outline-success btn-sm d-flex ms-2">
+                                    Hiện
                                 </a>
 
                             </div>
@@ -115,9 +115,10 @@
                                             </th>
                                             <th>
                                                 {{ __('form.brand.is_active') }}
+
                                             </th>
-                                            <th>{{ __('form.brand.created_at') }} <div class="filter-arrow"
-                                                    onclick="sortTable('created_at')">
+                                            <th>{{ __('form.brand.created_at') }}
+                                                <div class="filter-arrow" onclick="sortTable('created_at')">
                                                     <div>
                                                         <i
                                                             class="{{ request()->get('sort') === 'created_at' && request()->get('order') === 'asc'
@@ -128,8 +129,8 @@
                                                     </div>
                                                 </div>
                                             </th>
-                                            <th>{{ __('form.brand.updated_at') }} <div class="filter-arrow"
-                                                    onclick="sortTable('updated_at')">
+                                            <th>{{ __('form.brand.updated_at') }}
+                                                <div class="filter-arrow" onclick="sortTable('updated_at')">
                                                     <div>
                                                         <i
                                                             class="{{ request()->get('sort') === 'updated_at' && request()->get('order') === 'asc'
@@ -234,8 +235,8 @@
                         <!-- END TABLE -->
 
 
-                        <!-- START PAGINATION -->
-                        <div class="custom-pagination">
+                         <!-- START PAGINATION -->
+                         <div class="custom-pagination">
                             {{ $brands->appends(request()->query())->links() }}
                         </div>
                         <!-- END PAGINATIOn -->
@@ -340,8 +341,8 @@
             window.location.href = url.toString();
         });
 
-        // cập nhật is_active
-        $(document).ready(function() {
+       // cập nhật is_active
+       $(document).ready(function() {
             $('.update-status').on('change', function() {
                 let brandId = $(this).data('id'); // ID thương hiệu
                 let status = $(this).is(':checked') ? 1 : 0; // Trạng thái mới
@@ -355,16 +356,16 @@
                     },
                     success: function(response) {
                         console.log(response); // Log phản hồi
-                        // Hiển thị modal thành công với icon tích xanh và nút OK
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Thành công!',
-                            text: response.message,
-                            showConfirmButton: true, // Hiển thị nút OK
-                            confirmButtonText: 'OK' // Đặt nội dung nút
-                        }).then(() => {
-                            location.reload(); // Reload trang sau khi nhấn OK
-                        });
+                         // Hiển thị modal thành công với icon tích xanh và nút OK
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: response.message,
+                    showConfirmButton: true, // Hiển thị nút OK
+                    confirmButtonText: 'OK' // Đặt nội dung nút
+                }).then(() => {
+                    location.reload(); // Reload trang sau khi nhấn OK
+                });
                     },
                     error: function(xhr) {
                         console.error(xhr.responseText); // Log chi tiết lỗi
@@ -382,6 +383,7 @@
 
         // 
         function sortTable(column) {
+
             // Lấy URL hiện tại
             let url = new URL(window.location.href);
 
@@ -398,9 +400,9 @@
         }
         // paginate
         function changePerPage(perPage) {
-            let params = new URLSearchParams(window.location.search);
-            params.set('perpage', perPage); // Cập nhật giá trị perpage
-            window.location.href = "{{ route('admin.brands.index') }}?" + params.toString();
-        }
+                let params = new URLSearchParams(window.location.search);
+                params.set('perpage', perPage); // Cập nhật giá trị perpage
+                window.location.href = "{{ route('admin.brands.index') }}?" + params.toString();
+            }
     </script>
 @endpush

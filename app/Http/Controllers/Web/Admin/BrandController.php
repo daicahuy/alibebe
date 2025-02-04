@@ -20,10 +20,23 @@ class BrandController extends Controller
     public function index(Request $request)
     {
         $keyWord = $request->input('_keyword'); // Lấy giá trị từ input search
-        $perPage = $request->get('per_page', 5);
-        $brands = $this->brandService->listBrand15BrandAsc($perPage, $keyWord);
+        $perPage = $request->get('per_page', 15);
+        $sort = $request->get('sort', 'created_at'); // Lấy giá trị cột cần sắp xếp, mặc định là `name`
+        $order = $request->get('order', 'desc'); // Lấy giá trị thứ tự sắp xếp, mặc định là `desc`
+        Log::info("Parameters received: ", compact('keyWord', 'perPage', 'sort', 'order'));
+        $brands = $this->brandService->listBrand15BrandAsc($perPage, $keyWord,$sort,$order);
 
-        return view('admin.pages.brands.list', compact('brands', 'perPage', 'keyWord'));
+        return view('admin.pages.brands.list', compact('brands', 'perPage', 'keyWord','sort','order'));
+    }
+    public function hidden(Request $request) {
+        $keyWord = $request->input('_keyword'); // Lấy giá trị từ input search
+        $perPage = $request->get('per_page', 15);
+        $sort = $request->get('sort', 'created_at'); // Lấy giá trị cột cần sắp xếp, mặc định là `name`
+        $order = $request->get('order', 'desc'); // Lấy giá trị thứ tự sắp xếp, mặc định là `desc`
+        Log::info("Parameters received: ", compact('keyWord', 'perPage', 'sort', 'order'));
+        $brands = $this->brandService->listHidden($perPage, $keyWord,$sort,$order);
+
+        return view('admin.pages.brands.hidden', compact('brands', 'perPage', 'keyWord','sort','order'));
     }
 
 
@@ -47,18 +60,13 @@ class BrandController extends Controller
 
     public function update(UpdateBrandRequest $request, Brand $brand)
 {
-    if ($request->ajax()) {
-        return $this->updateStatus($request, $brand);
-    }
 
     $result = $this->brandService->UpdateBrand($request, $brand);
-
     if ($result) {
         return redirect()
             ->route('admin.brands.index')
             ->with('success', 'Cập nhật thương hiệu thành công!');
     }
-
     return redirect()
         ->back()
         ->withErrors('Cập nhật thương hiệu thất bại!');
