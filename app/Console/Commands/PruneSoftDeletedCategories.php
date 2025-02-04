@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Category;
 use Carbon\Carbon;
+use Log;
+use Storage;
 
 class PruneSoftDeletedCategories extends Command
 {
@@ -13,7 +15,7 @@ class PruneSoftDeletedCategories extends Command
      *
      * @var string
      */
-    protected $signature = 'app:prune-soft-deleted-categories';
+    protected $signature = 'categories:prune';
 
     /**
      * The console command description.
@@ -35,7 +37,19 @@ class PruneSoftDeletedCategories extends Command
         $count = $categoriesToDelete->count();
 
         foreach ($categoriesToDelete as $category) {
+
             $category->forceDelete();
+
+            // 1. Xóa ảnh 
+            $imageOld = $category->icon;
+
+            if (!empty($imageOld) && Storage::exists($imageOld)) {
+                Storage::delete($imageOld);
+                Log::info(__METHOD__ . ': Đã xóa ảnh ' . $imageOld);
+            } else {
+                Log::error(__METHOD__ . ': Lỗi xóa ảnh ' . $imageOld);
+            }
+
         }
         $this->info("Đã xóa vĩnh viễn {{$count}} sản phẩm");
     }

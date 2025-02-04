@@ -48,6 +48,8 @@ Route::prefix('/admin')
 
                 Route::get('/trash', 'trash')->name('trash');
 
+                Route::get('/hidden',  'hidden')->name('hidden');
+
                 Route::get('/{category}', 'show')->name('show')->where(['category' => '[0-9]+']);
 
                 Route::get('/create', 'create')->name('create');

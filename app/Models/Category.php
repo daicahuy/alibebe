@@ -18,10 +18,14 @@ class Category extends Model
         "icon",
     ];
     public $attributes = [
-        'ordinal'   => 0,
+        'ordinal' => 0,
         'is_active' => 1 //true
     ];
 
+    // public function getRouteKeyName()
+    // {
+    //     return 'slug'; // Trả về 'slug'
+    // }
 
 
     /////////////////////////////////////////////////////

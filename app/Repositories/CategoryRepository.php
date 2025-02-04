@@ -20,12 +20,14 @@ class CategoryRepository extends BaseRepository
     public function paginationM(
         array $columns = ['*'],
         $parentId = 'parent_id',
+        int $isActive = 1,
         int $perPage = 5,
         array $orderBy = ['updated_at', 'DESC'],
-        array $relations = ['categories']
+        array $relations = ['categories'],
     ) {
         return $this->model->select($columns)
             ->whereNull($parentId)
+            ->where('is_active', $isActive)
             ->with($relations)
             ->orderBy($orderBy[0], $orderBy[1])
             ->paginate($perPage)
@@ -78,6 +80,12 @@ class CategoryRepository extends BaseRepository
         return $this->model->onlyTrashed()->orderBy('updated_at', 'desc')->paginate(5);
     }
 
+    // Lấy danh sách hidden
+    public function getHidden()
+    {
+        return $this->model->where('is_active', 0)->orderBy('updated_at', 'desc')->paginate(5);
+    }
+
 
     //Tìm danh mục đã bị xóa mềm findOrFailWithTrashed để ném lỗi nếu không tìm thấy: trả về instance của model
     public function findOrFailWithTrashed(int $id)
@@ -121,4 +129,30 @@ class CategoryRepository extends BaseRepository
         return $this->model->whereIn('id', $ids);
     }
 
+    // Đếm trash
+    public function countTrash()
+    {
+        return $this->model->onlyTrashed()->count();
+    }
+
+    // đếm hidden
+    public function countHidden()
+    {
+        return $this->model->where('is_active', 0)->count();
+    }
+
+    // restore
+    public function update(int $id, array $data = [])
+    {
+        $category = $this->model->withTrashed()->find($id); // Tìm cả bản ghi đã xóa mềm
+
+        if (!$category) {
+            return false; // Hoặc throw exception nếu muốn xử lý lỗi ở service
+        }
+
+        $category->restore();//deleted_at => null
+
+        $category->update($data);
+        return $category;
+    }
 }

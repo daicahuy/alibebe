@@ -23,10 +23,15 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 5);
-        // dd($perPage);
-        // $perPage ?? 5;
-        $listCategory = $this->categoryService->index($perPage);
+
+        $sortBy = $request->input('sort', 'updated_at'); // Cột mặc định để sắp xếp
+        $order = $request->input('order', 'DESC'); // Hướng sắp xếp mặc định
+
+        $listCategory = $this->categoryService->index($perPage,$sortBy,$order);
         // dd($listCategory);
+
+        
+
         return view('admin.pages.categories.list', $listCategory);
     }
 
@@ -36,17 +41,27 @@ class CategoryController extends Controller
 
         // dd($listTrash); // Kiểm tra dữ liệu NHẬN ĐƯỢC từ service
 
-        if (is_array($listTrash) && !$listTrash['success']) {
+        // if (is_array($listTrash) && !$listTrash['success']) {
 
-            return back()->with([
-                'msg' => $listTrash['message'],
-                'type' => 'danger'
-            ]);
+        //     return back()->with([
+        //         'msg' => $listTrash['message'],
+        //         'type' => 'danger'
+        //     ]);
 
-        }
+        // }
         // dd($listTrash);
 
         return view('admin.pages.categories.trash', compact('listTrash'));
+    }
+
+    public function hidden(Request $request)
+    {
+        $perPage = $request->input('per_page', 5);
+        // dd($perPage);
+        // $perPage ?? 5;
+        $listHidden = $this->categoryService->hidden($perPage);
+        // dd($listHidden);
+        return view('admin.pages.categories.hidden', $listHidden);
     }
 
     public function show(Category $category)
@@ -61,6 +76,7 @@ class CategoryController extends Controller
 
     public function create()
     {
+
         $parent = $this->categoryService->create();
 
 
@@ -74,10 +90,11 @@ class CategoryController extends Controller
         $data = $request->validated();
 
         $response = $this->categoryService->store($data);
-
+        $sortBy = $request->input('sort_by', 'updated_at'); // Cột mặc định để sắp xếp
+        $order = $request->input('order', 'DESC'); // Hướng sắp xếp mặc định
         if ($response['success']) {
 
-            $listCategory = $this->categoryService->index(5);
+            $listCategory = $this->categoryService->index(5,$sortBy,$order);
 
             return redirect() // chuyển hướng url
 
@@ -130,9 +147,11 @@ class CategoryController extends Controller
         $data = $request->validated();
         $response = $this->categoryService->update($category->id, $data);
 
+        $sortBy = $request->input('sort_by', 'updated_at'); // Cột mặc định để sắp xếp
+        $order = $request->input('order', 'DESC'); // Hướng sắp xếp mặc định
         if ($response['success']) {
 
-            $listCategory = $this->categoryService->index(5);
+            $listCategory = $this->categoryService->index(5,$sortBy,$order);
 
             return redirect() // chuyển hướng url
 
@@ -181,12 +200,12 @@ class CategoryController extends Controller
 
     public function delete($id)
     {
-
         $response = $this->categoryService->delete($id);
         // dd($response);
+       
         if ($response['success']) {
 
-            $listCategory = $this->categoryService->index(5);
+            $listCategory = $this->categoryService->index(5,'updated_at','DESC');
 
             return redirect() // chuyển hướng url
 
@@ -243,7 +262,7 @@ class CategoryController extends Controller
     // xử lý hàng loạt
 
     // Xoá và khôi phục trong trash
-    // Xử lý hàng loạt
+    // Xóa nhiều
     public function bulkDestroy(Request $request)
     {
         // dd($request->input('bulk_ids')); 
@@ -285,20 +304,15 @@ class CategoryController extends Controller
         $keyword = $request->get('_keyword');
         $keyword = trim($keyword);
         $perPage = $request->input('per_page', 5);
-        // if (empty($keyword)) {
-        //     $listCategory = $this->categoryService->searchParent(null, $perPage);
-        //     $mesage = null;
-        // } else {
-            $listCategory = $this->categoryService->search($keyword, $perPage);
-            // if ($listCategory->isEmpty()) {
-            //     $message = 'Không tìm thấy kết quả phù hợp.';
-            // } else {
-            //     $message = 'Tìm thấy kết quả.';
-            // }
-        // }
-        // $listCategory = $this->categoryService->search($keyword, $perPage);
-        // dd($listCategory);
-        return view('admin.pages.categories.list', compact('listCategory', 'keyword'));
+
+        
+        $listCategory = $this->categoryService->search($keyword, $perPage);
+
+
+
+        return view('admin.pages.categories.list', $listCategory);
+
+        // return view('admin.pages.categories.list', compact('listCategory', 'keyword'));
 
 
     }

@@ -26,7 +26,7 @@ class CategoryService
 
 
     // List
-    public function index($perPage)
+    public function index($perPage,$sortBy,$order)
     {
         // dd($perPage);
         try {
@@ -34,13 +34,17 @@ class CategoryService
             $listCategory = $this->categoryRepo->paginationM(
                 ['*'],
                 'parent_id',
+                1,
                 $perPage,
-                ['updated_at', 'DESC'],
+                [$sortBy, $order],
                 ['categories']
             );
-
+            // Đếm
+            $countTrash = $this->categoryRepo->countTrash();
+            $countHidden = $this->categoryRepo->countHidden();
             // return $listCategory;
-            return compact('listCategory');
+            return compact('listCategory','countTrash','countHidden');
+            
 
         } catch (\Throwable $th) {
 
@@ -137,6 +141,10 @@ class CategoryService
                 $this->categoryRepo->whereIn($ids)->update(['is_active' => 0]);
             }
 
+            if ($data['is_active'] == 1 && !empty($childCate)) {
+                $this->categoryRepo->whereIn($ids)->update(['is_active' => 1]);
+            }
+
 
             // Nếu không upload ảnh mới thì anh cũ sẽ không bị xóa
             if (!empty($data['icon']) && !empty($imageOld) && Storage::exists($imageOld)) {
@@ -179,6 +187,38 @@ class CategoryService
 
             return ['success' => false, 'message' => 'Đã xảy ra lỗi, vui lòng thử lại sau'];
 
+        }
+    }
+
+    // Hiddent
+    public function hidden($perPage)
+    {
+        // dd($perPage);
+        try {
+            $perPage ?? 5;
+            // $listHidden = $this->categoryRepo->getHidden();
+            // $listHidden = $this->categoryRepo->getHidden();
+            // dd($listHidden);
+
+            $listHidden = $this->categoryRepo->paginationM(
+                ['*'],
+                NULL,
+                0,
+                $perPage,
+                ['updated_at', 'DESC'],
+                ['categories']
+            );
+            // dd($listHidden);
+            return compact('listHidden');
+
+        } catch (\Throwable $th) {
+
+            Log::error(
+                __CLASS__ . '--@--' . __FUNCTION__,
+                ['error' => $th->getMessage()]
+            );
+
+            return ['success' => false, 'message' => 'Đã xảy ra lỗi, vui lòng thử lại sau'];
         }
     }
 
@@ -330,15 +370,13 @@ class CategoryService
         try {
 
             $data = $this->categoryRepo->findOrFailWithTrashed($id); //trả về instance của model
+            // dd($data);
 
             if (empty($data)) {
                 return ['success' => false, 'message' => 'Danh mục không tồn tại'];
             }
 
-            // $data->is_active = 1;
-            // $data->deleted_at = null;
-            // $restore = $data->save();
-            $restore = $this->categoryRepo->update($id, ['is_active' => 1, 'deleted_at' => null]);
+            $restore = $this->categoryRepo->update($id, ['is_active' => 1]);
             // dd(compact('data'));
 
             // $restore = $this->categoryRepo->update($id, $data);
@@ -483,7 +521,7 @@ class CategoryService
             $categoies = $this->categoryRepo->getBulkTrash($categoryIds);
 
             // check lỗi
-            // $valiCate = [];
+            $valiCate = [];
 
             foreach ($categoies as $category) {
 
@@ -494,7 +532,7 @@ class CategoryService
                     $productsIds[] = $category->id;
 
                 } else {
-                    $valiCate[] = $category->id;
+                    $valiCate[] = $category->id; //những tak ko lỗi.
                 }
             }
 
@@ -507,6 +545,11 @@ class CategoryService
                     // Số lượng xóa success ko khớp với số lượng validate check
 
                     $deleteCount = $this->categoryRepo->getwithTrashIds($valiCate)->delete();
+
+                    // chuyển những tak đã xóa mềm thành false
+                    $this->categoryRepo->getwithTrashIds($valiCate)->update(['is_active' => 0]);
+
+                    // $activeFalse
 
                     if ($deleteCount !== count($valiCate)) {
 
@@ -598,33 +641,15 @@ class CategoryService
 
         $perPageUse = $perPage ?? 5;
         $query = $this->categoryRepo->serach($keyword);
-        $result = $query->paginate($perPageUse)->withQueryString();
-        return $result;
+        $listCategory = $query->paginate($perPageUse)->withQueryString();
 
-        // if (empty($keyword)) {
-        //     return [
-        //         'success' => false,
-        //         'message' => 'Vui lòng nhập tên danh mục',
-        //         'listCategory' => $result,
-        //         'keyword' => $keyword
-        //     ];
-        // }
+        $countTrash = $this->categoryRepo->countTrash();
+        $countHidden = $this->categoryRepo->countHidden();
+        return compact('listCategory', 'keyword','countTrash','countHidden');
 
+        // return $result;
 
-        // if ($result) {
-        //     return [
-        //         'success' => true,
-        //         'message' => 'Tìm thấy ' . count($result) . ' kết quả',
-        //         'listCategory' => $result,
-        //         'keyword' => $keyword
-        //     ];
-        // }
-        // return [
-        //     'success' => false,
-        //     'message' => 'Không tìm thấy kết quả phù hợp',
-        //     'listCategory' => $result,
-        //     'keyword' => $keyword
-        // ];
+        
 
 
     }

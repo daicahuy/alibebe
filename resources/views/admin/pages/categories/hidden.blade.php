@@ -25,15 +25,13 @@
                     <div class="card-body">
                         <div class="title-header">
                             <div class="d-flex align-items-center">
-                                <h5>{{ __('form.categories') }}</h5>
+                                <h5>
+                                    <a class="link"
+                                        href="{{ route('admin.categories.index') }}">{{ __('form.categories') }}</a>
+                                    <span class="fs-6 fw-light">></span> {{ __('message.hidden') }}
+                                </h5>
                             </div>
-                            <div>
-                                <a class="align-items-center btn btn-theme d-flex"
-                                    href="{{ route('admin.categories.create') }}">
-                                    <i class="ri-add-line"></i>
-                                    {{ __('message.add') . ' ' . __('form.categories') }}
-                                </a>
-                            </div>
+
                         </div>
 
                         <!-- HEADER TABLE -->
@@ -41,11 +39,6 @@
                             <div class="show-box">
                                 <div class="selection-box"><label>{{ __('message.show') }} :</label>
                                     <form action="{{ route('admin.categories.index') }}" method="GET">
-                                        <input type="hidden" name="sort" id="sort"
-                                            value="{{ request('sort', 'updated_at') }}">
-                                        <input type="hidden" name="order" id="order"
-                                            value="{{ request('order', 'DESC') }}">
-
                                         <select class="form-control" name="per_page" onchange="this.form.submit()">
                                             {{-- Thêm name và onchange --}}
                                             <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5
@@ -66,42 +59,23 @@
                                         {{ __('message.move_to_trash') }}
                                     </button>
 
-                                    <a href="{{ route('admin.categories.hidden') }}"
-                                        class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
-                                        <i class="ri-folder-forbid-fill"></i>
-                                        {{ __('message.hidden') }}
-                                        <span
-                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $countHidden }}</span>
-                                    </a>
 
-                                    <a href="{{ route('admin.categories.trash') }}"
-                                        class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
-                                        <i class="ri-delete-bin-line"></i>
-                                        {{ __('message.trash') }}
-                                        <span
-                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $countTrash }}</span>
-                                    </a>
+
+
 
                                 </div>
                                 <div class="datepicker-wrap">
 
                                 </div>
 
-                                <!-- Start Switch Button -->
-                                @component('components.button-switch-react', [
-                                    'viewOnly1' => __('message.all'),
-                                    'viewOnly2' => __('message.parent_only'),
-                                    'with' => 140,
-                                ])
-                                @endcomponent
-                                <!-- End Switch Button -->
 
-                                <div class="table-search">
+
+                                {{-- <div class="table-search">
                                     <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
                                     <input type="search" class="form-control" name="_keyword" id="role-search"
                                         value="{{ $keyword ?? '' }}">
                                     <button type="submit" class="btn btn-primary">{{ __('message.search') }}</button>
-                                </div>
+                                </div> --}}
                         </form>
 
 
@@ -130,14 +104,10 @@
                                         </th>
                                         <th class="sm-width">{{ __('form.category.id') }}</th>
                                         <th>{{ __('form.category.icon') }}</th>
-                                        <th class="cursor-pointer sortable" id="name-header" data-column="name"
-                                            data-order="asc">
+                                        <th class="cursor-pointer">
                                             {{ __('form.category.name') }}
-                                            <div class="filter-arrow" onclick="sortTable('name')">
-                                                <div>
-                                                    <i class="ri-arrow-{{ request('sort') === 'name' && request('order') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
-                                                </a>
-                                                </div>
+                                            <div class="filter-arrow">
+                                                <div><i class="ri-arrow-up-s-fill"></i></div>
                                             </div>
                                         </th>
                                         <th>
@@ -152,7 +122,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($listCategory as $key => $cate)
+                                    @foreach ($listHidden as $cate)
                                         <tr>
                                             <td>
                                                 <div class="custom-control custom-checkbox">
@@ -162,7 +132,7 @@
                                                     for="checkbox-{{ $cate->id }}"></label> --}}
                                                 </div>
                                             </td>
-                                            <td class="cursor-pointer sm-width"> {{ $key + 1 }}
+                                            <td class="cursor-pointer sm-width"> {{ $cate->id }}
 
                                             </td>
                                             <td class="cursor-pointer sm-width">
@@ -199,7 +169,8 @@
                                                     <label class="switch switch-sm">
                                                         <input type="checkbox" class="toggle-active" {{-- Class để bắt sự kiện jQuery --}}
                                                             data-category-id="{{ $cate->id }}" {{-- Data attribute chứa ID --}}
-                                                            {{ $cate->is_active == 1 ? 'checked' : '' }}>
+                                                            {{ $cate->is_active == 1 ? 'checked' : '' }}
+                                                            {{-- ĐÂY LÀ THAY ĐỔI QUAN TRỌNG: BỎ THUỘC TÍNH name --}}>
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>
@@ -225,7 +196,7 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="{{ route('admin.categories.edit', $cate) }}"
+                                                        <a href="{{ route('admin.categories.edit', $cate->id) }}"
                                                             class="btn-edit">
                                                             <i class="ri-pencil-line"></i>
                                                         </a>
@@ -254,7 +225,7 @@
 
                     <!-- START PAGINATION -->
                     <div class="custom-pagination">
-                        {{ $listCategory->appends(request()->query())->links() }}
+                        {{ $listHidden->appends(request()->query())->links() }}
                     </div>
                     <!-- END PAGINATIOn -->
 
@@ -273,24 +244,6 @@
 {{-- ================================== --}}
 
 @push('js_library')
-    <script>
-        // sắp xếp
-        function sortTable(column) {
-            // Lấy URL hiện tại
-            let url = new URL(window.location.href);
-
-            // Kiểm tra chiều sắp xếp hiện tại
-            let currentDirection = url.searchParams.get('order') || 'desc';
-            let newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
-
-            // Cập nhật query parameters
-            url.searchParams.set('sort', column);
-            url.searchParams.set('order', newDirection);
-
-            // Điều hướng tới URL mới
-            window.location.href = url.toString();
-        }
-    </script>
 @endpush
 
 @push('js')
@@ -407,19 +360,19 @@
 
 
             // --- Logic Hide, Show Sub Category ---
-            $('.item.pl-2').hide();
+            // $('.item.pl-2').hide();
 
-            $btnSwitch.on('click', function() {
-                const isChecked = $inputSwitch.prop('checked');
+            // $btnSwitch.on('click', function() {
+            //     const isChecked = $inputSwitch.prop('checked');
 
-                if (!isChecked) {
-                    // Ẩn các danh mục con
-                    $('.item.pl-2').slideUp(300);
-                } else {
-                    // Hiển thị các danh mục con
-                    $('.item.pl-2').slideDown(300);
-                }
-            })
+            //     if (!isChecked) {
+            //         // Ẩn các danh mục con
+            //         $('.item.pl-2').slideUp(300);
+            //     } else {
+            //         // Hiển thị các danh mục con
+            //         $('.item.pl-2').slideDown(300);
+            //     }
+            // })
             // --- End Logic Hide, Show Sub Category ---
 
             // update Is_active Api
@@ -461,9 +414,6 @@
                     }
                 });
             });
-
-
-            // Sắp xếp
 
 
         });

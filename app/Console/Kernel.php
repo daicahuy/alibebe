@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
     ];
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('app:prune-soft-deleted-categories')->daily();
+        $schedule->command('categories:prune')->dailyAt('06:00');
         // $schedule->command('inspire')->hourly();
     }
 
