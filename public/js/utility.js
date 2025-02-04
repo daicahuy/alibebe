@@ -1,18 +1,23 @@
 function convertDate(dateConverter) {
-    const isoString = dateConverter;
+    const isoString = dateConverter; // Giả sử dateConverter chứa chuỗi ISO 8601
     const date = new Date(isoString);
 
-    // Định dạng tùy chỉnh
     const options = {
-        hour: "numeric",
-        minute: "numeric",
-        hour12: true, // Sử dụng AM/PM
+        year: "numeric",
         month: "numeric",
         day: "numeric",
-        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
     };
 
-    const formattedDate = date.toLocaleString("en-US", options); // 'en-US' để có định dạng 12:30 PM
+    // Sử dụng locale phù hợp với định dạng ngày/tháng/năm của Việt Nam.  Tuy nhiên,  toLocaleString không đảm bảo tính nhất quán trên tất cả trình duyệt.
+    const formattedDate = date
+        .toLocaleString("vi-VN", options)
+        .replace(
+            /(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}) (AM|PM)/,
+            "$1/$2/$3 $4:$5 $6"
+        );
 
     return formattedDate;
 }

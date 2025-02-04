@@ -20,7 +20,7 @@ class OrderOrderStatusRepository extends BaseRepository
             if (is_array($idOrder)) {
                 foreach ($idOrder as $orderId) {
                     OrderOrderStatus::query()
-                        ->where('order_id', $idOrder)
+                        ->where('order_id', $orderId)
                         ->update(['order_status_id' => $idStatus]);
                     HistoryOrderStatus::create([
                         'order_id' => $orderId,
@@ -51,6 +51,25 @@ class OrderOrderStatusRepository extends BaseRepository
                 ->where('order_id', $idOrder)
                 ->update(['note' => $note]);
             ;
+            return true;
+
+        });
+
+    }
+
+    public function updateConfirmCustomer($note, $employee_evidence, $idOrder)
+    {
+        return DB::transaction(function () use ($idOrder, $note, $employee_evidence) {
+
+            OrderOrderStatus::query()
+                ->where('order_id', $idOrder)
+                ->update(['note' => $note, 'employee_evidence' => $employee_evidence, "order_status_id" => 4]);
+            ;
+
+            HistoryOrderStatus::create([
+                'order_id' => $idOrder,
+                'order_status_id' => 4,
+            ]);
             return true;
 
         });

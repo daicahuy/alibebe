@@ -224,7 +224,7 @@
                             <!-- Tìm kiếm theo tên khách hàng -->
                             <div class="col-md-4">
                                 <input class="form-control form-control-sm" type="search" name="search" id="search"
-                                    placeholder="Tìm kiếm bằng code,SDT hoặc tên khách hàng">
+                                    placeholder="{{ __('message.orders_search') }}">
                             </div>
 
 
@@ -239,7 +239,7 @@
                         <div class="row g-3 py-2">
                             <!-- Ngày bắt đầu -->
                             <div class="col-md-4">
-                                <label class="form-label">Ngày bắt đầu</label>
+                                <label class="form-label">{{ __('message.time_start') }}</label>
                                 <div class="col-sm-9" style="width: 100%">
                                     <div class="input-group custom-dt-picker">
                                         <input placeholder="yyyy-mm-dd" name="dpToDate" id="start_date_input" readonly=""
@@ -253,7 +253,7 @@
 
                             <!-- Ngày kết thúc -->
                             <div class="col-md-4">
-                                <label class="form-label">Ngày kết thúc</label>
+                                <label class="form-label">{{ __('message.time_end') }}</label>
                                 <div class="col-sm-9" style="width: 100%">
                                     <div class="input-group custom-dt-picker">
                                         <input placeholder="yyyy-mm-dd" name="dpToDate" id="end_date_input" readonly=""
@@ -268,7 +268,8 @@
                             <!-- Nút lọc -->
                             <div class="col-md-4 d-flex mt-5 justify-content-center">
                                 <div class="">
-                                    <button id="filterButton" class="btn btn-solid filter">Lọc</button>
+                                    <button id="filterButton"
+                                        class="btn btn-solid filter">{{ __('message.filter') }}</button>
                                 </div>
 
                             </div>
@@ -290,16 +291,13 @@
         <div class="card-body">
             <div class="title-header option-title"
                 style="display: flex; justify-content: space-between; align-items: center;">
-                <h5>Danh Sách Đơn Hàng<span id="count_selected_item"></span></h5>
+                <h5>{{ __('message.list_orders') }}<span id="count_selected_item"></span></h5>
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
                     <div id="select-change-status-items"></div>
                     <button class="btn btn-solid visually-hidden " id="btn-move-to-trash-all"
-                        style="height: 35px;line-height:17px">In
-                        đơn hàng được chọn</button>
+                        style="height: 35px;line-height:17px">{{ __('message.print_selected_orders') }}</button>
                     <button class="btn btn-solid btn-download-all" id="btn-print-all"
-                        style="height: 35px;line-height:17px">In
-                        tất cả đơn
-                        hàng</button>
+                        style="height: 35px;line-height:17px">{{ __('message.print_all_orders') }}</button>
                 </div>
             </div>
             {{-- Start trạng thái --}}
@@ -309,39 +307,39 @@
                         <div class="col">
                             <button class="tab active btn-order" data-status = "{{ OrderStatusType::PENDING }}"
                                 type="submit">
-                                Chờ xử lý <span class="count"></span>
+                                {{ __('form.order_status.pending') }} <span class="count"></span>
                             </button>
                         </div>
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::PROCESSING }}" type="submit">
-                                Đang xử lý <span class="count"></span>
+                                {{ __('form.order_status.processing') }} <span class="count"></span>
                             </button>
                         </div>
 
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::SHIPPING }}" type="submit">
-                                Đang giao <span class="count"></span>
+                                {{ __('form.order_status.shipping') }} <span class="count"></span>
                             </button>
                         </div>
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::DELIVERED }}" type="submit">
-                                Đã giao <span class="count"></span>
+                                {{ __('form.order_status.delivered') }} <span class="count"></span>
                             </button>
                         </div>
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::CANCEL }}" type="submit">
-                                Hủy hàng <span class="count"></span>
+                                {{ __('form.order_status.cancel') }} <span class="count"></span>
                             </button>
                         </div>
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::COMPLETED }}" type="submit">
-                                Hoàn thành <span class="count"></span>
+                                {{ __('form.order_status.completed') }} <span class="count"></span>
                             </button>
                         </div>
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::FAILED_DELIVERY }}"
                                 type="submit">
-                                Giao hàng thất bại <span class="count"></span>
+                                {{ __('form.order_status.failed_delivery') }} <span class="count"></span>
                             </button>
                         </div>
 
@@ -360,15 +358,16 @@
                                             class="custom-control-input checkbox_animated">
                                     </div>
                                 </th>
-                                <th class="px-4 py-2">Mã Đơn Hàng </th>
-                                <th class="px-4 py-2">Thời Gian</th>
-                                <th class="px-4 py-2" style="width: 280px; text-align: left;">Thông tin khách hàng</th>
-                                <th class="px-4 py-2">Phương Thức Thanh Toán</th>
-                                <th class="px-4 py-2">Tổng(VND)</th>
-                                <th class="px-4 py-2">Trạng Thái Thanh Toán</th>
+                                <th class="px-4 py-2">{{ __('form.order.code') }}</th>
+                                <th class="px-4 py-2">{{ __('form.order.created_at') }}</th>
+                                <th class="px-4 py-2" style="width: 280px; text-align: left;">
+                                    {{ __('form.order.information_customer') }}</th>
+                                <th class="px-4 py-2">{{ __('form.order.type_payment') }}</th>
+                                <th class="px-4 py-2">{{ __('form.order.total_amount') }}(VND)</th>
+                                <th class="px-4 py-2">{{ __('form.order.is_paid') }}</th>
 
-                                <th class="px-4 py-2">Trạng Thái Đơn Hàng</th>
-                                <th class="px-4 py-2 text-right">Khác</th>
+                                <th class="px-4 py-2">{{ __('form.order_statuses') }}</th>
+                                <th class="px-4 py-2 text-right">{{ __('message.other') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -442,6 +441,46 @@
             </div>
         </form>
     @endcomponent
+
+
+    @component('components.modal.confirm', [
+        'id' => 'modalUpload',
+        'title' => 'Tải ảnh minh chứng',
+    ])
+        <form id="formUploadImageOrder" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="text" hidden value="" name="order_id" class="hiddenIDOrderUpload">
+            <div class="align-items-center g-2 mb-4 row">
+                <label class="col-sm-3 form-label-title mb-0 text-start" for="icon">
+                    Ảnh đơn hàng
+                </label>
+                <div class="col-sm-9">
+                    <input type="file" name="employee_evidence" id="employee_evidence" class="form-control">
+                </div>
+
+                <div class="invalid-feedback error-confirm"></div>
+
+            </div>
+            <div class="align-items-center g-2 mb-4 row">
+                <label class="col-sm-3 form-label-title mb-0 text-start" for="name">
+                    Ghi chú
+                    <span class="theme-color ms-2 required-dot ">*</span>
+                </label>
+                <div class="col-sm-9">
+                    <textarea name="note" id="text-note-checkout-order-upload" cols="15" class="form-control note"></textarea>
+                </div>
+            </div>
+
+            <div class="button-box justify-content-end">
+                <button class="btn btn-md btn-secondary fw-bold btn-cancel" type="button">
+                    {{ __('message.cancel') }}
+                </button>
+                <button class="btn btn-md btn-theme fw-bold btn-action" type="submit">
+                    Xác nhận
+                </button>
+            </div>
+        </form>
+    @endcomponent
 @endsection
 
 
@@ -459,13 +498,20 @@
     <!-- Thêm SweetAlert2 CDN -->
     <script>
         $(document).ready(function() {
-
+            $('#modalUpload').on('shown.bs.modal', function() {
+                //Xử lý khi modal được hiển thị
+                $('.btn-cancel').click(function() {
+                    $('#formUploadImageOrder')[0].reset(); //Reset form
+                    $('.error-confirm').html(''); //Xóa thông báo lỗi
+                    $('.note').val(''); // Xóa nội dung textarea nếu có
+                });
+            });
             $('#formConfirmCheckOrder').on("submit", function(event) {
                 event.preventDefault();
 
-                const note = $("#modalConfirm #text-note-checkout-order").val();
+                const note = $("#formConfirmCheckOrder #text-note-checkout-order").val();
 
-                const order_id = $("#modalConfirm .hiddenIDIgnore").val();
+                const order_id = $("#formConfirmCheckOrder .hiddenIDIgnore").val();
 
                 $.ajax({
                     url: '{{ route('api.orders.changeStatusOrder') }}',
@@ -488,6 +534,39 @@
 
             });
 
+            $('#formUploadImageOrder').on("submit", function(event) {
+                event.preventDefault();
+
+                const formData = new FormData(this);
+                const order_id = $("#formUploadImageOrder .hiddenIDOrderUpload").val();
+
+                $.ajax({
+                    url: `http://127.0.0.1:8000/api/orders/uploadImgConfirm/${order_id}`,
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        console.log(response);
+                        if (response.status == 400) {
+                            $('#formUploadImageOrder .error-confirm').text("Trường bắt buộc")
+                        }
+                        if (response.status == 200) {
+                            $('.error-confirm').html('');
+                            $('#formUploadImageOrder .note').val("")
+                            $('#formUploadImageOrder')[0].reset();
+                            $('#modalUpload').modal('hide');
+                            fetchOrders();
+                            alert("Cập nhật thành công.");
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:", error);
+                    }
+                });
+
+            });
+
 
             $('.btn-order').on('click', function() {
                 // Xóa lớp active khỏi tất cả các nút
@@ -497,14 +576,49 @@
                 $(this).addClass('active');
             });
 
-            $('.orderStatus').on('change', function() {
-                // Xóa lớp active khỏi tất cả các nút
-                $('#modalConfirm').modal('show');
+            // $('.orderStatus').on('change', function() {
+            //     // Xóa lớp active khỏi tất cả các nút
+            //     $('#modalConfirm').modal('show');
 
-            });
+            // });
 
 
-
+            const orderStatuses = [{
+                    id: 1,
+                    name: "Chờ xử lý",
+                    next: [2, 7]
+                },
+                {
+                    id: 2,
+                    name: "Đang xử lý",
+                    next: [3, 7]
+                },
+                {
+                    id: 3,
+                    name: "Đang giao hàng",
+                    next: [4, 5, 7]
+                },
+                {
+                    id: 4,
+                    name: "Đã giao hàng",
+                    next: [6, 7]
+                },
+                {
+                    id: 5,
+                    name: "Giao hàng thất bại",
+                    next: [7]
+                },
+                {
+                    id: 6,
+                    name: "Hoàn thành",
+                    next: [7]
+                },
+                {
+                    id: 7,
+                    name: "Đã hủy",
+                    next: []
+                }
+            ];
 
 
 
@@ -571,6 +685,20 @@
           `);
                 } else {
                     orders.forEach(order => {
+                        const currentStatusId = order.order_statuses[0].pivot.order_status_id;
+                        const selectId = `select_status_${order.id}`;
+
+                        let selectHtml =
+                            `<select class="font-serif form-select form-select-sm orderStatus" id="${selectId}">`;
+                        orderStatuses.forEach(status => {
+                            const currentStatus = orderStatuses.find(s => s.id === currentStatusId);
+                            const disabled = !currentStatus.next.includes(status.id) && status
+                                .id !== currentStatusId ? "disabled" : "";
+                            selectHtml +=
+                                `<option value="${status.id}" ${disabled}>${status.name}</option>`;
+                        });
+                        selectHtml += `</select>`;
+
                         $("#orderTable tbody").append(`
                         <tr data-id="${order.id}">
                                 <td>
@@ -584,15 +712,15 @@
                                 <td class="px-4 py-2"><span class="text-sm">${ convertDate(order.created_at) }</span></td>
                                 <td class="px-4 py-2 text-xs" style="text-align: left">
                                     <span class="block">
-													<b>Tên: </b>
+													<b>{{ __('form.order.fullname') }}: </b>
 													${order.fullname}
 												</span>
                                                 <span class="block">
-													<b>Số điện thoại: </b>
+													<b>{{ __('form.order.phone_number') }}: </b>
 													${order.phone_number}
 												</span>
                                                 <span class="block">
-													<b>Địa chỉ: </b>
+													<b>{{ __('form.order.address') }}: </b>
 													${order.address}
 												</span>
                                 </td>
@@ -605,43 +733,29 @@
                                 <td class="px-4 py-2 text-xs">
 
                                     
-                                    ${order.order_statuses[0].pivot.order_status_id == 6 ? 
-                                          `<div _ngcontent-ng-c1063460097="" class="ng-star-inserted span-completed">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="status-completed"><span>Hoàn thành</span></div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>` :
-(order.order_statuses[0].pivot.order_status_id == 7 ? 
-`<div _ngcontent-ng-c1063460097="" class="ng-star-inserted span-failed">
-                                                                                        <div class="status-failed"><span>Đã hủy</span></div>
-                                                                                        </div>` :
-`
-                                                                                        <select class="font-serif form-select form-select-sm orderStatus" id="select_status">
-                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "1" ? "selected" : ""} ${activeTab>=1 ? "disabled" : ""} value="1">Chờ xử lý</option>
-                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "2" ? "selected" : ""} ${activeTab>=2 ? "disabled" : ""} value="2">Đang xử lý</option>
-                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "3" ? "selected" : ""} ${activeTab>=3 ? "disabled" : ""} value="3">Đang giao hàng</option>
-                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "4" ? "selected" : ""} ${activeTab>=4 ? "disabled" : ""} value="4">Đã giao hàng</option>
-                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "5" ? "selected" : ""} ${activeTab>=5 ? "disabled" : ""} value="5">Giao hàng thất bại</option>
-                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "6" ? "selected" : ""} ${activeTab>=6 ? "disabled" : ""} value="6">Hoàn thành</option>
-                                                                                        <option ${order.order_statuses[0].pivot.order_status_id == "7" ? "selected" : ""} ${activeTab>=7 ? "disabled" : ""} value="7">Đã hủy</option>
-                                                                                        </select>
-                                                                                                                                                                        `
-                                               )
-                                        }
+                                    ${currentStatusId === 6 ?
+                    `<div class="span-completed"><div class="status-completed"><span>Hoàn thành</span></div></div>` :
+                    (currentStatusId === 7 ?
+                        `<div class="span-failed"><div class="status-failed"><span>Đã hủy</span></div></div>` :
+                        selectHtml
+                    )
+                }
                                 </td>
 
                                 <td>
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                                            <div class="status-pending">
-                                                                                                                <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                                            </div>
-                                                                                                        </div>
-                                                                                                        
-                                                                                                        
-                                                                                                        ` : `
-                                                                                                        
-                                                                                                        `}
+                                                                                                                                                                                                                                                                                                                    <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                                                                                                                                                                                                                                                                        <div class="status-pending">
+                                                                                                                                                                                                                                                                                                                            <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                    ` : `
+                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                    `}
                                         <li>
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
@@ -654,6 +768,9 @@
                                 </a>
                             </tr>
             `);
+
+
+
                     });
 
                     $('.status-pending span').on("click", function() {
@@ -679,8 +796,12 @@
                     },
                     success: function(response) {
                         console.log(response.data[0])
+                        const imageUrl =
+                            `{{ Storage::url('${response.data[0].employee_evidence}') }}`; //Laravel Blade syntax
+                        //Chuyển đổi thành Javascript string
+                        const jsImageUrl = imageUrl.replace(/\{\{\s*|\s*\}\}/g, '');
                         $("#modalConfirm #img-checkout-order").attr("src",
-                            `${response.data[0].employee_evidence}`);
+                            jsImageUrl);
                         if (response.data[0].customer_confirmation == 1) {
                             $("#modalConfirm #checkout-order-status").text(
                                 "Khách hàng đã nhận được hàng");
@@ -712,7 +833,6 @@
 
                         console.log("response", response)
                         if (response.status == 200) {
-
                             $('#checkbox-table').prop('checked', false);
                             $('#select-change-status-items').empty();
                             $("#count_selected_item").text(``)
@@ -728,6 +848,8 @@
                 });
             }
 
+
+
             function updateSelectedIds() { // 3. Hàm cập nhật input ẩn
                 const selectedIds = $('.checkbox-input:checked').map(
                     function() { // 3.1 Lấy mảng các ID của checkbox được chọn
@@ -740,22 +862,37 @@
                 if (checkedCount) {
                     $("#count_selected_item").text(`(Đã chọn ${checkedCount})`)
                     $('.btn-download-all').removeClass('active');
-                    const selectHtmlStatus = `
-                    <select class="font-serif form-select form-select-sm orderStatusList" id="select_status_list">
-                        <option ${activeTab == "1" ? "selected" : ""} ${activeTab>=1 ? "disabled" : ""} value="1">Chờ xử lý</option>
-                        <option ${activeTab == "2" ? "selected" : ""} ${activeTab>=2 ? "disabled" : ""} value="2">Đang xử lý</option>
-                        <option ${activeTab == "3" ? "selected" : ""} ${activeTab>=3 ? "disabled" : ""} value="3">Đang giao hàng</option>
-                        <option ${activeTab == "4" ? "selected" : ""} ${activeTab>=4 ? "disabled" : ""} value="4">Đã giao hàng</option>
-                        <option ${activeTab == "5" ? "selected" : ""} ${activeTab>=5 ? "disabled" : ""} value="5">Giao hàng thất bại</option>
-                        <option ${activeTab == "6" ? "selected" : ""} ${activeTab>=6 ? "disabled" : ""} value="6">Hoàn thành</option>
-                        <option ${activeTab == "7" ? "selected" : ""} ${activeTab>=7 ? "disabled" : ""} value="7">Đã hủy</option>
-                    </select>
-                    
-                    `
-                    $('#select-change-status-items').append(selectHtmlStatus);
 
+                    let selectHtmlStatus = `
+                    <select class="font-serif form-select form-select-sm orderStatus" style="width: unset" id="select_status_list">
+                `;
+
+                    orderStatuses.forEach(status => {
+                        selectHtmlStatus += `
+                    <option value="${status.id}">${status.name}</option>
+                `;
+                    });
+
+                    selectHtmlStatus += `</select>`;
+
+
+                    $('#select-change-status-items').append(selectHtmlStatus);
+                    $("#select_status_list").val(activeTab)
+
+                    function updateSelectStatus() {
+                        const currentStatus = parseInt($('#select_status_list').val(), 10);
+                        const currentStatusObj = orderStatuses.find(s => s.id === currentStatus);
+                        $('#select_status_list option').each(function() {
+                            const status = parseInt($(this).val(), 10);
+                            $(this).prop('disabled', !currentStatusObj.next.includes(status));
+                        });
+                    }
+
+                    // Gọi hàm để thiết lập trạng thái ban đầu
+                    updateSelectStatus();
                     $('#select_status_list').on("change", function() {
                         const selectedStatusChangeList = $(this).val();
+                        console.log("selectedIds", selectedIds)
                         callApiChangeStatusListOrder(selectedIds, selectedStatusChangeList);
                     });
                 } else {
@@ -900,9 +1037,22 @@
             });
 
             $('#orderTable').on('change', '.orderStatus', function() {
-                var selectedValue = $(this).val();
+
+                const selectedValue = parseInt($(this).val());
                 //  Lấy idOrder.  Giả sử idOrder nằm trong thuộc tính data-id của hàng tương ứng.
-                var idOrder = $(this).closest('tr').data('id');
+                const idOrder = $(this).closest('tr').data('id');
+
+                if (selectedValue === 4) { // Nếu chọn "Đã giao hàng" (id 4)
+
+                    $("#modalUpload .hiddenIDOrderUpload").val(idOrder);
+
+                    $('#modalUpload').modal(
+                        'show'); // Hiển thị modal và lưu orderId
+                    $(this).val($(this).data(
+                        'previous-value')); //Set lại giá trị cũ, tránh cập nhật trạng thái sớm
+                    return; // Dừng thực thi tiếp
+                }
+
 
                 //  Xử lý selectedValue và idOrder ở đây. Ví dụ: gửi lên server bằng AJAX
                 $.ajax({
@@ -927,6 +1077,10 @@
                         console.error("Lỗi cập nhật trạng thái đơn hàng:", error);
                     }
                 });
+            });
+
+            $('#orderTable').on('focus', '.orderStatus', function() {
+                $(this).data('previous-value', $(this).val());
             });
 
 

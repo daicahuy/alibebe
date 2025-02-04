@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use PDF;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Response;
+use Storage;
+use Validator;
 
 class OrderController extends Controller
 {
@@ -143,7 +145,6 @@ class OrderController extends Controller
                 $this->orderService->changeNoteStatusOrder($idOrder, $note);
 
             } else {
-
                 $this->orderService->changeStatusOrder($idOrder, $idStatus);
             }
 
@@ -155,6 +156,46 @@ class OrderController extends Controller
 
             ]);
         } catch (Exception $e) {
+
+            return response()->json([
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function uploadImgConfirm(Request $request, int $idOrder)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'employee_evidence' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Điều chỉnh max size nếu cần
+                'note' => 'nullable|string|max:255',
+            ]);
+
+            $data = $request->all();
+
+            if ($validator->fails()) {
+                return response()->json(['status' => 400, 'message' => $validator->errors()->first()]);
+            }
+
+            if ($request->hasFile('employee_evidence')) {
+                $data['employee_evidence'] = Storage::put("orders", $request->file('employee_evidence'));
+            }
+
+            $this->orderService->updateConfirmCustomer($data["note"], $data["employee_evidence"], $idOrder);
+
+
+
+
+            return response()->json(["data" => $data, "status" => Response::HTTP_OK]);
+
+
+
+
+
+        } catch (\Throwable $e) {
+            //throw $th;
 
             return response()->json([
                 'message' => 'An error occurred: ' . $e->getMessage(),

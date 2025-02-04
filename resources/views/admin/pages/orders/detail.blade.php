@@ -106,29 +106,29 @@
                                     <div class="title-header ng-star-inserted"
                                         style="justify-content: space-between; flex-wrap: wrap;">
                                         <div class="d-flex align-items-center">
-                                            <h5>Mã Đơn Hàng <span class="span-code"></span></h5>
+                                            <h5>{{ __('form.order.code') }} <span class="span-code"></span></h5>
                                         </div>
                                         <div id="select-change-status">
 
                                         </div>
 
                                         <div _ngcontent-ng-c1063460097="" class="ng-star-inserted span-completed">
-                                            <div class="status-completed"><span>Hoàn thành</span></div>
+                                            <div class="status-completed"><span>{{ __('message.completed') }}</span></div>
                                         </div>
                                         <div _ngcontent-ng-c1063460097="" class="ng-star-inserted span-failed">
-                                            <div class="status-failed"><span>Đã hủy</span></div>
+                                            <div class="status-failed"><span>{{ __('message.canceled') }}</span></div>
                                         </div>
                                     </div>
                                     <div class="tracking-wrapper table-responsive">
                                         <table class="table product-table">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">Ảnh</th>
-                                                    <th scope="col">Tên sản phẩm</th>
-                                                    <th scope="col">Biến thể</th>
-                                                    <th scope="col">Giá(VND)</th>
-                                                    <th scope="col">Số lượng</th>
-                                                    <th scope="col">Tổng tiền</th>
+                                                    <th scope="col">{{ __('form.order_item.image') }}</th>
+                                                    <th scope="col">{{ __('form.order_item.name') }}</th>
+                                                    <th scope="col">{{ __('form.order_item.name_variant') }}</th>
+                                                    <th scope="col">{{ __('form.order_item.price') }}(VND)</th>
+                                                    <th scope="col">{{ __('form.order_item.quantity') }}</th>
+                                                    <th scope="col">{{ __('form.order_item.total_amount') }}</th>
 
                                                 </tr>
                                             </thead>
@@ -159,11 +159,11 @@
                                     <div class="card-body">
                                         <div class="title-header ng-star-inserted">
                                             <div class="d-flex align-items-center">
-                                                <h5>Hóa đơn</h5>
+                                                <h5>{{ __('message.invoice') }}</h5>
                                             </div>
                                             <div button="" class="ng-star-inserted printOrder"><button
-                                                    class="btn btn-animation btn-sm ms-auto" id="printOrder">Xuất đơn
-                                                    hàng
+                                                    class="btn btn-animation btn-sm ms-auto"
+                                                    id="printOrder">{{ __('message.export_order') }}
                                                     <i class="ri-download-2-fill"></i>
                                                 </button>
                                             </div>
@@ -171,14 +171,14 @@
                                     </div>
                                     <div class="tracking-total tracking-wrapper">
                                         <ul>
-                                            <li>Tổng cộng <span></span></li>
-                                            <li>Phí ship <span></span></li>
+                                            <li>{{ __('message.total') }} <span></span></li>
+                                            <li>{{ __('message.shipping_fee') }} <span></span></li>
                                             <li>Voucher</li>
                                             <li class="d-flex justify-content-end">
                                                 <p></p>
                                             </li>
-                                            <li>Giảm giá <span class="text-danger"></span></li>
-                                            <li>Thành tiền <span class="text-danger"></span></li>
+                                            <li>{{ __('message.discount') }} <span class="text-danger"></span></li>
+                                            <li>{{ __('message.total_amount') }} <span class="text-danger"></span></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -194,29 +194,29 @@
                                 <div class="card-body">
                                     <div class="title-header ng-star-inserted">
                                         <div class="d-flex align-items-center">
-                                            <h5>Thông tin</h5>
+                                            <h5>{{ __('message.information') }}</h5>
                                         </div>
                                     </div>
                                     <div class="customer-detail tracking-wrapper">
                                         <ul>
-                                            <li><label>Tên:</label>
+                                            <li><label>{{ __('form.order.fullname') }}:</label>
                                                 <h4></h4>
                                             </li>
-                                            <li><label>Số điện thoại:</label>
+                                            <li><label>{{ __('form.order.phone_number') }}:</label>
                                                 <h4></h4>
                                             </li>
 
-                                            <li><label>Giao đến:</label>
+                                            <li><label>{{ __('form.order.address') }}:</label>
                                                 <h4>
                                                 </h4>
                                             </li>
-                                            <li><label>Ghi chú:</label>
+                                            <li><label>{{ __('form.order.note') }}:</label>
                                                 <h4></h4>
                                             </li>
-                                            <li><label>Phương thức thanh toán:</label>
+                                            <li><label>{{ __('form.order.type_payment') }}:</label>
                                                 <h4></h4>
                                             </li>
-                                            <li><label>Thanh toán:</label>
+                                            <li><label>{{ __('form.order.is_paid') }}:</label>
                                                 <h4></h4>
                                             </li>
                                         </ul>
@@ -231,6 +231,45 @@
         </div>
     </div>
     </div>
+
+    @component('components.modal.confirm', [
+        'id' => 'modalUpload',
+        'title' => 'Tải ảnh minh chứng',
+    ])
+        <form id="formUploadImageOrder" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="text" hidden value="" name="order_id" class="hiddenIDOrderUpload">
+            <div class="align-items-center g-2 mb-4 row">
+                <label class="col-sm-3 form-label-title mb-0 text-start" for="icon">
+                    Ảnh đơn hàng
+                </label>
+                <div class="col-sm-9">
+                    <input type="file" name="employee_evidence" id="employee_evidence" class="form-control">
+                </div>
+
+                <div class="invalid-feedback error-confirm"></div>
+
+            </div>
+            <div class="align-items-center g-2 mb-4 row">
+                <label class="col-sm-3 form-label-title mb-0 text-start" for="name">
+                    Ghi chú
+                    <span class="theme-color ms-2 required-dot ">*</span>
+                </label>
+                <div class="col-sm-9">
+                    <textarea name="note" id="text-note-checkout-order-upload" cols="15" class="form-control note"></textarea>
+                </div>
+            </div>
+
+            <div class="button-box justify-content-end">
+                <button class="btn btn-md btn-secondary fw-bold btn-cancel" type="button">
+                    {{ __('message.cancel') }}
+                </button>
+                <button class="btn btn-md btn-theme fw-bold btn-action" type="submit">
+                    Xác nhận
+                </button>
+            </div>
+        </form>
+    @endcomponent
 @endsection
 
 
@@ -246,7 +285,51 @@
 @push('js')
     <script>
         $(document).ready(function() {
+            $('#modalUpload').on('shown.bs.modal', function() {
+                //Xử lý khi modal được hiển thị
+                $('.btn-cancel').click(function() {
+                    $('#formUploadImageOrder')[0].reset(); //Reset form
+                    $('.error-confirm').html(''); //Xóa thông báo lỗi
+                    $('.note').val(''); // Xóa nội dung textarea nếu có
+                });
+            });
+            let imageUploaded = false;
 
+
+            $('#formUploadImageOrder').on("submit", function(event) {
+                event.preventDefault();
+
+                const formData = new FormData(this);
+                const order_id = $("#formUploadImageOrder .hiddenIDOrderUpload").val();
+
+                $.ajax({
+                    url: `http://127.0.0.1:8000/api/orders/uploadImgConfirm/${order_id}`,
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        console.log(response);
+                        if (response.status == 400) {
+                            $('#formUploadImageOrder .error-confirm').text("Trường bắt buộc")
+                        }
+                        if (response.status == 200) {
+
+                            imageUploaded = true;
+                            $('.error-confirm').html('');
+                            $('#formUploadImageOrder .note').val("")
+                            $('#formUploadImageOrder')[0].reset();
+                            $('#modalUpload').modal('hide');
+                            fillOrderDetails(order_id);
+                            alert("Cập nhật thành công.");
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:", error);
+                    }
+                });
+
+            });
 
             let CouponDiscountType_FIX_AMOUNT = <?php echo json_encode($CouponDiscountType_FIX_AMOUNT); ?>;
             let CouponDiscountType_PERCENT = <?php echo json_encode($CouponDiscountType_PERCENT); ?>;
@@ -256,6 +339,7 @@
 
             const pathSegments = window.location.pathname.split('/');
             const orderId = pathSegments[pathSegments.length - 1];
+
 
             function fillOrderDetails(orderId) {
 
@@ -277,7 +361,9 @@
                                     </div>
                                     <div>
                                         <div class="status">Chờ xử lý</div>
-                                    </div>
+                                        <span style="font-size: 10px">${convertDate(item.created_at)}</span>
+                                        
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -291,6 +377,7 @@
                                     </div>
                                     <div>
                                         <div class="status">Đang xử lý</div>
+                                        <span style="font-size: 10px">${convertDate(item.created_at)}</span>
                                     </div>
                                 </div>
                             </li>
@@ -305,6 +392,7 @@
                                     </div>
                                     <div>
                                         <div class="status">Đang giao hàng</div>
+                                        <span style="font-size: 10px">${convertDate(item.created_at)}</span>
                                     </div>
                                 </div>
                             </li>
@@ -320,6 +408,7 @@
                                     </div>
                                     <div>
                                         <div class="status">Đã giao hàng</div>
+                                        <span style="font-size: 10px">${convertDate(item.created_at)}</span>
                                     </div>
                                 </div>
                             </li>
@@ -334,6 +423,7 @@
                                     </div>
                                     <div>
                                         <div class="status">Giao hàng thất bại</div>
+                                        <span style="font-size: 10px">${convertDate(item.created_at)}</span>
                                     </div>
                                 </div>
                             </li>
@@ -348,6 +438,7 @@
                                     </div>
                                     <div>
                                         <div class="status">Hủy hàng</div>
+                                        <span style="font-size: 10px">${convertDate(item.created_at)}</span>
                                     </div>
                                 </div>
                             </li>
@@ -363,6 +454,7 @@
                                     </div>
                                     <div>
                                         <div class="status">Hoàn thành</div>
+                                        <span style="font-size: 10px">${convertDate(item.created_at)}</span>
                                     </div>
                                 </div>
                             </li>
@@ -393,9 +485,14 @@
                         dataDetailOrder = data.listItemOrder
                         data.listItemOrder.forEach(dataProduct => {
                             amountAllItems += dataProduct.price_variant * dataProduct.quantity_variant;
+                            const imageUrl =
+                                `{{ Storage::url('${dataProduct.product.thumbnail}') }}`; //Laravel Blade syntax
+                            //Chuyển đổi thành Javascript string
+                            const jsImageUrl = imageUrl.replace(/\{\{\s*|\s*\}\}/g, '');
+
                             const row = `
                     <tr class="ng-star-inserted">
-                        <td class="product-image"><img  class="img-fluid" src="${dataProduct.product.thumbnail}" width="30px" height="30px" style="object-fit: cover"></td>
+                        <td class="product-image"><img  class="img-fluid" src="${jsImageUrl}" width="30px" height="30px" style="object-fit: cover"></td>
                         <td><h6>${dataProduct.name}</h6></td>
                         <td><h6>${dataProduct.name_variant}</h6></td>
                         <td><h6>${formatCurrency(dataProduct.price_variant)}</h6></td>
@@ -408,16 +505,16 @@
                         const totalList = $(".tracking-total ul");
                         totalList.find("li:nth-child(1) span").text(`${formatCurrency(amountAllItems)}(VND)`);
                         totalList.find("li:nth-child(2) span").text(`Miễn ship`);
-
+                        console.log("data:", data)
                         if (data.listItemOrder[0].order.coupon_discount_type == CouponDiscountType_PERCENT) {
                             totalList.find("li:nth-child(4) p").text(
                                 `${data.listItemOrder[0].order.coupon_code}:  ${data.listItemOrder[0].order.coupon_discount_value}%`
                             );
                             totalList.find("li:nth-child(5) span").text(
-                                `-${formatCurrency(amountAllItems*data.listItemOrder[0].order.coupon_discount_value/100)}(VND)`
+                                `-${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(amountAllItems*data.listItemOrder[0].order.coupon_discount_value/100):0}(VND)`
                             );
                             totalList.find("li:nth-child(6) span").text(
-                                `${formatCurrency(amountAllItems - amountAllItems*data.listItemOrder[0].order.coupon_discount_value/100)}(VND)`
+                                `${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(amountAllItems - amountAllItems*data.listItemOrder[0].order.coupon_discount_value/100):formatCurrency(amountAllItems)}(VND)`
                             );
 
                         } else if (data.listItemOrder[0].order.coupon_discount_type ==
@@ -425,10 +522,14 @@
                             totalList.find("li:nth-child(4) p").text(
                                 `${data.listItemOrder[0].order.coupon_code}:  `);
                             totalList.find("li:nth-child(5) span").text(
-                                `-${formatCurrency(data.listItemOrder[0].order.coupon_discount_value)}(VND)`
+                                `-${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(data.listItemOrder[0].order.coupon_discount_value):0}(VND)`
                             );
                             totalList.find("li:nth-child(6) span").text(
-                                `${formatCurrency(amountAllItems - data.listItemOrder[0].order.coupon_discount_value)}(VND)`
+                                `${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(amountAllItems - data.listItemOrder[0].order.coupon_discount_value):formatCurrency(amountAllItems)}(VND)`
+                            );
+                        } else {
+                            totalList.find("li:nth-child(6) span").text(
+                                `${formatCurrency(amountAllItems)}(VND)`
                             );
                         }
 
@@ -452,19 +553,78 @@
                             customerDetail.find("li:nth-child(6) h4").text(`Chưa thanh toán`);
                         }
 
-                        const selectHtmlStatus = `
-                        <select class="font-serif form-select form-select-sm orderStatus" style="width: unset" id="select_status">
-                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "1" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=1 ? "disabled" : ""} value="1">Chờ xử lý</option>
-                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "2" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=2 ? "disabled" : ""} value="2">Đang xử lý</option>
-                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "3" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=3 ? "disabled" : ""} value="3">Đang giao hàng</option>
-                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "4" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=4 ? "disabled" : ""} value="4">Đã giao hàng</option>
-                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "5" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=5 ? "disabled" : ""} value="5">Giao hàng thất bại</option>
-                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "6" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=6 ? "disabled" : ""} value="6">Hoàn thành</option>
-                        <option ${data.listItemOrder[0].order.order_statuses[0].id == "7" ? "selected" : ""} ${data.listItemOrder[0].order.order_statuses[0].id>=7 ? "disabled" : ""} value="7">Đã hủy</option>
-                         </select>
-                    
-                    `
+                        const orderStatuses = [{
+                                id: 1,
+                                name: "Chờ xử lý",
+                                next: [2, 7]
+                            },
+                            {
+                                id: 2,
+                                name: "Đang xử lý",
+                                next: [3, 7]
+                            },
+                            {
+                                id: 3,
+                                name: "Đang giao hàng",
+                                next: [4, 5, 7]
+                            },
+                            {
+                                id: 4,
+                                name: "Đã giao hàng",
+                                next: [6, 7]
+                            },
+                            {
+                                id: 5,
+                                name: "Giao hàng thất bại",
+                                next: [7]
+                            },
+                            {
+                                id: 6,
+                                name: "Hoàn thành",
+                                next: [7]
+                            },
+                            {
+                                id: 7,
+                                name: "Đã hủy",
+                                next: []
+                            }
+                        ];
+
+                        const currentStatusId = data.listItemOrder[0].order.order_statuses[0].id;
+                        let selectHtmlStatus = `
+                    <select class="font-serif form-select form-select-sm orderStatus" style="width: unset" id="select_status">
+                `;
+
+                        orderStatuses.forEach(status => {
+                            selectHtmlStatus += `
+                    <option value="${status.id}">${status.name}</option>
+                `;
+                        });
+
+                        selectHtmlStatus += `</select>`;
+
+                        console.log("currentStatusId:", currentStatusId)
+
                         $('#select-change-status').append(selectHtmlStatus);
+                        $('#select-change-status #select_status').val(currentStatusId);
+                        // Hàm để cập nhật trạng thái disabled của các option
+                        function updateSelectStatus() {
+                            const currentStatus = parseInt(currentStatusId);
+                            const currentStatusObj = orderStatuses.find(s => s.id === currentStatus);
+                            console.log("currentStatusObj", currentStatusObj)
+                            $('#select_status option').each(function() {
+                                const status = parseInt($(this).val(), 10);
+                                $(this).prop('disabled', !currentStatusObj.next.includes(status));
+                            });
+                        }
+
+                        // Gọi hàm để thiết lập trạng thái ban đầu
+                        updateSelectStatus();
+
+                        // Gọi hàm mỗi khi select thay đổi
+                        // $('#select_status').on('change', updateSelectStatus);
+
+
 
                         if (data.listItemOrder[0].order.order_statuses[0].id == 7) {
                             $(".span-failed").addClass("active");
@@ -482,7 +642,21 @@
 
                         $('.orderStatus').on('change', function() {
 
-                            const selectedValue = $(this).val();
+                            const selectedValue = parseInt($(this).val());
+
+                            if (selectedValue === 4) { // Nếu chọn "Đã giao hàng" (id 4)
+
+                                $("#modalUpload .hiddenIDOrderUpload").val(orderId);
+                                $('#modalUpload').on('hidden.bs.modal', function() {
+                                    if (!imageUploaded) {
+                                        // Nếu ảnh chưa được upload, đặt lại trạng thái về "Đang giao hàng"
+                                        $('.orderStatus').val(3);
+                                        updateSelectStatus();
+                                    }
+                                });
+                                $('#modalUpload').modal('show');
+                                return;
+                            }
 
                             $.ajax({
                                 url: '{{ route('api.orders.changeStatusOrder') }}',
@@ -494,6 +668,7 @@
                                 success: function(response) {
                                     if (response.status == 200) {
                                         fillOrderDetails(orderId);
+                                        // updateSelectStatus()
                                         if (selectedValue == 1) {
                                             $(".printOrder").addClass("active");
                                         } else {
@@ -508,6 +683,10 @@
                                 }
                             });
                         });
+
+                        // $('.orderStatus').on('focus', function() {
+                        //     $(this).data('previous-value', $(this).val());
+                        // });
 
                     })
                     .catch(error => {

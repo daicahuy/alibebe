@@ -67,6 +67,11 @@ class OrderService
     public function getListStatusHistory($idOrder)
     {
         return $this->orderHistoryStatusRepository->getListStatusHistory($idOrder);
+    }
+
+    public function updateConfirmCustomer($note, $employee_evidence, $idOrder)
+    {
+        return $this->orderOrderStatusRepository->updateConfirmCustomer($note, $employee_evidence, $idOrder);
 
     }
 

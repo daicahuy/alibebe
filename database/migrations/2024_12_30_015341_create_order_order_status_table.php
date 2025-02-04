@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,10 +15,10 @@ return new class extends Migration
         Schema::create('order_order_status', function (Blueprint $table) {
             $table->foreignIdFor(Order::class)->constrained();
             $table->foreignIdFor(OrderStatus::class)->constrained();
-            $table->primary(['order_id', 'order_status_id']); 
+            $table->primary(['order_id', 'order_status_id']);
             $table->foreignId('modified_by')->nullable()->constrained('users');
             $table->string('note')->nullable();
-            $table->jsonb('employee_evidence');
+            $table->string('employee_evidence', 255);
             $table->boolean('customer_confirmation')->nullable();
             $table->boolean('is_current')->default(true);
             $table->timestamps();
