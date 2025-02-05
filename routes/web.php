@@ -226,6 +226,8 @@ Route::prefix('/admin')
 
                 Route::get('/', 'index')->name('index');
 
+                Route::get('/hide', 'hide')->name('hide');
+
                 Route::get('/{coupon}', 'show')->name('show')->where(['coupon' => '[0-9]+']);
 
                 Route::get('/create', 'create')->name('create');

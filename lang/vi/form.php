@@ -100,6 +100,7 @@ return [
     ],
 
     'coupons' => 'Mã giảm giá',
+    'coupons_hide' => 'Mã Giảm Giá Ẩn',
     'coupon' => [
         'id' => 'ID',
         'code' => 'Mã giảm giá',

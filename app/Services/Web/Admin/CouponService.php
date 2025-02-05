@@ -56,8 +56,14 @@ class CouponService
     public function getAllCoupons($perPage, $sortField = 'id', $sortDirection = 'DESC')
     {
         return $this->couponRepository
-            ->pagination(['*'], $perPage, [$sortField, $sortDirection], ['orders', 'users', 'restriction']);
-    }    
+            ->paginationIsActive(['*'], $perPage, [$sortField, $sortDirection], ['orders', 'users', 'restriction']);
+    } 
+    // Lất Tất Cả Dữ Liệu Mã Giảm Giá cùng với các Mối Quan Hệ (orders , users , restriction)
+    public function getAllCouponsByStatus($perPage, $sortField = 'id', $sortDirection = 'DESC')
+    {
+        return $this->couponRepository
+            ->paginationNoIsActive(['*'], $perPage, [$sortField, $sortDirection], ['orders', 'users', 'restriction']);
+    } 
     // Hiển Thị Chi Tiết Mã Giảm Giá
     public function getCouponById(Coupon $coupon)
     {
@@ -177,6 +183,11 @@ class CouponService
             ];
         }
     }
+    // xem mã giảm giá
+    public function getCouponWithRelations($id, array $relations)
+    {
+        return $this->couponRepository->findCounPonWithRelations($id, $relations);
+    }
     // chỉnh sửa mã giảm giá
     public function update(array $data,$couponId)
     {
@@ -200,6 +211,13 @@ class CouponService
 
             // Lưu thông tin mã giảm giá vào bảng coupons
             $coupon = $this->couponRepository->findByIdWithRelation($couponId,['restriction','orders','users']);
+
+            if ($coupon->orders()->exists()) {
+                return [
+                    'status' => false,
+                    'message' => 'Mã Này Đang Được Sử Dụng, Không Được Chỉnh Sửa !!!'
+                ];
+            }
             
             $coupon->update($couponData);
 
@@ -300,12 +318,14 @@ class CouponService
     {
         try {
             $coupon = $this->couponRepository->findByIdWithRelation($couponId, ['restriction', 'orders']);
+
             if ($coupon->orders()->exists()) {
                 return [
                     'status' => false,
                     'message' => 'Mã Này Đang Được Sử Dụng, Không Được Xóa !!!'
                 ];
             }
+
             $this->couponRepository->update($couponId, [
                 'is_active' => 0
             ]);
@@ -337,12 +357,14 @@ class CouponService
         DB::beginTransaction();
         try {
             $coupon = $this->couponRepository->findCouponDestroyedWithRelation($couponId, ['restriction']);
+
             if ($coupon->orders()->exists()) {
                 return [
                     'status' => false,
                     'message' => 'Mã Này Đang Được Sử Dụng, Không Được Xóa !!!'
                 ];
             }
+
             if ($coupon->restriction) {
                 $coupon->restriction->forceDelete();
             }
@@ -502,7 +524,7 @@ class CouponService
             ];
         }
     }
-
+    // khôi phục tất cả mã giảm giá đã xóa
     public function restoreSelectedCoupon($couponIds)
     {
         try {
@@ -558,7 +580,33 @@ class CouponService
             return collect(); // Trả về một collection rỗng nếu có lỗi
         }
     }
-
+    // tự động xóa mã guamr giá trong thùng rác
+    public function deleteOldTrashedCoupon($days = 7)
+    {
+        try {
+            // Gọi repository để xóa các coupon trong thùng rác > $days ngày
+            $this->couponRepository->forceDeleteOlderThanDays($days);
+    
+            // Trả về phản hồi khi thành công
+            return [
+                'message' => 'Xóa thành công các mã giảm giá cũ!',
+                'status' => true
+            ];
+        } catch (\Throwable $th) {
+            // Ghi log lỗi khi có ngoại lệ
+            Log::error("Lỗi khi xóa các mã giảm giá trong thùng rác", [
+                'days' => $days,
+                'error' => $th->getMessage()
+            ]);
+    
+            // Trả về phản hồi khi có lỗi
+            return [
+                'message' => 'Có lỗi xảy ra, vui lòng thử lại!',
+                'status' => false
+            ];
+        }
+    }
+    
     // API - update status 
 
     public function apiUpdateStatus(string $id, $couponStatus)

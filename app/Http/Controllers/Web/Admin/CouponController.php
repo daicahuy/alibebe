@@ -32,11 +32,25 @@ class CouponController extends Controller
         $couponsIntrash = $this->couponService->countCouponInTrash();
     
         return view('admin.pages.coupons.list', compact('coupons', 'couponsIntrash'));
-    }    
+    }
+    
+    public function hide() {
+        $perPage = request('per_page', 10);
+        $sortField = request('sortField', 'id'); // Mặc định là 'id'
+        $sortDirection = request('sortDirection', 'DESC'); // Mặc định là 'DESC'
+        
+        // Lấy danh sách mã giảm giá dựa trên sắp xếp
+        $coupons = $this->couponService->getAllCouponsByStatus($perPage, $sortField, $sortDirection);
+        
+        // Đếm số mã giảm giá trong thùng rác
+        $couponsIntrash = $this->couponService->countCouponInTrash();
+    
+        return view('admin.pages.coupons.hide', compact('coupons', 'couponsIntrash'));
+    }
 
     public function show(Coupon $coupon)
     {
-        $coupon = $coupon->with('restriction')->findOrFail($coupon->id);
+        $coupon = $this->couponService->getCouponWithRelations($coupon->id,['restriction']);
         return view('admin.pages.coupons.show', compact('coupon'));
     }
 
