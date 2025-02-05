@@ -304,9 +304,10 @@ class CategoryController extends Controller
         $keyword = $request->get('_keyword');
         $keyword = trim($keyword);
         $perPage = $request->input('per_page', 5);
-
+        $sortBy = $request->input('sort', 'updated_at');
+        $order = $request->input('order', 'DESC');
         
-        $listCategory = $this->categoryService->search($keyword, $perPage);
+        $listCategory = $this->categoryService->search($keyword, $perPage,$sortBy,$order);
 
 
 

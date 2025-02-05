@@ -26,7 +26,7 @@ class CategoryService
 
 
     // List
-    public function index($perPage,$sortBy,$order)
+    public function index($perPage, $sortBy, $order)
     {
         // dd($perPage);
         try {
@@ -43,8 +43,8 @@ class CategoryService
             $countTrash = $this->categoryRepo->countTrash();
             $countHidden = $this->categoryRepo->countHidden();
             // return $listCategory;
-            return compact('listCategory','countTrash','countHidden');
-            
+            return compact('listCategory', 'countTrash', 'countHidden');
+
 
         } catch (\Throwable $th) {
 
@@ -636,20 +636,20 @@ class CategoryService
 
     }
     // search
-    public function search($keyword, $perPage = null)
+    public function search($keyword, $perPage = null, $sortBy, $order)
     {
 
         $perPageUse = $perPage ?? 5;
         $query = $this->categoryRepo->serach($keyword);
-        $listCategory = $query->paginate($perPageUse)->withQueryString();
+        $listCategory = $query->orderBy($sortBy, $order)->paginate($perPageUse)->withQueryString();
 
         $countTrash = $this->categoryRepo->countTrash();
         $countHidden = $this->categoryRepo->countHidden();
-        return compact('listCategory', 'keyword','countTrash','countHidden');
+        return compact('listCategory', 'keyword', 'countTrash', 'countHidden');
 
         // return $result;
 
-        
+
 
 
     }

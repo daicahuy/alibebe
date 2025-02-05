@@ -143,10 +143,12 @@
 
                                                 <td class="cursor-pointer">
                                                     <div class="form-check form-switch ps-0">
-                                                        <label class="switch switch-sm"><input type="checkbox"
-                                                                id="is_active" value="1"
-                                                                {{ $item->is_active == 1 ? 'checked' : '' }}><span
-                                                                class="switch-state"></span></label>
+                                                        <label class="switch switch-sm">
+                                                            <input type="checkbox" class="toggle-active" {{-- Class để bắt sự kiện jQuery --}}
+                                                                data-category-id="{{ $item->id }}" {{-- Data attribute chứa ID --}}
+                                                                {{ $item->is_active == 1 ? 'checked' : '' }}>
+                                                            <span class="switch-state"></span>
+                                                        </label>
                                                     </div>
                                                 </td>
                                                 <td class="cursor-pointer">
@@ -258,14 +260,54 @@
             // --- End Logic Checkbox ---
 
 
-            $('#btn-delete-all').on('click', function(e) {
+             // update Is_active Api
+             $('.toggle-active').change(function() {
+                let $this = $(this);
+                let categoryId = $this.data('category-id');
+                let isActive = $this.is(':checked') ? 1 : 0;
+                let csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                let confirmMessage = confirm("{{ __('message.confirm_move_to_trash_all_item') }}");
+                $.ajax({
+                    url: '/api/categories/' + categoryId + '/active',
+                    type: 'PATCH',
+                    data: {
+                        is_active: isActive,
+                        _token: csrfToken
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                        icon: 'success',
+                                        title: 'Thành công!',
+                                        html: response.message,
+                                        // timer: 1500, // Tự động đóng sau 1.5 giây
+                                        // showConfirmButton: false,
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                            // window.location.reload(); // Load lại trang
+                        } else {
+                            console.error(response.message);
+                            $this.prop('checked', !
+                                isActive); // Sửa ở đây: isActive (không có $)
+                            alert(response.message);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error("Lỗi AJAX: " + textStatus + ", " + errorThrown);
+                        $this.prop('checked', !isActive); // Sửa ở đây: isActive (không có $)
+                        if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                            alert(jqXHR.responseJSON.message);
+                        } else {
+                            alert("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+                        }
+                    }
+                });
+            });
 
-                if (confirmMessage) {
-                    console.log('Move to trash');
-                }
-            })
 
         });
         

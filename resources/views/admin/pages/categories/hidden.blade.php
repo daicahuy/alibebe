@@ -169,8 +169,7 @@
                                                     <label class="switch switch-sm">
                                                         <input type="checkbox" class="toggle-active" {{-- Class để bắt sự kiện jQuery --}}
                                                             data-category-id="{{ $cate->id }}" {{-- Data attribute chứa ID --}}
-                                                            {{ $cate->is_active == 1 ? 'checked' : '' }}
-                                                            {{-- ĐÂY LÀ THAY ĐỔI QUAN TRỌNG: BỎ THUỘC TÍNH name --}}>
+                                                            {{ $cate->is_active == 1 ? 'checked' : '' }}>
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>
@@ -375,8 +374,8 @@
             // })
             // --- End Logic Hide, Show Sub Category ---
 
-            // update Is_active Api
-            $('.toggle-active').change(function() {
+             // update Is_active Api
+             $('.toggle-active').change(function() {
                 let $this = $(this);
                 let categoryId = $this.data('category-id');
                 let isActive = $this.is(':checked') ? 1 : 0;
@@ -394,8 +393,16 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            console.log(response.message);
-                            window.location.reload(); // Load lại trang
+                            Swal.fire({
+                                        icon: 'success',
+                                        title: 'Thành công!',
+                                        html: response.message,
+                                        // timer: 1500, // Tự động đóng sau 1.5 giây
+                                        // showConfirmButton: false,
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                            // window.location.reload(); // Load lại trang
                         } else {
                             console.error(response.message);
                             $this.prop('checked', !
@@ -414,6 +421,7 @@
                     }
                 });
             });
+
 
 
         });

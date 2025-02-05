@@ -37,28 +37,31 @@
                         </div>
 
                         <!-- HEADER TABLE -->
-                        <form action="{{ route('admin.categories.search') }}" method="GET">
+                        <form action="{{ route('admin.categories.search') }}" method="GET" id="filter-form">
                             <div class="show-box">
                                 <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                    <form action="{{ route('admin.categories.index') }}" method="GET">
-                                        <input type="hidden" name="sort" id="sort"
-                                            value="{{ request('sort', 'updated_at') }}">
-                                        <input type="hidden" name="order" id="order"
-                                            value="{{ request('order', 'DESC') }}">
+                                    {{-- <form action="{{ route('admin.categories.index') }}" method="GET"  id="filter-form"> --}}
 
-                                        <select class="form-control" name="per_page" onchange="this.form.submit()">
-                                            {{-- Thêm name và onchange --}}
-                                            <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5
-                                            </option>
-                                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10
-                                            </option>
-                                            <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15
-                                            </option>
-                                            {{-- <option value="all" {{ request('per_page')=='all' ? 'selected' : '' }}>Tất
+                                    <input type="hidden" name="sort" id="sort"
+                                        value="{{ request('sort', 'updated_at') }}">
+                                    <input type="hidden" name="order" id="order"
+                                        value="{{ request('order', 'DESC') }}">
+                                    <input type="hidden" name="_keyword" value="{{ request('_keyword') }}">
+                                    {{-- Giữ lại _keyword --}}
+
+                                    <select class="form-control" name="per_page" onchange="this.form.submit()">
+                                        {{-- Thêm name và onchange --}}
+                                        <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5
+                                        </option>
+                                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10
+                                        </option>
+                                        <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15
+                                        </option>
+                                        {{-- <option value="all" {{ request('per_page')=='all' ? 'selected' : '' }}>Tất
                                             cả --}}
-                                            </option>
-                                        </select>
-                                    </form>
+                                        </option>
+                                    </select>
+                                    {{-- </form> --}}
 
                                     <label>{{ __('message.items_per_page') }}</label>
                                     <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
@@ -135,16 +138,18 @@
                                             {{ __('form.category.name') }}
                                             <div class="filter-arrow" onclick="sortTable('name')">
                                                 <div>
-                                                    <i class="ri-arrow-{{ request('sort') === 'name' && request('order') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
-                                                </a>
+
+                                                    <i
+                                                        class="ri-arrow-{{ request('sort') === 'name' && request('order') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
+
                                                 </div>
                                             </div>
                                         </th>
                                         <th>
                                             {{ __('form.category.is_active') }}
-                                            <div class="filter-arrow">
+                                            {{-- <div class="filter-arrow">
                                                 <div><i class="ri-arrow-up-s-fill"></i></div>
-                                            </div>
+                                            </div> --}}
                                         </th>
                                         <th>{{ __('form.category.created_at') }}</th>
                                         <th>{{ __('form.category.updated_at') }}</th>
@@ -274,27 +279,25 @@
 
 @push('js_library')
     <script>
-        // sắp xếp
-        function sortTable(column) {
-            // Lấy URL hiện tại
-            let url = new URL(window.location.href);
-
-            // Kiểm tra chiều sắp xếp hiện tại
-            let currentDirection = url.searchParams.get('order') || 'desc';
-            let newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
-
-            // Cập nhật query parameters
-            url.searchParams.set('sort', column);
-            url.searchParams.set('order', newDirection);
-
-            // Điều hướng tới URL mới
-            window.location.href = url.toString();
-        }
     </script>
 @endpush
 
 @push('js')
     <script>
+        // sort name
+        function sortTable(column) {
+            const form = document.getElementById('filter-form');
+            const sortInput = document.getElementById('sort');
+            const orderInput = document.getElementById('order');
+
+            let newOrder = (sortInput.value === column && orderInput.value === 'asc') ? 'desc' : 'asc';
+
+            sortInput.value = column;
+            orderInput.value = newOrder;
+
+            form.submit();
+        }
+        
         $(document).ready(function() {
 
 
@@ -441,8 +444,16 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            console.log(response.message);
-                            window.location.reload(); // Load lại trang
+                            Swal.fire({
+                                        icon: 'success',
+                                        title: 'Thành công!',
+                                        html: response.message,
+                                        // timer: 1500, // Tự động đóng sau 1.5 giây
+                                        // showConfirmButton: false,
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                            // window.location.reload(); // Load lại trang
                         } else {
                             console.error(response.message);
                             $this.prop('checked', !
