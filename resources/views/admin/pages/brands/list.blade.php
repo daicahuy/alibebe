@@ -49,7 +49,7 @@
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
                                 <select class="form-control" id="per_page">
-                                    <option value="10" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
+                                    <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
                                     <option value="30" {{ request('per_page') == 30 ? 'selected' : '' }}>30</option>
                                     <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                                     <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
@@ -98,7 +98,7 @@
                                                         class="custom-control-input checkbox_animated">
                                                 </div>
                                             </th>
-                                            <th class="sm-width">{{ __('form.brand.id') }}</th>
+                                            <th class="sm-width">STT</th>
                                             <th>{{ __('form.brand.logo') }}</th>
                                             <th class="cursor-pointer">
                                                 {{ __('form.brand.name') }}
@@ -153,6 +153,9 @@
                                                 </td>
                                             </tr>
                                         @else
+                                        @php
+                                                $index = $brands->total() - ($brands->currentPage() - 1) * $brands->perPage();
+                                            @endphp
                                             @foreach ($brands as $brand)
                                                 <tr>
                                                     <td>
@@ -163,7 +166,7 @@
                                                         </div>
                                                     </td>
                                                     <td class="cursor-pointer sm-width">
-                                                        {{ $brand->id }}
+                                                        {{ $index-- }}
                                                     </td>
                                                     <td class="cursor-pointer sm-width">
                                                         <img alt="image" class="tbl-image "

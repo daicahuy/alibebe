@@ -18,7 +18,7 @@ class TagController extends Controller
     public function index(Request $request)
     {
         $keyWord = $request->input('_keyword');
-        $perPage = $request->get('per_page',10);
+        $perPage = $request->get('per_page',15);
         $sort = $request->get('sort', 'created_at'); // Lấy giá trị cột cần sắp xếp, mặc định là `name`
         $order = $request->get('order', 'desc'); // Lấy giá trị thứ tự sắp xếp, mặc định là `desc`
         $tags = $this->tagService->listTag15($perPage, $keyWord,$sort,$order);
