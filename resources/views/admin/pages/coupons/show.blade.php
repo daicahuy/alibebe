@@ -89,13 +89,13 @@
                                 <div class="col-sm-6">
                                     <label for="start-date" class="form-label">{{ __('form.coupon.start_date') }}:</label>
                                     <input type="text" id="start-date" class="form-control"
-                                        value=" {{ $coupon->start_date? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}"
+                                        value=" {{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}"
                                         readonly>
                                 </div>
                                 <div class="col-sm-6">
                                     <label for="end-date" class="form-label">{{ __('form.coupon.end_date') }}:</label>
                                     <input type="text" id="end-date" class="form-control"
-                                        value="{{ $coupon->end_date? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}"
+                                        value="{{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}"
                                         readonly>
                                 </div>
                             </div>
@@ -138,9 +138,12 @@
                         {{-- Tab 2: Bảng Ràng Buộc --}}
                         @php
                             $fieldsMapping = [
+                                'coupon_id' => 'Id Mã Giảm Giá',
                                 'updated_at' => 'Cập Nhật Lần Cuối',
                                 'deleted_at' => 'Đã Xóa',
                                 'created_at' => 'Ngày Tạo',
+                                'valid_categories' => 'Danh Mục Hợp Lệ',
+                                'valid_products' => 'Sản Phẩm Hợp Lệ',
                                 'max_discount_value' => 'Hạn Mức Tối Đa',
                                 'min_order_value' => 'Giá Trị Đơn Hàng Tối Thiểu',
                             ];
@@ -165,15 +168,26 @@
                                             <td>
                                                 @switch($key)
                                                     @case('updated_at')
-                                                        {{ isset($value) ? $value : 'N/A' }}
-                                                    @break
-
                                                     @case('deleted_at')
-                                                        {{ isset($value) ? $value : 'N/A' }}
-                                                    @break
 
                                                     @case('created_at')
                                                         {{ isset($value) ? $value : 'N/A' }}
+                                                    @break
+
+                                                    @case('valid_categories')
+                                                        <ul>
+                                                            @foreach ($coupon->categories as $category)
+                                                                <li>ID: {{ $category->id }}, Tên {{ $category->name }}</li>
+                                                            @endforeach
+                                                        </ul>
+                                                    @break
+
+                                                    @case('valid_products')
+                                                        <ul>
+                                                            @foreach ($coupon->products as $product)
+                                                                <li>ID: {{ $product->id }}, Tên {{ $product->name }}</li>
+                                                            @endforeach
+                                                        </ul>
                                                     @break
 
                                                     @default
@@ -182,7 +196,6 @@
                                             </td>
                                         </tbody>
                                     @endforeach
-
                                 </table>
                             </div>
                         </div>

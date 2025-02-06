@@ -3,7 +3,10 @@
 namespace App\Repositories;
 
 use App\Enums\UserGroupType;
+use App\Models\Category;
 use App\Models\Coupon;
+use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 
 class CouponRepository extends BaseRepository
 {
@@ -11,7 +14,36 @@ class CouponRepository extends BaseRepository
     {
         return Coupon::class;
     }
-
+    // lấy tất cả sản phẩm chỉ có is_active
+    public function paginationIsActive(
+        array $columns = ['*'],
+        int $perPage = 15,
+        array $orderBy = ['id', 'DESC'],
+        array $relations = [],
+    )
+    {
+        return $this->model->select($columns)
+            ->with($relations)
+            ->where('is_active',1)
+            ->orderBy($orderBy[0], $orderBy[1])
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+    // Lấy Sản Phẩm không hoạt động
+    public function paginationNoIsActive(
+        array $columns = ['*'],
+        int $perPage = 15,
+        array $orderBy = ['id', 'DESC'],
+        array $relations = [],
+    )
+    {
+        return $this->model->select($columns)
+            ->with($relations)
+            ->where('is_active',0)
+            ->orderBy($orderBy[0], $orderBy[1])
+            ->paginate($perPage)
+            ->withQueryString();
+    }
     // tìm kiểm tên hoặc mô tả mã giảm giá 
     public function searchCoupon($searchKey, $perPage)
     {
@@ -89,5 +121,46 @@ class CouponRepository extends BaseRepository
     public function updateCouponsStatus($ids, array $data)
     {
         return $this->model->withTrashed()->whereIn('id', $ids)->update($data);
+    }
+
+    // lấy các coupon nằm trong thùng rác > 7 ngày
+    public function getCouponTrashedOlderThanDays($days)
+    {
+        return $this->model->onlyTrashed()
+            ->with(['users', 'restriction']) // eager load các quan hệ
+            ->where('deleted_at', '<=', now()->subDays($days))
+            ->get();
+    }
+
+    // Xem Chi Tiết Của Coupon
+    public function findCounPonWithRelations($id, array $relations) {
+        // Tìm coupon theo ID và eager load các quan hệ được truyền vào
+        $coupon = $this->model->with($relations)
+            ->findOrFail($id); // Trả về coupon hoặc lỗi nếu không tìm thấy
+
+        // Chuyển valid_categories từ JSON thành mảng ID
+        $validCategoryIds = json_decode($coupon->restriction->valid_categories, true);
+        $validProductIds = json_decode($coupon->restriction->valid_products, true);
+
+        // Lấy danh sách các danh mục từ các ID
+        $categories = Category::whereIn('id', $validCategoryIds)->get(['id', 'name']);
+
+        // Lấy danh sách các sản phẩm từ các ID
+        $products = Product::whereIn('id', $validProductIds)->get(['id', 'name']);
+
+        // Gán danh mục và sản phẩm vào coupon để dễ dàng truy cập trong view
+        $coupon->categories = $categories;
+        $coupon->products = $products;
+        
+        return $coupon;
+    }
+    
+    // xóa các coupon trong thùng rác > 7 ngày
+    public function forceDeleteOlderThanDays($days) {
+        $coupons = $this->getCouponTrashedOlderThanDays($days);
+        Log::info("Coupons : " . $coupons);
+        $coupons->each(function  ($coupon) {
+            $coupon->forceDelete();
+        });
     }
 }

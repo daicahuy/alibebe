@@ -24,19 +24,34 @@ class CouponController extends Controller
         $perPage = request('per_page', 10);
         $sortField = request('sortField', 'id'); // Mặc định là 'id'
         $sortDirection = request('sortDirection', 'DESC'); // Mặc định là 'DESC'
-        
+
         // Lấy danh sách mã giảm giá dựa trên sắp xếp
         $coupons = $this->couponService->getAllCoupons($perPage, $sortField, $sortDirection);
-        
+
         // Đếm số mã giảm giá trong thùng rác
         $couponsIntrash = $this->couponService->countCouponInTrash();
-    
+
         return view('admin.pages.coupons.list', compact('coupons', 'couponsIntrash'));
-    }    
+    }
+
+    public function hide()
+    {
+        $perPage = request('per_page', 10);
+        $sortField = request('sortField', 'id'); // Mặc định là 'id'
+        $sortDirection = request('sortDirection', 'DESC'); // Mặc định là 'DESC'
+
+        // Lấy danh sách mã giảm giá dựa trên sắp xếp
+        $coupons = $this->couponService->getAllCouponsByStatus($perPage, $sortField, $sortDirection);
+
+        // Đếm số mã giảm giá trong thùng rác
+        $couponsIntrash = $this->couponService->countCouponInTrash();
+
+        return view('admin.pages.coupons.hide', compact('coupons', 'couponsIntrash'));
+    }
 
     public function show(Coupon $coupon)
     {
-        $coupon = $coupon->with('restriction')->findOrFail($coupon->id);
+        $coupon = $this->couponService->getCouponWithRelations($coupon->id, ['restriction']);
         return view('admin.pages.coupons.show', compact('coupon'));
     }
 
@@ -85,10 +100,10 @@ class CouponController extends Controller
 
     public function update(UpdateCouponRequest $request, Coupon $coupon)
     {
-        $result = $this->couponService->update($request->validated(),$coupon->id);
+        $result = $this->couponService->update($request->validated(), $coupon->id);
 
         if ($result['status']) {
-            return redirect()->route('admin.coupons.edit',$coupon)->with('success', $result['message']);
+            return redirect()->route('admin.coupons.edit', $coupon)->with('success', $result['message']);
         } else {
             return back()->withErrors(['message' => $result['message']]);
         }
@@ -123,8 +138,8 @@ class CouponController extends Controller
         $perPage = request('per_page', 10);
         $sortField = request('sortField', 'id'); // Mặc định là 'id'
         $sortDirection = request('sortDirection', 'DESC'); // Mặc định là 'DESC'
-        
-        $coupons = $this->couponService->getAllCouponsInTrash($perPage,$sortField,$sortDirection);
+
+        $coupons = $this->couponService->getAllCouponsInTrash($perPage, $sortField, $sortDirection);
         return view('admin.pages.coupons.trash', compact('coupons'));
     }
 
@@ -175,24 +190,19 @@ class CouponController extends Controller
 
     public function searchCoupon()
     {
-        // Lấy searchKey từ query string (nếu có)
-        $searchKey = request('searchKey', '');
-        $searchKey = trim($searchKey);
-        $perPage = request('per_page', 10); // Đặt số lượng bản ghi trên mỗi trang
+        // Gọi service để tìm kiếm và xử lý logic
+        $result = $this->couponService->searchCouponWithSeachKey();
 
-        // Lấy kết quả tìm kiếm với phân trang
-        $coupons = $this->couponService->searchCouponWithSeachKey($searchKey, $perPage);
-
-        // Đảm bảo tham số searchKey và perPage vẫn xuất hiện trong URL khi phân trang
-        $coupons = $coupons->appends([
-            'searchKey' => $searchKey,
-            'per_page' => $perPage,
-        ]);
-
-        // Trả về view với dữ liệu phân trang và từ khóa tìm kiếm (nếu có)
-        return view('admin.pages.coupons.list', compact('coupons', 'searchKey'));
+        // Kiểm tra kết quả trả về từ service
+        if ($result['status']) {
+            return view('admin.pages.coupons.list', [
+                'coupons' => $result['coupons'],
+                'couponsIntrash' => $result['couponsIntrash'],
+            ]);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
     }
-
     // api
     public function apiUpdateStatus($id)
     {

@@ -89,40 +89,93 @@
                                     </th>
                                     <th class="sm-width cursor-pointer">
                                         <a
-                                            href="{{ route('admin.coupons.index', ['sortField' => 'id', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                            href="{{ route('admin.coupons.trash', ['sortField' => 'id', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
                                             ID
                                             @if (request('sortField') === 'id')
-                                                <span>{{ request('sortDirection') === 'asc' ? '▲' : '▼' }}</span>
+                                                <div class="filter-arrow">
+                                                    <div>
+                                                        <i
+                                                            class="ri-arrow-{{ request('sortDirection') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
+                                                    </div>
+                                                </div>
                                             @endif
                                         </a>
                                     </th>
                                     <th class="cursor-pointer">
-                                        <a href="{{route('admin.coupons.index',['sortField' => 'code','sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc'])}}">
-                                            Mã
+                                        <a
+                                            href="{{ route('admin.coupons.trash', ['sortField' => 'code', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                            {{__('form.coupon.code')}}
                                             @if (request('sortField') === 'code')
-                                                <span>{{ request('sortDirection') === 'asc' ? '▲' : '▼' }}</span>
+                                                <div class="filter-arrow">
+                                                    <div>
+                                                        <i
+                                                            class="ri-arrow-{{ request('sortDirection') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
+                                                    </div>
+                                                </div>
                                             @endif
                                         </a>
                                     </th>
                                     <th class="cursor-pointer">
-                                        <a href="{{route('admin.coupons.index',['sortField' => 'title','sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc'])}}">
-                                           Tiêu Đề
+                                        <a
+                                            href="{{ route('admin.coupons.trash', ['sortField' => 'title', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                            {{__('form.coupon.title')}}
                                             @if (request('sortField') === 'title')
-                                                <span>{{ request('sortDirection') === 'asc' ? '▲' : '▼' }}</span>
+                                                <div class="filter-arrow">
+                                                    <div>
+                                                        <i
+                                                            class="ri-arrow-{{ request('sortDirection') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
+                                                    </div>
+                                                </div>
                                             @endif
                                         </a>
                                     </th>
-                                    <th class="cursor-pointer"> Loại Giảm Giá</th>
-                                    <th class="cursor-pointer"> Giá Trị Giảm Giá</th>
-                                    <th>Đang Hoạt Động</th>
-                                    <th class="cursor-pointer"> Ngày Bắt Đầu</th>
-                                    <th class="cursor-pointer"> Ngày Kết Thúc</th>
-                                    <th class="cursor-pointer"> Ngày Xóa</th>
+                                    <th>{{__('form.coupon.is_active')}}</th>
+                                    <th class="cursor-pointer">
+                                        <a
+                                            href="{{ route('admin.coupons.trash', ['sortField' => 'start_date', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                            {{__('form.coupon.start_date')}}
+                                            @if (request('sortField') === 'start_date')
+                                                <div class="filter-arrow">
+                                                    <div>
+                                                        <i
+                                                            class="ri-arrow-{{ request('sortDirection') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="cursor-pointer">
+                                        <a
+                                        href="{{ route('admin.coupons.trash', ['sortField' => 'end_date', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                        {{__('form.coupon.end_date')}}
+                                        @if (request('sortField') === 'end_date')
+                                            <div class="filter-arrow">
+                                                <div>
+                                                    <i
+                                                        class="ri-arrow-{{ request('sortDirection') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </a>
+                                    <th class="cursor-pointer">
+                                        <a
+                                        href="{{ route('admin.coupons.trash', ['sortField' => 'deleted_at', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                        {{__('form.coupon.deleted_at')}}
+                                        @if (request('sortField') === 'deleted_at')
+                                            <div class="filter-arrow">
+                                                <div>
+                                                    <i
+                                                        class="ri-arrow-{{ request('sortDirection') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </a>
+                                    </th>
                                     <th>Hành Động</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (!$coupons)
+                                @if ($coupons->isEmpty())
                                     <tr>
                                         <td colspan="10">Không có mã giảm giá nào trong thùng rác.</td>
                                     </tr>
@@ -143,14 +196,6 @@
                                                 <div>{{ $coupon->title }}</div>
                                             </td>
                                             <td class="cursor-pointer">
-                                                <div>
-                                                    {{ $coupon->discount_type === 0 ? 'Tiền' : 'Phần Trăm' }}
-                                                </div>
-                                            </td>
-                                            <td class="cursor-pointer">
-                                                <div>{{ $coupon->discount_value }}</div>
-                                            </td>
-                                            <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch switch-sm">
                                                         <input type="checkbox" id="status-{{ $coupon->id }}"
@@ -161,13 +206,13 @@
                                                 </div>
                                             </td>
                                             <td class="cursor-pointer">
-                                                {{ $coupon->start_date? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}
+                                                {{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}
                                             </td>
                                             <td class="cursor-pointer">
-                                                {{ $coupon->end_date? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}
+                                                {{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}
                                             </td>
                                             <td class="cursor-pointer">
-                                                {{ $coupon->deleted_at? \Carbon\Carbon::parse($coupon->deleted_at)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A'): 'N/A' }}
+                                                {{ $coupon->deleted_at ? \Carbon\Carbon::parse($coupon->deleted_at)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}
                                             </td>
                                             <td>
                                                 <ul id="actions">

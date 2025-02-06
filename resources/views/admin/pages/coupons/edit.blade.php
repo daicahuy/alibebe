@@ -261,7 +261,9 @@
                                                         <label class="switch">
                                                             <input type="checkbox" id="is_apply_all" name="is_apply_all"
                                                                 formcontrolname="is_apply_all"
-                                                                {{ old('user_group', $coupon->user_group) == '0' ? 'checked' : '' }}
+                                                                @if (count($products) === count($selectedProducts))
+                                                                    checked
+                                                                @endif
                                                                 class="ng-untouched ng-pristine ng-valid">
                                                             <span class="switch-state"></span>
                                                         </label>
@@ -383,7 +385,7 @@
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch">
                                                             <input type="checkbox" id="is_unlimited"
-                                                                formcontrolname="is_unlimited" value=""
+                                                                formcontrolname="is_unlimited" value="" disabled
                                                                 class="ng-untouched ng-pristine ng-valid">
                                                             <span class="switch-state"></span>
                                                         </label>
@@ -398,6 +400,7 @@
                                                 <div class="col-sm-9">
                                                     <input type="number" id="usage_limit" name="usage_limit"
                                                         formcontrolname="usage_limit"
+                                                        value="{{ old('usage_limit', $coupon->usage_limit) }}"
                                                         class="form-control ng-untouched ng-pristine ng-valid @error('usage_limit')
                                                             in-valid
                                                         @enderror"
