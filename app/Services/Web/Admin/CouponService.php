@@ -57,7 +57,7 @@ class CouponService
     {
         return $this->couponRepository
             ->paginationIsActive(['*'], $perPage, [$sortField, $sortDirection], ['orders', 'users', 'restriction']);
-    }
+    } 
     // Lất Tất Cả Dữ Liệu Mã Giảm Giá cùng với các Mối Quan Hệ (orders , users , restriction)
     public function getAllCouponsByStatus($perPage, $sortField = 'id', $sortDirection = 'DESC')
     {
@@ -210,6 +210,15 @@ class CouponService
             ];
 
             // Lưu thông tin mã giảm giá vào bảng coupons
+            $coupon = $this->couponRepository->findByIdWithRelation($couponId,['restriction','orders','users']);
+
+            if ($coupon->orders()->exists()) {
+                return [
+                    'status' => false,
+                    'message' => 'Mã Này Đang Được Sử Dụng, Không Được Chỉnh Sửa !!!'
+                ];
+            }
+            
             $coupon = $this->couponRepository->findByIdWithRelation($couponId, ['restriction', 'orders', 'users']);
 
             if ($coupon->orders()->exists()) {
@@ -319,12 +328,14 @@ class CouponService
         try {
             $coupon = $this->couponRepository->findByIdWithRelation($couponId, ['restriction', 'orders']);
 
+
             if ($coupon->orders()->exists()) {
                 return [
                     'status' => false,
                     'message' => 'Mã Này Đang Được Sử Dụng, Không Được Xóa !!!'
                 ];
             }
+
 
             $this->couponRepository->update($couponId, [
                 'is_active' => 0
@@ -358,12 +369,14 @@ class CouponService
         try {
             $coupon = $this->couponRepository->findCouponDestroyedWithRelation($couponId, ['restriction']);
 
+
             if ($coupon->orders()->exists()) {
                 return [
                     'status' => false,
                     'message' => 'Mã Này Đang Được Sử Dụng, Không Được Xóa !!!'
                 ];
             }
+
 
             if ($coupon->restriction) {
                 $coupon->restriction->forceDelete();
@@ -525,6 +538,7 @@ class CouponService
         }
     }
     // khôi phục tất cả mã giảm giá đã xóa
+    // khôi phục tất cả mã giảm giá đã xóa
     public function restoreSelectedCoupon($couponIds)
     {
         try {
@@ -621,7 +635,7 @@ class CouponService
         try {
             // Gọi repository để xóa các coupon trong thùng rác > $days ngày
             $this->couponRepository->forceDeleteOlderThanDays($days);
-
+    
             // Trả về phản hồi khi thành công
             return [
                 'message' => 'Xóa thành công các mã giảm giá cũ!',
@@ -633,7 +647,7 @@ class CouponService
                 'days' => $days,
                 'error' => $th->getMessage()
             ]);
-
+    
             // Trả về phản hồi khi có lỗi
             return [
                 'message' => 'Có lỗi xảy ra, vui lòng thử lại!',
@@ -641,7 +655,7 @@ class CouponService
             ];
         }
     }
-
+    
     // API - update status 
 
     public function apiUpdateStatus(string $id, $couponStatus)
