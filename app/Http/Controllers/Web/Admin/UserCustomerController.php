@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\Admin;
 
 use App\Enums\UserStatusType;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\LockUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
 use App\Services\Web\Admin\UserCustomerService;
@@ -20,17 +21,19 @@ class UserCustomerController extends Controller
 
     public function index(Request $request)
     {
-
-        $ListUsers = $this->userService->getUsersActivate($request);
+        $limit = $request->input('limit', 15);
+        $ListUsers = $this->userService->getUsersActivate($request, $limit);
         $totalUserLock = $this->userService->countUserLock();
-        return view('admin.pages.userCustomer.list', compact('ListUsers', 'totalUserLock'));
+
+        return view('admin.pages.userCustomer.list', compact('ListUsers', 'totalUserLock', 'limit'));
     }
+
 
     public function lock(Request $request)
     {
-
-        $UsersLock = $this->userService->getUsersLock($request);
-        return view('admin.pages.userCustomer.lock', compact('UsersLock'));
+        $limit = $request->input('limit', 15);
+        $UsersLock = $this->userService->getUsersLock($request, $limit);
+        return view('admin.pages.userCustomer.lock', compact('UsersLock', 'limit'));
     }
 
     public function show(User $user)
@@ -80,14 +83,48 @@ class UserCustomerController extends Controller
 
             $this->userService->UpdateUser($user->id, ['status' => UserStatusType::LOCK]);
             return redirect()->back()->with('success', 'Đã khóa thành công !');
-
         } else if ($lock->status == UserStatusType::LOCK) {
 
             $this->userService->UpdateUser($user->id, ['status' => UserStatusType::ACTIVE]);
             return redirect()->back()->with('success', 'Đã mở khóa thành công !');
-
-        }else{
+        } else {
             return redirect()->back()->with('error', 'Thất bại xin kiểm tra lại');
         }
+    }
+    public function lockMultipleUsers(LockUserRequest $request)
+    {
+        $validated = $request->validated();
+
+        $this->userService->UpdateUser($validated['user_ids'], ['status' => UserStatusType::LOCK]);
+
+        return response()->json([
+            'message' => ('Đã khóa thành công')
+        ]);
+    }
+
+    public function unLockMultipleUsers(LockUserRequest $request)
+    {
+        $validated = $request->validated();
+
+        $this->userService->UpdateUser($validated['user_ids'], ['status' => UserStatusType::ACTIVE]);
+
+        return response()->json([
+            'message' => ('Đã mở khóa thành công !')
+        ]);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $userId = $request->id;
+        $status = $request->status;
+
+        $data = ['status' => $status];
+
+        $result = $this->userService->UpdateUser($userId, $data);
+
+        return response()->json([
+            'success' => $result ? true : false,
+            'message' => $result ? 'Cập nhật trạng thái thành công' : 'Không thể cập nhật trạng thái'
+        ]);
     }
 }

@@ -17,9 +17,8 @@ class UserCustomerRepository extends BaseRepository
     }
 
 
-    public function getUsersActivate(Request $request)
+    public function getUsersActivate(Request $request, $limit)
     {
-        $limit = 15;
         $query = $this->model
             ->where('status', UserStatusType::ACTIVE)
             ->where('role', UserRoleType::CUSTOMER);
@@ -33,10 +32,20 @@ class UserCustomerRepository extends BaseRepository
             });
         }
 
-        return $query->orderBy('id', 'DESC')
-            ->paginate($limit)
-            ->withQueryString();
+        // Lấy giá trị sắp xếp từ request
+        $sortField = $request->input('sort_field');
+        $sortOrder = $request->input('sort_order', 'desc'); // Mặc định giảm dần
+
+        if ($sortField === 'fullname') {
+            $query->orderBy('fullname', $sortOrder);
+        } else {
+            $query->orderBy('id', 'DESC'); // Quay về mặc định
+        }
+
+        return $query->paginate($limit)->withQueryString();
     }
+
+
 
     public function showUser(int $id, array $columns = ['*'])
     {
@@ -46,9 +55,8 @@ class UserCustomerRepository extends BaseRepository
         );
     }
 
-    public function getUserLock(Request $request)
+    public function getUserLock(Request $request, $limit)
     {
-        $limit = 15;
         $query = $this->model
             ->where('status', UserStatusType::LOCK)
             ->where('role', UserRoleType::CUSTOMER);
@@ -62,9 +70,16 @@ class UserCustomerRepository extends BaseRepository
             });
         }
 
-        return $query->orderBy('id', 'DESC')
-            ->paginate($limit)
-            ->withQueryString();
+        $sortField = $request->input('sort_field');
+        $sortOrder = $request->input('sort_order', 'desc'); // Mặc định giảm dần
+
+        if ($sortField === 'fullname') {
+            $query->orderBy('fullname', $sortOrder);
+        } else {
+            $query->orderBy('id', 'DESC'); // Quay về mặc định
+        }
+
+        return $query->paginate($limit)->withQueryString();
     }
 
     public function countUserLock()
@@ -73,5 +88,9 @@ class UserCustomerRepository extends BaseRepository
             ->where('status', UserStatusType::LOCK)
             ->where('role', UserRoleType::CUSTOMER)
             ->count();
+    }
+    public function listByIds(array $ids, $status)
+    {
+        return $this->model->whereIn('id', $ids)->update(['status' => $status]);
     }
 }

@@ -215,6 +215,14 @@ Route::prefix('/admin')
 
                         Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
 
+                        Route::post('lock-multiple',  'lockMultipleUsers')->name('lockMultipleUsers');
+
+                        Route::post('unLock-multiple',  'unLockMultipleUsers')->name('unLockMultipleUsers');
+
+                        Route::post('update-status',  'updateStatus')->name('update-status');
+
+
+
                     });
 
                     Route::prefix('/employee')
@@ -237,6 +245,14 @@ Route::prefix('/admin')
                         Route::get('/lock', 'lock')->name('lock');
 
                         Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
+
+                        Route::post('lock-multiple',  'lockMultipleUsers')->name('lockMultipleUsers');
+
+                        Route::post('unLock-multiple',  'unLockMultipleUsers')->name('unLockMultipleUsers');
+
+                        Route::post('update-status',  'updateStatus')->name('update-status');
+
+
 
                     });
 

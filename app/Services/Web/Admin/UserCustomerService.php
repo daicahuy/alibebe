@@ -15,18 +15,19 @@ class UserCustomerService
         $this->userRepository = $userRepository;
     }
 
-    public function getUsersActivate(Request $request)
+    public function getUsersActivate(Request $request, $limit)
 {
-    return $this->userRepository->getUsersActivate($request);
+    return $this->userRepository->getUsersActivate($request, $limit);
 }
+
 
     public function showUser(int $id, array $columns = ['*'])
     {
         return $this->userRepository->showUser($id, $columns);
     }
-    public function getUsersLock(Request $request)
+    public function getUsersLock(Request $request, $limit)
     {
-        return $this->userRepository->getUserLock($request);
+        return $this->userRepository->getUserLock($request,$limit);
     }
 
     public function countUserLock()
@@ -34,15 +35,20 @@ class UserCustomerService
         return $this->userRepository->countUserLock();
     }
 
-    public function UpdateUser($id, $data)
+    public function UpdateUser($ids, $data)
     {
         try {
-
-            return $this->userRepository->update($id, $data);
+            
+            if (is_array($ids)) {
+                return $this->userRepository->listByIds($ids, $data['status']);
+            }
+    
+            return $this->userRepository->update($ids, $data);
         } catch (\Throwable $th) {
             Log::error($th);
             return false;
         }
+    
     }
-  
+
 }
