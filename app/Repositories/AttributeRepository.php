@@ -16,7 +16,33 @@ class AttributeRepository extends BaseRepository
     public function getAllAttributeRepository($perpage = 15, $filter = null, $keyword = null, $sortColumn = null, $sortDirection = 'desc')
     {
         // Khởi tạo query
-        $attributes = Attribute::with('attributeValues');
+        $attributes = Attribute::with('attributeValues')->where('is_active', 1);
+    
+        // Áp dụng bộ lọc nếu có
+        if ($filter !== null) {
+            $attributes->where('is_variant', $filter);
+        }
+    
+        // Áp dụng tìm kiếm nếu có từ khóa
+        if ($keyword) {
+            $attributes->where('name', 'LIKE', "%$keyword%");
+        }
+    
+        // Áp dụng sắp xếp nếu có
+        if ($sortColumn) {
+            $attributes->orderBy($sortColumn, $sortDirection);
+        } else {
+            $attributes->orderBy('id', 'desc'); // Mặc định sắp xếp theo id giảm dần
+        }
+    
+        // Phân trang
+        return $attributes->paginate($perpage);
+    }
+
+    public function hidden($perpage = 15, $filter = null, $keyword = null, $sortColumn = null, $sortDirection = 'desc')
+    {
+        // Khởi tạo query
+        $attributes = Attribute::with('attributeValues')->where('is_active', 0);
     
         // Áp dụng bộ lọc nếu có
         if ($filter !== null) {

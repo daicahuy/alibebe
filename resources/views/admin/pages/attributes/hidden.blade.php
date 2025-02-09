@@ -18,7 +18,16 @@
 {{-- ================================== --}}
 
 @section('content')
-
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class="container-fuild">
         <div class="row">
             <div class="col-sm-12">
@@ -26,50 +35,37 @@
                     <div class="card-body">
                         <div class="title-header">
                             <div class="d-flex align-items-center">
-                                <h5>
-                                    <a class="link"
+                                <h5> <a class="link"
                                         href="{{ route('admin.attributes.index') }}">{{ __('form.attributes') }}</a>
-                                    <span class="fs-6 fw-light">></span> {{ $attribute->name }}
-
+                                    <span class="fs-6 fw-light">></span> Ẩn
                                 </h5>
                             </div>
-                            <div>
-                                <a class="align-items-center btn btn-theme d-flex"
-                                    href="{{ route('admin.attributes.attribute_values.create', ['attribute' => $attribute->id]) }}">
-                                    <i class="ri-add-line"></i>
-                                    {{ __('message.add') . ' ' . __('form.attribute_values') }}
-                                </a>
-                            </div>
+
                         </div>
 
                         <!-- HEADER TABLE -->
                         @php
-                            // Lấy tất cả tham số hiện tại (trừ 'perpage')
-                            $queryParams = request()->except('perpage');
+                        // Lấy tất cả tham số hiện tại (trừ 'perpage')
+                        $queryParams = request()->except('perpage');
                         @endphp
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
                                 <select class="form-control" onchange="window.location.href=this.value;">
-                                    <option
-                                        value="{{ route('admin.attributes.attribute_values.index', ['attribute' => $attribute->id, 'perpage' => 15]) }}"
+                                    <option value="{{ route('admin.attributes.hidden', ['perpage' => 15]) }}"
                                         @if (request()->input('perpage') == 15) selected @endif>
                                         15
                                     </option>
-                                    <option
-                                        value="{{ route('admin.attributes.attribute_values.index', ['attribute' => $attribute->id, 'perpage' => 30]) }}"
+                                    <option value="{{ route('admin.attributes.hidden', ['perpage' => 30]) }}"
                                         @if (request()->input('perpage') == 30) selected @endif>
                                         30
                                     </option>
-                                    <option
-                                        value="{{ route('admin.attributes.attribute_values.index', ['attribute' => $attribute->id, 'perpage' => 45]) }}"
+                                    <option value="{{ route('admin.attributes.hidden', ['perpage' => 45]) }}"
                                         @if (request()->input('perpage') == 45) selected @endif>
                                         45
                                     </option>
                                 </select>
                                 <label>{{ __('message.items_per_page') }}</label>
-                                <form
-                                    action="{{ route('admin.attributes.attribute_values.destroy', ['attribute' => $attribute->id]) }}"
-                                    method="POST" id="delete-all-form">
+                                <form action="{{ route('admin.attributes.destroy') }}" method="POST" id="delete-all-form">
                                     @csrf
                                     @method('DELETE')
 
@@ -81,20 +77,40 @@
                                     </button>
 
                                 </form>
-
                             </div>
-                            <a href="{{ route('admin.attributes.attribute_values.hidden', ['attribute' => $attribute->id]) }}"
-                                class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2">
-                                Ẩn
-                            </a>
                             <div class="datepicker-wrap">
 
+                            </div>
+
+                            <!-- Start Switch Button -->
+                            @component('components.button-switch-react', [
+                                'viewOnly1' => __('message.all'),
+                                'viewOnly2' => __('message.attribute_only'),
+                                'with' => 170,
+                            ])
+                            @endcomponent
+                            <!-- End Switch Button -->
+                            <div class="d-inline-block">
+                                <select name="" class="form-select" onchange="window.location.href=this.value;">
+                                    <option
+                                        value="{{ route('admin.attributes.hidden', ['filter' => '', '_keyword' => request()->input('_keyword')]) }}"
+                                        @if (request()->input('filter') === '') selected @endif>
+                                        {{ __('form.attribute_all') }}</option>
+                                    <option
+                                        value="{{ route('admin.attributes.hidden', ['filter' => 0, '_keyword' => request()->input('_keyword')]) }}"
+                                        @if (request()->input('filter') === '0') selected @endif>
+                                        {{ __('form.attribute_specifications') }}</option>
+                                    <option
+                                        value="{{ route('admin.attributes.hidden', ['filter' => 1, '_keyword' => request()->input('_keyword')]) }}"
+                                        @if (request()->input('filter') === '1') selected @endif>
+                                        {{ __('form.attribute_variants') }}</option>
+                                </select>
                             </div>
 
                             <form action="" method="GET">
                                 <div class="table-search">
                                     <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword" placeholder="Tên giá trị thuộc tính">
+                                    <input type="search" class="form-control" name="_keyword" placeholder="Tên thuộc tính">
                                 </div>
                             </form>
 
@@ -119,25 +135,25 @@
                                                 STT
                                             </th>
                                             <th class="cursor-pointer">
-                                                {{ __('form.attribute_value.value') }}
-                                                <div class="filter-arrow" onclick="sortTable('value')">
+                                                {{ __('form.attribute.name') }}
+                                                <div class="filter-arrow" onclick="sortTable('name')">
                                                     <div>
                                                         <i
-                                                            class="{{ request()->get('sortColumn') === 'value' && request()->get('sortDirection') === 'asc'
+                                                            class="{{ request()->get('sortColumn') === 'name' && request()->get('sortDirection') === 'asc'
                                                                 ? 'ri-arrow-up-s-fill'
-                                                                : (request()->get('sortColumn') === 'value' && request()->get('sortDirection') === 'desc'
+                                                                : (request()->get('sortColumn') === 'name' && request()->get('sortDirection') === 'desc'
                                                                     ? 'ri-arrow-down-s-fill'
                                                                     : 'ri-arrow-down-s-fill') }}"></i>
                                                     </div>
                                                 </div>
+
                                             </th>
                                             <th>
-                                                {{ __('form.attribute_value.is_active') }}
-                                                <div class="filter-arrow">
+                                                {{ __('form.attribute.is_active') }}
 
-                                                </div>
                                             </th>
-                                            <th>{{ __('form.attribute_value.created_at') }}
+                                            <th>
+                                                {{ __('form.attribute.created_at') }}
                                                 <div class="filter-arrow" onclick="sortTable('created_at')">
                                                     <div>
                                                         <i
@@ -149,7 +165,8 @@
                                                     </div>
                                                 </div>
                                             </th>
-                                            <th>{{ __('form.attribute_value.updated_at') }}
+                                            <th>
+                                                {{ __('form.attribute.updated_at') }}
                                                 <div class="filter-arrow" onclick="sortTable('updated_at')">
                                                     <div>
                                                         <i
@@ -164,8 +181,10 @@
                                             <th>{{ __('form.action') }}</th>
                                         </tr>
                                     </thead>
+
+                                    {{-- Start List Data --}}
                                     <tbody>
-                                        @if ($attributeValues->isEmpty())
+                                        @if ($data->isEmpty())
                                             <tr>
                                                 <td colspan="7" class="text-center">
                                                     <strong>Không có dữ liệu phù hợp</strong>
@@ -173,58 +192,79 @@
                                             </tr>
                                         @endif
                                         @php 
-                                           $index = ($attributeValues->currentPage() - 1) * $attributeValues->perPage() + 1;
+                                        $index = ($data->currentPage() - 1) * $data->perPage() + 1;
                                         @endphp
-                                        @foreach ($attributeValues as $atb_value)
+                                        @foreach ($data as $atb)
                                             <tr>
+                                                {{-- Checkbox --}}
                                                 <td>
                                                     <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" id="checkbox-table"
-                                                            value="{{ $atb_value->id }}"
+                                                        <input type="checkbox" value="{{ $atb->id }}"
+                                                            id="checkbox-table"
                                                             class="custom-control-input checkbox_animated checkbox-input">
                                                     </div>
                                                 </td>
                                                 <td>{{ $index++ }}</td>
+                                                {{-- Name --}}
                                                 <td class="cursor-pointer">
-                                                    {{ $atb_value->value }}
-                                                </td>
+                                                    <a href="{{ route('admin.attributes.attribute_values.index', ['attribute' => $atb->id]) }}"
+                                                        class="fs-6 fw-bold w-100">{{ $atb->name }}</a>
+                                                    <div class="ms-5 ps-md-5 ps-sm-2">
 
-                                                <td class="cursor-pointer">
-                                                    <div class="form-check form-switch ps-0">
-                                                        <label class="switch switch-sm"><input type="checkbox"
-                                                                id="status-{{ $atb_value->id }} "{{ $atb_value->is_active ? 'checked' : '' }}
-                                                                onchange="updateStatus({{ $attribute->id }}, this, {{ $atb_value->id }})"
-                                                                value="1"><span class="switch-state"></span></label>
+                                                        @foreach ($atb['attributeValues'] as $value)
+                                                            <div class="item pl-2">
+                                                                <a class="subcategory-link w-100 d-block text-start"
+                                                                    href="">
+                                                                    <span>-- {{ $value['value'] }}</span>
+                                                                </a>
+                                                            </div>
+                                                        @endforeach
+
                                                     </div>
                                                 </td>
+                                                {{-- Is_active --}}
                                                 <td class="cursor-pointer">
+                                                    <div class="form-check form-switch ps-0">
+                                                        <label class="switch switch-sm">
+                                                            <input type="checkbox" id="status-{{ $atb->id }}"
+                                                                value="1" {{ $atb->is_active ? 'checked' : '' }}
+                                                                class="switch-input"
+                                                                onchange="updateStatus({{ $atb->id }}, this)">
+                                                            <span class="switch-state"></span>
 
-                                                    {{ $atb_value->created_at }}
-
+                                                        </label>
+                                                    </div>
                                                 </td>
+                                                {{-- Created_at --}}
                                                 <td class="cursor-pointer">
-
-                                                    {{ $atb_value->updated_at }}
-
+                                                    {{ $atb->created_at }}
                                                 </td>
-
-
+                                                {{-- Updated_at --}}
+                                                <td class="cursor-pointer">
+                                                    {{ $atb->updated_at }}
+                                                </td>
+                                                {{-- Action --}}
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.attributes.attribute_values.edit', ['attribute' => $attribute->id, 'attributeValue' => $atb_value->id]) }}"
+                                                            <a href="{{ route('admin.attributes.attribute_values.index', ['attribute' => $atb->id]) }}"
+                                                                class="btn-detail">
+                                                                <i class="ri-eye-line"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="{{ route('admin.attributes.edit', $atb->id) }}"
                                                                 class="btn-edit">
                                                                 <i class="ri-pencil-line"></i>
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <form
-                                                                action="{{ route('admin.attributes.attribute_values.destroy', ['attribute' => $attribute->id]) }}"
+                                                            <form action="{{ route('admin.attributes.destroy') }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <input type="hidden" name="id"
-                                                                    value="{{ $atb_value->id }}">
+                                                                    value="{{ $atb->id }}">
                                                                 <button type="submit" class="btn-delete"
                                                                     onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
                                                                     <i class="ri-delete-bin-line"></i>
@@ -236,6 +276,9 @@
                                             </tr>
                                         @endforeach
                                     </tbody>
+
+                                    {{-- End List Data --}}
+
                                 </table>
                             </div>
                         </div>
@@ -244,7 +287,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-                            {{ $attributeValues->appends(request()->query())->links() }}
+                            {{ $data->appends(request()->query())->links() }}
                         </div>
                         <!-- END PAGINATIOn -->
 
@@ -254,9 +297,8 @@
             </div>
         </div>
     </div>
+    @vite('resources/js/admin/attributes.js')
 @endsection
-
-
 
 {{-- ================================== --}}
 {{--                 JS                 --}}
@@ -268,24 +310,7 @@
 @push('js')
     <script>
         $(document).ready(function() {
-            @if(session('success'))
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Thành công!',
-                                text: "{{ session('success') }}",
-                                timer: 1500,
-                                showConfirmButton: true
-                            });
-                    @endif
 
-                    @if(session('error'))
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi!',
-                                text: "{{ session('error') }}",
-                                showConfirmButton: true
-                            });
-                    @endif
             // --- Logic Checkbox ---
             $('#checkbox-table').on('click', function() {
 
@@ -324,6 +349,22 @@
             });
             // --- End Logic Checkbox ---
 
+            // --- Logic Hide, Show Detail Attribute ---
+            $('.item.pl-2').hide();
+
+            $btnSwitch.on('click', function() {
+                const isChecked = $inputSwitch.prop('checked');
+
+                if (!isChecked) {
+                    // Ẩn các danh mục con
+                    $('.item.pl-2').slideUp(300);
+                } else {
+                    // Hiển thị các danh mục con
+                    $('.item.pl-2').slideDown(300);
+                }
+            })
+            // --- End Logic Hide, Show Detail Attribute ---
+
             $('#btn-delete-all').on('click', function(e) {
                 // Ngăn không cho form submit ngay lập tức
                 e.preventDefault();
@@ -348,8 +389,8 @@
                 }
             })
 
-        });
 
+        });
         // {{-- Sắp xếp --}}
         function sortTable(column) {
             // Lấy URL hiện tại
@@ -368,25 +409,20 @@
         }
 
         // Update Is_active
-        function updateStatus(attributeId, checkbox, attributeValueId = null) {
+        function updateStatus(attributeId, checkbox) {
             const isActive = checkbox.checked ? 1 : 0; // 1 nếu bật, 0 nếu tắt
 
-            // URL sẽ thay đổi tùy vào việc cập nhật attribute hay attribute_value
-            let url = `/api/attributes/${attributeId}`;
-            if (attributeValueId) {
-                url += `/attribute_values/${attributeValueId}`;
-            }
-
-            fetch(url, {
+            fetch(`/api/attributes/${attributeId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({
-                        is_active: isActive
+                        is_active: checkbox.checked ? 1 : 0
                     })
                 })
+
                 .then(response => response.json())
                 .then(data => {
                     Swal.fire({
@@ -414,7 +450,7 @@
 
                     checkbox.checked = !isActive; // Hoàn tác nếu xảy ra lỗi
                 });
-            // paginate
+                  // paginate
             function changePerPage(perPage) {
                 let params = new URLSearchParams(window.location.search);
                 params.set('perpage', perPage); // Cập nhật giá trị perpage

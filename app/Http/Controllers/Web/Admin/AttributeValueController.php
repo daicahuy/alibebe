@@ -29,6 +29,17 @@ class AttributeValueController extends Controller
         return view('admin.pages.attribute_values.list',compact('attributeValues', 'attribute', 'sortColumn', 'sortDirection'));
     }
 
+    public function hidden(Request $request,$attribute,$sortColumn = null, $sortDirection = 'desc')
+    {
+        $keyword = $request->input('_keyword');
+
+        $data = $this->attributeValueService->hidden($request,$attribute,$keyword);
+        // dd($data);
+        $attribute = $data['attribute'];
+        $attributeValues = $data['attributeValues'];
+        return view('admin.pages.attribute_values.hidden',compact('attributeValues', 'attribute', 'sortColumn', 'sortDirection'));
+    }
+
     public function create(Request $request,$attribute)
     {
         $data = $this->attributeValueService->getAllAttributeValue($request,$attribute);
@@ -51,21 +62,22 @@ class AttributeValueController extends Controller
     public function update(UpdateAttributeValueRequest $request, Attribute $attribute, AttributeValue $attributeValue)
     {
         $this->attributeValueService->update($request, $attributeValue);
-        return redirect()->route('admin.attributes.attribute_values.index', ['attribute' =>$attribute->id])->with('success','Cập nhật thành công!');
+        return redirect()->route('admin.attributes.attribute_values.edit', ['attribute' =>$attribute->id,'attributeValue'=>$attributeValue->id])->with('success','Cập nhật thành công!');
     }
 
     public function destroy(Request $request, Attribute $attribute)
     {
         $id = $request->input('id');
-        // $ids = $request->input('ids',[]);
+        $ids = $request->input('ids',[]);
+        // dd($ids);
         try {
             if($id){
                 $this->attributeValueService->delete($id);
             }
-            // else if( $ids){
-            //     $idsArray = explode(',', $ids); // Chuyển chuỗi IDs thành mảng
-            //     $this->attributeService->deleteAll($idsArray); // Gọi phương thức xóa tất cả trong service
-            // }else{}
+            else if( $ids){
+                $idsArray = explode(',', $ids); // Chuyển chuỗi IDs thành mảng
+                $this->attributeValueService->deleteAll($idsArray); // Gọi phương thức xóa tất cả trong service
+            }else{}
             return redirect()->route('admin.attributes.attribute_values.index', ['attribute' =>$attribute->id])->with('success','Xóa thành công!');
         } catch (\Exception $e) {
             // Trả về thông báo lỗi qua session

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\API\AttributeController;
+use App\Http\Controllers\API\AttributeValueController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +19,17 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::prefix('/attributes')
+    ->name('attributes.')
+    ->controller(AttributeController::class)
+    ->group(function () {
+        Route::put('/{attribute}', 'update')->name('update');
+        Route::prefix('{attribute}/attribute_values')
+        ->name('attribute_values.')
+        ->controller(AttributeValueController::class)
+        ->where(['attribute' => '[0-9]+'])
+        ->group(function () {
+            Route::put('/{attributeValue}', 'update')->name('update');
+        });
+    });

@@ -27,6 +27,8 @@ class AttributeController extends Controller
         return view('admin.pages.attributes.list',compact('data', 'sortColumn', 'sortDirection'));
     }
 
+
+
     public function create()
     {
         return view('admin.pages.attributes.create');
@@ -60,10 +62,22 @@ class AttributeController extends Controller
                 $idsArray = explode(',', $ids); // Chuyển chuỗi IDs thành mảng
                 $this->attributeService->deleteAll($idsArray); // Gọi phương thức xóa tất cả trong service
             }else{}
-            return redirect()->route('admin.attributes.index')->with('success','Xóa thành công!');
+            return back()->with('success','Xóa thành công!');
         } catch (\Exception $e) {
             // Trả về thông báo lỗi qua session
-            return redirect()->route('admin.attributes.index')->with('error', $e->getMessage());
+            return back()->with('error', $e->getMessage());
         }
+    }   
+     public function hidden(Request $request,$sortColumn = null, $sortDirection = 'desc')
+    {
+        $filter = $request->input('filter', null);
+        $keyword = $request->input('_keyword');
+        // $sortColumn = $request->input('sortColumn');
+        // $sortDirection = $request->input('sortDirection', 'desc');
+        $data = $this->attributeService->hidden($request,$filter,$keyword);
+        // dd($attibutes);
+        return view('admin.pages.attributes.hidden',compact('data', 'sortColumn', 'sortDirection'));
     }
+
+    
 }

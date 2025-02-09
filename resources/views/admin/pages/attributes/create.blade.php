@@ -48,9 +48,9 @@
                                             <div class="col-sm-9">
                                                 <input type="text" name="name" id="name"
                                                     class="form-control @error('name') is-invalid @enderror"
-                                                    placeholder="{{ __('form.enter_attribute_name') }}">
+                                                    placeholder="{{ __('form.enter_attribute_name') }}" value="{{old('name')}}">
                                                     @error('name')
-                                                    <div class="invalid-feedback">{{$message}}</div>
+                                                    <div class="invalid-feedback"  >{{$message}}</div>
                                                     @enderror
                                             </div>
                                         </div>
@@ -110,7 +110,20 @@
 @push('js')
     <script>
         $(document).ready(function() {
+            $("#name").on("blur", function() {
+                let name = $(this).val().trim(); // Lấy giá trị nhập vào
 
+                if (name === "") {
+                    $(this).removeClass("is-invalid"); // Xóa class lỗi
+                    $(".invalid-feedback").hide(); // Ẩn thông báo lỗi
+                }
+            });
+
+            $("#name").on("click", function() {
+                if ($(this).hasClass("is-invalid")) {
+                    $(".invalid-feedback").show(); // Nếu có lỗi, giữ nguyên thông báo
+                }
+            });
         });
     </script>
 @endpush

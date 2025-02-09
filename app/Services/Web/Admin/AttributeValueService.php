@@ -26,6 +26,13 @@ class AttributeValueService
         return $this->attributeValueRepository->getAllAttributeValueFindById($attribute,$perpage,$keyword,$sortColumn,$sortDirection);
     }
 
+    public function hidden(Request $request, $attribute, $keyword = null){
+        $perpage = $request->input('perpage', 15);
+        $sortColumn = $request->input('sortColumn');
+        $sortDirection = $request->input('sortDirection', 'desc');
+        return $this->attributeValueRepository->hidden($attribute,$perpage,$keyword,$sortColumn,$sortDirection);
+    }
+
     public function store(StoreAttributeValueRequest $request, $attribute)
     {
         try {
@@ -69,16 +76,16 @@ class AttributeValueService
             throw $th;
         }
     }
-    // public function deleteAll(array $ids)
-    // {
-    //     try {
-    //         return $this->attributeRepository->deleteAll($ids);
-    //     } catch (\Throwable $th) {
-    //         Log::error(
-    //             __CLASS__ . "@" . __FUNCTION__,
-    //             ['error' => $th->getMessage()]
-    //         );
-    //         throw $th;
-    //     }
-    // }
+    public function deleteAll(array $ids)
+    {
+        try {
+            return $this->attributeValueRepository->deleteAll($ids);
+        } catch (\Throwable $th) {
+            Log::error(
+                __CLASS__ . "@" . __FUNCTION__,
+                ['error' => $th->getMessage()]
+            );
+            throw $th;
+        }
+    }
 }

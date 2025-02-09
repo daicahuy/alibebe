@@ -18,11 +18,7 @@
 {{-- ================================== --}}
 
 @section('content')
-@if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
+
     <div class="container-fuild">
         <div class="row m-0">
             <div class="col-xl-8 p-0 m-auto">
@@ -115,7 +111,39 @@
 @push('js')
     <script>
         $(document).ready(function() {
+            @if(session('success'))
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: "{{ session('success') }}",
+                        timer: 1500,
+                        showConfirmButton: true
+                    });
+            @endif
 
+            @if(session('error'))
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: "{{ session('error') }}",
+                        showConfirmButton: true
+                    });
+            @endif
+            
+            $("#name").on("blur", function() {
+                let name = $(this).val().trim(); // Lấy giá trị nhập vào
+
+                if (name === "") {
+                    $(this).removeClass("is-invalid"); // Xóa class lỗi
+                    $(".invalid-feedback").hide(); // Ẩn thông báo lỗi
+                }
+            });
+
+            $("#name").on("click", function() {
+                if ($(this).hasClass("is-invalid")) {
+                    $(".invalid-feedback").show(); // Nếu có lỗi, giữ nguyên thông báo
+                }
+            });
         });
     </script>
 @endpush

@@ -32,6 +32,20 @@ class AttributeService
             );
         }
     }
+    public function hidden(Request $request, $filter = null,$_keyword = null)
+    {
+        try {
+            $perpage = $request->input('perpage', 15);
+            $sortColumn = $request->input('sortColumn');
+            $sortDirection = $request->input('sortDirection', 'desc');
+            return $this->attributeRepository->hidden($perpage, $filter,$_keyword, $sortColumn, $sortDirection);
+        } catch (\Throwable $th) {
+            Log::error(
+                __CLASS__ . "@" . __FUNCTION__,
+                ['error' => $th->getMessage()]
+            );
+        }
+    }
 
     public function store(StoreAttributeRequest $request)
     {

@@ -102,6 +102,8 @@ Route::prefix('/admin')
 
                 Route::get('/', 'index')->name('index');
 
+                Route::get('/hidden', 'hidden')->name('hidden');
+
                 Route::get('/create', 'create')->name('create');
 
                 Route::post('/', 'store')->name('store');
@@ -120,6 +122,8 @@ Route::prefix('/admin')
                     ->group(function() {
 
                         Route::get('/', 'index')->name('index');
+
+                        Route::get('/hidden', 'hidden')->name('hidden');
 
                         Route::get('/create', 'create')->name('create');
 

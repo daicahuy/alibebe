@@ -18,16 +18,7 @@
 {{-- ================================== --}}
 
 @section('content')
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
+
     <div class="container-fuild">
         <div class="row">
             <div class="col-sm-12">
@@ -47,6 +38,10 @@
                         </div>
 
                         <!-- HEADER TABLE -->
+                        @php
+                            // Lấy tất cả tham số hiện tại (trừ 'perpage')
+                            $queryParams = request()->except('perpage');
+                        @endphp
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
                                 <select class="form-control" onchange="window.location.href=this.value;">
@@ -77,6 +72,10 @@
 
                                 </form>
                             </div>
+                            <a href="{{ route('admin.attributes.hidden') }}"
+                                class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2">
+                                Ẩn
+                            </a>
                             <div class="datepicker-wrap">
 
                             </div>
@@ -109,7 +108,7 @@
                             <form action="" method="GET">
                                 <div class="table-search">
                                     <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword">
+                                    <input type="search" class="form-control" name="_keyword" placeholder="Tên thuộc tính">
                                 </div>
                             </form>
 
@@ -130,50 +129,38 @@
                                                         class="custom-control-input checkbox_animated">
                                                 </div>
                                             </th>
-                                            <th class="sm-width">
-                                                {{ __('form.attribute.id') }}
-                                                <div class="filter-arrow" onclick="sortTable('id')">
-                                                    <div>
-                                                        <i
-                                                            class="{{ request()->get('sortColumn') === 'id' && request()->get('sortDirection') === 'asc' ? 'ri-arrow-up-s-fill'
-                                                                : (request()->get('sortColumn') === 'id' && request()->get('sortDirection') === 'desc' ? 'ri-arrow-down-s-fill' : 'ri-arrow-up-s-fill') }}"></i>
-                                                    </div>
-
-                                                    {{-- Đoạn mã này kiểm tra tham số sortColumn và sortDirection trong URL 
-                                                    (thông qua request()->get()) để quyết định icon nào sẽ được hiển thị. --}}
-
-                                                </div>
-
+                                            <th class="cursor-pointer">
+                                                STT
                                             </th>
+
+
+
                                             <th class="cursor-pointer">
                                                 {{ __('form.attribute.name') }}
                                                 <div class="filter-arrow" onclick="sortTable('name')">
                                                     <div>
                                                         <i
-                                                            class="{{ request()->get('sortColumn') === 'name' && request()->get('sortDirection') === 'asc' ? 'ri-arrow-up-s-fill'
-                                                                : (request()->get('sortColumn') === 'name' && request()->get('sortDirection') === 'desc' ? 'ri-arrow-down-s-fill' : 'ri-arrow-up-s-fill') }}"></i>
+                                                            class="{{ request()->get('sortColumn') === 'name' && request()->get('sortDirection') === 'asc'
+                                                                ? 'ri-arrow-up-s-fill'
+                                                                : (request()->get('sortColumn') === 'name' && request()->get('sortDirection') === 'desc'
+                                                                    ? 'ri-arrow-down-s-fill'
+                                                                    : 'ri-arrow-down-s-fill') }}"></i>
                                                     </div>
                                                 </div>
-
                                             </th>
                                             <th>
                                                 {{ __('form.attribute.is_active') }}
-                                                <div class="filter-arrow" onclick="sortTable('is_active')">
-                                                    <div>
-                                                        <i
-                                                            class="{{ request()->get('sortColumn') === 'is_active' && request()->get('sortDirection') === 'asc' ? 'ri-arrow-up-s-fill'
-                                                                : (request()->get('sortColumn') === 'is_active' && request()->get('sortDirection') === 'desc' ? 'ri-arrow-down-s-fill' : 'ri-arrow-up-s-fill') }}"></i>
-                                                    </div>
-                                                </div>
-
                                             </th>
                                             <th>
                                                 {{ __('form.attribute.created_at') }}
                                                 <div class="filter-arrow" onclick="sortTable('created_at')">
                                                     <div>
                                                         <i
-                                                            class="{{ request()->get('sortColumn') === 'created_at' && request()->get('sortDirection') === 'asc' ? 'ri-arrow-up-s-fill'
-                                                                : (request()->get('sortColumn') === 'created_at' && request()->get('sortDirection') === 'desc' ? 'ri-arrow-down-s-fill' : 'ri-arrow-up-s-fill') }}"></i>
+                                                            class="{{ request()->get('sortColumn') === 'created_at' && request()->get('sortDirection') === 'asc'
+                                                                ? 'ri-arrow-up-s-fill'
+                                                                : (request()->get('sortColumn') === 'created_at' && request()->get('sortDirection') === 'desc'
+                                                                    ? 'ri-arrow-down-s-fill'
+                                                                    : 'ri-arrow-down-s-fill') }}"></i>
                                                     </div>
                                                 </div>
                                             </th>
@@ -182,8 +169,11 @@
                                                 <div class="filter-arrow" onclick="sortTable('updated_at')">
                                                     <div>
                                                         <i
-                                                            class="{{ request()->get('sortColumn') === 'updated_at' && request()->get('sortDirection') === 'asc' ? 'ri-arrow-up-s-fill'
-                                                                : (request()->get('sortColumn') === 'updated_at' && request()->get('sortDirection') === 'desc' ? 'ri-arrow-down-s-fill' : 'ri-arrow-up-s-fill') }}"></i>
+                                                            class="{{ request()->get('sortColumn') === 'updated_at' && request()->get('sortDirection') === 'asc'
+                                                                ? 'ri-arrow-up-s-fill'
+                                                                : (request()->get('sortColumn') === 'updated_at' && request()->get('sortDirection') === 'desc'
+                                                                    ? 'ri-arrow-down-s-fill'
+                                                                    : 'ri-arrow-down-s-fill') }}"></i>
                                                     </div>
                                                 </div>
                                             </th>
@@ -193,6 +183,17 @@
 
                                     {{-- Start List Data --}}
                                     <tbody>
+                                        @if ($data->isEmpty())
+                                            <tr>
+                                                <td colspan="7" class="text-center">
+                                                    <strong>Không có dữ liệu phù hợp</strong>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        @php
+                                            $index = ($data->currentPage() - 1) * $data->perPage() + 1;
+                                        @endphp
+
                                         @foreach ($data as $atb)
                                             <tr>
                                                 {{-- Checkbox --}}
@@ -203,8 +204,8 @@
                                                             class="custom-control-input checkbox_animated checkbox-input">
                                                     </div>
                                                 </td>
-                                                {{-- ID --}}
-                                                <td class="cursor-pointer sm-width"> {{ $atb->id }} </td>
+                                                {{-- Số thứ tự --}}
+                                                <td>{{ $index++ }}</td>
                                                 {{-- Name --}}
                                                 <td class="cursor-pointer">
                                                     <a href="{{ route('admin.attributes.attribute_values.index', ['attribute' => $atb->id]) }}"
@@ -227,9 +228,10 @@
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch switch-sm">
                                                             <input type="checkbox" id="status-{{ $atb->id }}"
-                                                            value="1" {{ $atb->is_active ? 'checked' : '' }}
-                                                            class="switch-input" onchange="updateStatus({{ $atb->id }}, this)">
-                                                     <span class="switch-state"></span>
+                                                                value="1" {{ $atb->is_active ? 'checked' : '' }}
+                                                                class="switch-input"
+                                                                onchange="updateStatus({{ $atb->id }}, this)">
+                                                            <span class="switch-state"></span>
 
                                                         </label>
                                                     </div>
@@ -286,8 +288,9 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-                            {{ $data->links() }}
+                            {{ $data->appends(request()->query())->links() }}
                         </div>
+
                         <!-- END PAGINATIOn -->
 
                     </div>
@@ -309,7 +312,24 @@
 @push('js')
     <script>
         $(document).ready(function() {
+            @if(session('success'))
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: "{{ session('success') }}",
+                                timer: 1500,
+                                showConfirmButton: true
+                            });
+                    @endif
 
+                    @if(session('error'))
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi!',
+                                text: "{{ session('error') }}",
+                                showConfirmButton: true
+                            });
+                    @endif
             // --- Logic Checkbox ---
             $('#checkbox-table').on('click', function() {
 
@@ -388,9 +408,9 @@
                 }
             })
 
-
+        
         });
-    // {{-- Sắp xếp --}}
+        // {{-- Sắp xếp --}}
         function sortTable(column) {
             // Lấy URL hiện tại
             let url = new URL(window.location.href);
@@ -406,5 +426,56 @@
             // Điều hướng tới URL mới
             window.location.href = url.toString();
         }
+
+        // Update Is_active
+        function updateStatus(attributeId, checkbox) {
+            const isActive = checkbox.checked ? 1 : 0; // 1 nếu bật, 0 nếu tắt
+
+            fetch(`/api/attributes/${attributeId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        is_active: checkbox.checked ? 1 : 0
+                    })
+                })
+
+                .then(response => response.json())
+                .then(data => {
+                    Swal.fire({
+                        icon: data.success ? 'success' : 'error',
+                        title: 'Thành công!',
+                        text: data.message || (data.success ? 'Cập nhật thành công' : 'Cập nhật thất bại'),
+                        timer: data.success ? 1500 : undefined,
+                        showConfirmButton: true
+                    }).then(() => {
+                        if (data.success) {
+                            location.reload(); // Reload lại trang sau khi xác nhận
+                        } else {
+                            checkbox.checked = !isActive; // Hoàn tác nếu thất bại
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: 'Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau!'
+                    });
+
+                    checkbox.checked = !isActive; // Hoàn tác nếu xảy ra lỗi
+                });
+            // paginate
+            function changePerPage(perPage) {
+                let params = new URLSearchParams(window.location.search);
+                params.set('perpage', perPage); // Cập nhật giá trị perpage
+                window.location.href = "{{ route('admin.attributes.index') }}?" + params.toString();
+            }
+              
+    }
     </script>
 @endpush

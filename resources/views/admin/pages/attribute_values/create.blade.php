@@ -35,8 +35,7 @@
                                                 href="{{ route('admin.attributes.index') }}">{{ __('form.attributes') }}</a>
                                             <span class="fs-6 fw-light">></span>
                                             <a class="link"
-                                                href="{{ route('admin.attributes.attribute_values.index', ['attribute' => 1]) }}">Màu
-                                                sắc</a>
+                                            href="{{ route('admin.attributes.attribute_values.index', ['attribute' => $attribute->id ]) }}">{{$attribute->name}}</a>
                                             <span class="fs-6 fw-light">></span> {{ __('message.add_new') }}
                                         </h5>
                                     </div>
@@ -52,7 +51,7 @@
                                             <div class="col-sm-9">
                                                 <input type="text" name="value" id="value"
                                                     class="form-control @error('value') is-invalid @enderror "
-                                                    placeholder="{{ __('form.enter_attribute_value_value') }}">
+                                                    placeholder="{{ __('form.enter_attribute_value_value') }}" value="{{old('value')}}">
                                                     @error('value')
                                                     <div class="invalid-feedback">{{$message}}</div>
                                                     @enderror
@@ -100,7 +99,20 @@
 @push('js')
     <script>
         $(document).ready(function() {
+            $("#value").on("blur", function() {
+                let value = $(this).val().trim(); // Lấy giá trị nhập vào
 
+                if (value === "") {
+                    $(this).removeClass("is-invalid"); // Xóa class lỗi
+                    $(".invalid-feedback").hide(); // Ẩn thông báo lỗi
+                }
+            });
+
+            $("#value").on("click", function() {
+                if ($(this).hasClass("is-invalid")) {
+                    $(".invalid-feedback").show(); // Nếu có lỗi, giữ nguyên thông báo
+                }
+            });
         });
     </script>
 @endpush
