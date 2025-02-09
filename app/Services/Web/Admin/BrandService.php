@@ -27,6 +27,10 @@ class BrandService
     {
         return $this->brandReponsitory->hiddenIsActive($perPage, $keyWord, $sort, $order);
     }
+
+    public function getProductsByBrand($brandId) {
+        return $this->brandReponsitory->getProductsByBrand($brandId);
+    }
     public function StoreBrand(StoreBrandRequest $request)
     {
         try {

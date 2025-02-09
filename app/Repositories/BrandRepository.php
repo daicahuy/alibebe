@@ -41,6 +41,10 @@ class BrandRepository extends BaseRepository
         return $query->where('is_active','=','0')->paginate($perPage);
         
     }
+    public function getProductsByBrand($brandId, $perPage = 10)
+    {
+        return Brand::findOrFail($brandId)->products()->paginate($perPage);
+    }
 
     public function delete(int $id)
     {

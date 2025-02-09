@@ -39,7 +39,11 @@ class BrandController extends Controller
         return view('admin.pages.brands.hidden', compact('brands', 'perPage', 'keyWord','sort','order'));
     }
 
-
+    public function showProduct($brandId)  {
+        $brand = Brand::findOrFail($brandId);
+        $products = $this->brandService->getProductsByBrand($brandId);
+        return view('admin.pages.brands.listBrandProduct',compact('brand','products'));
+    }
     public function create()
     {
         return view('admin.pages.brands.create');

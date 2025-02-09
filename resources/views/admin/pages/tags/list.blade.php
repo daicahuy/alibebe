@@ -18,16 +18,7 @@
 {{-- ================================== --}}
 
 @section('content')
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
+    
     <div class="container-fuild">
         <div class="row">
             <div class="col-sm-12">
@@ -237,6 +228,15 @@
 
 @push('js')
     <script>
+         @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: "{{ session('success') }}",
+            showConfirmButton: true,
+            confirmButtonText: 'OK'
+        });
+    @endif
         $(document).ready(function() {
             // --- Logic Checkbox ---
             $('#checkbox-table').on('click', function() {
