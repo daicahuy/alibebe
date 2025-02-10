@@ -52,12 +52,16 @@ class CouponService
     {
         return $this->couponRepository->countCouponInTrash();
     }
+    public function countCouponHidden()
+    {
+        return $this->couponRepository->countCouponHidden();
+    }
     // Lất Tất Cả Dữ Liệu Mã Giảm Giá cùng với các Mối Quan Hệ (orders , users , restriction)
     public function getAllCoupons($perPage, $sortField = 'id', $sortDirection = 'DESC')
     {
         return $this->couponRepository
             ->paginationIsActive(['*'], $perPage, [$sortField, $sortDirection], ['orders', 'users', 'restriction']);
-    } 
+    }
     // Lất Tất Cả Dữ Liệu Mã Giảm Giá cùng với các Mối Quan Hệ (orders , users , restriction)
     public function getAllCouponsByStatus($perPage, $sortField = 'id', $sortDirection = 'DESC')
     {
@@ -210,7 +214,7 @@ class CouponService
             ];
 
             // Lưu thông tin mã giảm giá vào bảng coupons
-            $coupon = $this->couponRepository->findByIdWithRelation($couponId,['restriction','orders','users']);
+            $coupon = $this->couponRepository->findByIdWithRelation($couponId, ['restriction', 'orders', 'users']);
 
             if ($coupon->orders()->exists()) {
                 return [
@@ -218,7 +222,7 @@ class CouponService
                     'message' => 'Mã Này Đang Được Sử Dụng, Không Được Chỉnh Sửa !!!'
                 ];
             }
-            
+
             $coupon = $this->couponRepository->findByIdWithRelation($couponId, ['restriction', 'orders', 'users']);
 
             if ($coupon->orders()->exists()) {
@@ -607,11 +611,14 @@ class CouponService
             // Đếm số lượng mã giảm giá trong thùng rác
             $couponsIntrash = $this->couponRepository->countCouponInTrash();
 
+            $couponsHidden = $this->couponRepository->countCouponHidden();
+
             // Trả về kết quả với logic đã xử lý
             return [
                 'status' => true,
                 'coupons' => $coupons,
-                'couponsIntrash' => $couponsIntrash
+                'couponsIntrash' => $couponsIntrash,
+                'couponsHidden' => $couponsHidden
             ];
         } catch (\Throwable $th) {
             // Ghi log lỗi nếu có ngoại lệ xảy ra
@@ -635,7 +642,7 @@ class CouponService
         try {
             // Gọi repository để xóa các coupon trong thùng rác > $days ngày
             $this->couponRepository->forceDeleteOlderThanDays($days);
-    
+
             // Trả về phản hồi khi thành công
             return [
                 'message' => 'Xóa thành công các mã giảm giá cũ!',
@@ -647,7 +654,7 @@ class CouponService
                 'days' => $days,
                 'error' => $th->getMessage()
             ]);
-    
+
             // Trả về phản hồi khi có lỗi
             return [
                 'message' => 'Có lỗi xảy ra, vui lòng thử lại!',
@@ -655,7 +662,7 @@ class CouponService
             ];
         }
     }
-    
+
     // API - update status 
 
     public function apiUpdateStatus(string $id, $couponStatus)

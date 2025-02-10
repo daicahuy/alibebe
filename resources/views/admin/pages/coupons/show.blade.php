@@ -127,11 +127,13 @@
                             <div class="d-flex">
                                 <a href="{{ route('admin.coupons.edit', $coupon->id) }}"
                                     class="btn btn-primary me-2">Chỉnh Sửa</a>
-                                <form action="{{ route('admin.coupons.destroy', $coupon->id) }}" method="POST"
-                                    onsubmit="return confirm('Bạn có chắc chắn muốn xoá mã này?')">
+                                <form action="{{ route('admin.coupons.destroy', $coupon->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger">Xoá</button>
+                                    <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -177,7 +179,7 @@
                                                     @case('valid_categories')
                                                         <ul>
                                                             @foreach ($coupon->categories as $category)
-                                                                <li>ID: {{ $category->id }}, Tên {{ $category->name }}</li>
+                                                                <li>{{ $category->name }}</li>
                                                             @endforeach
                                                         </ul>
                                                     @break
@@ -185,7 +187,7 @@
                                                     @case('valid_products')
                                                         <ul>
                                                             @foreach ($coupon->products as $product)
-                                                                <li>ID: {{ $product->id }}, Tên {{ $product->name }}</li>
+                                                                <li>{{ $product->name }}</li>
                                                             @endforeach
                                                         </ul>
                                                     @break
@@ -213,4 +215,23 @@
 @endpush
 
 @push('js')
+    <script>
+        @if (session()->has('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: '{{ session('success') }}',
+                timer: 2000
+            });
+        @endif
+
+        @if ($errors->has('message'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra',
+                text: '{{ $errors->first('message') }}',
+                showConfirmButton: true
+            });
+        @endif
+    </script>
 @endpush

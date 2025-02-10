@@ -31,7 +31,10 @@ class CouponController extends Controller
         // Đếm số mã giảm giá trong thùng rác
         $couponsIntrash = $this->couponService->countCouponInTrash();
 
-        return view('admin.pages.coupons.list', compact('coupons', 'couponsIntrash'));
+        // Đếm số mã giảm giá ẩn
+        $couponsHidden = $this->couponService->countCouponHidden();
+
+        return view('admin.pages.coupons.list', compact('coupons', 'couponsIntrash', 'couponsHidden'));
     }
 
     public function hide()
@@ -198,11 +201,13 @@ class CouponController extends Controller
             return view('admin.pages.coupons.list', [
                 'coupons' => $result['coupons'],
                 'couponsIntrash' => $result['couponsIntrash'],
+                'couponsHidden' => $result['couponsHidden']
             ]);
         } else {
             return back()->withErrors(['message' => $result['message']]);
         }
     }
+
     // api
     public function apiUpdateStatus($id)
     {

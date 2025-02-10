@@ -52,7 +52,7 @@ class CouponRepository extends BaseRepository
             ->orWhere("title", "LIKE", "%$searchKey%");
 
         // Phân trang với số bản ghi trên mỗi trang
-        return $query->paginate($perPage);
+        return $query->paginate($perPage)->withQueryString();
     }
 
     // tìm kiếm 1 với quan hệ
@@ -86,6 +86,10 @@ class CouponRepository extends BaseRepository
     public function countCouponInTrash()
     {
         return $this->model->onlyTrashed()->count();
+    }
+    // đếm số lượng mã giảm giá ẩn
+    public function countCouponHidden() {
+        return $this->model->where('is_active',0)->count();
     }
     // tìm mã giảm giá đã xóa cùng với mối quan hệ
     public function findCouponDestroyedWithRelation(string $id, array $relations)

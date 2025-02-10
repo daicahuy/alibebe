@@ -54,6 +54,8 @@
                             <a href="{{ route('admin.coupons.hide') }}"
                                 class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
                                 {{__('form.coupons_hide')}}
+                                <span
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $couponsHidden }}</span>
                             </a>
 
                             <a href="{{ route('admin.coupons.trash') }}"
@@ -91,6 +93,9 @@
                                                 <input type="checkbox" id="checkbox-table"
                                                     class="custom-control-input checkbox_animated">
                                             </div>
+                                        </th>
+                                        <th class="sm-width">
+                                            STT
                                         </th>
                                         <th class="sm-width cursor-pointer">
                                             <a
@@ -169,10 +174,10 @@
                                 <tbody>
                                     @if ($coupons->isEmpty())
                                         <tr>
-                                            <td colspan="10">Không có mã giảm giá nào trong danh sách.</td>
+                                            <td colspan="8">Không có mã giảm giá nào trong danh sách.</td>
                                         </tr>
                                     @else
-                                        @foreach ($coupons as $coupon)
+                                        @foreach ($coupons as $key => $coupon)
                                             <tr>
                                                 <td>
                                                     <div class="custom-control custom-checkbox">
@@ -180,6 +185,9 @@
                                                             value="{{ $coupon->id }}"
                                                             class="custom-control-input checkbox_animated checkbox-input">
                                                     </div>
+                                                </td>
+                                                <td class="cursor-pointer">
+                                                    <div>{{ $key + 1 }}</div>
                                                 </td>
                                                 <td class="cursor-pointer sm-width">{{ $coupon->id }}</td>
                                                 <td class="cursor-pointer">

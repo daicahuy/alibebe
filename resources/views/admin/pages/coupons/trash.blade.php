@@ -177,7 +177,7 @@
                             <tbody>
                                 @if ($coupons->isEmpty())
                                     <tr>
-                                        <td colspan="10">Không có mã giảm giá nào trong thùng rác.</td>
+                                        <td colspan="8">Không có mã giảm giá nào trong thùng rác.</td>
                                     </tr>
                                 @else
                                     @foreach ($coupons as $coupon)

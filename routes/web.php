@@ -234,7 +234,7 @@ Route::prefix('/admin')
 
                 Route::post('/', 'store')->name('store');
 
-                Route::get('/edit/{coupon}', 'edit')->name('edit');
+                Route::get('/edit/{coupon}', 'edit')->name('edit')->middleware(['check.coupon.usage']);
 
                 Route::put('/{coupon}', 'update')->name('update');
 

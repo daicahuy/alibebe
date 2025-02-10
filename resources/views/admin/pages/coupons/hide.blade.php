@@ -92,6 +92,7 @@
                                                     class="custom-control-input checkbox_animated">
                                             </div>
                                         </th>
+                                        <th class="sm-width">STT</th>
                                         <th class="sm-width cursor-pointer">
                                             <a
                                                 href="{{ route('admin.coupons.hide', ['sortField' => 'id', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
@@ -169,10 +170,10 @@
                                 <tbody>
                                     @if ($coupons->isEmpty())
                                         <tr>
-                                            <td colspan="10">Không có mã giảm giá nào trong danh sách.</td>
+                                            <td colspan="8">Không có mã giảm giá nào trong danh sách.</td>
                                         </tr>
                                     @else
-                                        @foreach ($coupons as $coupon)
+                                        @foreach ($coupons as $key => $coupon)
                                             <tr>
                                                 <td>
                                                     <div class="custom-control custom-checkbox">
@@ -181,6 +182,7 @@
                                                             class="custom-control-input checkbox_animated checkbox-input">
                                                     </div>
                                                 </td>
+                                                <td class="cursor-pointer">{{$key + 1}}</td>
                                                 <td class="cursor-pointer sm-width">{{ $coupon->id }}</td>
                                                 <td class="cursor-pointer">
                                                     <div>{{ $coupon->code }}</div>
