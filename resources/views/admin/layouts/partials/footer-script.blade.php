@@ -31,6 +31,9 @@
 <!-- MAIN JS -->
 <script src="{{ asset('theme/admin/assets/js/main.js') }}"></script>
 
+<!-- Thư viện SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 @stack('js_library')
 
 @stack('js')

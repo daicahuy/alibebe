@@ -219,6 +219,28 @@
 
 @push('js')
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            @if (session('success'))
+                Swal.fire({
+                    icon: "success",
+                    title: "Thành công!",
+                    text: "{{ session('success') }}",
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: "error",
+                    title: "Lỗi!",
+                    text: "{{ session('error') }}",
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            @endif
+        });
+
         $(document).ready(function() {
 
             // --- Logic Checkbox ---
@@ -263,9 +285,6 @@
             $('#btn-unlock-all').on('click', function(e) {
                 e.preventDefault();
 
-                let confirmMessage = confirm("Bạn có chắc chắn muốn khóa những người dùng này không?");
-                if (!confirmMessage) return;
-
                 let selectedUsers = [];
                 $('.checkbox-input:checked').each(function() {
                     let userId = $(this).data('id'); // Lấy ID từ `data-id`
@@ -275,30 +294,60 @@
                 });
 
                 if (selectedUsers.length === 0) {
-                    alert("Vui lòng chọn ít nhất một người dùng để khóa.");
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Thông báo',
+                        text: 'Vui lòng chọn ít nhất một người dùng để mở khóa!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                     return;
                 }
 
-                console.log("Danh sách ID user cần khóa:", selectedUsers); // Debug kiểm tra danh sách ID
-
-                $.ajax({
-                    url: "{{ route('admin.users.employee.unLockMultipleUsers') }}",
-                    type: "POST",
-                    data: {
-                        user_ids: selectedUsers,
-                        _token: "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        alert(response.message);
-                        location.reload();
-                    },
-                    error: function(xhr) {
-                        console.log(xhr.responseJSON); // Debug lỗi từ server
-                        alert("Có lỗi xảy ra, vui lòng thử lại.");
+                Swal.fire({
+                    title: 'Bạn có chắc chắn?',
+                    text: 'Bạn có muốn mở khóa những người dùng đã chọn không?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Xác nhận',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('admin.users.employee.unLockMultipleUsers') }}",
+                            type: "POST",
+                            data: {
+                                user_ids: selectedUsers,
+                                _token: "{{ csrf_token() }}"
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Thành công!',
+                                    text: response.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                console.log(xhr.responseJSON);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi!',
+                                    text: 'Có lỗi xảy ra, vui lòng thử lại!',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
                     }
                 });
+            });
 
-            })
 
             $(document).ready(function() {
                 $("#sort-fullname").click(function() {
@@ -329,9 +378,16 @@
                     window.location.href = url.toString();
                 });
             });
+
+            $(".status-toggle").each(function() {
+                $(this).data("prev-state", $(this).prop("checked")); // Lưu trạng thái ban đầu
+            });
+
             $(".status-toggle").change(function() {
-                let userId = $(this).data("id");
-                let newStatus = $(this).prop("checked") ? 2 : 0;
+                let $this = $(this);
+                let userId = $this.data("id");
+                let newStatus = $this.prop("checked") ? 2 : 0;
+                let prevState = $this.data("prev-state"); // Lấy trạng thái ban đầu
 
                 $.ajax({
                     url: "{{ route('admin.users.customer.update-status') }}",
@@ -343,15 +399,31 @@
                     },
                     success: function(response) {
                         if (!response.success) {
-                            alert("Không thể cập nhật trạng thái!");
+                            Swal.fire({
+                                icon: "error",
+                                title: "Lỗi!",
+                                text: "Không thể cập nhật trạng thái!",
+                                timer: 2000
+                            });
+                            $this.prop("checked", prevState); // Khôi phục trạng thái cũ nếu lỗi
                         } else {
-                            setTimeout(function() {
-                                window.location.reload();
-                            }, 2000);
+                            Swal.fire({
+                                icon: "success",
+                                title: "Thành công!",
+                                text: "Trạng thái đã được cập nhật!",
+                                timer: 2000
+                            });
+                            $this.data("prev-state", newStatus); // Cập nhật trạng thái mới
                         }
                     },
                     error: function() {
-                        alert("Có lỗi khi cập nhật trạng thái!");
+                        Swal.fire({
+                            icon: "error",
+                            title: "Lỗi kết nối!",
+                            text: "Có lỗi khi cập nhật trạng thái!",
+                            timer: 2000
+                        });
+                        $this.prop("checked", prevState); // Khôi phục trạng thái cũ nếu lỗi
                     }
                 });
             });

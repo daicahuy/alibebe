@@ -45,7 +45,7 @@
 
                                         </h5>
                                     </div>
-                                    @if (session('success'))
+                                    {{-- @if (session('success'))
                                         <div class="alert alert-success">
                                             {{ session('success') }}
                                         </div>
@@ -55,7 +55,7 @@
                                         <div class="alert alert-danger">
                                             {{ session('error') }}
                                         </div>
-                                    @endif
+                                    @endif --}}
 
                                     <form action="{{ route('admin.users.customer.update', $EditUser->id) }}" method="POST"
                                         class="theme-form theme-form-2 mega-form mt-4" novalidate>
@@ -154,6 +154,28 @@
 
 @push('js')
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            @if (session('success'))
+                Swal.fire({
+                    icon: "success",
+                    title: "Thành công!",
+                    text: "{{ session('success') }}",
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: "error",
+                    title: "Lỗi!",
+                    text: "{{ session('error') }}",
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            @endif
+        });
+
         $(document).ready(function() {
 
         });

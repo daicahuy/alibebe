@@ -63,17 +63,18 @@ class UserCustomerController extends Controller
     }
 
     public function update(UpdateUserRequest $request, User $user)
-    {
-        $data = $request->validated();
-        //    dd($request->all());
-        if (!empty($data)) {
-            $this->userService->UpdateUser($user->id, $data);
+{
+    $data = $request->validated();
 
-            return redirect()->back()->with('success', 'Cập nhật thông tin người dùng thành công.');
-        } else {
-            return redirect()->back()->with('error', 'Cập nhật thông tin người dùng thất bại. Vui lòng kiểm tra và thử lại.');
-        }
+    if (!empty($data)) {
+        $this->userService->UpdateUser($user->id, $data);
+
+        return redirect()->back()->with('success', 'Cập nhật thông tin người dùng thành công.');
+    } else {
+        return redirect()->back()->with('error', 'Cập nhật thông tin người dùng thất bại. Vui lòng kiểm tra và thử lại.');
     }
+}
+
 
     public function lockUser(User $user)
     {
