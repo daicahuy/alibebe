@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Console\Commands\PruneSoftDeletedCategories;
 use App\Console\Commands\DeleteOldTrashedItems;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Console\PruneCommand;
@@ -10,15 +9,13 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
-    protected $commands = [
-        DeleteOldTrashedItems::class,
-    ];
     /**
      * Define the application's command schedule.
      */
     protected $commands = [
-        PruneSoftDeletedCategories::class,
+        DeleteOldTrashedItems::class,
     ];
+
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('categories:prune')->dailyAt('06:00');
