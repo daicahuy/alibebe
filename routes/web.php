@@ -10,12 +10,14 @@ use App\Http\Controllers\Web\Admin\OrderController;
 use App\Http\Controllers\Web\Admin\ProductController;
 use App\Http\Controllers\Web\Admin\ReviewController;
 use App\Http\Controllers\Web\Admin\TagController;
-use App\Http\Controllers\Web\Admin\UserController;
 use App\Http\Controllers\Web\Auth\AuthAdminController;
 use App\Http\Controllers\Web\Auth\AuthCustomerController;
 use App\Http\Controllers\Web\Client\DetailProductController;
 use App\Http\Controllers\Web\Client\HomeController;
 use App\Http\Controllers\Web\Client\ListCategoriesController;
+use App\Http\Controllers\Web\Admin\UserCustomerController;
+use App\Http\Controllers\Web\Admin\UserEmployeeController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -230,7 +232,6 @@ Route::prefix('/admin')
 
             });
 
-        // ORDERS
         Route::prefix('/orders')
             ->name('orders.')
             ->controller(OrderController::class)
@@ -247,22 +248,68 @@ Route::prefix('/admin')
         // USERS
         Route::prefix('/users')
             ->name('users.')
-            ->controller(UserController::class)
             ->group(function() {
 
-                Route::get('/', 'index')->name('index');
+                Route::prefix('/customer')
+                    ->name('customer.')
+                    ->controller(UserCustomerController::class)
+                    ->group(function() {
 
-                Route::get('/lock', 'lock')->name('lock');
+                        Route::get('/', 'index')->name('index');
+                
+                        Route::post('/', 'store')->name('store');
+        
+                        Route::get('/show/{user}', 'show')->name('show');
 
-                Route::get('/{user}', 'show')->name('show');
+                        Route::get('/edit/{user}', 'edit')->name('edit');
+        
+                        Route::put('/update/{user}', 'update')->name('update');
 
-                Route::get('/create', 'create')->name('create');
+                        Route::get('/lock', 'lock')->name('lock');
 
-                Route::post('/', 'store')->name('store');
+                        Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
 
-                Route::get('/edit/{user}', 'edit')->name('edit');
+                        Route::post('lock-multiple',  'lockMultipleUsers')->name('lockMultipleUsers');
 
-                Route::put('/{user}', 'update')->name('update');
+                        Route::post('unLock-multiple',  'unLockMultipleUsers')->name('unLockMultipleUsers');
+
+                        Route::post('update-status',  'updateStatus')->name('update-status');
+
+
+
+                    });
+
+                    Route::prefix('/employee')
+                    ->name('employee.')
+                    ->controller(UserEmployeeController::class)
+                    ->group(function() {
+
+                        Route::get('/', 'index')->name('index');
+        
+                        Route::get('/create', 'create')->name('create');
+        
+                        Route::post('/', 'store')->name('store');
+        
+                        Route::get('/show/{user}', 'show')->name('show');
+
+                        Route::get('/edit/{user}', 'edit')->name('edit');
+        
+                        Route::put('/update/{user}', 'update')->name('update');
+
+                        Route::get('/lock', 'lock')->name('lock');
+
+                        Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
+
+                        Route::post('lock-multiple',  'lockMultipleUsers')->name('lockMultipleUsers');
+
+                        Route::post('unLock-multiple',  'unLockMultipleUsers')->name('unLockMultipleUsers');
+
+                        Route::post('update-status',  'updateStatus')->name('update-status');
+
+
+
+                    });
+
 
             });
         
@@ -280,8 +327,7 @@ Route::prefix('/admin')
                 Route::put('/{review}', 'update')->name('update');
 
             });
-        
-        // COUPONS
+
         Route::prefix('/coupons')
             ->name('coupons.')
             ->controller(CouponController::class)

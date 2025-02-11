@@ -30,16 +30,36 @@
                                 <div class="card-body">
                                     <div class="title-header option-title">
                                         <h5>
-                                            <a class="link"
-                                                href="{{ route('admin.users.index') }}">{{ __('form.users') }}</a>
-                                            <span class="fs-6 fw-light">></span> {{ __('message.add_new') }}
-
+                                            @if ($EditUser->status == 1)
+                                                <a class="link"
+                                                    href="{{ route('admin.users.employee.index') }}">{{ __('form.user_employee') }}</a>
+                                                <span class="fs-6 fw-light">></span> {{ __('message.edit') }}
+                                            @else
+                                                <a class="link"
+                                                    href="{{ route('admin.users.employee.index') }}">{{ __('form.user_employee') }}</a>
+                                                <span class="fs-6 fw-light">></span>
+                                                <a class="link"
+                                                    href="{{ route('admin.users.employee.lock') }}">{{ __('message.lock_list') }}</a>
+                                                <span class="fs-6 fw-light">></span> {{ __('message.edit') }}
+                                            @endif
                                         </h5>
                                     </div>
-                                    
-                                    <form action="{{ route('admin.users.store') }}" method="POST"
+                                    {{-- @if (session('success'))
+                                        <div class="alert alert-success">
+                                            {{ session('success') }}
+                                        </div>
+                                    @endif
+
+                                    @if (session('error'))
+                                        <div class="alert alert-danger">
+                                            {{ session('error') }}
+                                        </div>
+                                    @endif --}}
+
+                                    <form action="{{ route('admin.users.employee.update', $EditUser->id) }}" method="POST"
                                         class="theme-form theme-form-2 mega-form mt-4" novalidate>
                                         @csrf
+                                        @method('PUT')
 
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0" for="fullname">
@@ -48,9 +68,11 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="fullname" id="fullname"
-                                                    class="form-control is-invalid"
-                                                    placeholder="{{ __('form.enter_name') }}">
-                                                <div class="invalid-feedback">Vui lòng nhập tên</div>
+                                                    class="form-control @error('fullname') is-invalid @enderror"
+                                                    value="{{ $EditUser->fullname }}">
+                                                @error('fullname')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
@@ -61,8 +83,11 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="phone_number" id="phone_number"
-                                                    class="form-control"
-                                                    placeholder="{{ __('form.enter_phone_number') }}">
+                                                    class="form-control @error('phone_number') is-invalid @enderror"
+                                                    value="{{ $EditUser->phone_number }}">
+                                                @error('phone_number')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
@@ -73,34 +98,14 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="email" name="email" id="email"
-                                                    class="form-control"
-                                                    placeholder="{{ __('form.enter_email') }}">
+                                                    class="form-control @error('email') is-invalid @enderror"
+                                                    value="{{ $EditUser->email }}">
+                                                @error('email')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0" for="password">
-                                                {{ __('form.user.password') }}
-                                                <span class="theme-color ms-2 required-dot ">*</span>
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <input type="password" name="password" id="password"
-                                                    class="form-control"
-                                                    placeholder="{{ __('form.enter_password') }}">
-                                            </div>
-                                        </div>
-
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0" for="confirm_password">
-                                                {{ __('form.user.confirm_password') }}
-                                                <span class="theme-color ms-2 required-dot ">*</span>
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <input type="password" name="confirm_password" id="confirm_password"
-                                                    class="form-control"
-                                                    placeholder="{{ __('form.enter_confirm_password') }}">
-                                            </div>
-                                        </div>
 
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0">
@@ -109,28 +114,19 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <select name="role" class="form-select">
-                                                    <option value="">{{ __('form.user_customer') }}</option>
-                                                    <option value="">{{ __('form.user_employee') }}</option>
+                                                    @foreach ($roles as $key => $label)
+                                                        <option value="{{ $key }}"
+                                                            {{ $EditUser->role == $key ? 'selected' : '' }}>
+                                                            {{ $label }}</option>
+                                                    @endforeach
+
                                                 </select>
                                             </div>
                                         </div>
 
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0">
-                                                {{ __('form.user.status') }}
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <div class="form-check form-switch ps-0">
-                                                    <label class="switch">
-                                                        <input type="checkbox" name="status" value="1" checked>
-                                                        <span class="switch-state"></span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
 
                                         <button class="btn btn-theme ms-auto mt-4" type="submit">
-                                            {{ __('message.add_new') }}
+                                            {{ __('message.update') }}
                                         </button>
                                     </form>
                                 </div>
@@ -155,6 +151,27 @@
 
 @push('js')
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            @if (session('success'))
+                Swal.fire({
+                    icon: "success",
+                    title: "Thành công!",
+                    text: "{{ session('success') }}",
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: "error",
+                    title: "Lỗi!",
+                    text: "{{ session('error') }}",
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            @endif
+        });
         $(document).ready(function() {
 
         });

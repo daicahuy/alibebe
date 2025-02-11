@@ -74,6 +74,4 @@ abstract class BaseRepository
         return $this->model->forceDelete($id);
     }
 
-   
-///
 }

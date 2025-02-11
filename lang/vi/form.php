@@ -315,9 +315,11 @@ return [
 
     'users' => 'Người dùng',
     'user_manager' => 'Quản lý người dùng',
+    'user_staff' => 'Quản lý nhân viên',
     'user_all' => 'Tất cả người dùng',
     'user_customer' => 'Khách hàng',
     'user_employee' => 'Nhân viên',
+    'user_admin' => 'Chủ cửa hàng',
     'user' => [
         'id' => 'ID',
         'google_id' => 'ID Google',
