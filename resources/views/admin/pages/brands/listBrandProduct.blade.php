@@ -18,7 +18,16 @@
 {{-- ================================== --}}
 
 @section('content')
-
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class="container-fuild">
         <div class="row">
             <div class="col-sm-12">
@@ -26,17 +35,20 @@
                     <div class="card-body">
                         <div class="title-header">
                             <div class="d-flex align-items-center">
-                                <h5>{{ __('form.brands') }}</h5>
+                                <h5>
+                                    <a class="link" href="{{ route('admin.brands.index') }}">{{ __('form.brands') }}</a>
+                                    <span class="fs-6 fw-light">></span> Product
+                                </h5>
                             </div>
-                            <div>
+                            {{-- <div>
                                 <a class="align-items-center btn btn-theme d-flex" href="{{ route('admin.brands.create') }}">
                                     <i class="ri-add-line"></i>
                                     {{ __('message.add') . ' ' . __('form.brands') }}
                                 </a>
-                            </div>
+                            </div> --}}
                         </div>
 
-                        <!-- HEADER TABLE -->
+                        {{-- <!-- HEADER TABLE -->
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
                                 <select class="form-control" id="per_page">
@@ -75,7 +87,7 @@
                             </form>
 
                         </div>
-                        <!-- END HEADER TABLE -->
+                        <!-- END HEADER TABLE --> --}}
 
                         <!-- START TABLE -->
                         <div>
@@ -89,141 +101,102 @@
                                                         class="custom-control-input checkbox_animated">
                                                 </div>
                                             </th>
-                                            <th class="sm-width">STT</th>
-                                            <th>{{ __('form.brand.logo') }}</th>
+                                            <th class="sm-width">STT</th>   
                                             <th class="cursor-pointer">
-                                                {{ __('form.brand.name') }}
-                                                <div class="filter-arrow" onclick="sortTable('name')">
-                                                    <div>
-                                                        <i
-                                                            class="{{ request()->get('sort') === 'name' && request()->get('order') === 'asc'
-                                                                ? 'ri-arrow-up-s-fill'
-                                                                : (request()->get('sort') === 'name' && request()->get('order') === 'desc'
-                                                                    ? 'ri-arrow-down-s-fill'
-                                                                    : 'ri-arrow-up-s-fill') }}"></i>
-                                                    </div>
-                                                </div>
+                                                {{ __('form.product.name') }}
                                             </th>
                                             <th>
-                                                {{ __('form.brand.is_active') }}
+                                                {{ __('form.product.is_active') }}
                                             </th>
-                                            <th>{{ __('form.brand.created_at') }} <div class="filter-arrow"
-                                                    onclick="sortTable('created_at')">
-                                                    <div>
-                                                        <i
-                                                            class="{{ request()->get('sort') === 'created_at' && request()->get('order') === 'asc'
-                                                                ? 'ri-arrow-up-s-fill'
-                                                                : (request()->get('sort') === 'created_at' && request()->get('order') === 'desc'
-                                                                    ? 'ri-arrow-down-s-fill'
-                                                                    : 'ri-arrow-up-s-fill') }}"></i>
-                                                    </div>
-                                                </div>
+                                            <th>{{ __('form.product.thumbnail') }}</th>
+                                            <th>{{ __('form.product.price') }}</th>
+                                            <th>{{ __('form.product.type') }}</th>
+                                            <th>{{ __('form.product.start_at') }} 
+                                            <th>{{ __('form.product.created_at') }} 
                                             </th>
-                                            <th>{{ __('form.brand.updated_at') }} <div class="filter-arrow"
-                                                    onclick="sortTable('updated_at')">
-                                                    <div>
-                                                        <i
-                                                            class="{{ request()->get('sort') === 'updated_at' && request()->get('order') === 'asc'
-                                                                ? 'ri-arrow-up-s-fill'
-                                                                : (request()->get('sort') === 'updated_at' && request()->get('order') === 'desc'
-                                                                    ? 'ri-arrow-down-s-fill'
-                                                                    : 'ri-arrow-up-s-fill') }}"></i>
-                                                    </div>
-                                                </div>
-                                            </th>
-                                            <th>{{ __('form.action') }}</th>
+                                            <th>{{ __('form.product.updated_at') }} </th>
+                                          
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if ($brands->isEmpty())
+                                        @if ($products->isEmpty())
                                             <tr>
-                                                <td colspan="8" class="text-center">
+                                                <td colspan="10" class="text-center">
                                                     <div class="alert alert-warning m-0">
                                                         {{ __('Không có bản ghi nào phù hợp với tìm kiếm của bạn.') }}
                                                     </div>
                                                 </td>
                                             </tr>
                                         @else
-                                        @php
-                                                $index = $brands->total() - ($brands->currentPage() - 1) * $brands->perPage();
+                                            @php
+                                                $index = $products->total() - ($products->currentPage() - 1) * $products->perPage();
                                             @endphp
-                                            @foreach ($brands as $brand)
+                                            @foreach ($products as $product)
                                                 <tr>
                                                     <td>
                                                         <div class="custom-control custom-checkbox">
                                                             <input type="checkbox" id="checkbox-table"
                                                                 class="custom-control-input checkbox_animated checkbox-input"
-                                                                value="{{ $brand->id }}">
+                                                                value="{{ $product->id }}">
                                                         </div>
                                                     </td>
                                                     <td class="cursor-pointer sm-width">
                                                         {{ $index-- }}
                                                     </td>
-                                                    <td class="cursor-pointer sm-width">
-                                                        <img alt="image" class="tbl-image "
-                                                            style="max-height: 200px; object-fit: contain;"
-                                                            src="{{ Storage::url($brand->logo) }}">
-                                                    </td>
+                                                    
                                                     <td class="cursor-pointer">
 
                                                         <a href="#!"
-                                                            class="fs-6 fw-bold w-100">{{ $brand->name }}</a>
+                                                            class="fs-6 fw-bold w-100">{{ $product->name }}</a>
 
                                                     </td>
 
                                                     <td class="cursor-pointer">
                                                         <div class="form-check form-switch ps-0">
                                                             <label class="switch switch-sm">
-                                                                <input type="checkbox" id="status-{{ $brand->id }}"
-                                                                    value="1" data-id="{{ $brand->id }}"
+                                                                <input type="checkbox" id="status-{{ $product->id }}"
+                                                                    value="1" data-id="{{ $product->id }}"
                                                                     class="update-status"
-                                                                    {{ $brand->is_active ? 'checked' : '' }}>
+                                                                    {{ $product->is_active ? 'checked' : '' }}>
                                                                 <span class="switch-state"></span>
                                                             </label>
                                                         </div>
                                                     </td>
-
-                                                    <td class="cursor-pointer">
-
-                                                        {{ $brand->created_at }}
-
+                                                    <td class="cursor-pointer sm-width">
+                                                        <img alt="image" class="tbl-image "
+                                                            style="max-height: 200px; object-fit: contain;"
+                                                            src="{{ Storage::url($product->logo) }}">
                                                     </td>
                                                     <td class="cursor-pointer">
 
-                                                        {{ $brand->updated_at }}
+                                                        <a href="#!"
+                                                            class="fs-6 fw-bold w-100">{{ $product->price }}</a>
+
+                                                    </td>
+                                                    <td class="cursor-pointer">
+
+                                                        <a href="#!"
+                                                            class="fs-6 fw-bold w-100">{{ $product->type }}</a>
+
+                                                    </td>
+                                                    <td class="cursor-pointer">
+
+                                                        {{ $product->start_at }}
+
+                                                    </td>
+                                                    <td class="cursor-pointer">
+
+                                                        {{ $product->created_at }}
+
+                                                    </td>
+                                                    <td class="cursor-pointer">
+
+                                                        {{ $product->updated_at }}
 
                                                     </td>
 
 
-                                                    <td>
-                                                        <ul id="actions">
-                                                            <li>
-                                                                <a href="{{ route('admin.brands.showProduct', ['brand' => $brand->id] ) }}"
-                                                                    class="btn-detail">
-                                                                    <i class="ri-eye-line"></i>
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a href="{{ route('admin.brands.edit', $brand->id) }}"
-                                                                    class="btn-edit">
-                                                                    <i class="ri-pencil-line"></i>
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <form action="{{ route('admin.brands.destroy') }}"
-                                                                    method="POST">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <input type="hidden" name="id"
-                                                                        value="{{ $brand->id }}">
-                                                                    <button type="submit" class="btn-delete"
-                                                                        onclick="return confirm('{{ __('message.confirm_delete_all_item') }}')">
-                                                                        <i class="ri-delete-bin-line"></i>
-                                                                    </button>
-                                                                </form>
-                                                            </li>
-                                                        </ul>
-                                                    </td>
+                                                    
                                                 </tr>
                                             @endforeach
                                         @endif
@@ -236,7 +209,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-                            {{ $brands->appends(request()->query())->links() }}
+                            {{ $products->appends(request()->query())->links() }}
                         </div>
                         <!-- END PAGINATIOn -->
 
@@ -259,15 +232,6 @@
 
 @push('js')
     <script>
-    @if(session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Thành công!',
-            text: "{{ session('success') }}",
-            showConfirmButton: true,
-            confirmButtonText: 'OK'
-        });
-    @endif
         $(document).ready(function() {
             // --- Logic Checkbox ---
             $('#checkbox-table').on('click', function() {

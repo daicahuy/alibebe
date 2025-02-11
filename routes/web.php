@@ -197,6 +197,10 @@ Route::prefix('/admin')
 
                 Route::get('/', 'index')->name('index');
 
+                Route::get('/hidden', 'hidden')->name('hidden');
+
+                Route::get('/brands/{brand}/products', 'showProduct')->name('showProduct');
+
                 Route::get('/create', 'create')->name('create');
 
                 Route::post('/', 'store')->name('store');

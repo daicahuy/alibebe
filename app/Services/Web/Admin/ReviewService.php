@@ -2,7 +2,7 @@
 
 namespace App\Services\Web\Admin;
 
-class AttributeValueService
+class ReviewService
 {
     public function __construct()
     {
