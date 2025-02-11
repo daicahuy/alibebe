@@ -23,16 +23,16 @@ class UserEmployeeController extends Controller
     public function index(Request $request)
     {
         $limit = $request->input('limit', 15);
-        $ListUsers = $this->userService->getUsersActivate($request, $limit);
-        $totalUserLock = $this->userService->countUserLock();
-        return view('admin.pages.userEmployee.list', compact('ListUsers', 'totalUserLock', 'limit'));
+        $ListUsers = $this->userService->getUserEmployee($request, $limit);
+        $totalUserLock = $this->userService->countUserEmployeeLock();
+        return view('admin.pages.user_Employee.list', compact('ListUsers', 'totalUserLock', 'limit'));
     }
 
     public function lock(Request $request)
     {
         $limit = $request->input('limit', 15);
-        $UsersLock = $this->userService->getUsersLock($request, $limit);
-        return view('admin.pages.userEmployee.lock', compact('UsersLock', 'limit'));
+        $UsersLock = $this->userService->getUserEmployeeLock($request, $limit);
+        return view('admin.pages.user_Employee.lock', compact('UsersLock', 'limit'));
     }
 
     public function show(User $user)
@@ -42,9 +42,9 @@ class UserEmployeeController extends Controller
             1 => __('form.user_employee'),
             2 => __('form.user_admin'),
         ];
-        $ShowUser = $this->userService->ShowUser($user->id, ['*']);
+        $ShowUser = $this->userService->showUserEmployee($user->id, ['*']);
 
-        return view('admin.pages.userEmployee.show', [
+        return view('admin.pages.user_Employee.show', [
             'ShowUser' => $ShowUser,
             'roleLabel' => $roles[$user->role],
         ]);
@@ -56,7 +56,7 @@ class UserEmployeeController extends Controller
             0 => __('form.user_customer'),
             1 => __('form.user_employee'),
         ];
-        return view('admin.pages.userEmployee.create', compact('roles'));
+        return view('admin.pages.user_Employee.create', compact('roles'));
     }
 
     public function store(StoreUserRequest $request)
@@ -64,7 +64,7 @@ class UserEmployeeController extends Controller
         $data = $request->validated();
 
         if (!empty($data)) {
-            $isCreated = $this->userService->createUser($data);
+            $isCreated = $this->userService->createUserEmployee($data);
 
             if ($isCreated) {
                 return redirect()->route('admin.users.employee.index')->with('success', 'Thêm mới nhân viên thành công.');
@@ -83,8 +83,8 @@ class UserEmployeeController extends Controller
             1 => __('form.user_employee'),
         ];
 
-        $EditUser = $this->userService->ShowUser($user->id, ['*']);
-        return view('admin.pages.userEmployee.edit', compact('EditUser', 'roles'));
+        $EditUser = $this->userService->showUserEmployee($user->id, ['*']);
+        return view('admin.pages.user_Employee.edit', compact('EditUser', 'roles'));
     }
 
     public function update(UpdateUserRequest $request, User $user)
@@ -92,7 +92,7 @@ class UserEmployeeController extends Controller
         $data = $request->validated();
         //    dd($request->all());
         if (!empty($data)) {
-            $this->userService->UpdateUser($user->id, $data);
+            $this->userService->UpdateUserEmployee($user->id, $data);
 
             return redirect()->back()->with('success', 'Cập nhật thông tin nhân viên thành công.');
         } else {
@@ -102,15 +102,15 @@ class UserEmployeeController extends Controller
 
     public function lockUser(User $user)
     {
-        $lock = $this->userService->ShowUser($user->id, ['*']);
+        $lock = $this->userService->showUserEmployee($user->id, ['*']);
 
         if ($lock->status == UserStatusType::ACTIVE) {
 
-            $this->userService->UpdateUser($user->id, ['status' => UserStatusType::LOCK]);
+            $this->userService->UpdateUserEmployee($user->id, ['status' => UserStatusType::LOCK]);
             return redirect()->back()->with('success', 'Đã khóa thành công !');
         } else if ($lock->status == UserStatusType::LOCK) {
 
-            $this->userService->UpdateUser($user->id, ['status' => UserStatusType::ACTIVE]);
+            $this->userService->UpdateUserEmployee($user->id, ['status' => UserStatusType::ACTIVE]);
             return redirect()->back()->with('success', 'Đã mở khóa thành công !');
         } else {
             return redirect()->back()->with('error', 'Thất bại xin kiểm tra lại');
@@ -121,7 +121,7 @@ class UserEmployeeController extends Controller
     {
         $validated = $request->validated();
 
-         $this->userService->UpdateUser($validated['user_ids'], ['status' => UserStatusType::LOCK]);
+         $this->userService->UpdateUserEmployee($validated['user_ids'], ['status' => UserStatusType::LOCK]);
 
         return response()->json([
             'message' => ('Đã khóa thành công')
@@ -132,7 +132,7 @@ class UserEmployeeController extends Controller
     {
         $validated = $request->validated();
 
-        $this->userService->UpdateUser($validated['user_ids'], ['status' => UserStatusType::ACTIVE]);
+        $this->userService->UpdateUserEmployee($validated['user_ids'], ['status' => UserStatusType::ACTIVE]);
 
         return response()->json([
             'message' => ('Đã mở khóa thành công !')
@@ -146,7 +146,7 @@ class UserEmployeeController extends Controller
 
         $data = ['status' => $status];
 
-        $result = $this->userService->UpdateUser($userId, $data);
+        $result = $this->userService->UpdateUserEmployee($userId, $data);
 
         return response()->json([
             'success' => $result ? true : false,

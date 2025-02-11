@@ -103,9 +103,11 @@
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch">
                                                         <input type="checkbox" name="status" value=""
-                                                            {{ $ShowUser->status == 1 ? 'checked' : '' }} disabled>
+                                                            {{ in_array($ShowUser->status, [1, 2]) ? 'checked' : '' }}
+                                                            disabled>
                                                         <span class="switch-state"></span>
                                                     </label>
+
                                                 </div>
                                             </div>
                                         </div>

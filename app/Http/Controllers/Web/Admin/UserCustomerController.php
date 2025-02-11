@@ -22,18 +22,18 @@ class UserCustomerController extends Controller
     public function index(Request $request)
     {
         $limit = $request->input('limit', 15);
-        $ListUsers = $this->userService->getUsersActivate($request, $limit);
-        $totalUserLock = $this->userService->countUserLock();
+        $ListUsers = $this->userService->getUserCustomer($request, $limit);
+        $totalUserLock = $this->userService->countUserCustomerLock();
 
-        return view('admin.pages.userCustomer.list', compact('ListUsers', 'totalUserLock', 'limit'));
+        return view('admin.pages.user_Customer.list', compact('ListUsers', 'totalUserLock', 'limit'));
     }
 
 
     public function lock(Request $request)
     {
         $limit = $request->input('limit', 15);
-        $UsersLock = $this->userService->getUsersLock($request, $limit);
-        return view('admin.pages.userCustomer.lock', compact('UsersLock', 'limit'));
+        $UsersLock = $this->userService->getUserCustomerLock($request, $limit);
+        return view('admin.pages.user_Customer.lock', compact('UsersLock', 'limit'));
     }
 
     public function show(User $user)
@@ -43,9 +43,9 @@ class UserCustomerController extends Controller
             1 => __('form.user_employee'),
             2 => __('form.user_admin'),
         ];
-        $ShowUser = $this->userService->ShowUser($user->id, ['*']);
+        $ShowUser = $this->userService->showUserCustomer($user->id, ['*']);
 
-        return view('admin.pages.userCustomer.show', [
+        return view('admin.pages.user_Customer.show', [
             'ShowUser' => $ShowUser,
             'roleLabel' => $roles[$user->role],
         ]);
@@ -58,8 +58,8 @@ class UserCustomerController extends Controller
             1 => __('form.user_employee'),
         ];
 
-        $EditUser = $this->userService->ShowUser($user->id, ['*']);
-        return view('admin.pages.userCustomer.edit', compact('EditUser', 'roles'));
+        $EditUser = $this->userService->showUserCustomer($user->id, ['*']);
+        return view('admin.pages.user_Customer.edit', compact('EditUser', 'roles'));
     }
 
     public function update(UpdateUserRequest $request, User $user)
@@ -67,7 +67,7 @@ class UserCustomerController extends Controller
     $data = $request->validated();
 
     if (!empty($data)) {
-        $this->userService->UpdateUser($user->id, $data);
+        $this->userService->UpdateUserCustomer($user->id, $data);
 
         return redirect()->back()->with('success', 'Cập nhật thông tin người dùng thành công.');
     } else {
@@ -78,15 +78,15 @@ class UserCustomerController extends Controller
 
     public function lockUser(User $user)
     {
-        $lock = $this->userService->ShowUser($user->id, ['*']);
+        $lock = $this->userService->ShowUserCustomer($user->id, ['*']);
 
         if ($lock->status == UserStatusType::ACTIVE) {
 
-            $this->userService->UpdateUser($user->id, ['status' => UserStatusType::LOCK]);
+            $this->userService->UpdateUserCustomer($user->id, ['status' => UserStatusType::LOCK]);
             return redirect()->back()->with('success', 'Đã khóa thành công !');
         } else if ($lock->status == UserStatusType::LOCK) {
 
-            $this->userService->UpdateUser($user->id, ['status' => UserStatusType::ACTIVE]);
+            $this->userService->UpdateUserCustomer($user->id, ['status' => UserStatusType::ACTIVE]);
             return redirect()->back()->with('success', 'Đã mở khóa thành công !');
         } else {
             return redirect()->back()->with('error', 'Thất bại xin kiểm tra lại');
@@ -96,7 +96,7 @@ class UserCustomerController extends Controller
     {
         $validated = $request->validated();
 
-        $this->userService->UpdateUser($validated['user_ids'], ['status' => UserStatusType::LOCK]);
+        $this->userService->UpdateUserCustomer($validated['user_ids'], ['status' => UserStatusType::LOCK]);
 
         return response()->json([
             'message' => ('Đã khóa thành công')
@@ -107,7 +107,7 @@ class UserCustomerController extends Controller
     {
         $validated = $request->validated();
 
-        $this->userService->UpdateUser($validated['user_ids'], ['status' => UserStatusType::ACTIVE]);
+        $this->userService->UpdateUserCustomer($validated['user_ids'], ['status' => UserStatusType::ACTIVE]);
 
         return response()->json([
             'message' => ('Đã mở khóa thành công !')
@@ -121,7 +121,7 @@ class UserCustomerController extends Controller
 
         $data = ['status' => $status];
 
-        $result = $this->userService->UpdateUser($userId, $data);
+        $result = $this->userService->UpdateUserCustomer($userId, $data);
 
         return response()->json([
             'success' => $result ? true : false,

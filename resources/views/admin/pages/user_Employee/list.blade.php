@@ -25,9 +25,16 @@
                     <div class="card-body">
                         <div class="title-header">
                             <div class="d-flex align-items-center">
-                                <h5>{{ __('form.users') }}</h5>
-                            </div>
+                                <h5>{{ __('form.user_employee') }}</h5>
 
+                            </div>
+                            <div>
+                                <a class="align-items-center btn btn-theme d-flex"
+                                    href="{{ route('admin.users.employee.create') }}">
+                                    <i class="ri-add-line"></i>
+                                    {{ __('message.add') . ' ' . __('form.users') }}
+                                </a>
+                            </div>
                         </div>
                         {{-- @if (session('success'))
                             <div class="alert alert-success">
@@ -43,7 +50,7 @@
                         <!-- HEADER TABLE -->
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                <form action="{{ route('admin.users.customer.index') }}" method="GET" id="filter-form">
+                                <form action="{{ route('admin.users.employee.index') }}" method="GET" id="filter-form">
                                     <select class="form-control" name="limit" id="limit-select">
                                         <option value="15" {{ request('limit') == 15 ? 'selected' : '' }}>15</option>
                                         <option value="30" {{ request('limit') == 30 ? 'selected' : '' }}>30</option>
@@ -56,7 +63,7 @@
                                     id="btn-lock-all">
                                     {{ __('message.lock_all') }}
                                 </button>
-                                <a href="{{ route('admin.users.customer.lock') }}"
+                                <a href="{{ route('admin.users.employee.lock') }}"
                                     class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
                                     <i class="ri-lock-line"></i>
                                     {{ __('message.lock_list') }}
@@ -68,7 +75,7 @@
 
                             </div>
 
-                            <form action="{{ route('admin.users.customer.index') }}" method="GET">
+                            <form action="{{ route('admin.users.employee.index') }}" method="GET">
                                 <div class="table-search">
                                     <label class="form-label">{{ __('message.search') }} :</label>
                                     <input type="search" class="form-control" name="_keyword"
@@ -105,7 +112,6 @@
                                                     <div><i class="ri-arrow-up-s-fill"></i></div>
                                                 </div>
                                             </th>
-
                                             <th>{{ __('form.user.phone_number') }}</th>
                                             <th>{{ __('form.user.role') }}</th>
                                             <th class="cursor-pointer"> {{ __('form.user.created_at') }}
@@ -142,7 +148,7 @@
                                                 <td class="cursor-pointer">{{ $item->phone_number }}</td>
                                                 <td class="cursor-pointer">
                                                     @if ($item->role == 0)
-                                                        <span>{{ __('form.user_customer') }}</span>
+                                                        <span>{{ __('form.user_employee') }}</span>
                                                     @elseif ($item->role == 1)
                                                         <span>{{ __('form.user_employee') }}</span>
                                                     @else
@@ -161,29 +167,28 @@
                                                         </label>
                                                     </div>
                                                 </td>
-
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.users.customer.show', $item->id) }}"
+                                                            <a href="{{ route('admin.users.employee.show', $item->id) }}"
                                                                 class="btn-detail">
                                                                 <i class="ri-eye-line"></i>
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <a href="{{ route('admin.users.customer.edit', $item->id) }}"
+                                                            <a href="{{ route('admin.users.employee.edit', $item->id) }}"
                                                                 class="btn-edit">
                                                                 <i class="ri-pencil-line"></i>
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <form
+                                                            <form id="lockUserForm-{{ $item->id }}"
                                                                 action="{{ route('admin.users.customer.lockUser', $item->id) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('PUT')
-                                                                <button type="submit" class="btn-lock"
-                                                                    onclick="return confirm('{{ __('message.confirm_lock_user') }}')">
+                                                                <button type="button" class="btn-lock"
+                                                                    onclick="confirmLockUser('{{ $item->id }}')">
                                                                     <i class="ri-lock-line"></i>
                                                                 </button>
                                                             </form>
@@ -225,6 +230,22 @@
 
 @push('js')
     <script>
+        function confirmLockUser(userId) {
+            Swal.fire({
+                title: "{{ __('message.confirm_lock_user') }}",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Xác nhận",
+                cancelButtonText: "{{ __('message.cancel') }}"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('lockUserForm-' + userId).submit();
+                }
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             @if (session('success'))
                 Swal.fire({
@@ -246,6 +267,8 @@
                 });
             @endif
         });
+
+
         $(document).ready(function() {
 
             // --- Logic Checkbox ---
@@ -346,7 +369,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('admin.users.customer.lockMultipleUsers') }}",
+                            url: "{{ route('admin.users.employee.lockMultipleUsers') }}",
                             type: "POST",
                             data: {
                                 user_ids: selectedUsers,
@@ -364,7 +387,7 @@
                                 });
                             },
                             error: function(xhr) {
-                                console.log(xhr.responseJSON); // Debug lỗi từ server
+                                console.log(xhr.responseJSON);
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Lỗi!',
@@ -383,86 +406,88 @@
                 document.getElementById('filter-form').submit();
             });
 
+            $(document).ready(function() {
+                $("#sort-fullname").click(function() {
+                    let url = new URL(window.location.href);
+                    let currentField = url.searchParams.get("sort_field");
+                    let currentOrder = url.searchParams.get("sort_order");
 
-        });
-        $(document).ready(function() {
-            $("#sort-fullname").click(function() {
-                let url = new URL(window.location.href);
-                let currentField = url.searchParams.get("sort_field");
-                let currentOrder = url.searchParams.get("sort_order");
+                    let newOrder;
 
-                let newOrder;
-
-                if (currentField === "fullname") {
-                    if (currentOrder === "asc") {
-                        newOrder = "desc"; // Lần 2: Giảm dần
+                    if (currentField === "fullname") {
+                        if (currentOrder === "asc") {
+                            newOrder = "desc"; // Lần 2: Giảm dần
+                        } else {
+                            newOrder = "default"; // Lần 3: Trở về mặc định
+                        }
                     } else {
-                        newOrder = "default"; // Lần 3: Trở về mặc định
+                        newOrder = "asc"; // Lần 1: Tăng dần
                     }
-                } else {
-                    newOrder = "asc"; // Lần 1: Tăng dần
-                }
 
-                if (newOrder === "default") {
-                    url.searchParams.delete("sort_field");
-                    url.searchParams.delete("sort_order");
-                } else {
-                    url.searchParams.set("sort_field", "fullname");
-                    url.searchParams.set("sort_order", newOrder);
-                }
+                    if (newOrder === "default") {
+                        url.searchParams.delete("sort_field");
+                        url.searchParams.delete("sort_order");
+                    } else {
+                        url.searchParams.set("sort_field", "fullname");
+                        url.searchParams.set("sort_order", newOrder);
+                    }
 
-                window.location.href = url.toString();
-            });
-        });
-        $(document).ready(function() {
-            $(".status-toggle").each(function() {
-                $(this).data("prev-state", $(this).prop("checked")); // Lưu trạng thái ban đầu
-            });
+                    window.location.href = url.toString();
+                });
 
-            $(".status-toggle").change(function() {
-                let $this = $(this);
-                let userId = $this.data("id");
-                let newStatus = $this.prop("checked") ? 1 : 0;
-                let prevState = $this.data("prev-state"); // Lấy trạng thái ban đầu
+                $(".status-toggle").each(function() {
+                    $(this).data("prev-state", $(this).prop("checked")); // Lưu trạng thái ban đầu
+                });
 
-                $.ajax({
-                    url: "{{ route('admin.users.customer.update-status') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        id: userId,
-                        status: newStatus
-                    },
-                    success: function(response) {
-                        if (!response.success) {
+                $(".status-toggle").change(function() {
+                    let $this = $(this);
+                    let userId = $this.data("id");
+                    let newStatus = $this.prop("checked") ? 1 : 0;
+                    let prevState = $this.data("prev-state"); // Lấy trạng thái ban đầu
+
+                    $.ajax({
+                        url: "{{ route('admin.users.customer.update-status') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            id: userId,
+                            status: newStatus
+                        },
+                        success: function(response) {
+                            if (!response.success) {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Lỗi!",
+                                    text: "Không thể cập nhật trạng thái!",
+                                    timer: 2000
+                                });
+                                $this.prop("checked",
+                                    prevState); // Khôi phục trạng thái cũ nếu lỗi
+                            } else {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Thành công!",
+                                    text: "Trạng thái đã được cập nhật!",
+                                    timer: 2000
+                                });
+                                $this.data("prev-state",
+                                    newStatus); // Cập nhật trạng thái mới
+                            }
+                        },
+                        error: function() {
                             Swal.fire({
                                 icon: "error",
-                                title: "Lỗi!",
-                                text: "Không thể cập nhật trạng thái!",
+                                title: "Lỗi kết nối!",
+                                text: "Có lỗi khi cập nhật trạng thái!",
                                 timer: 2000
                             });
-                            $this.prop("checked", prevState); // Khôi phục trạng thái cũ nếu lỗi
-                        } else {
-                            Swal.fire({
-                                icon: "success",
-                                title: "Thành công!",
-                                text: "Trạng thái đã được cập nhật!",
-                                timer: 2000
-                            });
-                            $this.data("prev-state", newStatus); // Cập nhật trạng thái mới
+                            $this.prop("checked",
+                                prevState); // Khôi phục trạng thái cũ nếu lỗi
                         }
-                    },
-                    error: function() {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Lỗi kết nối!",
-                            text: "Có lỗi khi cập nhật trạng thái!",
-                            timer: 2000
-                        });
-                        $this.prop("checked", prevState); // Khôi phục trạng thái cũ nếu lỗi
-                    }
+                    });
                 });
             });
+
         });
     </script>
 @endpush
