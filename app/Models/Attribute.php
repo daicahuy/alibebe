@@ -17,7 +17,11 @@ class Attribute extends Model
         'is_active',
     ];
 
+    protected $attributes = [
+        'is_variant'=> 0,
+        'is_active'=>0
 
+    ];
     
     /////////////////////////////////////////////////////
     // RELATIONS

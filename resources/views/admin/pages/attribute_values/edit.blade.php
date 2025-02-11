@@ -34,14 +34,15 @@
                                                 href="{{ route('admin.attributes.index') }}">{{ __('form.attributes') }}</a>
                                             <span class="fs-6 fw-light">></span>
                                             <a class="link"
-                                                href="{{ route('admin.attributes.attribute_values.index', ['attribute' => 1]) }}">Màu
-                                                sắc</a>
+                                                href="{{ route('admin.attributes.attribute_values.index', ['attribute' => $attribute->id]) }}">{{ $attribute->name }}</a>
                                             <span class="fs-6 fw-light">></span> {{ __('message.edit') }}
                                         </h5>
                                     </div>
-                                    <form action="" method="POST" class="theme-form theme-form-2 mega-form mt-4"
-                                        novalidate>
+                                    <form
+                                        action="{{ route('admin.attributes.attribute_values.update', ['attribute' => $attribute->id, 'attributeValue' => $attributeValue->id]) }}"
+                                        method="POST" class="theme-form theme-form-2 mega-form mt-4" novalidate>
                                         @csrf
+                                        @method('PUT')
 
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0" for="value">
@@ -50,9 +51,12 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="value" id="value"
-                                                    class="form-control is-invalid"
+                                                    value="{{ $attributeValue->value }}"
+                                                    class="form-control @error('value') is-invalid @enderror "
                                                     placeholder="{{ __('form.enter_attribute_value_value') }}">
-                                                <div class="invalid-feedback">Vui lòng nhập giá trị</div>
+                                                @error('value')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
@@ -63,7 +67,8 @@
                                             <div class="col-sm-9">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch">
-                                                        <input type="checkbox" name="is_active" value="1" checked>
+                                                        <input type="checkbox" name="is_active" value="1"
+                                                            {{ $attributeValue->is_active ? 'checked' : '' }}>
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>
@@ -97,7 +102,29 @@
 @push('js')
     <script>
         $(document).ready(function() {
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: "{{ session('success') }}",
+                    timer: 1500,
+                    showConfirmButton: true
+                });
+            @endif
+            $("#value").on("blur", function() {
+                let value = $(this).val().trim(); // Lấy giá trị nhập vào
 
+                if (value === "") {
+                    $(this).removeClass("is-invalid"); // Xóa class lỗi
+                    $(".invalid-feedback").hide(); // Ẩn thông báo lỗi
+                }
+            });
+
+            $("#value").on("click", function() {
+                if ($(this).hasClass("is-invalid")) {
+                    $(".invalid-feedback").show(); // Nếu có lỗi, giữ nguyên thông báo
+                }
+            });
         });
     </script>
 @endpush

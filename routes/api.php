@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\api\BrandApiController;
+use App\Http\Controllers\API\AttributeController;
+use App\Http\Controllers\API\AttributeValueController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,3 +32,16 @@ Route::prefix('/categories')
     
     });
 Route::put('/brands/{brand}/status',[BrandApiController::class,'update'])->name('updateStatus');
+Route::prefix('/attributes')
+    ->name('attributes.')
+    ->controller(AttributeController::class)
+    ->group(function () {
+        Route::put('/{attribute}', 'update')->name('update');
+        Route::prefix('{attribute}/attribute_values')
+        ->name('attribute_values.')
+        ->controller(AttributeValueController::class)
+        ->where(['attribute' => '[0-9]+'])
+        ->group(function () {
+            Route::put('/{attributeValue}', 'update')->name('update');
+        });
+    });

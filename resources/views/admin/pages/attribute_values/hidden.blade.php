@@ -18,7 +18,16 @@
 {{-- ================================== --}}
 
 @section('content')
-
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class="container-fuild">
         <div class="row">
             <div class="col-sm-12">
@@ -29,17 +38,13 @@
                                 <h5>
                                     <a class="link"
                                         href="{{ route('admin.attributes.index') }}">{{ __('form.attributes') }}</a>
-                                    <span class="fs-6 fw-light">></span> {{ $attribute->name }}
-
+                                    <span class="fs-6 fw-light">></span>
+                                    <a class="link"
+                                        href="{{ route('admin.attributes.attribute_values.index', ['attribute' => $attribute->id]) }}">{{ $attribute->name }}</a>
+                                    <span class="fs-6 fw-light">></span> Ẩn
                                 </h5>
                             </div>
-                            <div>
-                                <a class="align-items-center btn btn-theme d-flex"
-                                    href="{{ route('admin.attributes.attribute_values.create', ['attribute' => $attribute->id]) }}">
-                                    <i class="ri-add-line"></i>
-                                    {{ __('message.add') . ' ' . __('form.attribute_values') }}
-                                </a>
-                            </div>
+
                         </div>
 
                         <!-- HEADER TABLE -->
@@ -51,17 +56,17 @@
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
                                 <select class="form-control" onchange="window.location.href=this.value;">
                                     <option
-                                        value="{{ route('admin.attributes.attribute_values.index', ['attribute' => $attribute->id, 'perpage' => 15]) }}"
+                                        value="{{ route('admin.attributes.attribute_values.hidden', ['attribute' => $attribute->id, 'perpage' => 15]) }}"
                                         @if (request()->input('perpage') == 15) selected @endif>
                                         15
                                     </option>
                                     <option
-                                        value="{{ route('admin.attributes.attribute_values.index', ['attribute' => $attribute->id, 'perpage' => 30]) }}"
+                                        value="{{ route('admin.attributes.attribute_values.hidden', ['attribute' => $attribute->id, 'perpage' => 30]) }}"
                                         @if (request()->input('perpage') == 30) selected @endif>
                                         30
                                     </option>
                                     <option
-                                        value="{{ route('admin.attributes.attribute_values.index', ['attribute' => $attribute->id, 'perpage' => 45]) }}"
+                                        value="{{ route('admin.attributes.attribute_values.hidden', ['attribute' => $attribute->id, 'perpage' => 45]) }}"
                                         @if (request()->input('perpage') == 45) selected @endif>
                                         45
                                     </option>
@@ -83,10 +88,7 @@
                                 </form>
 
                             </div>
-                            <a href="{{ route('admin.attributes.attribute_values.hidden', ['attribute' => $attribute->id]) }}"
-                                class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2">
-                                Ẩn
-                            </a>
+
                             <div class="datepicker-wrap">
 
                             </div>
@@ -268,24 +270,7 @@
 @push('js')
     <script>
         $(document).ready(function() {
-            @if(session('success'))
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Thành công!',
-                                text: "{{ session('success') }}",
-                                timer: 1500,
-                                showConfirmButton: true
-                            });
-                    @endif
 
-                    @if(session('error'))
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi!',
-                                text: "{{ session('error') }}",
-                                showConfirmButton: true
-                            });
-                    @endif
             // --- Logic Checkbox ---
             $('#checkbox-table').on('click', function() {
 

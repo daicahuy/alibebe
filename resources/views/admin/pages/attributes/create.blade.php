@@ -39,7 +39,7 @@
                                     <form action="{{ route('admin.attributes.store') }}" method="POST"
                                         class="theme-form theme-form-2 mega-form mt-4" novalidate>
                                         @csrf
-
+                                    {{-- Name --}}
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0" for="name">
                                                 {{ __('form.attribute.name') }}
@@ -47,12 +47,14 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="name" id="name"
-                                                    class="form-control is-invalid"
-                                                    placeholder="{{ __('form.enter_attribute_name') }}">
-                                                <div class="invalid-feedback">Vui lòng nhập tên thuộc tính</div>
+                                                    class="form-control @error('name') is-invalid @enderror"
+                                                    placeholder="{{ __('form.enter_attribute_name') }}" value="{{old('name')}}">
+                                                    @error('name')
+                                                    <div class="invalid-feedback"  >{{$message}}</div>
+                                                    @enderror
                                             </div>
                                         </div>
-
+                                        {{-- Is_variant --}}
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0">
                                                 {{ __('form.attribute.is_variant') }}
@@ -66,7 +68,7 @@
                                                 </div>
                                             </div>
                                         </div>
-
+                                        {{-- Is_active --}}
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0">
                                                 {{ __('form.attribute.is_active') }}
@@ -80,7 +82,7 @@
                                                 </div>
                                             </div>
                                         </div>
-
+                                        {{-- Button --}}
                                         <button class="btn btn-theme ms-auto mt-4" type="submit">
                                             {{ __('message.add_new') }}
                                         </button>
@@ -108,7 +110,20 @@
 @push('js')
     <script>
         $(document).ready(function() {
+            $("#name").on("blur", function() {
+                let name = $(this).val().trim(); // Lấy giá trị nhập vào
 
+                if (name === "") {
+                    $(this).removeClass("is-invalid"); // Xóa class lỗi
+                    $(".invalid-feedback").hide(); // Ẩn thông báo lỗi
+                }
+            });
+
+            $("#name").on("click", function() {
+                if ($(this).hasClass("is-invalid")) {
+                    $(".invalid-feedback").show(); // Nếu có lỗi, giữ nguyên thông báo
+                }
+            });
         });
     </script>
 @endpush
