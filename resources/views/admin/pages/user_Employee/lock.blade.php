@@ -26,10 +26,11 @@
                         <div class="title-header">
                             <div class="d-flex align-items-center">
                                 <h5>
-                                    <a href="{{ route('admin.users.customer.index') }}"
+                                    <a href="{{ route('admin.users.employee.index') }}"
                                         class="link">{{ __('form.users') }}</a>
                                     <span class="fs-6 fw-light">></span> {{ __('message.lock_list') }}
                                 </h5>
+
                             </div>
                         </div>
                         {{-- @if (session('success'))
@@ -46,7 +47,7 @@
                         <!-- HEADER TABLE -->
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                <form action="{{ route('admin.users.customer.lock') }}" method="GET" id="filter-form">
+                                <form action="{{ route('admin.users.employee.lock') }}" method="GET" id="filter-form">
                                     <select class="form-control" name="limit" id="limit-select">
                                         <option value="15" {{ request('limit') == 15 ? 'selected' : '' }}>15</option>
                                         <option value="30" {{ request('limit') == 30 ? 'selected' : '' }}>30</option>
@@ -65,7 +66,7 @@
 
 
 
-                            <form action="{{ route('admin.users.customer.lock') }}" method="GET">
+                            <form action="{{ route('admin.users.employee.lock') }}" method="GET">
                                 <div class="table-search">
                                     <label class="form-label">{{ __('message.search') }} :</label>
                                     <input type="search" class="form-control" name="_keyword"
@@ -100,7 +101,6 @@
                                                     <div><i class="ri-arrow-up-s-fill"></i></div>
                                                 </div>
                                             </th>
-
                                             <th>{{ __('form.user.phone_number') }}</th>
                                             <th>{{ __('form.user.role') }}</th>
                                             <th class="cursor-pointer"> {{ __('form.user.created_at') }}
@@ -137,7 +137,7 @@
                                                 <td class="cursor-pointer">{{ $item->phone_number }}</td>
                                                 <td class="cursor-pointer">
                                                     @if ($item->role == 0)
-                                                        <span>{{ __('form.user_customer') }}</span>
+                                                        <span>{{ __('form.user_employee') }}</span>
                                                     @elseif ($item->role == 1)
                                                         <span>{{ __('form.user_employee') }}</span>
                                                     @else
@@ -156,29 +156,28 @@
                                                         </label>
                                                     </div>
                                                 </td>
-
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.users.customer.show', $item->id) }}"
+                                                            <a href="{{ route('admin.users.employee.show', $item->id) }}"
                                                                 class="btn-detail">
                                                                 <i class="ri-eye-line"></i>
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <a href="{{ route('admin.users.customer.edit', $item->id) }}"
+                                                            <a href="{{ route('admin.users.employee.edit', $item->id) }}"
                                                                 class="btn-edit">
                                                                 <i class="ri-pencil-line"></i>
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <form
+                                                            <form id="unLockUserForm-{{ $item->id }}"
                                                                 action="{{ route('admin.users.customer.lockUser', $item->id) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('PUT')
-                                                                <button type="submit" class="btn-unlock"
-                                                                    onclick="return confirm('{{ __('message.confirm_unlock_user') }}')">
+                                                                <button type="button" class="btn-unlock"
+                                                                    onclick="confirmLockUser('{{ $item->id }}')">
                                                                     <i class="ri-lock-unlock-line"></i>
                                                                 </button>
                                                             </form>
@@ -220,6 +219,22 @@
 
 @push('js')
     <script>
+        function confirmLockUser(userId) {
+            Swal.fire({
+                title: "{{ __('message.confirm_unlock_user') }}",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Xác nhận",
+                cancelButtonText: "{{ __('message.cancel') }}"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('unLockUserForm-' + userId).submit();
+                }
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             @if (session('success'))
                 Swal.fire({
@@ -317,7 +332,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('admin.users.customer.unLockMultipleUsers') }}",
+                            url: "{{ route('admin.users.employee.unLockMultipleUsers') }}",
                             type: "POST",
                             data: {
                                 user_ids: selectedUsers,
@@ -335,7 +350,7 @@
                                 });
                             },
                             error: function(xhr) {
-                                console.log(xhr.responseJSON); // Debug lỗi từ server
+                                console.log(xhr.responseJSON);
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Lỗi!',
@@ -350,39 +365,36 @@
             });
 
 
-        });
+            $(document).ready(function() {
+                $("#sort-fullname").click(function() {
+                    let url = new URL(window.location.href);
+                    let currentField = url.searchParams.get("sort_field");
+                    let currentOrder = url.searchParams.get("sort_order");
 
-        $(document).ready(function() {
-            $("#sort-fullname").click(function() {
-                let url = new URL(window.location.href);
-                let currentField = url.searchParams.get("sort_field");
-                let currentOrder = url.searchParams.get("sort_order");
+                    let newOrder;
 
-                let newOrder;
-
-                if (currentField === "fullname") {
-                    if (currentOrder === "asc") {
-                        newOrder = "desc"; // Lần 2: Giảm dần
+                    if (currentField === "fullname") {
+                        if (currentOrder === "asc") {
+                            newOrder = "desc"; // Lần 2: Giảm dần
+                        } else {
+                            newOrder = "default"; // Lần 3: Trở về mặc định
+                        }
                     } else {
-                        newOrder = "default"; // Lần 3: Trở về mặc định
+                        newOrder = "asc"; // Lần 1: Tăng dần
                     }
-                } else {
-                    newOrder = "asc"; // Lần 1: Tăng dần
-                }
 
-                if (newOrder === "default") {
-                    url.searchParams.delete("sort_field");
-                    url.searchParams.delete("sort_order");
-                } else {
-                    url.searchParams.set("sort_field", "fullname");
-                    url.searchParams.set("sort_order", newOrder);
-                }
+                    if (newOrder === "default") {
+                        url.searchParams.delete("sort_field");
+                        url.searchParams.delete("sort_order");
+                    } else {
+                        url.searchParams.set("sort_field", "fullname");
+                        url.searchParams.set("sort_order", newOrder);
+                    }
 
-                window.location.href = url.toString();
+                    window.location.href = url.toString();
+                });
             });
-        });
 
-        $(document).ready(function() {
             $(".status-toggle").each(function() {
                 $(this).data("prev-state", $(this).prop("checked")); // Lưu trạng thái ban đầu
             });
@@ -431,6 +443,7 @@
                     }
                 });
             });
+
         });
     </script>
 @endpush

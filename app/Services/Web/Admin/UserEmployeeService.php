@@ -2,7 +2,7 @@
 
 namespace App\Services\Web\Admin;
 
-use App\Repositories\UserEmployeeRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -10,30 +10,30 @@ class UserEmployeeService
 {
     protected $userRepository;
 
-    public function __construct(UserEmployeeRepository $userRepository)
+    public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
     }
 
-    public function getUsersActivate(Request $request, $limit)
+    public function getUserEmployee(Request $request, $limit)
     {
-        return $this->userRepository->getUsersActivate($request, $limit);
+        return $this->userRepository->getUserEmployee($request, $limit);
     }
 
-    public function countUserLock()
+    public function countUserEmployeeLock()
     {
-        return $this->userRepository->countUserLock();
+        return $this->userRepository->countUserEmployeeLock();
     }
 
-    public function showUser(int $id, array $columns = ['*'])
+    public function showUserEmployee(int $id, array $columns = ['*'])
     {
-        return $this->userRepository->showUser($id, $columns);
+        return $this->userRepository->showUserEmployee($id, $columns);
     }
-    public function getUsersLock(Request $request, $limit)
+    public function getUserEmployeeLock(Request $request, $limit)
     {
-        return $this->userRepository->getUserLock($request, $limit);
+        return $this->userRepository->getUserEmployeeLock($request, $limit);
     }
-    public function createUser($data)
+    public function createUserEmployee($data)
     {
         try {
             return $this->userRepository->create($data);
@@ -43,7 +43,7 @@ class UserEmployeeService
         }
     }
 
-    public function UpdateUser($ids, $data)
+    public function UpdateUserEmployee($ids, $data)
     {
         try {
             

@@ -2,7 +2,7 @@
 
 namespace App\Services\Web\Admin;
 
-use App\Repositories\UserCustomerRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -10,32 +10,32 @@ class UserCustomerService
 {
     protected $userRepository;
 
-    public function __construct(UserCustomerRepository $userRepository)
+    public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
     }
 
-    public function getUsersActivate(Request $request, $limit)
+    public function getUserCustomer(Request $request, $limit)
 {
-    return $this->userRepository->getUsersActivate($request, $limit);
+    return $this->userRepository->getUserCustomer($request, $limit);
 }
 
 
-    public function showUser(int $id, array $columns = ['*'])
+    public function showUserCustomer(int $id, array $columns = ['*'])
     {
-        return $this->userRepository->showUser($id, $columns);
+        return $this->userRepository->showUserCustomer($id, $columns);
     }
-    public function getUsersLock(Request $request, $limit)
+    public function getUserCustomerLock(Request $request, $limit)
     {
-        return $this->userRepository->getUserLock($request,$limit);
-    }
-
-    public function countUserLock()
-    {
-        return $this->userRepository->countUserLock();
+        return $this->userRepository->getUserCustomerLock($request,$limit);
     }
 
-    public function UpdateUser($ids, $data)
+    public function countUserCustomerLock()
+    {
+        return $this->userRepository->countUserCustomerLock();
+    }
+
+    public function UpdateUserCustomer($ids, $data)
     {
         try {
             
