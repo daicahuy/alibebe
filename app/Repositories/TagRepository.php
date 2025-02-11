@@ -32,6 +32,9 @@ class TagRepository extends BaseRepository
         }
         return $tag->delete();
     }
+    public function getProductsByTag($tagId, $perPage = null)  {
+        return Tag::findOrFail($tagId)->products()->paginate($perPage);
+    }
     public function deleteAll(array $ids)
     {
         $tags = Tag::whereIn('id', $ids)->get();

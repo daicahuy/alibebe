@@ -8,7 +8,7 @@ use App\Models\Brand;
 use App\Services\Web\Admin\BrandService;
 use Illuminate\Http\Request;
 
-class BrandApiController extends Controller
+class BrandController extends Controller
 {
     protected $brandService;
 

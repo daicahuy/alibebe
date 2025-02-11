@@ -229,6 +229,8 @@ Route::prefix('/admin')
 
                 Route::get('/create', 'create')->name('create');
 
+                Route::get('/{tag}/products', 'showProducts')->name('showProducts');
+
                 Route::post('/', 'store')->name('store');
 
                 Route::get('/edit/{tag}', 'edit')->name('edit');

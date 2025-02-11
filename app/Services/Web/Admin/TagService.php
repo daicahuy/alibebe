@@ -33,6 +33,9 @@ class TagService
         }
     }
 
+    public function getProductsByTag($tagId)  {
+        return $this->TagRepository->getProductsByTag($tagId);
+    }
     public function UpdateTag(UpdateTagRequest $updateTagRequest, Tag $tag) {
         $data = $updateTagRequest->validated();
         try {

@@ -1,11 +1,11 @@
 <?php
 
 use App\Http\Controllers\Api\CategoryController;
-use App\Http\Controllers\api\BrandApiController;
 use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\AttributeValueController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Web\Admin\CouponController;
+use App\Http\Controllers\api\BrandController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,7 +33,6 @@ Route::prefix('/categories')
         Route::patch('/{category}/active', 'toggleActive')->name('toggleActive'); // Cập nhật trạng thái active
     
     });
-Route::put('/brands/{brand}/status',[BrandApiController::class,'update'])->name('updateStatus');
 Route::prefix('/attributes')
     ->name('attributes.')
     ->controller(AttributeController::class)
@@ -69,3 +68,4 @@ Route::prefix('/coupons')
     ->group(function () {
         Route::post('/update-coupon-status/{id}',  'apiUpdateStatus');
     });
+Route::put('/brands/{brand}/status',[BrandController::class,'update'])->name('updateStatus');

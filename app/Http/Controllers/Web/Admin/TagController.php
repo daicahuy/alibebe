@@ -24,7 +24,11 @@ class TagController extends Controller
         $tags = $this->tagService->listTag15($perPage, $keyWord,$sort,$order);
         return view('admin.pages.tags.list',compact('tags','perPage','keyWord','sort','order'));
     }
-
+    public function showProducts($tagId)  {
+        $tags = Tag::findOrFail($tagId);
+        $products = $this->tagService->getProductsByTag($tagId);
+        return view('admin.pages.tags.listProductsByTag',compact('tags','products'));
+    }
     public function create()
     {
         return view('admin.pages.tags.create');

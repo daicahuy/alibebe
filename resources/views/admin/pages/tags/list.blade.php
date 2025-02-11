@@ -168,9 +168,14 @@
 
                                                     </td>
 
-
                                                     <td>
                                                         <ul id="actions">
+                                                            <li>
+                                                                <a href="{{ route('admin.tags.showProducts', ['tag' => $tag->id] ) }}"
+                                                                    class="btn-detail">
+                                                                    <i class="ri-eye-line"></i>
+                                                                </a>
+                                                            </li>
                                                             <li>
                                                                 <a href="{{ route('admin.tags.edit', $tag->id) }}"
                                                                     class="btn-edit">
@@ -228,11 +233,20 @@
 
 @push('js')
     <script>
-         @if(session('success'))
+    @if(session('success'))
         Swal.fire({
             icon: 'success',
             title: 'Thành công!',
             text: "{{ session('success') }}",
+            showConfirmButton: true,
+            confirmButtonText: 'OK'
+        });
+    @endif
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Thất Bại!',
+            text: "{{ session('error') }}",
             showConfirmButton: true,
             confirmButtonText: 'OK'
         });
