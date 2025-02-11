@@ -5,6 +5,7 @@ use App\Http\Controllers\api\BrandApiController;
 use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\AttributeValueController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Web\Admin\CouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -61,3 +62,15 @@ Route::prefix('/orders')
 Route::post('/orders/uploadImgConfirm/{idOrder}', [OrderController::class, 'uploadImgConfirm'])->name('uploadImgConfirm');
 Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');
 Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->name('getOrderDetail');
+// api
+Route::prefix('/admin')
+    ->name('admin.')
+    ->group(function () {
+        // COUPONS
+        Route::prefix('/coupons')
+            ->name('coupons.')
+            ->controller(CouponController::class)
+            ->group(function () {
+                Route::post('/update-coupon-status/{id}',  'apiUpdateStatus');
+            });
+    });
