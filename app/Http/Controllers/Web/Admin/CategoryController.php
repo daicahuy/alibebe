@@ -106,7 +106,7 @@ class CategoryController extends Controller
 
     }
 
-    public function edit(Category $category)
+    public function edit($id)
     {
         $edit = $this->categoryService->edit($id);
         // dd($edit);  
@@ -160,7 +160,7 @@ class CategoryController extends Controller
         }
     }
 
-    public function restore(Request $request)
+    public function restore($id)
     {
         $response = $this->categoryService->restore($id);
 
