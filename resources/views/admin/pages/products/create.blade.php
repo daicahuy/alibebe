@@ -293,11 +293,11 @@
                                                                     <button class="btn btn-warning btn-sm ms-2 d-inline" id="genarate-variant-btn" type="button">
                                                                         <div>{{ __('message.create') . ' ' . __('form.product_variants') }}</div>
                                                                     </button>
-                                                                    <button class="btn btn-danger btn-sm d-inline d-none" id="remove-all-variant-btn" type="button">
+                                                                    <button class="btn btn-danger btn-sm ms-2 d-inline d-none" id="remove-all-variant-btn" type="button">
                                                                         <div>{{ __('message.delete_all') }}</div>
                                                                     </button>
 
-                                                                    {{-- <div class="table-responsive datatable-wrapper border-table mt-4">
+                                                                    <div class="table-responsive datatable-wrapper border-table mt-4">
                                                                         <table class="table all-package theme-table no-footer">
                                                                             <thead>
                                                                                 <tr>
@@ -313,9 +313,11 @@
                                                                             </thead>
                                                                             <tbody>
                                                                                 <tr>
-                                                                                    <td class="cursor-pointer sm-width">
-                                                                                        <img alt="image" class="tbl-image icon-image"
-                                                                                            src="{{ asset('/theme/admin/assets/images/categories/mobile_phone.svg') }}">
+                                                                                    <td class="sm-width">
+                                                                                        <label for="file-input" class="cursor-pointer">
+                                                                                            <img alt="image" class="tbl-image icon-image" src="{{ asset('/theme/admin/assets/images/categories/mobile_phone.svg') }}">
+                                                                                        </label>
+                                                                                        <input id="file-input" type="file" style="display: none;" name="product_variant[thumbnail]"/>
                                                                                     </td>
     
                                                                                     <td>
@@ -325,23 +327,22 @@
                                                                                     </td>
                                         
                                                                                     <td>
-                                                                                        <input type="text" name="" class="form-control">
+                                                                                        <input type="text" name="product_variant[sku]" class="form-control">
                                                                                     </td>
     
                                                                                     <td>
-                                                                                        <input type="number" name="" class="form-control">
+                                                                                        <input type="number" name="product_variant[price]" class="form-control">
                                                                                     </td>
                                                                                     <td>
-                                                                                        <input type="number" name="" class="form-control">
+                                                                                        <input type="number" name="product_variant[sale_price]" class="form-control">
                                                                                     </td>
                                                                                     <td>
-                                                                                        <input type="number" name="" class="form-control">
+                                                                                        <input type="number" name="product_variant[stock]" class="form-control">
                                                                                     </td>
                                                                                     <td>
                                                                                         <div class="form-check form-switch ps-0">
                                                                                             <label class="switch">
-                                                                                                <input type="checkbox" id="is_active"
-                                                                                                    name="product[is_active]">
+                                                                                                <input type="checkbox" id="is_active" name="product_variant[is_active]">
                                                                                                 <span class="switch-state"></span>
                                                                                             </label>
                                                                                         </div>
@@ -360,7 +361,7 @@
                                                                                 </tr>
                                                                             </tbody>
                                                                         </table>
-                                                                    </div> --}}
+                                                                    </div>
                                                                 </div>
                                                                 
                                                             </div>
@@ -575,18 +576,14 @@
     <script>
         $(document).ready(function() {
 
-            // Mặc định ẩn Start Date và End Date khi checkbox chưa được tick
-            $('#start-date-div, #end-date-div').hide(); // Ẩn các trường ngày khi trang tải
-
-            // Khởi tạo Flatpickr cho các trường input
+            $('#start-date-div, #end-date-div').hide();
             $(".form-date").flatpickr({
                 dateFormat: "Y-m-d"
             });
-
+            
             $(".start_date_input").click(function() {
                 $("#start_date_input").open();
             });
-
             $(".end_date_input").click(function() {
                 $("#end_date_input").open();
             });
@@ -622,7 +619,7 @@
                 const valueSelect = $(this).closest('.variant-inputs').find('.value-select');
                 populateValues(valueSelect, attribute);
             });
-
+            
             $('#add-attribute-btn').on('click', function(e) {
                 e.preventDefault();
                 const variantContent = `
@@ -659,29 +656,6 @@
                     if (removeAllVariant.hasClass('d-none')) {
                         removeAllVariant.removeClass('d-none');
                     }
-                    
-                    const result = {};
-
-                    $('.attribute-select').each(function () {
-                        const key = $(this).attr('name');
-                        const value = $(this).val();
-
-                        if (attributeData[key]) {
-                            if (!attributeData[key].includes(value)) {
-                                if (!result[key]) {
-                                    result[key] = [];
-                                }
-                                result[key].push(value);
-                            }
-                        } else {
-                            if (!result[key]) {
-                                result[key] = [];
-                            }
-                            result[key].push(value);
-                        }
-                    });
-
-                    console.log(result);
 
                 }
                 
@@ -715,12 +689,18 @@
                 });
                 
 
-            })
+            });
 
             $('#remove-all-variant-btn').on('click', function() {
                 $('.attribute-content').remove();
                 $(this).addClass('d-none');
-            })
+            });
+
+            $('#genarate-variant-btn').on('click', function() {
+                $('.attribute-select').each(function(index) {
+                    console.log($(this).val(), $($('.value-select')[index]).val());
+                })
+            });
 
 
         });

@@ -11,6 +11,11 @@ use App\Http\Controllers\Web\Admin\ProductController;
 use App\Http\Controllers\Web\Admin\ReviewController;
 use App\Http\Controllers\Web\Admin\TagController;
 use App\Http\Controllers\Web\Admin\UserController;
+use App\Http\Controllers\Web\Auth\AuthAdminController;
+use App\Http\Controllers\Web\Auth\AuthCustomerController;
+use App\Http\Controllers\Web\Client\DetailProductController;
+use App\Http\Controllers\Web\Client\HomeController;
+use App\Http\Controllers\Web\Client\ListCategoriesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,9 +29,43 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return '<h2>@Copyright by Huy + Anh + Manh + Hiep + Quan + Tung + Bao</h2>';
-});
+/*--------------CLIENT--------------*/
+Route::get('/', [HomeController::class, 'index'])->name('index');
+Route::get('/categories/{category?}', [ListCategoriesController::class, 'index'])->name('categories');
+Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
+
+
+/*--------------AUTHENTICATION--------------*/
+Route::name('auth.')
+    ->group(function() {
+
+        Route::name('customer.')
+            ->controller(AuthCustomerController::class)
+            ->group(function() {
+
+                Route::get('/login', 'showFormLogin')->name('showFormLogin');
+                Route::get('/register', 'showFormRegister')->name('showFormRegister');
+                Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
+                Route::get('/otp', 'showFormOtp')->name('showFormOtp');
+                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword');
+            
+            });
+
+        Route::name('admin.')
+            ->prefix('admin')
+            ->controller(AuthAdminController::class)
+            ->group(function() {
+
+                Route::get('/login', 'showFormLogin')->name('showFormLogin');
+                Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
+                Route::get('/otp', 'showFormOtp')->name('showFormOtp');
+                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword');
+            
+            });
+
+
+    });
+
 
 
 /*--------------ADMIN--------------*/
