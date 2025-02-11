@@ -199,6 +199,12 @@
                                                     <td>
                                                         <ul id="actions">
                                                             <li>
+                                                                <a href="{{ route('admin.brands.showProduct', ['brand' => $brand->id] ) }}"
+                                                                    class="btn-detail">
+                                                                    <i class="ri-eye-line"></i>
+                                                                </a>
+                                                            </li>
+                                                            <li>
                                                                 <a href="{{ route('admin.brands.edit', $brand->id) }}"
                                                                     class="btn-edit">
                                                                     <i class="ri-pencil-line"></i>

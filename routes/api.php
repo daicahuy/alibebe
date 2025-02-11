@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\api\BrandApiController;
+use App\Http\Controllers\api\BrandController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,4 +19,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::put('/brands/{brand}/status',[BrandApiController::class,'update'])->name('updateStatus');
+Route::put('/brands/{brand}/status',[BrandController::class,'update'])->name('updateStatus');
