@@ -49,6 +49,8 @@ class CategoryRepository extends BaseRepository
         } else {
             $query->whereNull('parent_id');
         }
+        $query->where('is_active', 1);
+        $query->orderBy('updated_at','DESC');
         return $query;
     }
 
