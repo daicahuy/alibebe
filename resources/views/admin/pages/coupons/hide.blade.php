@@ -21,7 +21,7 @@
                 <div class="card-body">
                     <div class="title-header">
                         <div class="d-flex align-items-center">
-                            <h5>{{ __('form.coupons') }}</h5>
+                            <h5>{{ __('form.coupons_hide') }}</h5>
                         </div>
                         <div>
                             <a class="align-items-center btn btn-theme d-flex" href="{{ route('admin.coupons.create') }}">
@@ -51,13 +51,11 @@
                                 </button>
                             </form>
 
-                            <a href="{{ route('admin.coupons.hide') }}"
-                                class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
-                                {{__('form.coupons_hide')}}
-                                <span
-                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $couponsHidden }}</span>
+                            <a href="{{ route('admin.coupons.index') }}"
+                                class="align-items-center btn btn-theme btn-sm d-flex position-relative ms-2">
+                                {{__('form.coupons')}}
                             </a>
-
+                    
                             <a href="{{ route('admin.coupons.trash') }}"
                                 class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
                                 <i class="ri-delete-bin-line"></i>
@@ -75,7 +73,7 @@
                             <div class="row">
                                 <div class="table-search col-sm-8">
                                     <label for="role-search" class="form-label">Tìm Kiếm:</label>
-                                    <input type="search" id="role-search" name="searchKey" value="{{old('searchKey')}}" class="form-control" placeholder="Tiêu Đề/Mã Giảm Giá">
+                                    <input type="search" id="role-search" name="searchKey" class="form-control">
                                 </div>
                                 <div class="col-sm-4">
                                     <button type="submit" class="btn btn-theme">Search</button>
@@ -94,12 +92,10 @@
                                                     class="custom-control-input checkbox_animated">
                                             </div>
                                         </th>
-                                        <th class="sm-width">
-                                            STT
-                                        </th>
+                                        <th class="sm-width">STT</th>
                                         <th class="sm-width cursor-pointer">
                                             <a
-                                                href="{{ route('admin.coupons.index', ['sortField' => 'id', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                                href="{{ route('admin.coupons.hide', ['sortField' => 'id', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
                                                 ID
                                                 @if (request('sortField') === 'id')
                                                     <div class="filter-arrow">
@@ -113,8 +109,8 @@
                                         </th>
                                         <th class="cursor-pointer">
                                             <a
-                                                href="{{ route('admin.coupons.index', ['sortField' => 'code', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
-                                                {{ __('form.coupon.code') }}
+                                                href="{{ route('admin.coupons.hide', ['sortField' => 'code', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                                {{__('form.coupon.code')}}
                                                 @if (request('sortField') === 'code')
                                                     <div class="filter-arrow">
                                                         <div>
@@ -127,8 +123,8 @@
                                         </th>
                                         <th class="cursor-pointer">
                                             <a
-                                                href="{{ route('admin.coupons.index', ['sortField' => 'title', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
-                                                {{ __('form.coupon.title') }}
+                                                href="{{ route('admin.coupons.hide', ['sortField' => 'title', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                                {{__('form.coupon.title')}}
                                                 @if (request('sortField') === 'title')
                                                     <div class="filter-arrow">
                                                         <div>
@@ -139,11 +135,11 @@
                                                 @endif
                                             </a>
                                         </th>
-                                        <th>{{ __('form.coupon.is_active') }}</th>
+                                        <th>{{__('form.coupon.is_active')}}</th>
                                         <th class="cursor-pointer">
                                             <a
-                                                href="{{ route('admin.coupons.index', ['sortField' => 'start_date', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
-                                                {{ __('form.coupon.start_date') }}
+                                                href="{{ route('admin.coupons.hide', ['sortField' => 'start_date', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                                {{__('form.coupon.start_date')}}
                                                 @if (request('sortField') === 'start_date')
                                                     <div class="filter-arrow">
                                                         <div>
@@ -156,17 +152,17 @@
                                         </th>
                                         <th class="cursor-pointer">
                                             <a
-                                                href="{{ route('admin.coupons.index', ['sortField' => 'end_date', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
-                                                {{ __('form.coupon.end_date') }}
-                                                @if (request('sortField') === 'end_date')
-                                                    <div class="filter-arrow">
-                                                        <div>
-                                                            <i
-                                                                class="ri-arrow-{{ request('sortDirection') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
-                                                        </div>
+                                            href="{{ route('admin.coupons.hide', ['sortField' => 'end_date', 'sortDirection' => request('sortDirection') === 'asc' ? 'desc' : 'asc']) }}">
+                                            {{__('form.coupon.end_date')}}
+                                            @if (request('sortField') === 'end_date')
+                                                <div class="filter-arrow">
+                                                    <div>
+                                                        <i
+                                                            class="ri-arrow-{{ request('sortDirection') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
                                                     </div>
-                                                @endif
-                                            </a>
+                                                </div>
+                                            @endif
+                                        </a>
                                         </th>
                                         <th>Hành Động</th>
                                     </tr>
@@ -186,9 +182,7 @@
                                                             class="custom-control-input checkbox_animated checkbox-input">
                                                     </div>
                                                 </td>
-                                                <td class="cursor-pointer">
-                                                    <div>{{ $key + 1 }}</div>
-                                                </td>
+                                                <td class="cursor-pointer">{{$key + 1}}</td>
                                                 <td class="cursor-pointer sm-width">{{ $coupon->id }}</td>
                                                 <td class="cursor-pointer">
                                                     <div>{{ $coupon->code }}</div>

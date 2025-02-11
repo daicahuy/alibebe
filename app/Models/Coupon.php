@@ -37,6 +37,11 @@ class Coupon extends Model
         return $this->discount_type === CouponDiscountType::PERCENT;
     }
 
+    public $attributes = [
+        'is_active' => 0,
+        'is_expired' => 0
+    ];
+
 
     /////////////////////////////////////////////////////
     // RELATIONS
@@ -49,6 +54,10 @@ class Coupon extends Model
     public function users()
     {
         return $this->belongsToMany(User::class)->withPivot('created_at', 'updated_at');
+    }
+
+    public function restriction() {
+        return $this->hasOne(CouponRestriction::class);
     }
 
 }

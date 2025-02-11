@@ -101,6 +101,7 @@ return [
     ],
 
     'coupons' => 'Mã giảm giá',
+    'coupons_hide' => 'Mã Giảm Giá Ẩn',
     'coupon' => [
         'id' => 'ID',
         'code' => 'Mã giảm giá',
@@ -118,7 +119,12 @@ return [
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
         'deleted_at' => 'Ngày xóa',
+        
+        'select_discount_type' => 'Lựa Chọn Loại Giảm Giá',
+        'fix_amount' => 'Giá Cố Định',
+        'percent' => 'Phần Trăm',
     ],
+    
 
     'histories' => 'Lịch sử',
     'history' => [

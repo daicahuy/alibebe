@@ -12,6 +12,7 @@ return [
     'add_new' => 'Thêm mới',
     'detail' => 'Chi tiết',
     'hidden' => 'Ẩn',
+    'restore' => 'Khôi Phục',
 
     'confirm_move_to_trash_all_item' => 'Bạn có chắc chuyển các bản ghi đã chọn vào thùng rác không ?',
     'confirm_move_to_trash_item' => 'Bạn có chắc chuyển bản ghi này vào thùng rác không ?',
@@ -42,4 +43,5 @@ return [
     // category
     'error' => 'Lỗi',
     'error_message' => 'Đã xảy ra lỗi, vui lòng kiểm tra lại',
+    'confirm_restore_out_trash_item' => 'Bạn có chắc khôi phục lại bản ghi không ?'
 ];

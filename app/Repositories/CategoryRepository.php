@@ -8,12 +8,11 @@ use Illuminate\Contracts\Pagination\Paginator;
 
 class CategoryRepository extends BaseRepository
 {
-
+    
     public function getModel()
     {
         return Category::class;
     }
-
 
     // Tự viết hàm truy vấn mới
     // list category gốc, (parent_id = NULL) và con nếu có, dành cho list có phân trang
