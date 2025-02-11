@@ -328,7 +328,7 @@
                 const newStatus = $toggle.is(':checked') ? 1 : 0;
 
                 $.ajax({
-                    url: `/admin/coupons/update-coupon-status/${couponId}`,
+                    url: `/api/admin/coupons/update-coupon-status/${couponId}`,
                     method: 'POST',
                     data: {
                         is_active: newStatus,

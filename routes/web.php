@@ -253,8 +253,5 @@ Route::prefix('/admin')
                 Route::delete('/force-destroy-selected', 'forceDestroySelected')->name('force-destroy-selected');
 
                 Route::get('/search','searchCoupon')->name('search');
-
-                // api
-                Route::post('/update-coupon-status/{id}',  'apiUpdateStatus');
             });
     });
