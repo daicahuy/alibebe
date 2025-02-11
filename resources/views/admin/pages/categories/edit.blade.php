@@ -46,7 +46,7 @@
                                         </div>
                                     @endif
 
-                                  
+
 
 
                                     <form action="{{ route('admin.categories.update', $findId) }}" method="POST"
@@ -92,9 +92,13 @@
                                                     value="{{ $findId->name }}"
                                                     class="form-control @error('name') is-invalid @enderror"
                                                     placeholder="{{ __('form.enter_name') }}">
-                                               
-                                                    <div class="invalid-feedback"></div>
-                                               
+
+                                                <div class="invalid-feedback">
+                                                    @error('name')
+                                                        {{ $message }}
+                                                    @enderror
+                                                </div>
+
 
                                         </div>
                                 </div>
@@ -185,12 +189,12 @@
 
             // validate js
             $('#name').blur(function() {
-                if (this.checkValidity()) { // Kiểm tra dữ liệu có hợp lệ hay không
+                if (this.checkValidity()) { 
                     $(this).removeClass('is-invalid');
-                    $(this).next('.invalid-feedback').hide(); // Ẩn thông báo lỗi
+                    $(this).next('.invalid-feedback').hide(); 
                 }
             });
-            
+
         });
     </script>
 @endpush

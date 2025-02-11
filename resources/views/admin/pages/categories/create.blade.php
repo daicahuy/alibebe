@@ -98,13 +98,13 @@
                                             <div class="col-sm-9">
                                                 <input type="text" name="name" id="name"
                                                     value="{{ old('name') }}"
-                                                    class="form-control 
-                                                    @error('name') is-invalid @enderror">
+                                                    class="form-control @error('name') is-invalid @enderror">
 
-                                                <div class="invalid-feedback"></div>
-
-
-
+                                                <div class="invalid-feedback">
+                                                    @error('name')
+                                                        {{ $message }} 
+                                                    @enderror
+                                                </div>
                                             </div>
                                         </div>
 
@@ -184,15 +184,15 @@
 @push('js')
     <script>
         $(document).ready(function() {
-           
+
             $('#name').blur(function() {
-                if (this.checkValidity()) { // Kiểm tra dữ liệu có hợp lệ hay không
+                if (this.checkValidity()) { 
                     $(this).removeClass('is-invalid');
-                    $(this).next('.invalid-feedback').hide(); // Ẩn thông báo lỗi
+                    $(this).next('.invalid-feedback').hide(); 
                 }
             });
 
+
         });
-        
     </script>
 @endpush
