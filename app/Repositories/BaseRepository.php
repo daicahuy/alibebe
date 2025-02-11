@@ -2,7 +2,8 @@
 
 namespace App\Repositories;
 
-abstract class BaseRepository {
+abstract class BaseRepository
+{
 
     protected $model;
 
@@ -13,7 +14,8 @@ abstract class BaseRepository {
 
     abstract public function getModel();
 
-    public function setModel() {
+    public function setModel()
+    {
 
         return $this->model = app()->make($this->getModel());
 
@@ -24,8 +26,7 @@ abstract class BaseRepository {
         int $perPage = 15,
         array $orderBy = ['id', 'DESC'],
         array $relations = [],
-    )
-    {
+    ) {
         return $this->model->select($columns)
             ->with($relations)
             ->orderBy($orderBy[0], $orderBy[1])
@@ -36,8 +37,7 @@ abstract class BaseRepository {
     public function getAll(
         array $columns = ['*'],
         array $relations = [],
-    )
-    {
+    ) {
         return $this->model->select($columns)->with($relations)->get();
     }
 
@@ -74,4 +74,6 @@ abstract class BaseRepository {
         return $this->model->forceDelete($id);
     }
 
+   
+///
 }

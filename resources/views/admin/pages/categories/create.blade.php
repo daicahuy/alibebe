@@ -36,17 +36,57 @@
 
                                         </h5>
                                     </div>
+
+
+
+                                    {{-- @if ($errors->any())
+                                        <div class="alert alert-danger alert-dismissible fade show"
+                                            role="alert">
+                                            <strong>{{ __('message.error') }}</strong> {{ __('message.error_message') }}
+                                            <ul>
+                                                @foreach ($errors->all() as $error)
+                                                    <li>
+                                                        <span>{{ $error }}</span>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                        </div>
+                                    @endif --}}
+
+
                                     <form action="{{ route('admin.categories.store') }}" method="POST"
-                                        class="theme-form theme-form-2 mega-form mt-4" novalidate>
+                                        class="theme-form theme-form-2 mega-form mt-4" novalidate
+                                        enctype="multipart/form-data">
                                         @csrf
-                                        
+
+                                        {{-- <div class="align-items-center g-2 mb-4 row">
+                                            <label class="col-sm-3 form-label-title mb-0">
+                                                {{ __('form.category.icon') }}
+                                            </label>
+                                            <div class="col-sm-9">
+                                                @if ($request->icon)
+                                                        <img alt="image" class="tbl-image icon-image"
+                                                            src="{{ Storage::url($request->icon) }}">
+                                                    @else
+                                                        <img alt="image" class="tbl-image icon-image"
+                                                            src="{{ asset('/theme/admin/assets/images/categories/no-image.svg') }}">
+                                                    @endif
+                                            </div>
+                                        </div> --}}
+
+
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0" for="icon">
                                                 {{ __('form.select_icon') }}
                                             </label>
                                             <div class="col-sm-9">
-                                                <input type="file" name="icon" id="icon" class="form-control">
-                                                <div class="invalid-feedback"></div>
+                                                <input type="file" name="icon" id="icon"
+                                                    class="form-control @error('icton') is-invalid @enderror">
+                                                @error('icon')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
@@ -57,9 +97,14 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="text" name="name" id="name"
-                                                    class="form-control is-invalid"
-                                                    placeholder="{{ __('form.enter_name') }}">
-                                                <div class="invalid-feedback">Vui lòng nhập tên</div>
+                                                    value="{{ old('name') }}"
+                                                    class="form-control 
+                                                    @error('name') is-invalid @enderror">
+
+                                                <div class="invalid-feedback"></div>
+
+
+
                                             </div>
                                         </div>
 
@@ -70,9 +115,14 @@
                                                 <span class="theme-color ms-2 required-dot ">*</span>
                                             </label>
                                             <div class="col-sm-9">
-                                                <input type="number" name="ordinal" id="ordinal" class="form-control"
+                                                <input type="number" name="ordinal" id="ordinal"
+                                                    value="{{ old('ordinal') }}"
+                                                    class="form-control @error('ordinal') is-invalid @enderror"
                                                     placeholder="{{ __('form.enter_ordinal') }}">
-                                                <div class="invalid-feedback"></div>
+                                                @error('ordinal')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+
                                             </div>
                                         </div>
 
@@ -82,8 +132,11 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <select name="parent_id" class="form-select">
-                                                    <option value="AL">Điện thoại</option>
-                                                    <option value="WY">Máy tính</option>
+                                                    <option value="">Chọn danh mục cha</option>
+                                                    @foreach ($parent as $item)
+                                                        <option value="{{ $item->id }}">
+                                                            {{ $item->name }}</option>
+                                                    @endforeach
                                                 </select>
                                                 <div class="invalid-feedback"></div>
                                             </div>
@@ -96,7 +149,8 @@
                                             <div class="col-sm-9">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch">
-                                                        <input type="checkbox" name="is_active" value="1" checked>
+                                                        <input type="checkbox" name="is_active" value="1" checked
+                                                            id="isActive">
                                                         <span class="switch-state"></span>
                                                     </label>
                                                 </div>
@@ -130,7 +184,15 @@
 @push('js')
     <script>
         $(document).ready(function() {
+           
+            $('#name').blur(function() {
+                if (this.checkValidity()) { // Kiểm tra dữ liệu có hợp lệ hay không
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.invalid-feedback').hide(); // Ẩn thông báo lỗi
+                }
+            });
 
         });
+        
     </script>
 @endpush

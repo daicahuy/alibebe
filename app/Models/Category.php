@@ -17,7 +17,15 @@ class Category extends Model
         "is_active",
         "icon",
     ];
+    public $attributes = [
+        'ordinal' => 0,
+        'is_active' => 1 //true
+    ];
 
+    // public function getRouteKeyName()
+    // {
+    //     return 'slug'; // Trả về 'slug'
+    // }
 
 
     /////////////////////////////////////////////////////

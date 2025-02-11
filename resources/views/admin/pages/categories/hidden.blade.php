@@ -25,43 +25,33 @@
                     <div class="card-body">
                         <div class="title-header">
                             <div class="d-flex align-items-center">
-                                <h5>{{ __('form.categories') }}</h5>
+                                <h5>
+                                    <a class="link"
+                                        href="{{ route('admin.categories.index') }}">{{ __('form.categories') }}</a>
+                                    <span class="fs-6 fw-light">></span> {{ __('message.hidden') }}
+                                </h5>
                             </div>
-                            <div>
-                                <a class="align-items-center btn btn-theme d-flex"
-                                    href="{{ route('admin.categories.create') }}">
-                                    <i class="ri-add-line"></i>
-                                    {{ __('message.add') . ' ' . __('form.categories') }}
-                                </a>
-                            </div>
+
                         </div>
 
                         <!-- HEADER TABLE -->
-                        <form action="{{ route('admin.categories.search') }}" method="GET" id="filter-form">
+                        <form action="{{ route('admin.categories.search') }}" method="GET">
                             <div class="show-box">
                                 <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                    {{-- <form action="{{ route('admin.categories.index') }}" method="GET"  id="filter-form"> --}}
-
-                                    <input type="hidden" name="sort" id="sort"
-                                        value="{{ request('sort', 'updated_at') }}">
-                                    <input type="hidden" name="order" id="order"
-                                        value="{{ request('order', 'DESC') }}">
-                                    <input type="hidden" name="_keyword" value="{{ request('_keyword') }}">
-                                    {{-- Giữ lại _keyword --}}
-
-                                    <select class="form-control" name="per_page" onchange="this.form.submit()">
-                                        {{-- Thêm name và onchange --}}
-                                        <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5
-                                        </option>
-                                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10
-                                        </option>
-                                        <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15
-                                        </option>
-                                        {{-- <option value="all" {{ request('per_page')=='all' ? 'selected' : '' }}>Tất
+                                    <form action="{{ route('admin.categories.index') }}" method="GET">
+                                        <select class="form-control" name="per_page" onchange="this.form.submit()">
+                                            {{-- Thêm name và onchange --}}
+                                            <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5
+                                            </option>
+                                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10
+                                            </option>
+                                            <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15
+                                            </option>
+                                            {{-- <option value="all" {{ request('per_page')=='all' ? 'selected' : '' }}>Tất
                                             cả --}}
-                                        </option>
-                                    </select>
-                                    {{-- </form> --}}
+                                            </option>
+                                        </select>
+                                    </form>
 
                                     <label>{{ __('message.items_per_page') }}</label>
                                     <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
@@ -69,54 +59,27 @@
                                         {{ __('message.move_to_trash') }}
                                     </button>
 
-                                    <a href="{{ route('admin.categories.hidden') }}"
-                                        class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
-                                        <i class="ri-folder-forbid-fill"></i>
-                                        {{ __('message.hidden') }}
-                                        <span
-                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $countHidden }}</span>
-                                    </a>
 
-                                    <a href="{{ route('admin.categories.trash') }}"
-                                        class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
-                                        <i class="ri-delete-bin-line"></i>
-                                        {{ __('message.trash') }}
-                                        <span
-                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $countTrash }}</span>
-                                    </a>
 
                                 </div>
                                 <div class="datepicker-wrap">
 
                                 </div>
 
-                                <!-- Start Switch Button -->
-                                @component('components.button-switch-react', [
-                                    'viewOnly1' => __('message.all'),
-                                    'viewOnly2' => __('message.parent_only'),
-                                    'with' => 140,
-                                ])
-                                @endcomponent
-                                <!-- End Switch Button -->
 
-                                <div class="table-search">
-                                    <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword" id="role-search"
-                                        value="{{ $keyword ?? '' }}">
-                                    <button type="submit" class="btn btn-primary">{{ __('message.search') }}</button>
-                                </div>
+                               
                         </form>
 
 
                     </div>
                     <!-- END HEADER TABLE -->
 
-                    {{-- @if (session('msg'))
+                    @if (session('msg'))
                         <div class="alert alert-{{ session('type') }} alert-dismissible fade show" role="alert">
                             <strong>{{ session('msg') }}</strong>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                    @endif --}}
+                    @endif
                     {{-- @dd(session('msg')); --}}
 
                     <!-- START TABLE -->
@@ -133,23 +96,17 @@
                                         </th>
                                         <th class="sm-width">{{ __('form.category.id') }}</th>
                                         <th>{{ __('form.category.icon') }}</th>
-                                        <th class="cursor-pointer sortable" id="name-header" data-column="name"
-                                            data-order="asc">
+                                        <th class="cursor-pointer">
                                             {{ __('form.category.name') }}
-                                            <div class="filter-arrow" onclick="sortTable('name')">
-                                                <div>
-
-                                                    <i
-                                                        class="ri-arrow-{{ request('sort') === 'name' && request('order') === 'asc' ? 'up' : 'down' }}-s-fill"></i>
-
-                                                </div>
+                                            <div class="filter-arrow">
+                                                <div><i class="ri-arrow-up-s-fill"></i></div>
                                             </div>
                                         </th>
                                         <th>
                                             {{ __('form.category.is_active') }}
-                                            {{-- <div class="filter-arrow">
+                                            <div class="filter-arrow">
                                                 <div><i class="ri-arrow-up-s-fill"></i></div>
-                                            </div> --}}
+                                            </div>
                                         </th>
                                         <th>{{ __('form.category.created_at') }}</th>
                                         <th>{{ __('form.category.updated_at') }}</th>
@@ -157,7 +114,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($listCategory as $key => $cate)
+                                    @foreach ($listHidden as $cate)
                                         <tr>
                                             <td>
                                                 <div class="custom-control custom-checkbox">
@@ -167,7 +124,7 @@
                                                     for="checkbox-{{ $cate->id }}"></label> --}}
                                                 </div>
                                             </td>
-                                            <td class="cursor-pointer sm-width"> {{ $key + 1 }}
+                                            <td class="cursor-pointer sm-width"> {{ $cate->id }}
 
                                             </td>
                                             <td class="cursor-pointer sm-width">
@@ -230,7 +187,7 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="{{ route('admin.categories.edit', $cate) }}"
+                                                        <a href="{{ route('admin.categories.edit', $cate->id) }}"
                                                             class="btn-edit">
                                                             <i class="ri-pencil-line"></i>
                                                         </a>
@@ -259,7 +216,7 @@
 
                     <!-- START PAGINATION -->
                     <div class="custom-pagination">
-                        {{ $listCategory->appends(request()->query())->links() }}
+                        {{ $listHidden->appends(request()->query())->links() }}
                     </div>
                     <!-- END PAGINATIOn -->
 
@@ -278,25 +235,10 @@
 {{-- ================================== --}}
 
 @push('js_library')
-    <script></script>
 @endpush
 
 @push('js')
     <script>
-        // sort name
-        function sortTable(column) {
-            const form = document.getElementById('filter-form');
-            const sortInput = document.getElementById('sort');
-            const orderInput = document.getElementById('order');
-
-            let newOrder = (sortInput.value === column && orderInput.value === 'asc') ? 'desc' : 'asc';
-
-            sortInput.value = column;
-            orderInput.value = newOrder;
-
-            form.submit();
-        }
-
         $(document).ready(function() {
 
 
@@ -409,23 +351,23 @@
 
 
             // --- Logic Hide, Show Sub Category ---
-            $('.item.pl-2').hide();
+            // $('.item.pl-2').hide();
 
-            $btnSwitch.on('click', function() {
-                const isChecked = $inputSwitch.prop('checked');
+            // $btnSwitch.on('click', function() {
+            //     const isChecked = $inputSwitch.prop('checked');
 
-                if (!isChecked) {
-                    // Ẩn các danh mục con
-                    $('.item.pl-2').slideUp(300);
-                } else {
-                    // Hiển thị các danh mục con
-                    $('.item.pl-2').slideDown(300);
-                }
-            })
+            //     if (!isChecked) {
+            //         // Ẩn các danh mục con
+            //         $('.item.pl-2').slideUp(300);
+            //     } else {
+            //         // Hiển thị các danh mục con
+            //         $('.item.pl-2').slideDown(300);
+            //     }
+            // })
             // --- End Logic Hide, Show Sub Category ---
 
-            // update Is_active Api
-            $('.toggle-active').change(function() {
+             // update Is_active Api
+             $('.toggle-active').change(function() {
                 let $this = $(this);
                 let categoryId = $this.data('category-id');
                 let isActive = $this.is(':checked') ? 1 : 0;
@@ -444,14 +386,14 @@
                     success: function(response) {
                         if (response.success) {
                             Swal.fire({
-                                icon: 'success',
-                                title: 'Thành công!',
-                                html: response.message,
-                                // timer: 1500, // Tự động đóng sau 1.5 giây
-                                // showConfirmButton: false,
-                            }).then(() => {
-                                location.reload();
-                            });
+                                        icon: 'success',
+                                        title: 'Thành công!',
+                                        html: response.message,
+                                        // timer: 1500, // Tự động đóng sau 1.5 giây
+                                        // showConfirmButton: false,
+                                    }).then(() => {
+                                        location.reload();
+                                    });
                             // window.location.reload(); // Load lại trang
                         } else {
                             console.error(response.message);
@@ -472,20 +414,13 @@
                 });
             });
 
-
-            // alert
-            // Kiểm tra session flash message
-            let message = "{{ session('msg') }}";
-            let type = "{{ session('type') }}";
-
-            if (message && type) {
-                Swal.fire({
-                    icon: type,
-                    title: type === 'success' ? 'Thành công!' : 'Lỗi!',
-                    text: message,
-                });
-            }
-
+            // validate
+            $('#name').blur(function() {
+                if (this.checkValidity()) { // Kiểm tra dữ liệu có hợp lệ hay không
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.invalid-feedback').hide(); // Ẩn thông báo lỗi
+                }
+            });
 
         });
     </script>

@@ -59,7 +59,7 @@ return [
     'category' => [
         'id' => 'ID',
         'parent_id' => 'ID cha',
-        'name' => 'Tên',
+        'name' => 'Tên danh mục',
         'slug' => 'Slug',
         'ordinal' => 'Thứ tự hiển thị',
         'is_active' => 'Trạng thái',

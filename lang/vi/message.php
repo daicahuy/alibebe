@@ -11,6 +11,7 @@ return [
     'add' => 'Thêm',
     'add_new' => 'Thêm mới',
     'detail' => 'Chi tiết',
+    'hidden' => 'Ẩn',
 
     'confirm_move_to_trash_all_item' => 'Bạn có chắc chuyển các bản ghi đã chọn vào thùng rác không ?',
     'confirm_move_to_trash_item' => 'Bạn có chắc chuyển bản ghi này vào thùng rác không ?',
@@ -36,4 +37,8 @@ return [
     'update' => 'Cập nhật',
 
     'dashboard' => 'Bảng điều khiển',
+
+    // category
+    'error' => 'Lỗi',
+    'error_message' => 'Đã xảy ra lỗi, vui lòng kiểm tra lại',
 ];

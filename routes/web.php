@@ -87,6 +87,8 @@ Route::prefix('/admin')
 
                 Route::get('/trash', 'trash')->name('trash');
 
+                Route::get('/hidden',  'hidden')->name('hidden');
+
                 Route::get('/{category}', 'show')->name('show')->where(['category' => '[0-9]+']);
 
                 Route::get('/create', 'create')->name('create');
@@ -97,13 +99,26 @@ Route::prefix('/admin')
 
                 Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
 
-                Route::put('/restore', 'restore')->name('restore');              
+                Route::put('/{category}/restore', 'restore')->name('restore');              
 
-                Route::delete('/delete', 'delete')->name('delete');
+                Route::delete('{category}/delete', 'delete')->name('delete');
+                
+                Route::delete('/{category}', 'destroy')->name('destroy');
 
-                Route::delete('/destroy', 'destroy')->name('destroy');
+
+                // bulk
+                Route::post('/bulk-restore',  'bulkRestore')->name('bulkRestore');
+
+                Route::post('/bulk-destroy',  'bulkDestroy')->name('bulkDestroy');
+
+                Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
+
+                // search
+                route::get('/search','search')->name('search');
 
             });
+//
+
 
         // PRODUCTS
         Route::prefix('/products')

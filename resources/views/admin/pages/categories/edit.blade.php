@@ -32,20 +32,40 @@
                                         <h5>
                                             <a class="link"
                                                 href="{{ route('admin.categories.index') }}">{{ __('form.categories') }}</a>
-                                            <span class="fs-6 fw-light">></span> {{ __('message.edit') }}
+                                            <span class="fs-6 fw-light">></span> {{ $findId->name }}
 
                                         </h5>
                                     </div>
-                                    <form action="{{ route('admin.categories.store') }}" method="POST"
-                                        class="theme-form theme-form-2 mega-form mt-4" novalidate>
+
+                                    @if (session('msg'))
+                                        <div class="alert alert-{{ session('type') }} alert-dismissible fade show"
+                                            role="alert">
+                                            <strong>{{ session('msg') }}</strong>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                        </div>
+                                    @endif
+
+                                  
+
+
+                                    <form action="{{ route('admin.categories.update', $findId) }}" method="POST"
+                                        class="theme-form theme-form-2 mega-form mt-4" novalidate
+                                        enctype="multipart/form-data">
                                         @csrf
+                                        @method('PUT') {{-- Thêm directive này --}}
                                         <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0">
                                                 {{ __('form.category.icon') }}
                                             </label>
                                             <div class="col-sm-9">
-                                                <img alt="image" class="tbl-image icon-image"
-                                                    src="{{ asset('/theme/admin/assets/images/categories/mobile_phone.svg') }}">
+                                                @if ($findId->icon)
+                                                    <img alt="image" class="tbl-image icon-image"
+                                                        src="{{ Storage::url($findId->icon) }}">
+                                                @else
+                                                    <img alt="image" class="tbl-image icon-image"
+                                                        src="{{ asset('/theme/admin/assets/images/categories/no-image.svg') }}">
+                                                @endif
                                             </div>
                                         </div>
 
@@ -54,8 +74,11 @@
                                                 {{ __('form.select_icon') }}
                                             </label>
                                             <div class="col-sm-9">
-                                                <input type="file" name="icon" id="icon" class="form-control">
-                                                <div class="invalid-feedback"></div>
+                                                <input type="file" name="icon" id="icon"
+                                                    class="form-control @error('icon') is-invalid @enderror">
+                                                @error('icon')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
 
@@ -64,66 +87,86 @@
                                                 {{ __('form.category.name') }}
                                                 <span class="theme-color ms-2 required-dot ">*</span>
                                             </label>
-                                            <div class="col-sm-9">
+                                            <v class="col-sm-9">
                                                 <input type="text" name="name" id="name"
-                                                    class="form-control is-invalid"
+                                                    value="{{ $findId->name }}"
+                                                    class="form-control @error('name') is-invalid @enderror"
                                                     placeholder="{{ __('form.enter_name') }}">
-                                                <div class="invalid-feedback">Vui lòng nhập tên</div>
-                                            </div>
+                                               
+                                                    <div class="invalid-feedback"></div>
+                                               
+
                                         </div>
-
-
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0" for="ordinal">
-                                                {{ __('form.category.ordinal') }}
-                                                <span class="theme-color ms-2 required-dot ">*</span>
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <input type="number" name="ordinal" id="ordinal" class="form-control"
-                                                    placeholder="{{ __('form.enter_ordinal') }}">
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0">
-                                                {{ __('form.categories_parent') }}
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <select name="parent_id" class="form-select">
-                                                    <option value="AL">Điện thoại</option>
-                                                    <option value="WY">Máy tính</option>
-                                                </select>
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="align-items-center g-2 mb-4 row">
-                                            <label class="col-sm-3 form-label-title mb-0">
-                                                {{ __('form.category.is_active') }}
-                                            </label>
-                                            <div class="col-sm-9">
-                                                <div class="form-check form-switch ps-0">
-                                                    <label class="switch">
-                                                        <input type="checkbox" name="is_active" value="1" checked>
-                                                        <span class="switch-state"></span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <button class="btn btn-theme ms-auto mt-4" type="submit">
-                                            {{ __('message.update') }}
-                                        </button>
-                                    </form>
                                 </div>
+
+
+                                <div class="align-items-center g-2 mb-4 row">
+                                    <label class="col-sm-3 form-label-title mb-0" for="ordinal">
+                                        {{ __('form.category.ordinal') }}
+                                        <span class="theme-color ms-2 required-dot ">*</span>
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <input type="number" name="ordinal" id="ordinal"
+                                            class="form-control @error('ordinal') is-invalid @enderror"
+                                            value="{{ $findId->ordinal }}" placeholder="{{ __('form.enter_ordinal') }}">
+                                        @error('ordinal')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="align-items-center g-2 mb-4 row">
+                                    <label class="col-sm-3 form-label-title mb-0">
+                                        {{ __('form.categories_parent') }}
+                                    </label>
+                                    <div class="col-sm-9">
+                                        {{-- Nếu có child thì không cho chọn parent, chỉ chơi 2 cấp --}}
+                                        <select name="parent_id" class="form-select"
+                                            {{ $findId->categories->isNotEmpty() ? 'disabled' : '' }}>
+
+                                            <option value="">Chọn danh mục cha</option>
+
+                                            @foreach ($parentCate as $item)
+                                                <option {{ $findId->parent_id === $item->id ? 'selected' : '' }}
+                                                    value="{{ $item->id }} ">
+                                                    {{ $item->name }}
+                                                </option>
+                                            @endforeach
+
+
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+
+                                <div class="align-items-center g-2 mb-4 row">
+                                    <label class="col-sm-3 form-label-title mb-0">
+                                        {{ __('form.category.is_active') }}
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <div class="form-check form-switch ps-0">
+                                            <label class="switch">
+                                                <input type="checkbox" name="is_active" value="1"
+                                                    {{ $findId->is_active == 1 ? 'checked' : '' }}>
+
+                                                <span class="switch-state"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-theme ms-auto mt-4" type="submit">
+                                    {{ __('message.update') }}
+                                </button>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
+
         </div>
+    </div>
     </div>
 @endsection
 
@@ -140,6 +183,14 @@
     <script>
         $(document).ready(function() {
 
+            // validate js
+            $('#name').blur(function() {
+                if (this.checkValidity()) { // Kiểm tra dữ liệu có hợp lệ hay không
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.invalid-feedback').hide(); // Ẩn thông báo lỗi
+                }
+            });
+            
         });
     </script>
 @endpush
