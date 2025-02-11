@@ -5,6 +5,8 @@ namespace App\Http\Requests;
 use App\Enums\CouponDiscountType;
 use App\Enums\CouponExpiredType;
 use App\Enums\UserGroupType;
+use App\Models\Coupon;
+use App\Models\Order;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;

@@ -84,7 +84,9 @@
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <textarea id="description" name="description" class="form-control @error('description') is-invalid @enderror"
-                                                        placeholder="Nhập Mô Tả Giảm Giá"></textarea>
+                                                        placeholder="Nhập Mô Tả Giảm Giá">
+                                                        {{ old('description') }}
+                                                    </textarea>
                                                     @error('description')
                                                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                                                     @enderror
@@ -142,7 +144,7 @@
                                                 <div class="col-sm-9">
                                                     <div class="input-group">
                                                         <span class="input-group-text"> $ </span>
-                                                        <input type="number" name="discount_value"
+                                                        <input type="number" id="discount_value" name="discount_value"
                                                             formcontrolname="discount_value"
                                                             value="{{ old('discount_value') }}"
                                                             class="form-control ng-untouched ng-pristine ng-valid @error('discount_value')
@@ -185,7 +187,8 @@
                                                 <div class="col-sm-9">
                                                     <div class="input-group custom-dt-picker">
                                                         <input placeholder="yyyy-mm-dd" name="start_date"
-                                                            id="start_date_input" readonly=""
+                                                            value="{{ old('start_date') }}" id="start_date_input"
+                                                            readonly=""
                                                             class="form-control @error('start_date')
                                                                 is-invalid
                                                             @enderror">
@@ -209,7 +212,8 @@
                                                 <div class="col-sm-9">
                                                     <div class="input-group custom-dt-picker">
                                                         <input placeholder="yyyy-mm-dd" name="end_date"
-                                                            id="end_date_input" readonly=""
+                                                            value="{{ old('end_date') }}" id="end_date_input"
+                                                            readonly=""
                                                             class="form-control @error('end_date')
                                                                 is-invalid
                                                             @enderror">
@@ -330,9 +334,10 @@
                                                         <span class="input-group-text"> $ </span>
                                                         <input type="number" id="min_order_value"
                                                             name="coupon_restrictions[min_order_value]"
+                                                            value="{{ old('coupon_restrictions.min_order_value') }}"
                                                             formcontrolname="min_order_value"
                                                             class="form-control @error('coupon_restrictions.min_order_value')
-                                                                invalid
+                                                                is-invalid
                                                             @enderror"
                                                             placeholder="Enter min order value">
                                                     </div>
@@ -352,8 +357,9 @@
                                                 <div class="col-sm-9">
                                                     <input type="number" id="coupon_restrictions[max_discount_value]"
                                                         name="coupon_restrictions[max_discount_value]"
+                                                        value="{{ old('coupon_restrictions.max_discount_value') }}"
                                                         class="form-control @error('coupon_restrictions.max_discount_value')
-                                                            invalid
+                                                            is-invalid
                                                         @enderror"
                                                         placeholder="Enter value">
                                                     <p class="help-text">*Chỉ định
@@ -389,9 +395,9 @@
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <input type="number" id="usage_limit" name="usage_limit"
-                                                        formcontrolname="usage_limit"
+                                                        value="{{ old('usage_limit') }}" formcontrolname="usage_limit"
                                                         class="form-control ng-untouched ng-pristine ng-valid @error('usage_limit')
-                                                            in-valid
+                                                            is-invalid
                                                         @enderror"
                                                         placeholder="Enter value">
                                                     <p class="help-text">*Chỉ định
@@ -481,6 +487,44 @@
             // Khi nhấn vào nút calendar bên cạnh input #end_date
             $("#endDatePickerBtn").click(function() {
                 $("#end_date_input").open(); // Mở bảng lịch cho end_date
+            });
+
+            $('input, select, textarea').on('focus', function() {
+                const $input = $(this);
+                // Tìm error message trong parent gần nhất có class col-sm-9
+                const $errorDiv = $input.closest('.col-sm-9').find('.alert-danger');
+
+                if ($input.hasClass('is-invalid')) {
+                    $input.removeClass('is-invalid');
+                    $errorDiv.fadeOut(200);
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            function checkPanelErrors() {
+                // Xóa hết indicator cũ
+                $('.nav-link .text-danger').remove();
+
+                // Kiểm tra và thêm indicator cho từng panel
+                ['general', 'restriction', 'usage'].forEach(id => {
+                    if ($(`#${id}-panel .alert-danger`).length > 0) {
+                        $(`#${id} .nav-link`).append(
+                            '<i class="ri-error-warning-line text-danger ms-2"></i>');
+                        // Active tab đầu tiên có lỗi
+                        if (!$('.nav-link.active').parent().find('.text-danger').length) {
+                            $(`#${id} .nav-link`).tab('show');
+                        }
+                    }
+                });
+            }
+
+            checkPanelErrors();
+
+            // Xóa indicator khi input thay đổi
+            $('input, select, textarea').on('input focus', function() {
+                const panelId = $(this).closest('.tab-pane').attr('id').replace('-panel', '');
+                $(`#${panelId} .nav-link .text-danger`).remove();
             });
         });
     </script>
