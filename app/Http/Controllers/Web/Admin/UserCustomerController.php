@@ -25,7 +25,7 @@ class UserCustomerController extends Controller
         $ListUsers = $this->userService->getUserCustomer($request, $limit);
         $totalUserLock = $this->userService->countUserCustomerLock();
 
-        return view('admin.pages.user_Customer.list', compact('ListUsers', 'totalUserLock', 'limit'));
+        return view('admin.pages.user_customer.list', compact('ListUsers', 'totalUserLock', 'limit'));
     }
 
 
@@ -33,7 +33,7 @@ class UserCustomerController extends Controller
     {
         $limit = $request->input('limit', 15);
         $UsersLock = $this->userService->getUserCustomerLock($request, $limit);
-        return view('admin.pages.user_Customer.lock', compact('UsersLock', 'limit'));
+        return view('admin.pages.user_customer.lock', compact('UsersLock', 'limit'));
     }
 
     public function show(User $user)
@@ -45,7 +45,7 @@ class UserCustomerController extends Controller
         ];
         $ShowUser = $this->userService->showUserCustomer($user->id, ['*']);
 
-        return view('admin.pages.user_Customer.show', [
+        return view('admin.pages.user_customer.show', [
             'ShowUser' => $ShowUser,
             'roleLabel' => $roles[$user->role],
         ]);
@@ -59,7 +59,7 @@ class UserCustomerController extends Controller
         ];
 
         $EditUser = $this->userService->showUserCustomer($user->id, ['*']);
-        return view('admin.pages.user_Customer.edit', compact('EditUser', 'roles'));
+        return view('admin.pages.user_customer.edit', compact('EditUser', 'roles'));
     }
 
     public function update(UpdateUserRequest $request, User $user)

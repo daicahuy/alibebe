@@ -25,14 +25,14 @@ class UserEmployeeController extends Controller
         $limit = $request->input('limit', 15);
         $ListUsers = $this->userService->getUserEmployee($request, $limit);
         $totalUserLock = $this->userService->countUserEmployeeLock();
-        return view('admin.pages.user_Employee.list', compact('ListUsers', 'totalUserLock', 'limit'));
+        return view('admin.pages.user_employee.list', compact('ListUsers', 'totalUserLock', 'limit'));
     }
 
     public function lock(Request $request)
     {
         $limit = $request->input('limit', 15);
         $UsersLock = $this->userService->getUserEmployeeLock($request, $limit);
-        return view('admin.pages.user_Employee.lock', compact('UsersLock', 'limit'));
+        return view('admin.pages.user_employee.lock', compact('UsersLock', 'limit'));
     }
 
     public function show(User $user)
@@ -44,7 +44,7 @@ class UserEmployeeController extends Controller
         ];
         $ShowUser = $this->userService->showUserEmployee($user->id, ['*']);
 
-        return view('admin.pages.user_Employee.show', [
+        return view('admin.pages.user_employee.show', [
             'ShowUser' => $ShowUser,
             'roleLabel' => $roles[$user->role],
         ]);
@@ -56,7 +56,7 @@ class UserEmployeeController extends Controller
             0 => __('form.user_customer'),
             1 => __('form.user_employee'),
         ];
-        return view('admin.pages.user_Employee.create', compact('roles'));
+        return view('admin.pages.user_employee.create', compact('roles'));
     }
 
     public function store(StoreUserRequest $request)
@@ -84,7 +84,7 @@ class UserEmployeeController extends Controller
         ];
 
         $EditUser = $this->userService->showUserEmployee($user->id, ['*']);
-        return view('admin.pages.user_Employee.edit', compact('EditUser', 'roles'));
+        return view('admin.pages.user_employee.edit', compact('EditUser', 'roles'));
     }
 
     public function update(UpdateUserRequest $request, User $user)
