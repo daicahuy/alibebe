@@ -62,15 +62,10 @@ Route::prefix('/orders')
 Route::post('/orders/uploadImgConfirm/{idOrder}', [OrderController::class, 'uploadImgConfirm'])->name('uploadImgConfirm');
 Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');
 Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->name('getOrderDetail');
-// api
-Route::prefix('/admin')
-    ->name('admin.')
+
+Route::prefix('/coupons')
+    ->name('coupons.')
+    ->controller(CouponController::class)
     ->group(function () {
-        // COUPONS
-        Route::prefix('/coupons')
-            ->name('coupons.')
-            ->controller(CouponController::class)
-            ->group(function () {
-                Route::post('/update-coupon-status/{id}',  'apiUpdateStatus');
-            });
+        Route::post('/update-coupon-status/{id}',  'apiUpdateStatus');
     });
