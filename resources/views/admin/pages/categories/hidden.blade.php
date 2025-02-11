@@ -61,21 +61,13 @@
 
 
 
-
-
                                 </div>
                                 <div class="datepicker-wrap">
 
                                 </div>
 
 
-
-                                {{-- <div class="table-search">
-                                    <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword" id="role-search"
-                                        value="{{ $keyword ?? '' }}">
-                                    <button type="submit" class="btn btn-primary">{{ __('message.search') }}</button>
-                                </div> --}}
+                               
                         </form>
 
 
@@ -422,7 +414,13 @@
                 });
             });
 
-
+            // validate
+            $('#name').blur(function() {
+                if (this.checkValidity()) { // Kiểm tra dữ liệu có hợp lệ hay không
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.invalid-feedback').hide(); // Ẩn thông báo lỗi
+                }
+            });
 
         });
     </script>

@@ -267,6 +267,7 @@ class CategoryService
             $this->categoryRepo->create($data);
 
             return ['success' => true, 'message' => 'Thêm mới thành công'];
+            // return response()->json(['message' => 'Thành công!', 'type' => 'success']);
 
         } catch (\Throwable $th) {
 
@@ -654,28 +655,5 @@ class CategoryService
 
     }
 
-    // public function searchParent(int $perPage = null, $parent = 'parent_id'): Paginator
-    // {
-    //     $perPageUse = $perPage ?? 5;
-    //     return $this->categoryRepo->paginationM(
-    //         ['*'],
-    //         $parent,
-    //         $perPage,
-    //         ['updated_at', 'DESC'],
-    //         ['categories']
-    //     );
-    // }
-
-    // public function searchAll(int $perPage = null): Paginator
-    // {
-    //     $perPageUse = $perPage ?? 5;
-    //     return $this->categoryRepo->paginationM(
-    //         ['*'],
-    //         null,
-    //         $perPage,
-    //         ['updated_at', 'DESC'],
-    //         ['categories']
-    //     );
-    // }
-    //
+    
 }

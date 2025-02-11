@@ -70,12 +70,12 @@
                     </div>
                     <!-- END HEADER TABLE -->
 
-                    @if (session('msg'))
+                    {{-- @if (session('msg'))
                         <div class="alert alert-{{ session('type') }} alert-dismissible fade show" role="alert">
                             <strong>{{ session('msg') }}</strong>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                    @endif
+                    @endif --}}
 
                     <!-- START TABLE -->
                     <div>
@@ -407,6 +407,18 @@
         });
     });
 
+            // alert
+            // Kiểm tra session flash message
+            let message = "{{ session('msg') }}";
+    let type = "{{ session('type') }}";
+
+    if (message && type) {
+        Swal.fire({
+            icon: type,
+            title: type === 'success' ? 'Thành công!' : 'Lỗi!',
+            text: message,
+        });
+    }
 
         });
     </script>

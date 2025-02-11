@@ -41,14 +41,6 @@ class CategoryController extends Controller
 
         // dd($listTrash); // Kiểm tra dữ liệu NHẬN ĐƯỢC từ service
 
-        // if (is_array($listTrash) && !$listTrash['success']) {
-
-        //     return back()->with([
-        //         'msg' => $listTrash['message'],
-        //         'type' => 'danger'
-        //     ]);
-
-        // }
         // dd($listTrash);
 
         return view('admin.pages.categories.trash', compact('listTrash'));
@@ -57,8 +49,7 @@ class CategoryController extends Controller
     public function hidden(Request $request)
     {
         $perPage = $request->input('per_page', 5);
-        // dd($perPage);
-        // $perPage ?? 5;
+       
         $listHidden = $this->categoryService->hidden($perPage);
         // dd($listHidden);
         return view('admin.pages.categories.hidden', $listHidden);
@@ -136,10 +127,7 @@ class CategoryController extends Controller
                 'type' => 'alert'
             ]);
         }
-        // $parent = $this->categoryService-> 
-        // dd($edit);
-        // dd(compact('edit'));
-
+       
     }
 
     public function update(UpdateCategoryRequest $request, Category $category)
@@ -276,15 +264,7 @@ class CategoryController extends Controller
         return response()->json($response);
     }
 
-    // Hàm chung để trả về response cho cả đơn và hàng loạt (redirect cho đơn, json cho hàng loạt)
-
-    // private function handleResponse($response) {
-    //     if ($response['success']) {
-    //         return redirect()->route('admin.categories.trash')->with(['msg' => $response['message'], 'type' => 'success']);
-    //     } else {
-    //         return back()->with(['msg' => $response['message'], 'type' => 'danger']);
-    //     }
-    // }
+    
 
     public function bulkTrash(Request $request)
     {

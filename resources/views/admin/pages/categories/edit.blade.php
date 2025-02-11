@@ -46,21 +46,7 @@
                                         </div>
                                     @endif
 
-                                    {{-- errors --}}
-                                    {{-- @if ($errors->any())
-                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                            <strong>{{ __('message.error') }}</strong> {{ __('message.error_message') }}
-                                            <ul>
-                                                @foreach ($errors->all() as $error)
-                                                    <li>
-                                                        <span>{{ $error }}</span>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                                aria-label="Close"></button>
-                                        </div>
-                                    @endif --}}
+                                  
 
 
                                     <form action="{{ route('admin.categories.update', $findId) }}" method="POST"
@@ -106,9 +92,9 @@
                                                     value="{{ $findId->name }}"
                                                     class="form-control @error('name') is-invalid @enderror"
                                                     placeholder="{{ __('form.enter_name') }}">
-                                                @error('name')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
+                                               
+                                                    <div class="invalid-feedback"></div>
+                                               
 
                                         </div>
                                 </div>
@@ -197,6 +183,13 @@
     <script>
         $(document).ready(function() {
 
+            // validate js
+            $('#name').blur(function() {
+                if (this.checkValidity()) { // Kiểm tra dữ liệu có hợp lệ hay không
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.invalid-feedback').hide(); // Ẩn thông báo lỗi
+                }
+            });
             
         });
     </script>

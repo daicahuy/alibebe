@@ -111,12 +111,12 @@
                     </div>
                     <!-- END HEADER TABLE -->
 
-                    @if (session('msg'))
+                    {{-- @if (session('msg'))
                         <div class="alert alert-{{ session('type') }} alert-dismissible fade show" role="alert">
                             <strong>{{ session('msg') }}</strong>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                    @endif
+                    @endif --}}
                     {{-- @dd(session('msg')); --}}
 
                     <!-- START TABLE -->
@@ -278,8 +278,7 @@
 {{-- ================================== --}}
 
 @push('js_library')
-    <script>
-    </script>
+    <script></script>
 @endpush
 
 @push('js')
@@ -297,7 +296,7 @@
 
             form.submit();
         }
-        
+
         $(document).ready(function() {
 
 
@@ -445,14 +444,14 @@
                     success: function(response) {
                         if (response.success) {
                             Swal.fire({
-                                        icon: 'success',
-                                        title: 'Thành công!',
-                                        html: response.message,
-                                        // timer: 1500, // Tự động đóng sau 1.5 giây
-                                        // showConfirmButton: false,
-                                    }).then(() => {
-                                        location.reload();
-                                    });
+                                icon: 'success',
+                                title: 'Thành công!',
+                                html: response.message,
+                                // timer: 1500, // Tự động đóng sau 1.5 giây
+                                // showConfirmButton: false,
+                            }).then(() => {
+                                location.reload();
+                            });
                             // window.location.reload(); // Load lại trang
                         } else {
                             console.error(response.message);
@@ -474,7 +473,18 @@
             });
 
 
-            // Sắp xếp
+            // alert
+            // Kiểm tra session flash message
+            let message = "{{ session('msg') }}";
+            let type = "{{ session('type') }}";
+
+            if (message && type) {
+                Swal.fire({
+                    icon: type,
+                    title: type === 'success' ? 'Thành công!' : 'Lỗi!',
+                    text: message,
+                });
+            }
 
 
         });
