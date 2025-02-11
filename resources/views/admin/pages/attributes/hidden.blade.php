@@ -297,7 +297,6 @@
             </div>
         </div>
     </div>
-    @vite('resources/js/admin/attributes.js')
 @endsection
 
 {{-- ================================== --}}

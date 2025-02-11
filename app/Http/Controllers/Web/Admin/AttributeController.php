@@ -42,7 +42,7 @@ class AttributeController extends Controller
 
     public function edit(Attribute $attribute)
     {
-        return view('admin.pages.attributes.edit',compact('attribute'));
+        return view('admin.pages.attributes.edit', compact('attribute'));
     }
 
     public function update(UpdateAttributeRequest $request, Attribute $attribute)

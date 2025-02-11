@@ -164,7 +164,7 @@ Route::prefix('/admin')
 
                 Route::post('/', 'store')->name('store');
 
-                Route::get('/edit/{attributeValue}', 'edit')->name('edit');
+                Route::get('/edit/{attribute}', 'edit')->name('edit');
 
                 Route::put('/{attribute}', 'update')->name('update');
 
