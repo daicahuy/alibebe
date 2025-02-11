@@ -109,7 +109,7 @@
                             </a>
                         </li>
                         <li>
-                            <a>
+                            <a href="{{route('auth.admin.logout')}}">
                                 <i class="ri-logout-box-line"></i>
                                 <span>Log out</span>
                             </a>

@@ -59,6 +59,9 @@ Route::name('auth.')
             ->group(function() {
 
                 Route::get('/login', 'showFormLogin')->name('showFormLogin');
+                Route::get('/logout', 'logout')->name('logout');
+                Route::post('/handle', 'handleLogin')->name('handleLogin');
+                Route::get('/register', 'showFormRegister')->name('showFormRegister');
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
                 Route::get('/otp', 'showFormOtp')->name('showFormOtp');
                 Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword');
@@ -74,6 +77,7 @@ Route::name('auth.')
 
 Route::prefix('/admin')
     ->name('admin.')
+    ->middleware('admin')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
