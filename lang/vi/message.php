@@ -43,5 +43,37 @@ return [
     // category
     'error' => 'Lỗi',
     'error_message' => 'Đã xảy ra lỗi, vui lòng kiểm tra lại',
-    'confirm_restore_out_trash_item' => 'Bạn có chắc khôi phục lại bản ghi không ?'
+    'confirm_restore_out_trash_item' => 'Bạn có chắc khôi phục lại bản ghi không ?',
+    'time_start' => "Ngày bắt đầu",
+    'time_end' => "Ngày kết thúc",
+
+    "filter" => "Lọc",
+
+    "orders_search" => "Tìm kiếm bằng code,SDT hoặc tên khách hàng",
+
+    "list_orders" => "Danh Sách Đơn Hàng",
+
+    "print_selected_orders" => "In đơn hàng được chọn",
+
+    "print_all_orders" => "In tất cả đơn hàng",
+
+    "other" => "Khác",
+
+    "completed" => "Hoàn thành",
+
+    "canceled" => "Đã hủy",
+
+    "invoice" => "Hóa đơn",
+
+    "export_order" => "Xuất đơn hàng",
+
+    "total" => "Tổng cộng",
+
+    "shipping_fee" => "Phí vận chuyển",
+
+    "discount" => "Giảm giá",
+
+    "total_amount" => "Thành tiền",
+
+    "information" => "Thông tin"
 ];

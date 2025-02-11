@@ -157,13 +157,16 @@ return [
         'id' => 'ID',
         'code' => 'Mã đơn hàng',
         'user_id' => 'ID người dùng',
+        'information_customer' => 'Thông tin khách hàng',
         'payment_id' => 'ID thanh toán',
         'phone_number' => 'Số điện thoại',
         'email' => 'Email',
-        'fullname' => 'Họ và tên',
+        'fullname' => 'Tên',
         'address' => 'Địa chỉ',
+        'note' => 'Ghi chú',
         'total_amount' => 'Tổng số tiền',
-        'is_paid' => 'Đã thanh toán',
+        'is_paid' => 'Trạng thái thanh toán',
+        'type_payment' => 'Phương thức thanh toán',
         'coupon_id' => 'ID mã giảm giá',
         'coupon_code' => 'Mã giảm giá',
         'coupon_description' => 'Mô tả mã giảm giá',
@@ -174,6 +177,8 @@ return [
     ],
 
     'order_items' => 'Sản phẩm trong đơn hàng',
+
+
     'order_item' => [
         'id' => 'ID',
         'order_id' => 'ID đơn hàng',
@@ -181,11 +186,13 @@ return [
         'product_variant_id' => 'ID biến thể sản phẩm',
         'name' => 'Tên sản phẩm',
         'price' => 'Giá',
+        'image' => 'Ảnh',
         'quantity' => 'Số lượng',
         'name_variant' => 'Tên biến thể',
         'attributes_variant' => 'Thuộc tính biến thể',
         'price_variant' => 'Giá biến thể',
         'quantity_variant' => 'Số lượng biến thể',
+        'total_amount' => 'Tổng tiền',
     ],
 
     'order_statuses' => 'Trạng thái đơn hàng',
@@ -193,6 +200,14 @@ return [
         'id' => 'ID',
         'name' => 'Tên trạng thái',
         'ordinal' => 'Thứ tự hiển thị',
+
+        'pending' => 'Chờ xử lý',
+        'processing' => 'Đang xử lý',
+        'shipping' => 'Đang giao hàng',
+        'delivered' => 'Đã giao hàng',
+        'failed_delivery' => 'Giao hàng thất bại',
+        'completed' => 'Hoàn thành',
+        'cancel' => 'Đã hủy',
     ],
 
     'payments' => 'Thanh toán',

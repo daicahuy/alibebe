@@ -85,21 +85,21 @@ Route::prefix('/admin')
             ->controller(CategoryController::class)
             ->group(function () {
 
-                Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
-                Route::get('/trash', 'trash')->name('trash');
+            Route::get('/trash', 'trash')->name('trash');
 
                 Route::get('/hidden',  'hidden')->name('hidden');
 
                 Route::get('/{category}', 'show')->name('show')->where(['category' => '[0-9]+']);
 
-                Route::get('/create', 'create')->name('create');
+            Route::get('/create', 'create')->name('create');
 
-                Route::post('/', 'store')->name('store');
+            Route::post('/', 'store')->name('store');
 
-                Route::get('/edit/{category}', 'edit')->name('edit');
+            Route::get('/edit/{category}', 'edit')->name('edit');
 
-                Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
+            Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
 
                 Route::put('/{category}/restore', 'restore')->name('restore');              
 
@@ -119,7 +119,7 @@ Route::prefix('/admin')
                 route::get('/search','search')->name('search');
 
             });
-//
+
 
 
         // PRODUCTS
@@ -147,6 +147,7 @@ Route::prefix('/admin')
                 Route::delete('/delete', 'delete')->name('delete');
 
                 Route::delete('/destroy', 'destroy')->name('destroy');
+
             });
 
         // ATTRIBUTES
@@ -163,7 +164,7 @@ Route::prefix('/admin')
 
                 Route::post('/', 'store')->name('store');
 
-                Route::get('/edit/{attribute}', 'edit')->name('edit');
+                Route::get('/edit/{attributeValue}', 'edit')->name('edit');
 
                 Route::put('/{attribute}', 'update')->name('update');
 
@@ -189,8 +190,10 @@ Route::prefix('/admin')
                         Route::put('/{attributeValue}', 'update')->name('update');
 
                         Route::delete('/destroy', 'destroy')->name('destroy');
+                        
                     });
-            });
+
+        });
 
 
         // BRANDS
@@ -199,7 +202,7 @@ Route::prefix('/admin')
             ->controller(BrandController::class)
             ->group(function () {
 
-                Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
                 Route::get('/hidden', 'hidden')->name('hidden');
 
@@ -233,6 +236,7 @@ Route::prefix('/admin')
                 Route::put('/{tag}', 'update')->name('update');
 
                 Route::delete('/destroy', 'destroy')->name('destroy');
+                
             });
 
         Route::prefix('/orders')
@@ -240,12 +244,13 @@ Route::prefix('/admin')
             ->controller(OrderController::class)
             ->group(function () {
 
-                Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
-                Route::get('/{order}', 'show')->name('show')->where(['order' => '[0-9]+']);
+            Route::get('/{order}', 'show')->name('show')->where(['order' => '[0-9]+']);
 
-                Route::put('/{order}', 'update')->name('update');
-            });
+            Route::put('/{order}', 'update')->name('update');
+
+        });
 
         // USERS
         Route::prefix('/users')
@@ -276,8 +281,6 @@ Route::prefix('/admin')
                         Route::post('unLock-multiple',  'unLockMultipleUsers')->name('unLockMultipleUsers');
 
                         Route::post('update-status',  'updateStatus')->name('update-status');
-
-
 
                     });
 
@@ -324,6 +327,7 @@ Route::prefix('/admin')
                 Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
 
                 Route::put('/{review}', 'update')->name('update');
+                
             });
 
         // COUPONS

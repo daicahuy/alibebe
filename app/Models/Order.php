@@ -55,4 +55,9 @@ class Order extends Model
     {
         return $this->belongsTo(Payment::class);
     }
+
+    public function historyOrderStatuses()
+    {
+        return $this->belongsToMany(HistoryOrderStatus::class);
+    }
 }

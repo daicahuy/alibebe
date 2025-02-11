@@ -12,15 +12,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('order_order_status', function (Blueprint $table) {
+        Schema::create('history_order_statuses', function (Blueprint $table) {
             $table->foreignIdFor(Order::class)->constrained();
             $table->foreignIdFor(OrderStatus::class)->constrained();
-            $table->primary(['order_id', 'order_status_id']);
-            $table->foreignId('modified_by')->nullable()->constrained('users');
-            $table->string('note')->nullable();
-            $table->string('employee_evidence', 255);
-            $table->boolean('customer_confirmation')->nullable();
-            $table->boolean('is_current')->default(true);
             $table->timestamps();
         });
     }
@@ -30,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_order_status');
+        Schema::dropIfExists('history_order_statuses');
     }
 };

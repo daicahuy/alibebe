@@ -5,9 +5,14 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Enums\OrderStatusType;
 
 class OrderController extends Controller
 {
+
+
+
+
     public function index()
     {
         return view('admin.pages.orders.list');
@@ -15,6 +20,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
+
         return view('admin.pages.orders.detail');
     }
 

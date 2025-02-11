@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\api\BrandApiController;
 use App\Http\Controllers\API\AttributeController;
 use App\Http\Controllers\API\AttributeValueController;
+use App\Http\Controllers\Api\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -45,3 +46,18 @@ Route::prefix('/attributes')
             Route::put('/{attributeValue}', 'update')->name('update');
         });
     });
+Route::prefix('/orders')
+    ->name('api.orders.')
+    ->group(function () {
+
+        Route::get('/list', [OrderController::class, 'index'])->name('index');
+        Route::get('/list/count', [OrderController::class, 'countByStatus'])->name('countByStatus');
+        Route::post('/updateOrderStatus', [OrderController::class, 'changeStatusOrder'])->name('changeStatusOrder');
+        Route::post('/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');
+        Route::post('/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
+
+
+    });
+Route::post('/orders/uploadImgConfirm/{idOrder}', [OrderController::class, 'uploadImgConfirm'])->name('uploadImgConfirm');
+Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');
+Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->name('getOrderDetail');
