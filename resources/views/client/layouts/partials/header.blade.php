@@ -107,15 +107,14 @@
                             </span>
                         </button>
                         <a href="{{ route('index') }}" class="web-logo nav-logo">
-                            <img src="{{ asset('theme/client/assets/images/logo/1.png') }}" class="img-fluid blur-up lazyload"
-                                alt="">
+                            <img src="{{ asset('theme/client/assets/images/logo/1.png') }}"
+                                class="img-fluid blur-up lazyload" alt="">
                         </a>
 
                         <div class="middle-box">
                             <div class="search-box">
                                 <div class="input-group">
-                                    <input type="search" class="form-control"
-                                        placeholder="I'm searching for...">
+                                    <input type="search" class="form-control" placeholder="I'm searching for...">
                                     <button class="btn" type="button" id="button-addon2">
                                         <i data-feather="search"></i>
                                     </button>
@@ -129,8 +128,7 @@
                                     <span class="input-group-text">
                                         <i data-feather="search" class="font-light"></i>
                                     </span>
-                                    <input type="text" class="form-control search-type"
-                                        placeholder="Search here..">
+                                    <input type="text" class="form-control search-type" placeholder="Search here..">
                                     <span class="input-group-text close-search">
                                         <i data-feather="x" class="font-light"></i>
                                     </span>
@@ -166,8 +164,7 @@
                                     <div class="onhover-dropdown header-badge">
                                         <button type="button" class="btn p-0 position-relative header-wishlist">
                                             <i data-feather="shopping-cart"></i>
-                                            <span
-                                                class="position-absolute top-0 start-100 translate-middle badge">2
+                                            <span class="position-absolute top-0 start-100 translate-middle badge">2
                                                 <span class="visually-hidden">unread messages</span>
                                             </span>
                                         </button>
@@ -233,26 +230,49 @@
                                         <div class="delivery-icon">
                                             <i data-feather="user"></i>
                                         </div>
-                                        <div class="delivery-detail">
-                                            <h6>Hello,</h6>
-                                            <h5>My Account</h5>
-                                        </div>
+
+                                        @auth
+                                            <div class="delivery-detail">
+                                                <h6>{{ __('messager.hello') }},</h6>
+                                                <h5>{{ Auth::user()->fullname }}</h5>
+                                            </div>
+                                        @endauth
+
                                     </div>
 
                                     <div class="onhover-div onhover-div-login">
-                                        <ul class="user-box-name">
-                                            <li class="product-box-contain">
-                                                <a href="{{ route('auth.customer.showFormLogin') }}">Log In</a>
-                                            </li>
 
-                                            <li class="product-box-contain">
-                                                <a href="{{ route('auth.customer.showFormRegister') }}">Register</a>
-                                            </li>
+                                        @auth
+                                            <ul class="user-box-name">
+                                                <li class="product-box-contain">
+                                                    <a
+                                                        href="{{ route('api.auth.logout') }}">{{ __('form.auth.logout') }}</a>
+                                                </li>
 
-                                            <li class="product-box-contain">
-                                                <a href="{{ route('auth.customer.showFormForgotPassword') }}">Forgot Password</a>
-                                            </li>
-                                        </ul>
+
+                                            </ul>
+                                        @endauth
+
+                                        @guest
+                                            <ul class="user-box-name">
+                                                <li class="product-box-contain">
+                                                    <a
+                                                        href="{{ route('auth.customer.showFormLogin') }}">{{ __('form.auth.login') }}</a>
+                                                </li>
+
+                                                <li class="product-box-contain">
+                                                    <a
+                                                        href="{{ route('auth.customer.showFormRegister') }}">{{ __('form.auth.register') }}</a>
+                                                </li>
+
+                                                <li class="product-box-contain">
+                                                    <a
+                                                        href="{{ route('auth.customer.showFormForgotPassword') }}">{{ __('form.auth.forgot_password') }}</a>
+                                                </li>
+                                            </ul>
+                                        @endguest
+
+
                                     </div>
                                 </li>
                             </ul>
@@ -802,14 +822,14 @@
 
                                                             <h5 class="custom-mt dropdown-header">Product Features
                                                             </h5>
-                                                            <a class="dropdown-item"
-                                                                href="product-circle.html">Bundle (Cross Sale)</a>
+                                                            <a class="dropdown-item" href="product-circle.html">Bundle
+                                                                (Cross Sale)</a>
                                                             <a class="dropdown-item"
                                                                 href="product-left-thumbnail.html">Hot Stock
                                                                 Progress <label class="menu-label">New</label>
                                                             </a>
-                                                            <a class="dropdown-item"
-                                                                href="product-sold-out.html">SOLD OUT</a>
+                                                            <a class="dropdown-item" href="product-sold-out.html">SOLD
+                                                                OUT</a>
                                                             <a class="dropdown-item" href="product-circle.html">
                                                                 Sale Countdown</a>
                                                         </div>
@@ -826,10 +846,10 @@
                                                             <a class="dropdown-item"
                                                                 href="product-color-image.html">Variant Image
                                                                 Swatch</a>
-                                                            <a class="dropdown-item"
-                                                                href="product-color.html">Variant Color</a>
-                                                            <a class="dropdown-item"
-                                                                href="product-radio.html">Variant Radio Button</a>
+                                                            <a class="dropdown-item" href="product-color.html">Variant
+                                                                Color</a>
+                                                            <a class="dropdown-item" href="product-radio.html">Variant
+                                                                Radio Button</a>
                                                             <a class="dropdown-item"
                                                                 href="product-dropdown.html">Variant Dropdown</a>
                                                             <h5 class="custom-mt dropdown-header">Product Features
@@ -839,10 +859,10 @@
                                                                 Checkout</a>
                                                             <a class="dropdown-item"
                                                                 href="product-dynamic.html">Dynamic Checkout</a>
-                                                            <a class="dropdown-item"
-                                                                href="product-sticky.html">Secure Checkout</a>
-                                                            <a class="dropdown-item"
-                                                                href="product-bundle.html">Active Product view</a>
+                                                            <a class="dropdown-item" href="product-sticky.html">Secure
+                                                                Checkout</a>
+                                                            <a class="dropdown-item" href="product-bundle.html">Active
+                                                                Product view</a>
                                                             <a class="dropdown-item" href="product-bundle.html">
                                                                 Active
                                                                 Last Orders
@@ -853,10 +873,9 @@
                                                         <div class="dropdown-column m-0">
                                                             <h5 class="dropdown-header">
                                                                 Product Features </h5>
-                                                            <a class="dropdown-item"
-                                                                href="product-image.html">Product Simple</a>
-                                                            <a class="dropdown-item"
-                                                                href="product-rectangle.html">
+                                                            <a class="dropdown-item" href="product-image.html">Product
+                                                                Simple</a>
+                                                            <a class="dropdown-item" href="product-rectangle.html">
                                                                 Product Classified <label
                                                                     class="menu-label">New</label>
                                                             </a>
@@ -868,19 +887,17 @@
                                                                 Return</a>
                                                             <a class="dropdown-item"
                                                                 href="product-size-chart.html">Product Review</a>
-                                                            <a class="dropdown-item"
-                                                                href="product-expert.html">Ask
+                                                            <a class="dropdown-item" href="product-expert.html">Ask
                                                                 an Expert</a>
                                                             <h5 class="custom-mt dropdown-header">Product Features
                                                             </h5>
                                                             <a class="dropdown-item"
                                                                 href="product-bottom-thumbnail.html">Product
                                                                 Tags</a>
-                                                            <a class="dropdown-item"
-                                                                href="product-image.html">Store
+                                                            <a class="dropdown-item" href="product-image.html">Store
                                                                 Information</a>
-                                                            <a class="dropdown-item"
-                                                                href="product-image.html">Social Share <label
+                                                            <a class="dropdown-item" href="product-image.html">Social
+                                                                Share <label
                                                                     class="menu-label warning-label">Hot</label>
                                                             </a>
                                                             <a class="dropdown-item"
@@ -907,15 +924,14 @@
                                         </li>
 
                                         <li class="nav-item dropdown dropdown-mega">
-                                            <a class="nav-link dropdown-toggle ps-xl-2 ps-0"
-                                                href="javascript:void(0)" data-bs-toggle="dropdown">Mega Menu</a>
+                                            <a class="nav-link dropdown-toggle ps-xl-2 ps-0" href="javascript:void(0)"
+                                                data-bs-toggle="dropdown">Mega Menu</a>
 
                                             <div class="dropdown-menu dropdown-menu-2">
                                                 <div class="row">
                                                     <div class="dropdown-column col-xl-3">
                                                         <h5 class="dropdown-header">Daily Vegetables</h5>
-                                                        <a class="dropdown-item"
-                                                            href="shop-left-sidebar.html">Beans
+                                                        <a class="dropdown-item" href="shop-left-sidebar.html">Beans
                                                             & Brinjals</a>
 
                                                         <a class="dropdown-item"
@@ -928,11 +944,10 @@
                                                         <a class="dropdown-item"
                                                             href="shop-left-sidebar.html">Vegetables & Salads</a>
 
-                                                        <a class="dropdown-item"
-                                                            href="shop-left-sidebar.html">Gourd, Cucumber</a>
+                                                        <a class="dropdown-item" href="shop-left-sidebar.html">Gourd,
+                                                            Cucumber</a>
 
-                                                        <a class="dropdown-item"
-                                                            href="shop-left-sidebar.html">Herbs
+                                                        <a class="dropdown-item" href="shop-left-sidebar.html">Herbs
                                                             & Sprouts</a>
 
                                                         <a href="demo-personal-portfolio.html"
@@ -941,8 +956,7 @@
 
                                                     <div class="dropdown-column col-xl-3">
                                                         <h5 class="dropdown-header">Baby Tender</h5>
-                                                        <a class="dropdown-item"
-                                                            href="shop-left-sidebar.html">Beans
+                                                        <a class="dropdown-item" href="shop-left-sidebar.html">Beans
                                                             & Brinjals</a>
 
                                                         <a class="dropdown-item"
@@ -955,14 +969,13 @@
                                                         <a class="dropdown-item"
                                                             href="shop-left-sidebar.html">Vegetables & Salads</a>
 
-                                                        <a class="dropdown-item"
-                                                            href="shop-left-sidebar.html">Gourd, Cucumber</a>
+                                                        <a class="dropdown-item" href="shop-left-sidebar.html">Gourd,
+                                                            Cucumber</a>
 
                                                         <a class="dropdown-item"
                                                             href="shop-left-sidebar.html">Potatoes & Tomatoes</a>
 
-                                                        <a href="shop-left-sidebar.html"
-                                                            class="dropdown-item">Peas
+                                                        <a href="shop-left-sidebar.html" class="dropdown-item">Peas
                                                             & Corn</a>
                                                     </div>
 
@@ -978,12 +991,12 @@
                                                         <a class="dropdown-item"
                                                             href="shop-left-sidebar.html">Broccoli & Zucchini</a>
 
-                                                        <a class="dropdown-item"
-                                                            href="shop-left-sidebar.html">Celery, Fennel &
+                                                        <a class="dropdown-item" href="shop-left-sidebar.html">Celery,
+                                                            Fennel &
                                                             Leeks</a>
 
-                                                        <a class="dropdown-item"
-                                                            href="shop-left-sidebar.html">Chilies & Lime</a>
+                                                        <a class="dropdown-item" href="shop-left-sidebar.html">Chilies
+                                                            & Lime</a>
                                                     </div>
 
                                                     <div class="dropdown-column dropdown-column-img col-3"></div>

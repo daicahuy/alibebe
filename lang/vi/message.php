@@ -1,7 +1,8 @@
 <?php
 
 return [
-
+    'or' => 'Hoặc',
+    'hello' => "Xin chào",
     'show' => 'Hiển thị',
     'items_per_page' => 'mục trên mỗi trang',
     'trash' => 'Thùng rác',
