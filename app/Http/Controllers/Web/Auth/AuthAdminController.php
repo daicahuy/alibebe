@@ -20,21 +20,15 @@ class AuthAdminController extends Controller
         if (Auth::attempt($login)) {
             $request->session()->regenerate();
 
-            $user = User::where('email', $login['email'])->first();
-
-            if (!$user || $user->role != 2) {
-                return back()->withErrors([
-                    'email' => 'Tài khoản không tồn tại.',
-                ]);
-            }
             /**
              * @var User
              */
 
             $user = Auth::user();
-            if ($user->isAdmin()) {
+            if ($user->isAdmin() || $user->isEmployee()) {
                 return redirect()->route('admin.index');
             }
+            
         }
 
         return back()->withErrors([

@@ -7,8 +7,8 @@
                 <div class="col-xl-5 col-lg-6 me-auto">
                     <div class="log-in-box">
                         <div class="log-in-title">
-                            <h3>Welcome To Fastkart</h3>
-                            <h4>Log In Your Account</h4>
+                            <h3>Chào mừng bạn đến với Fastkart</h3>
+                            <h4>Đăng nhập tài khoản</h4>
                         </div>
                       
                             <div class="input-box">
@@ -19,7 +19,7 @@
                                         <div class="form-floating theme-form-floating log-in-form">
                                             <input type="email" name="email" id="email" formcontrolname="email"
                                                 class="form-control @error('email') is-invalid @enderror" value="{{old('email')}}"
-                                                placeholder="Email Address"><label for="email">Email Address</label>
+                                                placeholder="Email"><label for="email">Email</label>
                                             @error('email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -28,9 +28,9 @@
                                     <div class="col-12">
                                         <div class="form-floating theme-form-floating log-in-form">
                                             <input type="password" name="password" id="password" formcontrolname="password"
-                                                class="form-control @error('password') is-invalid @enderror" placeholder="Password "
+                                                class="form-control @error('password') is-invalid @enderror" placeholder="Mật khẩu "
                                                 @error('password') is-invalid @enderror><label
-                                                for="password">Password</label>
+                                                for="password">Mật khẩu</label>
                                             @error('password')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -39,13 +39,13 @@
                                     <div class="col-12">
                                         <div class="forgot-box">
                                             <a class="forgot-password"
-                                                href="{{ route('auth.admin.showFormForgotPassword') }}">Forgot Password?</a>
+                                                href="{{ route('auth.admin.showFormForgotPassword') }}">Quên mật khẩu?</a>
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <button class="btn btn-theme justify-content-center w-100" id="login_btn"
                                             type="submit">
-                                            <div> Log In </div>
+                                            <div>Đăng nhập </div>
                                         </button>
                                     </div>
                                 </form>

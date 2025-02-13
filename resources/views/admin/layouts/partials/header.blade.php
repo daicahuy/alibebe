@@ -103,7 +103,7 @@
                     </div>
                     <ul class="profile-dropdown onhover-show-div">
                         <li>
-                            <a href="/fastkart-admin/account">
+                            <a href="{{route('admin.account.index')}}">
                                 <i class="ri-user-line"></i>
                                 <span>My Account</span>
                             </a>

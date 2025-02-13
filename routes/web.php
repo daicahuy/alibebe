@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Admin\AttributeController;
 use App\Http\Controllers\Web\Admin\AttributeValueController;
 use App\Http\Controllers\Web\Admin\BrandController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Web\Client\HomeController;
 use App\Http\Controllers\Web\Client\ListCategoriesController;
 use App\Http\Controllers\Web\Admin\UserCustomerController;
 use App\Http\Controllers\Web\Admin\UserEmployeeController;
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -81,6 +83,21 @@ Route::prefix('/admin')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
+
+
+        Route::prefix('/account')
+            ->name('account.')
+            ->controller(AccountController::class)
+            ->group(function () {
+
+            Route::get('/', 'index')->name('index');
+
+            Route::put('/{user}/update-provider', 'updateProvider')->name('updateProvider');
+
+            Route::put('/{user}/update-password', 'updatePassword')->name('updatePassword');
+
+        });
+
 
 
         // CATEGORIES

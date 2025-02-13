@@ -22,8 +22,8 @@ class AdminMiddleware
          */
         $user = Auth::user();
 
-        if (!$user || !$user->isAdmin()) {  
-            return redirect()->route('auth.admin.showFormLogin'); // Điều hướng nếu không phải admin
+        if (!$user || (!$user->isAdmin() && !$user->isEmployee())) {  
+            return redirect()->route('auth.admin.showFormLogin');
         }
         return $next($request);
     }
