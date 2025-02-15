@@ -409,4 +409,18 @@ return [
     'help_product_accessories' => '*Chọn tối đa 6 phụ kiện để hiển thị phụ kiện đi kèm hiệu quả.',
     'help_is_featured' => '*Bật tùy chọn này sẽ hiển thị cờ <Nổi bật> trên sản phẩm.',
     'help_is_trending' => '*Bật tùy chọn này sẽ hiển thị sản phẩm trong thanh bên của trang sản phẩm dưới dạng mặt hàng thịnh hành.',
+
+    'accounts' => 'Tài Khoản',
+    'account' => [
+        'total_order' => 'Tổng Số đơn hàng',
+        'total_pending_order' => 'Đơn hàng đang chờ',
+        'total_wishlist' => 'Danh sách yêu thích',
+
+        'edit_address' => 'Thay đổi địa chỉ',
+        'order_history' => 'Danh sách đơn hàng',
+        'account_infomation' => 'Thông tin tài khoản',
+        'contact_infomation' => 'Thông tin liên hệ',
+        'address_book' => 'Sổ địa chỉ',
+        'default_address' => 'Địa chỉ mặc định'
+    ]
 ];

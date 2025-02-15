@@ -31,24 +31,23 @@
                                     <div class="title-header option-title">
                                         <h5>
 
-
                                             @if ($ShowUser->status == 1)
                                                 <a class="link"
-                                                    href="{{ route('admin.users.employee.index') }}">{{ __('form.user_employee') }}</a>
+                                                    href="{{ route('admin.users.customer.index') }}">{{ __('form.users') }}</a>
                                                 <span class="fs-6 fw-light">></span> {{ __('message.detail') }}
                                             @else
                                                 <a class="link"
-                                                    href="{{ route('admin.users.employee.index') }}">{{ __('form.user_employee') }}</a>
+                                                    href="{{ route('admin.users.customer.index') }}">{{ __('form.users') }}</a>
                                                 <span class="fs-6 fw-light">></span>
                                                 <a class="link"
-                                                    href="{{ route('admin.users.employee.lock') }}">{{ __('message.lock_list') }}</a>
+                                                    href="{{ route('admin.users.customer.lock') }}">{{ __('message.lock_list') }}</a>
                                                 <span class="fs-6 fw-light">></span> {{ __('message.detail') }}
                                             @endif
 
                                         </h5>
                                     </div>
 
-                                    <form action="{{ route('admin.users.employee.store') }}" method="POST"
+                                    <form action="{{ route('admin.users.customer.store') }}" method="POST"
                                         class="theme-form theme-form-2 mega-form mt-4" novalidate>
                                         @csrf
 
@@ -104,9 +103,11 @@
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch">
                                                         <input type="checkbox" name="status" value=""
-                                                            {{ $ShowUser->status == 1 ? 'checked' : '' }} disabled>
+                                                            {{ in_array($ShowUser->status, [1, 2]) ? 'checked' : '' }}
+                                                            disabled>
                                                         <span class="switch-state"></span>
                                                     </label>
+
                                                 </div>
                                             </div>
                                         </div>
