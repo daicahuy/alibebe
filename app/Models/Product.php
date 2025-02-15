@@ -115,4 +115,7 @@ class Product extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+    public function scopeTrending($query)  {
+        return $query->where('is_trending',true);
+    }
 }
