@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AttributeController;
 use App\Http\Controllers\Api\AttributeValueController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use Illuminate\Http\Request;
@@ -72,3 +73,6 @@ Route::prefix('/coupons')
     });
     
 Route::put('/brands/{brand}/status',[BrandController::class,'update'])->name('updateStatus');
+
+Route::get('/product/{id}', action: [HomeController::class, 'detailModal']);
+
