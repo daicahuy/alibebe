@@ -331,7 +331,7 @@
                                                 </div>
                                                 <div class="product-detail">
                                                     <a href="product-left-thumbnail.html">
-                                                        <h6 class="name">{{ $topSell->name }}</h6>
+                                                        <h6 class="name">{{ $topSell->product_names }}</h6>
                                                     </a>
 
                                                     <h5 class="sold text-content">
@@ -593,8 +593,9 @@
                         </div>
                     </div>
 
+                    
                     <div class="best-selling-slider product-wrapper wow fadeInUp">
-                        @foreach($bestSellingProducts->chunk(3) as $chunk)
+                        @foreach($bestSellingProducts->chunk(4) as $chunk)
                             <div>
                                 <ul class="product-list">
                                     @foreach($chunk as $product)
