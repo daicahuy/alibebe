@@ -484,7 +484,17 @@
                         tbody.empty();
                         dataDetailOrder = data.listItemOrder
                         data.listItemOrder.forEach(dataProduct => {
-                            amountAllItems += dataProduct.price_variant * dataProduct.quantity_variant;
+
+                            if (!dataProduct.name_variant) {
+                                console.log("dataProduct.name_variant", dataProduct.name_variant)
+                                console.log("amountAllItems", amountAllItems)
+                                amountAllItems += dataProduct.price * dataProduct.quantity;
+                            } else {
+                                amountAllItems += dataProduct.price_variant * dataProduct
+                                    .quantity_variant;
+                                console.log("dataProduct.name_variant2", dataProduct.name_variant)
+
+                            }
                             const imageUrl =
                                 `{{ Storage::url('${dataProduct.product.thumbnail}') }}`; //Laravel Blade syntax
                             //Chuyển đổi thành Javascript string
@@ -494,15 +504,16 @@
                     <tr class="ng-star-inserted">
                         <td class="product-image"><img  class="img-fluid" src="${jsImageUrl}" width="30px" height="30px" style="object-fit: cover"></td>
                         <td><h6>${dataProduct.name}</h6></td>
-                        <td><h6>${dataProduct.name_variant}</h6></td>
-                        <td><h6>${formatCurrency(dataProduct.price_variant)}</h6></td>
-                        <td><h6>${dataProduct.quantity_variant}</h6></td>
-                        <td><h6>${formatCurrency(dataProduct.price_variant * dataProduct.quantity_variant)}</h6></td>
+                        <td><h6>${dataProduct.name_variant?dataProduct.name_variant:"Không"}</h6></td>
+                        <td><h6>${dataProduct.price_variant?formatCurrency(dataProduct.price_variant):formatCurrency(dataProduct.price)}</h6></td>
+                        <td><h6>${dataProduct.quantity_variant?dataProduct.quantity_variant:dataProduct.quantity}</h6></td>
+                        <td><h6>${dataProduct.name_variant?formatCurrency(dataProduct.price_variant * dataProduct.quantity_variant):formatCurrency(dataProduct.price*dataProduct.quantity)}</h6></td>
                     </tr>`;
                             tbody.append(row);
                         });
 
                         const totalList = $(".tracking-total ul");
+                        console.log("amountAllItems,", amountAllItems);
                         totalList.find("li:nth-child(1) span").text(`${formatCurrency(amountAllItems)}(VND)`);
                         totalList.find("li:nth-child(2) span").text(`Miễn ship`);
                         console.log("data:", data)

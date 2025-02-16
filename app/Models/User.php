@@ -27,6 +27,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'google_id',
+        'facebook_id',
         'phone_number',
         'email',
         'password',
@@ -40,7 +41,7 @@ class User extends Authenticatable
         'verified_at',
     ];
 
-    
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -61,39 +62,48 @@ class User extends Authenticatable
     ];
 
 
-    public function isMale() {
+    public function isMale()
+    {
         return $this->gender === UserGenderType::MALE;
     }
 
-    public function isFemale() {
+    public function isFemale()
+    {
         return $this->gender === UserGenderType::FEMALE;
     }
 
-    public function isOther() {
+    public function isOther()
+    {
         return $this->gender === UserGenderType::OTHER;
     }
 
-    public function isAdmin() {
+    public function isAdmin()
+    {
         return $this->role === UserRoleType::ADMIN;
     }
 
-    public function isEmployee() {
+    public function isEmployee()
+    {
         return $this->role === UserRoleType::EMPLOYEE;
     }
 
-    public function isCustomer() {
+    public function isCustomer()
+    {
         return $this->role === UserRoleType::CUSTOMER;
     }
 
-    public function isActive() {
+    public function isActive()
+    {
         return $this->status === UserStatusType::ACTIVE;
     }
 
-    public function isInactive() {
+    public function isInactive()
+    {
         return $this->status === UserStatusType::INACTIVE;
     }
 
-    public function isLock() {
+    public function isLock()
+    {
         return $this->status === UserStatusType::LOCK;
     }
 
