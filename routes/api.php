@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AttributeController;
 use App\Http\Controllers\Api\AttributeValueController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ListCategoryController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use Illuminate\Http\Request;
@@ -24,6 +25,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// client
+// show modal
+// routes/api.php
+Route::get('/product/{id}', [ListCategoryController::class, 'detailModal']);
 
 Route::prefix('/categories')
     ->name('api.categories.')
@@ -72,3 +77,5 @@ Route::prefix('/coupons')
     });
     
 Route::put('/brands/{brand}/status',[BrandController::class,'update'])->name('updateStatus');
+
+

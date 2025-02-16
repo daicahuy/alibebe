@@ -8,7 +8,7 @@ use Illuminate\Contracts\Pagination\Paginator;
 
 class CategoryRepository extends BaseRepository
 {
-    
+
     public function getModel()
     {
         return Category::class;
@@ -50,7 +50,7 @@ class CategoryRepository extends BaseRepository
             $query->whereNull('parent_id');
         }
         $query->where('is_active', 1);
-        $query->orderBy('updated_at','DESC');
+        $query->orderBy('updated_at', 'DESC');
         return $query;
     }
 
@@ -156,4 +156,31 @@ class CategoryRepository extends BaseRepository
         $category->update($data);
         return $category;
     }
+    // Client
+
+    // Lấy danh sách category gồm name, icon, id
+    public function getAllParentCate()
+    {
+        $category = $this->model
+            ->whereNull('parent_id')
+            ->where('is_active', 1)
+            ->orderBy('id', 'ASC') //orinal
+            ->select('id', 'name', 'icon')
+            ->with('categories')
+            // ->withCount([
+
+            //     'childProductsCount AS child_products_count' => function ($query) {
+            //         $query->whereHas('categories', function ($q) {
+            //             $q->where('categories.is_active', 1);
+            //         });
+
+            //     }
+            // ])
+            ->withCount('products') //đếm cha
+            ->get();
+        // dd($category);
+        return $category;
+    }
+
+
 }
