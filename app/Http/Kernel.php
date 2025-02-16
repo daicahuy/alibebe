@@ -66,5 +66,9 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         'check.coupon.usage' => \App\Http\Middleware\CheckCouponUsage::class,
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'isAdmin' => \App\Http\Middleware\IsAdmin::class,
+        'check.reset.flow' => \App\Http\Middleware\CheckResetPasswordFlow::class,
+
     ];
 }
