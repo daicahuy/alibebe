@@ -65,8 +65,12 @@ Route::name('auth.')
                 Route::post('/handle', 'handleLogin')->name('handleLogin');
                 Route::get('/register', 'showFormRegister')->name('showFormRegister');
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
-                Route::get('/otp', 'showFormOtp')->name('showFormOtp');
-                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword');
+                Route::post('/send-otp', 'sendOtp')->name('sendOtp');
+                Route::get('/otp', 'showFormOtp')->name('showFormOtp')->middleware('check.reset.flow');;
+                Route::post('/verify-otp', 'verifyOtp')->name('verifyOtp');
+                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');;
+                Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');;
+
             
             });
 
@@ -79,7 +83,7 @@ Route::name('auth.')
 
 Route::prefix('/admin')
     ->name('admin.')
-    ->middleware('admin')
+    ->middleware(['isAdmin','admin'])
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');

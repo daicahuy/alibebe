@@ -67,5 +67,8 @@ class Kernel extends HttpKernel
 
         'check.coupon.usage' => \App\Http\Middleware\CheckCouponUsage::class,
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'isAdmin' => \App\Http\Middleware\IsAdmin::class,
+        'check.reset.flow' => \App\Http\Middleware\CheckResetPasswordFlow::class,
+
     ];
 }

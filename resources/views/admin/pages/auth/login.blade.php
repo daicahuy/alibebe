@@ -7,7 +7,7 @@
                 <div class="col-xl-5 col-lg-6 me-auto">
                     <div class="log-in-box">
                         <div class="log-in-title">
-                            <h3>Chào mừng bạn đến với Fastkart</h3>
+                            <h3>Chào mừng bạn đến với Alibebe</h3>
                             <h4>Đăng nhập tài khoản</h4>
                         </div>
                       
@@ -29,13 +29,18 @@
                                         <div class="form-floating theme-form-floating log-in-form">
                                             <input type="password" name="password" id="password" formcontrolname="password"
                                                 class="form-control @error('password') is-invalid @enderror" placeholder="Mật khẩu "
-                                                @error('password') is-invalid @enderror><label
+                                                @error('password') is-invalid @enderror>
+                                                <label
                                                 for="password">Mật khẩu</label>
                                             @error('password')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
+                                            <span id="togglePassword" class="mt-2">
+                                                <input type="checkbox"> Hiện mật khẩu?
+                                            </span>
                                         </div>
                                     </div>
+                                    
                                     <div class="col-12">
                                         <div class="forgot-box">
                                             <a class="forgot-password"
@@ -86,6 +91,38 @@
                     $(".invalid-feedback").show(); // Nếu có lỗi, giữ nguyên thông báo
                 }
             });
+
+            // hiện mật khẩu 
+            $("#togglePassword").click(function() {
+                let passwordInput = $("#password");
+                let icon = $(this).find("i");
+
+                if (passwordInput.attr("type") === "password") {
+                    passwordInput.attr("type", "text");
+                    icon.removeClass("fa-eye").addClass("fa-eye-slash");
+                } else {
+                    passwordInput.attr("type", "password");
+                    icon.removeClass("fa-eye-slash").addClass("fa-eye");
+                }
+            });
+            
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: "{{ session('success') }}",
+                    timer: 1500,
+                    showConfirmButton: true
+                });
+            @endif
+            @if(session('error'))
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi!',
+                                text: "{{ session('error') }}",
+                                showConfirmButton: true
+                            });
+            @endif
         });
     </script>
 @endsection

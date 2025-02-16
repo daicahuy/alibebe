@@ -42,50 +42,71 @@
                                                 <form
                                                     action="{{ route('admin.account.updateProvider', ['user' => $user->id]) }}"
                                                     method="POST"
+                                                enctype="multipart/form-data"
                                                     class="theme-form theme-form-2 mega-form ng-untouched ng-pristine ng-valid">
+                                                    @csrf
+                                                    @method('PUT')
                                                     <div class="row"><app-form-fields>
                                                             <div class="align-items-center g-2 mb-4 row"><label
-                                                                    class="col-sm-2 form-label-title mb-0" for="image">
+                                                                    class="col-sm-2 form-label-title mb-0" for="avatar">
                                                                     Ảnh<!----></label>
                                                                 <div class="col-sm-10">
-                                                                    <input type="file"
+                                                                    @if ($user->avatar)
+                                                                    <img alt="avatar" class="tbl-image icon-image"
+                                                                        src="{{ Storage::url($user->avatar) }}" style="width: 100px;height:100px;">
+                                                                @else
+                                                                    <img alt="image" class="tbl-image icon-image"
+                                                                        src="{{ asset('/theme/admin/assets/images/categories/no-image.svg') }}">
+                                                                @endif
+                                                                    <input class="mt-1" type="file" name="avatar"
                                                                         class="form-control ng-untouched ng-pristine ng-valid">
                                                                 </div>
                                                             </div>
                                                         </app-form-fields><app-fo>
                                                             <div class="align-items-center g-2 mb-4 row"><label
-                                                                    class="col-sm-2 form-label-title mb-0" for="name">
+                                                                    class="col-sm-2 form-label-title mb-0" for="fullname">
                                                                     Họ và Tên<span
                                                                         class="theme-color ms-2 required-dot">*</span><!----></label>
-                                                                <div class="col-sm-10"><input type="text" name="name"
-                                                                        class="form-control ng-untouched ng-pristine ng-valid"
-                                                                        placeholder="Nhập Họ và Tên" fdprocessedid="wq998a"
-                                                                        value="{{ $user->fullname }}"><!----></div>
+                                                                <div class="col-sm-10"><input type="text" name="fullname"
+                                                                        class="form-control ng-untouched ng-pristine ng-valid @error('fullname') is-invalid @enderror"
+                                                                        placeholder="Nhập Họ và Tên" 
+                                                                        value="{{ $user->fullname }}"><!----> 
+                                                                        @error('fullname')
+                                                                        <span class="text-danger">{{ $message }}</span>
+                                                                        @enderror
+                                                                    </div>
+                                                                       
                                                             </div>
                                                             </app-form-fields><app-fo>
                                                                 <div class="align-items-center g-2 mb-4 row"><label
                                                                         class="col-sm-2 form-label-title mb-0"
                                                                         for="email"> Email<span
                                                                             class="theme-color ms-2 required-dot">*</span><!----></label>
-                                                                    <div class="col-sm-10"><input type="email"
+                                                                    <div class="col-sm-10"><input type="text"
                                                                             name="email" 
-                                                                            class="form-control ng-untouched ng-pristine ng-valid"
+                                                                            class="form-control ng-untouched ng-pristine ng-valid @error('email') is-invalid @enderror"
                                                                             placeholder="Nhập Email"
                                                                             value="{{ $user->email }}"
-                                                                            fdprocessedid="58mgiq"><!----><!----></div>
+                                                                           ><!----><!---->   @error('email')
+                                                                        <span class="text-danger">{{ $message }}</span>
+                                                                        @enderror</div>
+                                                                        
                                                                 </div>
                                                                 </app-form-fields><app-fo>
                                                                     <div class="align-items-center g-2 mb-4 row"><label
                                                                             class="col-sm-2 form-label-title mb-0"
-                                                                            for="phone"> Số điện thoại<span
+                                                                            for="phone_number"> Số điện thoại<span
                                                                                 class="theme-color ms-2 required-dot">*</span><!----></label>
                                                                         <div class="col-sm-10">
                                                                             </select2><input type="number"
                                                                                 placeholder="Nhập Số điện thoại"
-                                                                                name="phone"
+                                                                                name="phone_number"
                                                                                 value="{{ $user->phone_number }}"
-                                                                                class="form-control ng-untouched ng-pristine ng-valid"
-                                                                                fdprocessedid="7gdqss"><!----><!---->
+                                                                                class="form-control ng-untouched ng-pristine ng-valid @error('phone_number') is-invalid @enderror"
+                                                                                ><!----><!---->
+                                                                                @error('phone_number')
+                                                                                <span class="text-danger">{{ $message }}</span>
+                                                                                @enderror
                                                                         </div>
                                                                     </div>
                                                                     </app-form-fields></div>
@@ -188,6 +209,7 @@
                         showConfirmButton: true
                     });
         @endif
+        
 
 
         let activeTab = localStorage.getItem('activeTab'); // Lấy tab đã lưu
