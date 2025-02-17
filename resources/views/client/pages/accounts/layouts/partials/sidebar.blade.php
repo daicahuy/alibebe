@@ -7,14 +7,14 @@
         </div>
         <div class="profile-box">
             <div class="cover-image">
-                <img src="../theme/client/assets/images/inner-page/cover-img.jpg" class="img-fluid blur-up lazyload"
+                <img src="/theme/client/assets/images/inner-page/cover-img.jpg" class="img-fluid blur-up lazyload"
                     alt="">
             </div>
 
             <div class="profile-contain">
                 <div class="profile-image">
                     <div class="position-relative">
-                        <img src="../theme/client/assets/images/inner-page/user/1.jpg"
+                        <img src="/theme/client/assets/images/inner-page/user/1.jpg"
                             class="blur-up lazyload update_img" alt="">
                         <div class="cover-icon">
                             <i class="fa-solid fa-pen">
@@ -34,7 +34,7 @@
         <ul class="nav nav-pills user-nav-pills" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
                 <a class="nav-link {{ Request::is('account') ? 'active' : '' }}" id="pills-dashboard-tab"
-                    data-bs-target="#pills-dashboard" href="{{ route('account.index') }}">
+                    data-bs-target="#pills-dashboard" href="{{ route('account.dashboard') }}">
                     <i data-feather="home"></i>
                     Trang Chủ
                 </a>

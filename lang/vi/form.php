@@ -7,6 +7,25 @@ return [
     'attribute_variants' => 'Thuộc tính biến thể',
     'attribute_specifications' => 'Thuộc tính sản phẩm',
 
+    'auth' => [
+        'login' => 'Đăng nhập',
+        'welcome' => 'Welcome To Fastkart',
+        'login_account' => 'Đăng nhập vào tài khoản của bạn',
+        'email_or_phone_number' => 'Nhập số điện thoại hoặc email',
+        'password' => 'Mật khẩu',
+        'remember_me' => 'Ghi nhớ tài khoản',
+        'forgot_password' => 'Quên mật khẩu',
+        'login_with_google' => 'Đăng nhập với Google',
+        'signup_with_google' => 'Đăng ký với Google',
+        'login_with_facebook' => 'Đăng nhập với Facebook',
+        'signup_with_facebook' => 'Đăng ký với Facebook',
+        'not_have_account' => 'Chưa có tài khoản?',
+        'have_account' => 'Đã có tài khoản',
+        'register' => 'Đăng ký',
+        'created_account' => 'Tạo tài khoản mới',
+        'logout' => 'Đăng xuất'
+    ],
+
     'attribute' => [
         'id' => 'ID',
         'name' => 'Tên thuộc tính',
@@ -119,12 +138,12 @@ return [
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
         'deleted_at' => 'Ngày xóa',
-        
+
         'select_discount_type' => 'Lựa Chọn Loại Giảm Giá',
         'fix_amount' => 'Giá Cố Định',
         'percent' => 'Phần Trăm',
     ],
-    
+
 
     'histories' => 'Lịch sử',
     'history' => [
@@ -205,7 +224,7 @@ return [
         'processing' => 'Đang xử lý',
         'shipping' => 'Đang giao hàng',
         'delivered' => 'Đã giao hàng',
-        'failed_delivery' => 'Giao hàng thất bại',
+        'failed delivery' => 'Giao hàng thất bại',
         'completed' => 'Hoàn thành',
         'cancel' => 'Đã hủy',
     ],

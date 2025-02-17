@@ -92,10 +92,21 @@
                 <li class="profile-nav onhover-dropdown pe-0 me-0">
                     <div class="media profile-media">
                         <div class="profile-img">
-                            <div class="user-round"><h4>S</h4></div>
+                            <div class="user-round">
+                                <img src="{{ Storage::url($user->avatar) }}" alt="avatar" style="width: 50px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            </div>
                         </div>
+                        
                         <div class="user-name-hide media-body">
-                            <span>Super Admin</span>
+                            <span style="
+                                display: inline-block;
+                                width: 100px; /* Điều chỉnh kích thước phù hợp */
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;">
+                                {{$user->fullname}}
+                            </span>
+
                             <p class="mb-0 font-roboto">
                                 admin <i class="middle ri-arrow-down-s-line"></i>
                             </p>
@@ -103,15 +114,15 @@
                     </div>
                     <ul class="profile-dropdown onhover-show-div">
                         <li>
-                            <a href="/fastkart-admin/account">
+                            <a href="{{route('admin.account.index')}}">
                                 <i class="ri-user-line"></i>
-                                <span>My Account</span>
+                                <span>Tài khoản của tôi</span>
                             </a>
                         </li>
                         <li>
-                            <a>
+                            <a href="{{route('auth.admin.logout')}}">
                                 <i class="ri-logout-box-line"></i>
-                                <span>Log out</span>
+                                <span>Đăng xuất</span>
                             </a>
                         </li>
                     </ul>

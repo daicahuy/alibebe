@@ -95,7 +95,6 @@
                                             <th>{{ __('form.product.thumbnail') }}</th>
                                             <th>{{ __('form.product.price') }}</th>
                                             <th>{{ __('form.product.type') }}</th>
-                                            <th>{{ __('form.product.start_at') }} 
                                             <th>{{ __('form.product.created_at') }} 
                                             </th>
                                             <th>{{ __('form.product.updated_at') }} </th>
@@ -162,12 +161,7 @@
                                                         <a href="#!"
                                                             class="fs-6 fw-bold w-100">{{ $product->type }}</a>
 
-                                                    </td>
-                                                    <td class="cursor-pointer">
-
-                                                        {{ $product->start_at }}
-
-                                                    </td>
+                                                    </td>                                                  
                                                     <td class="cursor-pointer">
 
                                                         {{ $product->created_at }}

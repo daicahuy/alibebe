@@ -1,5 +1,25 @@
 @extends('client.layouts.master')
 
+
+
+@push('css')
+    <style>
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .checkbox_animated.is-invalid {
+            border: 2px solid red !important;
+        }
+
+        .form-control.is-invalid {
+            border: 1px solid #dc3545 !important
+        }
+    </style>
+@endpush
+
 @section('content')
     <!-- Breadcrumb Section Start -->
     <section class="breadcrumb-section pt-0">
@@ -7,7 +27,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="breadcrumb-contain">
-                        <h2 class="mb-2">Log In</h2>
+                        <h2 class="mb-2">{{ __('form.auth.login') }}</h2>
                         <nav>
                             <ol class="breadcrumb mb-0">
                                 <li class="breadcrumb-item">
@@ -15,7 +35,7 @@
                                         <i class="fa-solid fa-house"></i>
                                     </a>
                                 </li>
-                                <li class="breadcrumb-item active">Log In</li>
+                                <li class="breadcrumb-item active">{{ __('form.auth.login') }}</li>
                             </ol>
                         </nav>
                     </div>
@@ -31,67 +51,76 @@
             <div class="row">
                 <div class="col-xxl-6 col-xl-5 col-lg-6 d-lg-block d-none ms-auto">
                     <div class="image-contain">
-                        <img src="{{ asset('theme/client/assets/images/inner-page/log-in.png') }}" class="img-fluid" alt="">
+                        <img src="{{ asset('theme/client/assets/images/inner-page/log-in.png') }}" class="img-fluid"
+                            alt="">
                     </div>
                 </div>
 
                 <div class="col-xxl-4 col-xl-5 col-lg-6 col-sm-8 mx-auto">
                     <div class="log-in-box">
                         <div class="log-in-title">
-                            <h3>Welcome To Fastkart</h3>
-                            <h4>Log In Your Account</h4>
+                            <h3>{{ __('form.auth.welcome') }}</h3>
+                            <h4>{{ __('form.auth.login_account') }}</h4>
                         </div>
 
                         <div class="input-box">
-                            <form class="row g-4">
+                            <form class="row g-4" id="formLoginCustomer">
+                                @csrf
                                 <div class="col-12">
                                     <div class="form-floating theme-form-floating log-in-form">
-                                        <input type="text" class="form-control" id="phone-number" placeholder="Phone Number">
-                                        <label for="phone-number">Phone Number</label>
+                                        <input type="text" class="form-control" id="phone_number_or_email"
+                                            name="phone_number_or_email"
+                                            placeholder={{ __('form.auth.email_or_phone_number') }}>
+                                        <label for="phone-number">{{ __('form.auth.email_or_phone_number') }}</label>
                                     </div>
                                 </div>
 
                                 <div class="col-12">
                                     <div class="form-floating theme-form-floating log-in-form">
-                                        <input type="password" class="form-control" id="password"
-                                            placeholder="Password">
-                                        <label for="password">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                            placeholder={{ __('form.auth.password') }}>
+                                        <label for="password">{{ __('form.auth.password') }}</label>
                                     </div>
                                 </div>
 
                                 <div class="col-12">
                                     <div class="forgot-box">
                                         <div class="form-check ps-0 m-0 remember-box">
-                                            <input class="checkbox_animated check-box" type="checkbox"
+                                            <input class="checkbox_animated check-box" type="checkbox" name="remember_me"
                                                 id="flexCheckDefault">
-                                            <label class="form-check-label" for="flexCheckDefault">Remember me</label>
+                                            <label class="form-check-label"
+                                                for="flexCheckDefault">{{ __('form.auth.remember_me') }}</label>
                                         </div>
-                                        <a href="{{ route('auth.customer.showFormForgotPassword') }}" class="forgot-password">Forgot Password?</a>
+                                        <a href="{{ route('auth.customer.showFormForgotPassword') }}"
+                                            class="forgot-password">{{ __('form.auth.forgot_password') }}</a>
                                     </div>
                                 </div>
 
                                 <div class="col-12">
-                                    <button class="btn btn-animation w-100 justify-content-center" type="submit">Log In</button>
+                                    <button class="btn btn-animation w-100 justify-content-center"
+                                        type="submit">{{ __('form.auth.login') }}</button>
                                 </div>
                             </form>
                         </div>
 
                         <div class="other-log-in">
-                            <h6>or</h6>
+                            <h6>{{ __('message.or') }}</h6>
                         </div>
 
                         <div class="log-in-button">
                             <ul>
                                 <li>
-                                    <a href="https://www.google.com/" class="btn google-button w-100">
-                                        <img src="{{ asset('theme/client/assets/images/inner-page/google.png') }}" class="blur-up lazyload"
-                                            alt=""> Log In with Google
+                                    <a href="{{ route('api.auth.googleLogin') }}" class="btn google-button w-100">
+                                        <img src="{{ asset('theme/client/assets/images/inner-page/google.png') }}"
+                                            class="blur-up lazyload" alt="">
+                                        {{ __('form.auth.login_with_google') }}
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="https://www.facebook.com/" class="btn google-button w-100">
-                                        <img src="{{ asset('theme/client/assets/images/inner-page/facebook.png') }}" class="blur-up lazyload"
-                                            alt=""> Log In with Facebook
+                                    <a href="{{ route('api.auth.facebookLogin') }}" class="btn google-button w-100">
+                                        <img src="{{ asset('theme/client/assets/images/inner-page/facebook.png') }}"
+                                            class="blur-up lazyload" alt="">
+                                        {{ __('form.auth.login_with_facebook') }}
                                     </a>
                                 </li>
                             </ul>
@@ -102,8 +131,8 @@
                         </div>
 
                         <div class="sign-up-box">
-                            <h4>Don't have an account?</h4>
-                            <a href="{{ route('auth.customer.showFormRegister') }}">Register</a>
+                            <h4> {{ __('form.auth.not_have_account') }}</h4>
+                            <a href="{{ route('auth.customer.showFormRegister') }}"> {{ __('form.auth.register') }}</a>
                         </div>
                     </div>
                 </div>
@@ -112,3 +141,77 @@
     </section>
     <!-- log in section end -->
 @endsection
+
+@push('js_library')
+    <!-- Flatpickr JS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+@endpush
+
+@push('js')
+    <script>
+        $(document).ready(function() {
+            $('#formLoginCustomer').on('submit', function(event) {
+                event.preventDefault();
+                let formData = $(this).serialize();
+
+                $.ajax({
+                    type: "POST",
+                    url: "http://127.0.0.1:8000/api/auth/loginCustomer", // Sử dụng route của Laravel
+                    data: formData,
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            Toastify({
+                                text: "Đăng nhập thành công",
+                                duration: 1000,
+                                newWindow: true,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                stopOnFocus: true,
+                                style: {
+                                    background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                },
+                            }).showToast();
+                            setTimeout(function() {
+                                window.location.href = '/';
+                            }, 500);
+                        } else {
+                            // Xử lý lỗi
+                            $('.error-message').remove();
+                            $('.is-invalid').removeClass('is-invalid');
+                            if (response.errors) {
+                                $.each(response.errors, function(field, messages) {
+                                    let input = $(`#${field}`);
+                                    if (input.length > 0) {
+                                        let errorDiv = $(
+                                            '<div class="invalid-feedback error-message d-block">'
+                                        );
+                                        $.each(messages, function(index, message) {
+                                            errorDiv.append('<span>' + message +
+                                                '</span><br>');
+                                        });
+                                        input.addClass('is-invalid');
+                                        input.after(errorDiv);
+                                    }
+                                });
+                            } else {
+                                alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
+                                console.error('Lỗi không xác định:', response);
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorResponse = JSON.parse(xhr.responseText);
+                        console.error("Lỗi Đăng Nhập:", errorResponse);
+                        if (errorResponse.message) {
+                            alert(errorResponse.message);
+                        } else {
+                            alert('Tên đăng nhập hoặc mật khẩu không đúng.');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+@endpush
