@@ -47,14 +47,14 @@
                                                 <div class="col-xl-3 col-lg-3">
                                                     <ul class="nav nav-pills flex-column" role="tablist">
                                                         <li id="general" class="nav-item" role="presentation">
-                                                            <a href="#general-panel" class="nav-link"
+                                                            <a href="#general-panel" class="nav-link active"
                                                                 data-bs-toggle="tab" role="tab"
                                                                 aria-controls="#general-panel" aria-selected="true"
                                                                 aria-disabled="false">
                                                                 <i class="ri-settings-line"></i>{{ __('form.general') }}</a>
                                                         </li>
                                                         <li id="inventory" class="nav-item" role="presentation">
-                                                            <a href="#inventory-panel" class="nav-link active" data-bs-toggle="tab"
+                                                            <a href="#inventory-panel" class="nav-link" data-bs-toggle="tab"
                                                                 role="tab" aria-controls="#inventory-panel"
                                                                 aria-selected="true" aria-disabled="false">
                                                                 <i
@@ -83,7 +83,7 @@
                                                 </div>
                                                 <div class="col-xl-9 col-lg-9">
                                                     <div class="tab-content">
-                                                        <div class="tab-pane fade" id="general-panel"
+                                                        <div class="tab-pane fade show active" id="general-panel"
                                                             aria-labelledby="general">
                                                             <div tab="general" class="tab">
                                                                 <div class="align-items-center g-2 mb-4 row">
@@ -128,7 +128,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div class="tab-pane fade show active" id="inventory-panel"
+                                                        <div class="tab-pane fade" id="inventory-panel"
                                                             aria-labelledby="inventory">
                                                             <div tab="inventory" class="tab">
                                                                 <div class="align-items-center g-2 mb-4 row">
@@ -141,10 +141,10 @@
                                                                     <div class="col-sm-9">
                                                                         <select id="type" name="product[type]"
                                                                             class="form-select">
-                                                                            <option value="">
+                                                                            <option value="{{ ProductType::getKey(ProductType::SINGLE) }}">
                                                                                 {{ __('form.product_type_single') }}
                                                                             </option>
-                                                                            <option value="" selected>
+                                                                            <option value="{{ ProductType::getKey(ProductType::VARIANT) }}">
                                                                                 {{ __('form.product_type_variant') }}
                                                                             </option>
                                                                         </select>
@@ -166,7 +166,7 @@
                                                                     </div>
                                                                 </div>
 
-                                                                <div class="align-items-center g-2 mb-4 row">
+                                                                <div class="stock-box align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0"
                                                                         for="stock">
                                                                         {{ __('form.product_stock.stock') }}
@@ -181,7 +181,7 @@
                                                                     </div>
                                                                 </div>
 
-                                                                <div class="align-items-center g-2 mb-4 row">
+                                                                <div class="price-box align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0"
                                                                         for="price">
                                                                         {{ __('form.product.price') }}
@@ -199,7 +199,7 @@
                                                                     </div>
                                                                 </div>
 
-                                                                <div class="align-items-center g-2 mb-4 row">
+                                                                <div class="sale_price-box align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0"
                                                                         for="sale_price">
                                                                         {{ __('form.product.sale_price') }}
@@ -263,7 +263,8 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="variant-box border-top">
+
+                                                                <div class="variant-box border-top d-none">
                                                                     <div id="variants-card">
 
                                                                         <div id="variants-section">
@@ -297,7 +298,7 @@
                                                                         <div>{{ __('message.delete_all') }}</div>
                                                                     </button>
 
-                                                                    <div class="table-responsive datatable-wrapper border-table mt-4">
+                                                                    <div class="table-responsive datatable-wrapper border-table mt-4 d-none" id="table-variants">
                                                                         <table class="table all-package theme-table no-footer">
                                                                             <thead>
                                                                                 <tr>
@@ -312,53 +313,7 @@
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
-                                                                                <tr>
-                                                                                    <td class="sm-width">
-                                                                                        <label for="file-input" class="cursor-pointer">
-                                                                                            <img alt="image" class="tbl-image icon-image" src="{{ asset('/theme/admin/assets/images/categories/mobile_phone.svg') }}">
-                                                                                        </label>
-                                                                                        <input id="file-input" type="file" style="display: none;" name="product_variant[thumbnail]"/>
-                                                                                    </td>
-    
-                                                                                    <td>
-                                                                                        <div>
-                                                                                            Màu đen, 586GB Màu đen, 586GB Màu đen, 586GB
-                                                                                        </div>
-                                                                                    </td>
-                                        
-                                                                                    <td>
-                                                                                        <input type="text" name="product_variant[sku]" class="form-control">
-                                                                                    </td>
-    
-                                                                                    <td>
-                                                                                        <input type="number" name="product_variant[price]" class="form-control">
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <input type="number" name="product_variant[sale_price]" class="form-control">
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <input type="number" name="product_variant[stock]" class="form-control">
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <div class="form-check form-switch ps-0">
-                                                                                            <label class="switch">
-                                                                                                <input type="checkbox" id="is_active" name="product_variant[is_active]">
-                                                                                                <span class="switch-state"></span>
-                                                                                            </label>
-                                                                                        </div>
-                                                                                    </td>
-                                        
-                                        
-                                                                                    <td>
-                                                                                        <ul id="actions">
-                                                                                            <li>
-                                                                                                <a href="" class="btn-delete">
-                                                                                                    <i class="ri-delete-bin-line"></i>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                        </ul>
-                                                                                    </td>
-                                                                                </tr>
+                                                                                
                                                                             </tbody>
                                                                         </table>
                                                                     </div>
@@ -613,7 +568,60 @@
                 }
             }
 
-             // On attribute change, update values
+            // Combinations Product
+            function cartesianProduct(arrays) {
+                return arrays.reduce((acc, curr) => {
+                    return acc.flatMap(a => curr.map(b => `${a} | ${b}`));
+                });
+            }
+
+            $('#type').on('change', function() {
+                switch($(this).val()) {
+                    case 'SINGLE': {
+
+                        if (!$('.variant-box').hasClass('d-none')) {
+                            $('.variant-box').addClass('d-none');
+                        }
+
+                        if ($('.stock-box').hasClass('d-none')) {
+                            $('.stock-box').removeClass('d-none');
+                        }
+
+                        if ($('.price-box').hasClass('d-none')) {
+                            $('.price-box').removeClass('d-none');
+                        }
+
+                        if ($('.sale_price-box').hasClass('d-none')) {
+                            $('.sale_price-box').removeClass('d-none');
+                        }
+                        
+                        break;
+                    }
+                    case 'VARIANT': {
+
+                        if ($('.variant-box').hasClass('d-none')) {
+                            $('.variant-box').removeClass('d-none');
+                        }
+
+                        if (!$('.stock-box').hasClass('d-none')) {
+                            $('.stock-box').addClass('d-none');
+                        }
+
+                        if (!$('.price-box').hasClass('d-none')) {
+                            $('.price-box').addClass('d-none');
+                        }
+
+                        if (!$('.sale_price-box').hasClass('d-none')) {
+                            $('.sale_price-box').addClass('d-none');
+                        }
+
+                        break;
+                    }
+                }
+            })
+
+
+            // On attribute change, update values
             $('.attribute-select').on('change', function() {
                 const attribute = $(this).val();
                 const valueSelect = $(this).closest('.variant-inputs').find('.value-select');
@@ -697,11 +705,88 @@
             });
 
             $('#genarate-variant-btn').on('click', function() {
-                $('.attribute-select').each(function(index) {
-                    console.log($(this).val(), $($('.value-select')[index]).val());
-                })
-            });
+                let data = [];
 
+                $('.attribute-select').each(function(index) {
+                    data.push($($('.value-select')[index]).val());
+                })
+
+                if (data.length !== 0) {
+                    let combinations = cartesianProduct(data);
+                    const variantElements = combinations.map((combination, index) => {
+
+                        const variant = combination.split(" | ").map(value => {
+                            return `<input type="hidden" value="${value}" name="product_variant[${index}][variant][]" />`
+                        })
+
+                        return `
+                            <tr class="variant">
+                                <td class="sm-width">
+                                    <label for="file-input" class="cursor-pointer">
+                                        <img alt="image" class="tbl-image icon-image" src="{{ asset('/theme/admin/assets/images/no-image.png') }}">
+                                    </label>
+                                    <input id="file-input" type="file" style="display: none;" name="product_variant[${index}][thumbnail]"/>
+                                </td>
+
+                                <td>
+                                    <div>
+                                        ${combination}
+                                        ${variant.join('')}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <input type="text" name="product_variant[${index}][sku]" class="form-control">
+                                </td>
+
+                                <td>
+                                    <input type="number" name="product_variant[${index}][price]" class="form-control">
+                                </td>
+                                <td>
+                                    <input type="number" name="product_variant[${index}][sale_price]" class="form-control">
+                                </td>
+                                <td>
+                                    <input type="number" name="product_variant[${index}][stock]" class="form-control">
+                                </td>
+                                <td>
+                                    <div class="form-check form-switch ps-0">
+                                        <label class="switch">
+                                            <input type="checkbox" id="is_active" name="product_variant[${index}][is_active]">
+                                            <span class="switch-state"></span>
+                                        </label>
+                                    </div>
+                                </td>
+
+
+                                <td>
+                                    <ul id="actions">
+                                        <li>
+                                            <a href="#!" class="btn-delete">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    $('#table-variants').removeClass('d-none');
+
+                    $('#table-variants tbody').html(variantElements);
+
+                    $('.btn-delete').on('click', function() {
+                        $(this).closest('.variant').remove();
+                    });
+
+                }
+                else {
+                    $('#table-variants tbody').html('');
+                    $('#table-variants').addClass('d-none');
+                }
+
+                
+            });
 
         });
     </script>

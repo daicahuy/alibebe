@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Admin\AttributeController;
 use App\Http\Controllers\Web\Admin\AttributeValueController;
 use App\Http\Controllers\Web\Admin\BrandController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Web\Admin\UserEmployeeController;
 
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -79,10 +81,18 @@ Route::name('auth.')
             ->group(function () {
 
                 Route::get('/login', 'showFormLogin')->name('showFormLogin');
+                Route::get('/logout', 'logout')->name('logout');
+                Route::post('/handle', 'handleLogin')->name('handleLogin');
+                Route::get('/register', 'showFormRegister')->name('showFormRegister');
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
-                Route::get('/otp', 'showFormOtp')->name('showFormOtp');
-                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword');
-
+                Route::post('/send-otp', 'sendOtp')->name('sendOtp');
+                Route::get('/otp', 'showFormOtp')->name('showFormOtp')->middleware('check.reset.flow');
+                ;
+                Route::post('/verify-otp', 'verifyOtp')->name('verifyOtp');
+                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');
+                ;
+                Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');
+                ;
             });
 
 
@@ -94,9 +104,25 @@ Route::name('auth.')
 
 Route::prefix('/admin')
     ->name('admin.')
+    ->middleware(['isAdmin', 'admin'])
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
+
+
+        Route::prefix('/account')
+            ->name('account.')
+            ->controller(AccountController::class)
+            ->group(function () {
+
+                Route::get('/', 'index')->name('index');
+
+                Route::put('/{user}/update-provider', 'updateProvider')->name('updateProvider');
+
+                Route::put('/{user}/update-password', 'updatePassword')->name('updatePassword');
+
+            });
+
 
 
         // CATEGORIES

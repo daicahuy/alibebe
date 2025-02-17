@@ -6,6 +6,7 @@ use App\Http\Controllers\api\AuthCustomerApiController;
 use App\Http\Controllers\api\AuthCustomerController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use Illuminate\Http\Request;
@@ -101,3 +102,6 @@ Route::prefix('/auth')
 //         ->group(function () {
 //         });
 // });
+
+Route::get('/product/{id}', action: [HomeController::class, 'detailModal']);
+
