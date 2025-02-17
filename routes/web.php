@@ -78,7 +78,7 @@ Route::name('auth.')
                 Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');;
 
             
-            });
+            }); 
 
 
     });
