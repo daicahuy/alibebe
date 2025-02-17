@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ProductType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Product extends Model
 {
@@ -104,7 +105,7 @@ class Product extends Model
     {
         return $this->belongsToMany(AttributeValue::class);
     }
-    
+
     public function productStock()
     {
         return $this->hasOne(ProductStock::class);
@@ -115,7 +116,21 @@ class Product extends Model
         return $this->hasMany(StockMovement::class);
     }
 
-    public function scopeTrending($query)  {
-        return $query->where('is_trending',true);
+    public function scopeTrending($query)
+    {
+        return $query->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+            ->leftJoin('reviews', 'reviews.product_id', '=', 'products.id')
+            ->select(
+                'products.id',
+                'products.name',
+                'products.thumbnail',
+                'products.price',
+                'products.sale_price',
+                'products.created_at',
+                DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
+                DB::raw('SUM(order_items.quantity) as total_sold')
+            )
+            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price')
+            ->orderByDesc('total_sold');
     }
 }

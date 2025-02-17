@@ -140,7 +140,7 @@ class ProductRepository extends BaseRepository
             ->leftJoin('reviews', 'reviews.product_id', '=', 'products.id')
             ->select(
                 'products.id',
-                'products.name as product_names',
+                'products.name',
                 'products.thumbnail',
                 'products.price',
                 'products.sale_price',
