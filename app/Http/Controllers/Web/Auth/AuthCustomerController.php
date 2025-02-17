@@ -24,7 +24,7 @@ class AuthCustomerController extends Controller
 
     public function showFormOtp()
     {
-        return view('client.pages.auth.otp');   
+        return view('client.pages.auth.otp');
     }
 
     public function showFormNewPassword()

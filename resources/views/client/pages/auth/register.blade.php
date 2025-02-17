@@ -193,8 +193,8 @@
                         if (response.status === 'success') {
 
                             Toastify({
-                                text: "Đăng ký thành công",
-                                duration: 2000,
+                                text: "Đăng ký thành công, hãy xác minh tài khoản trước khi mua hàng",
+                                duration: 3000,
                                 newWindow: true,
                                 close: true,
                                 gravity: "top", // `top` or `bottom`
@@ -207,8 +207,8 @@
                             }).showToast();
 
                             setTimeout(function() {
-                                window.location.href = '/login';
-                            }, 1000);
+                                window.location.href = '/email/verify';
+                            }, 3000);
                             // Chuyển hướng hoặc thao tác khác
                         } else {
                             // Xử lý lỗi bất ngờ

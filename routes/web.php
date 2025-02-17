@@ -18,6 +18,8 @@ use App\Http\Controllers\Web\Client\ListCategoriesController;
 use App\Http\Controllers\Web\Admin\UserCustomerController;
 use App\Http\Controllers\Web\Admin\UserEmployeeController;
 
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,6 +44,18 @@ Route::get('/products/{product}', [DetailProductController::class, 'index'])->na
 
 
 /*--------------AUTHENTICATION--------------*/
+
+Route::get('/email/verify', function () {
+    return view('client.pages.auth.verify-email');
+})->name('verification.notice');
+
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+
+    return redirect('/login');
+})->middleware(['guest', 'signed'])->name('verification.verify');
+
 Route::name('auth.')
     ->group(function () {
 

@@ -86,6 +86,10 @@ Route::prefix('/auth')
         Route::get('/google-callback', [AuthCustomerApiController::class, "googleAuthentication"])->name('googleAuthentication')->middleware(['web']);
         Route::get('/facebookLogin', [AuthCustomerApiController::class, "facebookLogin"])->name('facebookLogin')->middleware(['web']);
         Route::get('/facebook-callback', [AuthCustomerApiController::class, "facebookAuthentication"])->name('facebookAuthentication')->middleware(['web']);
+        Route::post('/sendOpt', [AuthCustomerApiController::class, "sendOtp"])->name('sendOtp');
+        Route::post('/reSendOpt', [AuthCustomerApiController::class, "reSendOpt"])->name('reSendOpt');
+        Route::post('/verifyOpt', [AuthCustomerApiController::class, "verifyOpt"])->name('verifyOpt');
+        Route::post('/changePassword', [AuthCustomerApiController::class, "changePassword"])->name('changePassword');
 
     });
 

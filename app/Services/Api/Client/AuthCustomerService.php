@@ -81,6 +81,12 @@ class AuthCustomerService
 
     }
 
+    public function changePassword($email, $password)
+    {
+        $this->authCustomerRepository->changePassword($email, $password);
+        return ['status' => 'success', 'message' => 'Đổi thành công'];
+    }
+
 
 
 
