@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateAccountPasswordRequest;
+use App\Http\Requests\UpdateAccountProviderRequest;
 use App\Models\User;
 use App\Services\Web\Admin\AccountService;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,7 @@ class AccountController extends Controller
         $user = Auth::user();
         return view('admin.pages.user_Account.detail',compact('user'));
     }
+
 
     public function updatePassword(UpdateAccountPasswordRequest $request)
     {
@@ -42,6 +44,10 @@ class AccountController extends Controller
     
         return back()->with('success', 'Mật khẩu đã được cập nhật thành công!');
     }
-    
+    public function updateProvider(UpdateAccountProviderRequest $request)
+    {
+        $this->accountService->updateProvider($request);
+        return back()->with('success', 'Thông tin đã được cập nhật thành công!');
+    }
     
 }

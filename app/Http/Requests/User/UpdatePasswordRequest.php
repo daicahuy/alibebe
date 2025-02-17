@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateAccountPasswordRequest extends FormRequest
+class UpdatePasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,18 +23,16 @@ class UpdateAccountPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'current_password' => ['required'],
-            'new_password' => ['required', 'min:6'],
+            'password' => ['required', 'min:6'],
             'password_confirmation' => ['required'], // Bắt buộc nhập lại mật khẩu
         ];
     }
-    
+
     public function messages(): array
     {
         return [
-            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại.',
-            'new_password.required' => 'Vui lòng nhập mật khẩu mới.',
-            'new_password.min' => 'Mật khẩu mới phải có ít nhất 6 ký tự.',
+            'password.required' => 'Vui lòng nhập mật khẩu mới.',
+            'password.min' => 'Mật khẩu mới phải có ít nhất 6 ký tự.',
             'password_confirmation.required' => 'Vui lòng nhập xác nhận mật khẩu mới.',
         ];
     }
