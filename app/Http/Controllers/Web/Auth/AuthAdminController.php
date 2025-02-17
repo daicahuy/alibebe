@@ -125,6 +125,8 @@ class AuthAdminController extends Controller
             return back()->with('error', 'Mã OTP không chính xác!');
         }
 
+        Session::put('otp_verified', true);
+
         // Lưu email vào session để đổi mật khẩu
         Session::put('otp_email', $email);
         Session::forget('otp'); // Xóa OTP sau khi xác thực thành công
