@@ -2,9 +2,12 @@
 
 use App\Http\Controllers\Api\AttributeController;
 use App\Http\Controllers\Api\AttributeValueController;
+use App\Http\Controllers\api\AuthCustomerApiController;
+use App\Http\Controllers\api\AuthCustomerController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ListCategoryController;
+use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use Illuminate\Http\Request;
@@ -45,12 +48,12 @@ Route::prefix('/attributes')
     ->group(function () {
         Route::put('/{attribute}', 'update')->name('update');
         Route::prefix('{attribute}/attribute_values')
-        ->name('attribute_values.')
-        ->controller(AttributeValueController::class)
-        ->where(['attribute' => '[0-9]+'])
-        ->group(function () {
-            Route::put('/{attributeValue}', 'update')->name('update');
-        });
+            ->name('attribute_values.')
+            ->controller(AttributeValueController::class)
+            ->where(['attribute' => '[0-9]+'])
+            ->group(function () {
+                Route::put('/{attributeValue}', 'update')->name('update');
+            });
     });
 
 Route::prefix('/orders')
@@ -73,9 +76,37 @@ Route::prefix('/coupons')
     ->name('coupons.')
     ->controller(CouponController::class)
     ->group(function () {
-        Route::post('/update-coupon-status/{id}',  'apiUpdateStatus');
+        Route::post('/update-coupon-status/{id}', 'apiUpdateStatus');
     });
     
 Route::put('/brands/{brand}/status',[BrandController::class,'update'])->name('updateStatus');
 
+
+
+Route::put('/brands/{brand}/status', [BrandController::class, 'update'])->name('updateStatus');
+
+
+Route::prefix('/auth')
+    ->name('api.auth.')
+    ->group(function () {
+        Route::post('/registerCustomer', [AuthCustomerApiController::class, "registerCustomer"])->name('registerCustomer');
+        Route::post('/loginCustomer', [AuthCustomerApiController::class, "loginCustomer"])->name('loginCustomer')->middleware(['web']);
+        Route::get('/logout', [AuthCustomerApiController::class, "logout"])->name('logout')->middleware(['web']);
+        Route::get('/googleLogin', [AuthCustomerApiController::class, "googleLogin"])->name('googleLogin')->middleware(['web']);
+        Route::get('/google-callback', [AuthCustomerApiController::class, "googleAuthentication"])->name('googleAuthentication')->middleware(['web']);
+        Route::get('/facebookLogin', [AuthCustomerApiController::class, "facebookLogin"])->name('facebookLogin')->middleware(['web']);
+        Route::get('/facebook-callback', [AuthCustomerApiController::class, "facebookAuthentication"])->name('facebookAuthentication')->middleware(['web']);
+
+    });
+
+
+// Route::middleware(['ApiSession'])->group(function () {
+
+//     Route::prefix('/auth')
+//         ->name('api.auth.')
+//         ->group(function () {
+//         });
+// });
+
+Route::get('/product/{id}', action: [HomeController::class, 'detailModal']);
 

@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Category;
 use App\Services\Web\Admin\CategoryService;
 use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Support\Facades\DB;
 
 class CategoryRepository extends BaseRepository
 {
@@ -182,5 +183,32 @@ class CategoryRepository extends BaseRepository
         return $category;
     }
 
+
+    //  Home 
+    public function listCategory()
+    {
+        $parentCategory = Category::whereNull('parent_id')->get();
+        return $parentCategory;
+    }
+
+    public function topCategoryInWeek()
+    {
+        return DB::table('order_items')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('category_product', 'products.id', '=', 'category_product.product_id')
+            ->join('categories', 'category_product.category_id', '=', 'categories.id')
+            ->whereBetween('orders.created_at', [now()->startOfWeek(), now()->endOfWeek()])
+            ->whereNull('parent_id')
+            ->select(
+                'categories.id',
+                'categories.name',
+                'categories.icon',
+                DB::raw('COUNT(order_items.id) as total_sales')
+            )
+            ->groupBy('categories.id', 'categories.name', 'categories.icon')
+            ->orderByDesc('total_sales')
+            ->get();            
+    }
 
 }

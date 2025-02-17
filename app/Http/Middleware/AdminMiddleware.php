@@ -2,26 +2,29 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class RedirectIfAuthenticated
+class AdminMiddleware
 {
     /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, $guard = null): Response
+    public function handle(Request $request, Closure $next): Response
     {
+        /**
+         * @var User
+         */
+        $user = Auth::user();
 
-        if (Auth::guard($guard)->check()) {
-            return redirect('/'); // Thay đổi đường dẫn này theo yêu cầu của bạn
+        if (!$user || (!$user->isAdmin() && !$user->isEmployee())) {  
+            return redirect()->route('auth.admin.showFormLogin');
         }
-
         return $next($request);
     }
 }
