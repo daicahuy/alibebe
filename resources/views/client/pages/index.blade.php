@@ -306,7 +306,8 @@
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
                                                     <ul class="product-option">
-                                                        <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="View">
                                                             <a href="javascript:void(0)" data-bs-toggle="modal"
                                                                 data-bs-target="#view" data-id={{ $topSell->id }}>
                                                                 <i data-feather="eye"></i>
@@ -455,7 +456,8 @@
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
                                                     <ul class="product-option">
-                                                        <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="View">
                                                             <a href="javascript:void(0)" data-bs-toggle="modal"
                                                                 data-bs-target="#view" data-id={{ $aiSuggest->id }}>
                                                                 <i data-feather="eye"></i>
@@ -483,8 +485,10 @@
                                                     </a>
 
                                                     <h5 class="sold text-content">
-                                                        <span class="theme-color price">{{ number_format($aiSuggest->sale_price ?? $aiSuggest->price) }} ₫</span>
-                                                        @if($aiSuggest->sale_price)
+                                                        <span
+                                                            class="theme-color price">{{ number_format($aiSuggest->sale_price ?? $aiSuggest->price) }}
+                                                            ₫</span>
+                                                        @if ($aiSuggest->sale_price)
                                                             <del>{{ number_format($aiSuggest->price) }} ₫</del>
                                                         @endif
                                                     </h5>
@@ -493,7 +497,8 @@
                                                         <ul class="rating">
                                                             @for ($i = 1; $i <= 5; $i++)
                                                                 <li>
-                                                                    <i data-feather="star" class="{{ $i <= round($aiSuggest->average_rating) ? 'fill text-warning' : '' }}"></i>
+                                                                    <i data-feather="star"
+                                                                        class="{{ $i <= round($aiSuggest->average_rating) ? 'fill text-warning' : '' }}"></i>
                                                                 </li>
                                                             @endfor
                                                         </ul>
@@ -725,7 +730,7 @@
                                             <h5>Brand:</h5>
                                             <h6 id = 'prdBrand'></h6>
                                         </div>
-</li>
+                                    </li>
 
                                     {{-- <li>
                                         <div class="brand-box">
