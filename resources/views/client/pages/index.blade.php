@@ -483,16 +483,17 @@
                                                     </a>
 
                                                     <h5 class="sold text-content">
-                                                        <span class="theme-color price">{{ $aiSuggest->price }}</span>
-                                                        <del>{{ $aiSuggest->sale_price }}</del>
+                                                        <span class="theme-color price">{{ number_format($aiSuggest->sale_price ?? $aiSuggest->price) }} ₫</span>
+                                                        @if($aiSuggest->sale_price)
+                                                            <del>{{ number_format($aiSuggest->price) }} ₫</del>
+                                                        @endif
                                                     </h5>
 
                                                     <div class="product-rating mt-sm-2 mt-1">
                                                         <ul class="rating">
                                                             @for ($i = 1; $i <= 5; $i++)
                                                                 <li>
-                                                                    <i data-feather="star"
-                                                                        class="{{ $i <= round($aiSuggest->average_rating) ? 'fill' : '' }}"></i>
+                                                                    <i data-feather="star" class="{{ $i <= round($aiSuggest->average_rating) ? 'fill text-warning' : '' }}"></i>
                                                                 </li>
                                                             @endfor
                                                         </ul>

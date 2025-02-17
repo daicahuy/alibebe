@@ -76,8 +76,6 @@ Route::name('auth.')
                 Route::post('/verify-otp', 'verifyOtp')->name('verifyOtp');
                 Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');;
                 Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');;
-
-            
             });
 
 
