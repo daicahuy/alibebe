@@ -14,7 +14,7 @@ class ProductRepository extends BaseRepository
     }
 
     // Lấy danh sách sản phẩm theo category
-    public function getAllProductCate($category = null, $perpage = 5, $sortBy)
+    public function getAllProductCate($category = null, $perpage = 5, $sortBy = 'default', $filters = [])
     {
         $query = $this->model->query();
 
@@ -37,6 +37,10 @@ class ProductRepository extends BaseRepository
                 $q->where('is_active', 1);
             });
         }
+        // filters
+        if (!empty($filters)) {
+            \Log::info('Applying filters in ProductRepository: ' . json_encode($filters)); // Log bộ lọc nhận được
+        }
 
         // sort by
         switch ($sortBy) {
@@ -52,6 +56,20 @@ class ProductRepository extends BaseRepository
             case 'zToa':
                 $query->orderBy('name', 'DESC');
                 break;
+            case 'sellWell':
+                $query->orderByDesc(function ($query) {
+                    $query->selectRaw('COALESCE(SUM(order_items.quantity),0)')
+                        ->from('order_items')
+                        ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                        ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+                        ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
+                        ->whereColumn('order_items.product_id', 'products.id')
+                        ->where('order_statuses.name', '=', 'Hoàn thành');
+                });
+                break;
+            case 'manyViews':
+                $query->orderBy('views', 'DESC');
+                break;
             case 'rating':
                 $query->orderByDesc(function ($query) {
                     $query->selectRaw('COALESCE(AVG(reviews.rating),0)')
@@ -62,11 +80,11 @@ class ProductRepository extends BaseRepository
                 break;
             default:
                 $query->orderBy('updated_at', 'DESC');
-                
+
 
         }
 
-        $query->select('id', 'name', 'thumbnail', 'price', 'sale_price', 'short_description')->with('categories:id,name')->with('reviews');
+        $query->select('id', 'name', 'thumbnail', 'price', 'sale_price', 'short_description', 'views')->with('categories:id,name')->with('reviews');
         $products = $query->paginate($perpage)->appends(['sort_by' => $sortBy]); // Lưu  $products
 
         return $products;

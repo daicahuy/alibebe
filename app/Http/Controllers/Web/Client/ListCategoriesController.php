@@ -18,26 +18,23 @@ class ListCategoriesController extends Controller
     }
     public function index(Request $request, $category = null)
     {
-
-        $listParentCategories = $this->listCategoriesService->listParentCate(); // list danh mục (cha)
-
-        $perpage = $request->input('per_page', 5); // perpage
-        // dd($request);
+        $listParentCategories = $this->listCategoriesService->listParentCate();
+        $perpage = $request->input('per_page', 5);
         $sortBy = $request->input('sort_by', 'default');
-        $listProductCate = $this->listCategoriesService->listProductCate($category, $perpage, $sortBy); // list sản phẩm
-
-        // Lấy danh sách thuộc tính biến thể
+        $currentFilters = $request->query();
+        $listProductCate = $this->listCategoriesService->listProductCate($category, $perpage, $sortBy, $currentFilters);
+        $listStar = $this->listCategoriesService->getAllReviews();
         $listVariantAttributes = $this->listCategoriesService->listVariantAttributes($category);
 
-        $listStar = $this->listCategoriesService->getAllReviews(); // start
+        // dd($currentFilters); 
 
-        // dd($listStar);
         return view('client.pages.list-categories', compact(
             'listParentCategories',
             'listProductCate',
             'listVariantAttributes',
             'listStar',
-            'sortBy'
+            'sortBy',
+            'currentFilters' //
         ));
     }
 

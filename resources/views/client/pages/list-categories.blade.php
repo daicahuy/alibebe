@@ -31,7 +31,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="slider-7_1 no-space shop-box no-arrow">
-                        {{-- category --}}
+                        {{-- menu category --}}
 
                         @foreach ($listParentCategories as $item)
                             <div>
@@ -61,6 +61,7 @@
     <section class="section-b-space shop-section">
         <div class="container-fluid-lg">
             <div class="row">
+                {{-- Filter --}}
                 <div class="col-custom-3 wow fadeInUp">
                     <div class="left-box">
                         <div class="shop-left-sidebar">
@@ -68,285 +69,216 @@
                                 <h3><i class="fa-solid fa-arrow-left"></i> Back</h3>
                             </div>
 
-                            {{-- FILTERS --}}
-                            {{-- <div class="filter-category">
-                                <div class="filter-title">
-                                    <h2>Filters</h2>
-                                    <a href="javascript:void(0)">Clear All</a>
-                                </div>
-                                <ul>
-                                    <li>
-                                        <a href="javascript:void(0)">Vegetable</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">Fruit</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">Fresh</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">Milk</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">Meat</a>
-                                    </li>
-                                </ul>
-                            </div> --}}
-
-                            <div class="accordion custom-accordion" id="accordionExample">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#collapseOne">
-                                            <span>Categories</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseOne" class="accordion-collapse collapse show">
-                                        <div class="accordion-body">
-
-                                            <div class="form-floating theme-form-floating-2 search-box">
-                                                <input type="search" class="form-control" id="search"
-                                                    placeholder="Search ..">
-                                                <label for="search">Search</label>
-                                            </div>
-
-                                            <ul class="category-list custom-padding custom-height">
-                                                @foreach ($listParentCategories as $item)
-                                                    <li>
-                                                        <div class="form-check ps-0 m-0 category-list-box">
-                                                            <input class="checkbox_animated" type="checkbox" id="fruit">
-                                                            <label class="form-check-label" for="fruit">
-                                                                <span class="name">{{ $item->name }}</span>
-                                                                <span
-                                                                    class="number">({{ $item->child_products_count + $item->products_count }})</span>
-                                                            </label>
-                                                        </div>
-                                                    </li>
-                                                @endforeach
-
-
-
-
-                                            </ul>
-
-                                        </div>
-                                    </div>
-                                </div>
-                                {{-- Food Preference --}}
-                                {{-- <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#collapseTwo">
-                                            <span>Food Preference</span>
-                                        </button>
-                                    </h2>
-
-                                    <div id="collapseTwo" class="accordion-collapse collapse show">
-                                        <div class="accordion-body">
-                                            <ul class="category-list custom-padding">
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="veget">
-                                                        <label class="form-check-label" for="veget">
-                                                            <span class="name">Vegetarian</span>
-                                                            <span class="number">(08)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="non">
-                                                        <label class="form-check-label" for="non">
-                                                            <span class="name">Non Vegetarian</span>
-                                                            <span class="number">(09)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div> --}}
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-headingThree">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#collapseThree">
-                                            <span>Price</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseThree" class="accordion-collapse collapse show">
-                                        <div class="accordion-body">
-                                            <div class="range-slider">
-                                                <input type="text" class="js-range-slider" value="">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {{-- rating --}}
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-headingSix">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#collapseSix">
-                                            <span>Rating</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseSix" class="accordion-collapse collapse show">
-                                        <div class="accordion-body">
-
-                                            <ul class="category-list custom-padding">
-                                                @foreach ($listStar as $start)
-                                                    <li>
-                                                        <div class="form-check ps-0 m-0 category-list-box">
-                                                            <input class="checkbox_animated" type="checkbox">
-                                                            <div class="form-check-label">
-                                                                <ul class="rating">
-
-                                                                    @for ($i = 0; $i < 5; $i++)
-                                                                        <li>
-                                                                            @if ($i < $start->rating)
-                                                                                <i data-feather="star" class="fill"></i>
-                                                                            @else
-                                                                                <i data-feather="star"></i>
-                                                                            @endif
-                                                                        </li>
-                                                                    @endfor
-
-                                                                </ul>
-                                                                <span class="text-content">({{ $start->rating }}
-                                                                    Start)</span>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                @endforeach
-
-
-
-                                            </ul>
-
-                                        </div>
-                                    </div>
-                                </div>
-                                {{-- discount --}}
-                                {{-- <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-headingFour">
-                                        <button class="accordion-button collapsed" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#collapseFour">
-                                            <span>Discount</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseFour" class="accordion-collapse collapse show">
-                                        <div class="accordion-body">
-
-                                            <ul class="category-list custom-padding">
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault">
-                                                        <label class="form-check-label" for="flexCheckDefault">
-                                                            <span class="name">upto 5%</span>
-                                                            <span class="number">(06)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault1">
-                                                        <label class="form-check-label" for="flexCheckDefault1">
-                                                            <span class="name">5% - 10%</span>
-                                                            <span class="number">(08)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault2">
-                                                        <label class="form-check-label" for="flexCheckDefault2">
-                                                            <span class="name">10% - 15%</span>
-                                                            <span class="number">(10)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault3">
-                                                        <label class="form-check-label" for="flexCheckDefault3">
-                                                            <span class="name">15% - 25%</span>
-                                                            <span class="number">(14)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault4">
-                                                        <label class="form-check-label" for="flexCheckDefault4">
-                                                            <span class="name">More than 25%</span>
-                                                            <span class="number">(13)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                            </ul>
-
-                                        </div>
-                                    </div>
-                                </div> --}}
-
-                                @foreach ($listVariantAttributes as $attrName => $attrValues)
-                                    {{-- @if ($attrName == 'Màu sắc') --}}
+                            <form action="{{ route('categories') }}" method="GET" id="filter-form">
+                                <div class="accordion custom-accordion" id="accordionExample">
+                                    {{-- Categories --}}
                                     <div class="accordion-item">
-                                        <h2 class="accordion-header" id="panelsStayOpen-heading{{ $loop->index }}">
-                                            <button class="accordion-button collapsed" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#collapse{{ $loop->index }}">
-                                                <span>{{ $attrName }}</span>
+                                        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapseOne">
+                                                <span>Categories</span>
                                             </button>
                                         </h2>
-                                        <div id="collapse{{ $loop->index }}" class="accordion-collapse collapse show">
+                                        <div id="collapseOne" class="accordion-collapse collapse show">
                                             <div class="accordion-body">
 
+                                                {{-- search --}}
+                                                <div class="form-floating theme-form-floating-2 search-box">
+                                                    <input type="search" class="form-control" id="search-category"
+                                                        name='search' placeholder="Search .."
+                                                        value="{{ $currentFilters['search'] ?? '' }}">
+                                                    <label for="search-category">Search</label>
+                                                </div>
+
                                                 <ul class="category-list custom-padding custom-height">
-                                                    @foreach ($attrValues as $value)
+                                                    @foreach ($listParentCategories as $item)
                                                         <li>
                                                             <div class="form-check ps-0 m-0 category-list-box">
                                                                 <input class="checkbox_animated" type="checkbox"
-                                                                    id="flexCheckDefault5">
-                                                                <label class="form-check-label" for="flexCheckDefault5">
-                                                                    <span class="name">{{ $value->value }}</span>
+                                                                    name='category[]' value="{{ $item->id }}"
+                                                                    id="category-{{ $item->id }}"
+                                                                    {{ in_array($item->id, $currentFilters['category'] ?? []) ? 'checked' : '' }}>
+                                                                <label class="form-check-label"
+                                                                    for="category-{{ $item->id }}">
+                                                                    <span class="name">{{ $item->name }}</span>
                                                                     <span
-                                                                        class="number">({{ $value->product_variants_count }})</span>
+                                                                        class="number">({{ $item->child_products_count + $item->products_count }})</span>
                                                                 </label>
                                                             </div>
                                                         </li>
                                                     @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    {{-- Search Price Range --}}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                                <span>Price</span>
+                                            </button>
+                                        </h2>
+                                        <div id="collapseThree" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+                                                <div class="price-range-inputs">
+                                                    <div class="price-input">
+                                                        <label for="min_price">Giá từ:</label>
+                                                        <input type="number" class="form-control" id="min_price"
+                                                            name="min_price" placeholder="Giá tối thiểu"
+                                                            value="{{ $currentFilters['min_price'] ?? '' }}">
+                                                    </div>
+                                                    <div class="price-input">
+                                                        <label for="max_price">Giá đến:</label>
+                                                        <input type="number" class="form-control" id="max_price"
+                                                            name="max_price" placeholder="Giá tối đa"
+                                                            value="{{ $currentFilters['max_price'] ?? '' }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <style>
+                                        .price-range-inputs {
+                                            display: flex;
+                                            gap: 10px;
+                                            /* Khoảng cách giữa hai ô input */
+                                        }
+
+                                        .price-input {
+                                            flex: 1;
+                                            /* Chia đều không gian cho cả hai ô input */
+                                        }
+
+                                        .price-input label {
+                                            display: block;
+                                            /* Label hiển thị trên ô input */
+                                            margin-bottom: 5px;
+                                            font-weight: bold;
+                                            /* Làm đậm label (tùy chọn) */
+                                        }
+                                    </style>
+
+                                    {{-- rating --}}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="panelsStayOpen-headingSix">
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#collapseSix">
+                                                <span>Rating</span>
+                                            </button>
+                                        </h2>
+                                        <div id="collapseSix" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+
+                                                <ul class="category-list custom-padding">
+                                                    @foreach ($listStar as $start)
+                                                        <li>
+                                                            <div class="form-check ps-0 m-0 category-list-box">
+                                                                <input class="checkbox_animated" type="checkbox"
+                                                                    id="rating-{{ $start->rating }}" name="rating[]"
+                                                                    value="{{ $start->rating }}"
+                                                                    {{ in_array($start->rating, $currentFilters['rating'] ?? []) ? 'checked' : '' }}>
+                                                                <div class="form-check-label">
+                                                                    <ul class="rating">
+
+                                                                        @for ($i = 0; $i < 5; $i++)
+                                                                            <li>
+                                                                                @if ($i < $start->rating)
+                                                                                    <i data-feather="star"
+                                                                                        class="fill"></i>
+                                                                                @else
+                                                                                    <i data-feather="star"></i>
+                                                                                @endif
+                                                                            </li>
+                                                                        @endfor
+
+                                                                    </ul>
+                                                                    <span class="text-content">({{ $start->rating }}
+                                                                        Start)</span>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    @endforeach
+
+
 
                                                 </ul>
 
                                             </div>
                                         </div>
                                     </div>
-                                    {{-- @endif --}}
-                                @endforeach
 
+                                    {{-- Thuộc tính biến thể --}}
+                                    @foreach ($listVariantAttributes as $attrName => $attrValues)
+                                        {{-- @if ($attrName == 'Màu sắc') --}}
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="panelsStayOpen-heading{{ $loop->index }}">
+                                                <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapse{{ $loop->index }}">
+                                                    <span>{{ $attrName }}</span>
+                                                </button>
+                                            </h2>
+                                            <div id="collapse{{ $loop->index }}"
+                                                class="accordion-collapse collapse show">
+                                                <div class="accordion-body">
 
-                            </div>
+                                                    <ul class="category-list custom-padding custom-height">
+                                                        @foreach ($attrValues as $attrValue)
+                                                            <li>
+                                                                <div class="form-check ps-0 m-0 category-list-box">
+                                                                    @php
+                                                                        $slug = optional($attrValue->attribute)->slug;
+                                                                        $checked =
+                                                                            isset($currentFilters[$slug]) &&
+                                                                            in_array(
+                                                                                $attrValue->value,
+                                                                                $currentFilters[$slug],
+                                                                            ); // Kiểm tra giá trị trong $currentFilters[$slug]
+                                                                    @endphp
+                                                                    <input class="checkbox_animated" type="checkbox"
+                                                                        id="{{ $slug }}-{{ Str::slug($attrValue->value) }}"
+                                                                        name="{{ $slug }}[]"
+                                                                        value="{{ $attrValue->value }}"
+                                                                        @if ($checked) checked @endif>
+                                                                    <label class="form-check-label"
+                                                                        for="{{ $slug }}-{{ Str::slug($attrValue->value) }}">
+                                                                        <span
+                                                                            class="name">{{ $attrValue->value }}</span>
+                                                                        <span
+                                                                            class="number">({{ $attrValue->product_variants_count }})</span>
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        @endforeach
+
+                                                    </ul>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {{-- @endif --}}
+                                    @endforeach
+                                    {{-- <button type="submit" class="btn btn-primary filter-button">Lọc sản phẩm</button> --}}
+                                    <button class="btn btn-animation w-100 justify-content-center filter-button"
+                                        type="submit">Lọc sản phẩm</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
 
+                {{-- Sotr By --}}
                 <div class="col-custom- wow fadeInUp">
                     <div class="show-button">
-                        <div class="filter-button-group mt-0">
+                        {{-- <div class="filter-button-group mt-0">
                             <div class="filter-button d-inline-block d-lg-none">
                                 <a><i class="fa-solid fa-filter"></i> Filter Menu</a>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="top-filter-menu">
                             <div class="category-dropdown">
@@ -367,6 +299,10 @@
                                                 Theo tên Z - A
                                             @elseif($sortBy == 'rating')
                                                 Đánh giá trung bình
+                                            @elseif($sortBy == 'manyViews')
+                                                Xem nhiều
+                                            @elseif($sortBy == 'sellWell')
+                                                Bán chạy
                                             @endif
                                         </span> <i class="fa-solid fa-angle-down"></i>
                                     </button>
@@ -402,6 +338,18 @@
                                             <a class="dropdown-item" id="zToa"
                                                 href="{{ request()->fullUrlWithQuery(['sort_by' => 'zToa']) }}">Theo tên Z
                                                 - A
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" id="manyViews"
+                                                href="{{ request()->fullUrlWithQuery(['sort_by' => 'manyViews']) }}">Xem
+                                                nhiều
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" id="sellWell"
+                                                href="{{ request()->fullUrlWithQuery(['sort_by' => 'sellWell']) }}">Bán
+                                                chạy
                                             </a>
                                         </li>
                                     </ul>
@@ -503,7 +451,7 @@
                                                     @endif
                                                 </ul>
                                             </div>
-                                            {{-- <h6 class="unit">250 ml</h6> --}}
+                                            <h6 class="unit">{{ $item->views }} lượt xem</h6>
                                             <h5 class="price"><span
                                                     class="theme-color">{{ number_format($item->price) }}đ</span>
                                                 @if ($item->sale_price)

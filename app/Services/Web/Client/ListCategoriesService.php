@@ -28,7 +28,7 @@ class ListCategoriesService
 
 
     // Khởi tạo
-    public function __construct(CategoryRepository $categoryRepo, ProductRepository $productRepo, AttributeValueRepository $attributeValueRepo,ReviewRepository $reviewRepo)
+    public function __construct(CategoryRepository $categoryRepo, ProductRepository $productRepo, AttributeValueRepository $attributeValueRepo, ReviewRepository $reviewRepo)
     {
         $this->categoryRepo = $categoryRepo;
         $this->productRepo = $productRepo;
@@ -59,7 +59,8 @@ class ListCategoriesService
         return $categories;
     }
 
-    public function getAllReviews(){
+    public function getAllReviews()
+    {
         $listStar = $this->reviewRepo->getAllReviews();
         return $listStar;
     }
@@ -68,22 +69,55 @@ class ListCategoriesService
     {
         $variantAttributes = $this->attributeValueRepo->getVariantAttributesWithCounts($category);
 
-        // Không cần xử lý thêm ở service trong ví dụ này, chỉ cần trả về kết quả từ repo
+
         // dd($variantAttributes);
         $groupedAttributes = $variantAttributes->groupBy('attribute.name');
 
-        return $groupedAttributes;  
-    
+        return $groupedAttributes;
+
     }
 
-    public function listProductCate($category, $perpage, $sortBy)
+    public function listProductCate($category, $perpage, $sortBy , $currentFilters  )
     {
-        $listProductCate = $this->productRepo->getAllProductCate($category, $perpage, $sortBy);
+        $listProductCate = $this->productRepo->getAllProductCate($category, $perpage, $sortBy, $currentFilters);
 
         return $listProductCate;
 
     }
 
+    // public function isChecked($listVariantAttributes, $currentFilters)
+    // {
+    //     \Log::info('--- isChecked() method START ---');
+    //     \Log::info('Current Filters (RAW in Service): ' . json_encode($currentFilters)); // Log RAW $currentFilters
+    
+    //     foreach ($listVariantAttributes as $attrName => $attrValues) {
+    //         \Log::info('Processing Attribute (RAW Name): ' . $attrName); // Log RAW Attribute Name
+    
+    //         // **LẤY GIÁ TRỊ FILTER REQUEST TRỰC TIẾP TỪ $currentFilters, KHÔNG SLUG, KHÔNG LOWERCASE**
+    //         $filterValuesRequest = $currentFilters[$attrName] ?? []; // **SỬ DỤNG $attrName TRỰC TIẾP làm key**
+    //         \Log::info('Filter Values Request (RAW): ' . json_encode($filterValuesRequest)); // Log RAW $filterValuesRequest
+    
+    //         foreach ($attrValues as $attrValue) {
+    //             \Log::info('  Checking Attribute Value (RAW): ' . $attrValue->value); // Log RAW Attribute Value
+    
+    //             // **SO SÁNH TRỰC TIẾP, KHÔNG TRIM, KHÔNG LOWERCASE**
+    //             $isCheckedResult = in_array($attrValue->value, $filterValuesRequest);
+    //             \Log::info('  in_array() result (RAW compare): ' . ($isCheckedResult ? 'true' : 'false')); // Log kết quả so sánh RAW
+    
+    //             if ($isCheckedResult) {
+    //                 $attrValue->isChecked = true;
+    //                 \Log::info('  Setting isChecked to true for (RAW): ' . $attrValue->value);
+    //             } else {
+    //                 $attrValue->isChecked = false;
+    //                 \Log::info('  Setting isChecked to false for (RAW): ' . $attrValue->value);
+    //             }
+    //         }
+    //         \Log::info('Finished processing Attribute (RAW Name): ' . $attrName);
+    //     }
+    
+    //     \Log::info('--- isChecked() method END ---');
+    //     return $listVariantAttributes;
+    // }
     public function detailModal($id)
     {
         try {
