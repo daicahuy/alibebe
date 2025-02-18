@@ -18,8 +18,7 @@ use App\Http\Controllers\Web\Client\HomeController;
 use App\Http\Controllers\Web\Client\ListCategoriesController;
 use App\Http\Controllers\Web\Admin\UserCustomerController;
 use App\Http\Controllers\Web\Admin\UserEmployeeController;
-
-
+use App\Http\Controllers\Web\Client\AccountController as AccountClientController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,21 +34,31 @@ use Illuminate\Support\Facades\Route;
 
 /*--------------CLIENT--------------*/
 
-// Route::middleware(['ApiAuthenticate'])->group(function () {
-//     // ... các route khác cần kiểm tra đăng nhập ...
-// });
-Route::get('/', [HomeController::class, 'index'])->name('index')->middleware(["web"]);
+Route::get('/', [HomeController::class, 'index'])->name('index');
 Route::get('/categories/{category?}', [ListCategoriesController::class, 'index'])->name('categories');
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 
+Route::name('account.')
+    ->prefix('account')
+    ->controller(AccountClientController::class)
+    ->group(function () {
+        
+        Route::get('/', 'dashboard')->name('dashboard');
+        Route::get('/profile', 'profile')->name('profile');
+        Route::get('/order', 'order')->name('order');
+        Route::get('/wishlist', 'wishlist')->name('wishlist');
+        Route::get('/address', 'address')->name('address');
+
+        Route::get('/order/{id}','orderDetail')->name('order-detail');
+    });
 
 /*--------------AUTHENTICATION--------------*/
 Route::name('auth.')
     ->group(function () {
+   
 
         Route::name('customer.')
             ->controller(AuthCustomerController::class)
-            ->middleware(['guest'])
             ->group(function () {
 
                 Route::get('/login', 'showFormLogin')->name('showFormLogin');
@@ -57,7 +66,6 @@ Route::name('auth.')
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
                 Route::get('/otp', 'showFormOtp')->name('showFormOtp');
                 Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword');
-
             });
 
 
@@ -65,23 +73,17 @@ Route::name('auth.')
             ->prefix('admin')
             ->controller(AuthAdminController::class)
             ->group(function () {
+          
 
                 Route::get('/login', 'showFormLogin')->name('showFormLogin');
                 Route::get('/logout', 'logout')->name('logout');
                 Route::post('/handle', 'handleLogin')->name('handleLogin');
                 Route::get('/register', 'showFormRegister')->name('showFormRegister');
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
-                Route::post('/send-otp', 'sendOtp')->name('sendOtp');
-                Route::get('/otp', 'showFormOtp')->name('showFormOtp')->middleware('check.reset.flow');;
-                Route::post('/verify-otp', 'verifyOtp')->name('verifyOtp');
-                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');;
-                Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');;
+                Route::get('/otp', 'showFormOtp')->name('showFormOtp');
+                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword');
             });
-
-
     });
-
-
 
 /*--------------ADMIN--------------*/
 
@@ -114,27 +116,27 @@ Route::prefix('/admin')
             ->controller(CategoryController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
-            Route::get('/trash', 'trash')->name('trash');
+                Route::get('/trash', 'trash')->name('trash');
 
             Route::get('/hidden', 'hidden')->name('hidden');
 
             Route::get('/{category}', 'show')->name('show')->where(['category' => '[0-9]+']);
 
-            Route::get('/create', 'create')->name('create');
+                Route::get('/create', 'create')->name('create');
 
-            Route::post('/', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
-            Route::get('/edit/{category}', 'edit')->name('edit');
+                Route::get('/edit/{category}', 'edit')->name('edit');
 
-            Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
+                Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
 
-            Route::put('/{category}/restore', 'restore')->name('restore');
+                Route::put('/{category}/restore', 'restore')->name('restore');
 
-            Route::delete('{category}/delete', 'delete')->name('delete');
+                Route::delete('{category}/delete', 'delete')->name('delete');
 
-            Route::delete('/{category}', 'destroy')->name('destroy');
+                Route::delete('/{category}', 'destroy')->name('destroy');
 
 
             // bulk
@@ -144,10 +146,9 @@ Route::prefix('/admin')
 
             Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
 
-            // search
-            route::get('/search', 'search')->name('search');
-
-        });
+                // search
+                route::get('/search', 'search')->name('search');
+            });
 
 
 
@@ -175,9 +176,8 @@ Route::prefix('/admin')
 
             Route::delete('/delete', 'delete')->name('delete');
 
-            Route::delete('/destroy', 'destroy')->name('destroy');
-
-        });
+                Route::delete('/destroy', 'destroy')->name('destroy');
+            });
 
         // ATTRIBUTES
         Route::prefix('/attributes')
@@ -218,11 +218,9 @@ Route::prefix('/admin')
 
                 Route::put('/{attributeValue}', 'update')->name('update');
 
-                Route::delete('/destroy', 'destroy')->name('destroy');
-
+                        Route::delete('/destroy', 'destroy')->name('destroy');
+                    });
             });
-
-        });
 
 
         // BRANDS
@@ -231,7 +229,7 @@ Route::prefix('/admin')
             ->controller(BrandController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
             Route::get('/hidden', 'hidden')->name('hidden');
 
@@ -266,9 +264,8 @@ Route::prefix('/admin')
 
             Route::put('/{tag}', 'update')->name('update');
 
-            Route::delete('/destroy', 'destroy')->name('destroy');
-
-        });
+                Route::delete('/destroy', 'destroy')->name('destroy');
+            });
 
         Route::prefix('/orders')
             ->name('orders.')
@@ -276,11 +273,12 @@ Route::prefix('/admin')
             ->group(function () {
 
                 Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
+                Route::get('/{order}', 'show')->name('show')->where(['order' => '[0-9]+']);
                 Route::get('/{order}', 'show')->name('show')->where(['order' => '[0-9]+']);
 
                 Route::put('/{order}', 'update')->name('update');
-
             });
 
         // USERS
@@ -288,49 +286,20 @@ Route::prefix('/admin')
             ->name('users.')
             ->group(function () {
 
-            Route::prefix('/customer')
-                ->name('customer.')
-                ->controller(UserCustomerController::class)
-                ->group(function () {
+                Route::prefix('/customer')
+                    ->name('customer.')
+                    ->controller(UserCustomerController::class)
+                    ->group(function () {
 
-                    Route::get('/', 'index')->name('index');
+                        Route::get('/', 'index')->name('index');
 
-                    Route::post('/', 'store')->name('store');
+                        Route::post('/', 'store')->name('store');
 
-                    Route::get('/show/{user}', 'show')->name('show');
+                        Route::get('/show/{user}', 'show')->name('show');
 
-                    Route::get('/edit/{user}', 'edit')->name('edit');
+                        Route::get('/edit/{user}', 'edit')->name('edit');
 
-                    Route::put('/update/{user}', 'update')->name('update');
-
-                    Route::get('/lock', 'lock')->name('lock');
-
-                    Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
-
-                    Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
-
-                    Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
-
-                    Route::post('update-status', 'updateStatus')->name('update-status');
-
-                });
-
-            Route::prefix('/employee')
-                ->name('employee.')
-                ->controller(UserEmployeeController::class)
-                ->group(function () {
-
-                    Route::get('/', 'index')->name('index');
-
-                    Route::get('/create', 'create')->name('create');
-
-                    Route::post('/', 'store')->name('store');
-
-                    Route::get('/show/{user}', 'show')->name('show');
-
-                    Route::get('/edit/{user}', 'edit')->name('edit');
-
-                    Route::put('/update/{user}', 'update')->name('update');
+                        Route::put('/update/{user}', 'update')->name('update');
 
                     Route::get('/lock', 'lock')->name('lock');
 
@@ -340,11 +309,37 @@ Route::prefix('/admin')
 
                     Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
 
-                    Route::post('update-status', 'updateStatus')->name('update-status');
+                        Route::post('update-status',  'updateStatus')->name('update-status');
+                    });
 
-                });
+                Route::prefix('/employee')
+                    ->name('employee.')
+                    ->controller(UserEmployeeController::class)
+                    ->group(function () {
 
-        });
+                        Route::get('/', 'index')->name('index');
+
+                        Route::get('/create', 'create')->name('create');
+
+                        Route::post('/', 'store')->name('store');
+
+                        Route::get('/show/{user}', 'show')->name('show');
+
+                        Route::get('/edit/{user}', 'edit')->name('edit');
+
+                        Route::put('/update/{user}', 'update')->name('update');
+
+                    Route::get('/lock', 'lock')->name('lock');
+
+                    Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
+
+                    Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
+
+                    Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
+
+                        Route::post('update-status',  'updateStatus')->name('update-status');
+                    });
+            });
 
 
         // REVIEWS
@@ -357,9 +352,8 @@ Route::prefix('/admin')
 
             Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
 
-            Route::put('/{review}', 'update')->name('update');
-
-        });
+                Route::put('/{review}', 'update')->name('update');
+            });
 
         // COUPONS
         Route::prefix('/coupons')
@@ -395,6 +389,6 @@ Route::prefix('/admin')
 
             Route::delete('/force-destroy-selected', 'forceDestroySelected')->name('force-destroy-selected');
 
-            Route::get('/search', 'searchCoupon')->name('search');
-        });
+                Route::get('/search','searchCoupon')->name('search');
+            });
     });
