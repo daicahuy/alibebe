@@ -92,6 +92,15 @@ Route::prefix('/auth')
         Route::post('/verifyOpt', [AuthCustomerApiController::class, "verifyOpt"])->name('verifyOpt');
         Route::post('/changePassword', [AuthCustomerApiController::class, "changePassword"])->name('changePassword');
 
+
+        Route::get('/email/verify', function () {
+            return view('client.pages.auth.verify-email');
+        })->middleware('auth')->name('verification.notice');
+
+
+        Route::get('/email/verify/{id}', [AuthCustomerApiController::class, 'actionVerifyEmail'])->middleware(['checknotLogin'])->name('verification.verify');
+
+
     });
 
 

@@ -26,8 +26,10 @@ return new class extends Migration {
             $table->unsignedBigInteger('loyalty_points')->default(0);
             $table->tinyInteger('role')->default(UserRoleType::CUSTOMER);
             $table->tinyInteger('status')->default(UserStatusType::ACTIVE);
+            $table->string('code_verified_email', 255)->nullable();
             $table->rememberToken();
             $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('code_verified_at')->nullable();
             $table->timestamps();
         });
     }

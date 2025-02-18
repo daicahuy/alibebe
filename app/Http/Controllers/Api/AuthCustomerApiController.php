@@ -103,6 +103,7 @@ class AuthCustomerApiController extends Controller
                 unset($credentials['phone_number_or_email']);
             }
             $remember = $request->boolean('remember_me');
+            $phoneNumberOrEmail = $request->input('phone_number_or_email');
             $validator->after(function ($validator) use ($credentials, $remember) {
                 if (!Auth::attempt($credentials, $remember)) {
                     $validator->errors()->add('password', 'Sai mật khẩu');
@@ -112,9 +113,9 @@ class AuthCustomerApiController extends Controller
             if ($validator->fails()) {
                 return ['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errors' => $validator->errors()->toArray()];
             }
+
             if (Auth::attempt($credentials, $remember)) {
                 $user = Auth::user();
-
                 $token = $user->createToken('token')->plainTextToken;
                 return response()->json(['status' => Response::HTTP_OK, 'user' => $user, 'token' => $token], 200);
             }
@@ -141,6 +142,10 @@ class AuthCustomerApiController extends Controller
         $googleUser = Socialite::driver('google')->user();
 
         $user = User::where('email', $googleUser->getEmail())->first();
+        if (!$user->isEmployee()) {
+            return redirect()->intended('/login');
+
+        }
         if ($user) {
 
             Auth::login($user);
@@ -175,6 +180,10 @@ class AuthCustomerApiController extends Controller
     {
         $facebookUser = Socialite::driver('facebook')->user();
         $user = User::where('email', $facebookUser->getEmail())->first();
+        if (!$user->isEmployee()) {
+            return redirect()->intended('/login');
+
+        }
         if ($user) {
 
             Auth::login($user);
@@ -296,7 +305,6 @@ class AuthCustomerApiController extends Controller
                     $validator->errors()->add('otpError', 'Mã OTP đã hết hạn!');
                 } elseif ($otp != $dataOtp["otp"]) {
                     $validator->errors()->add('otpError', 'Mã OTP không chính xác!');
-
                 }
             });
 
@@ -391,4 +399,6 @@ class AuthCustomerApiController extends Controller
             ]);
         }
     }
+
+
 }

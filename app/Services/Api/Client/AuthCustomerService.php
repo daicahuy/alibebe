@@ -3,11 +3,15 @@ namespace App\Services\Api\Client;
 
 use App\Enums\UserRoleType;
 use App\Enums\UserStatusType;
+use App\Mail\VerifyEmail;
+use App\Models\User;
 use App\Repositories\AuthCustomerRepository;
 use Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Response;
 
+use Str;
 use Validator;
 
 class AuthCustomerService
@@ -64,17 +68,28 @@ class AuthCustomerService
             return ['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errors' => $validator->errors()->toArray()];
         }
 
+
+        $verificationCode = Str::uuid();
         $dataRegister = [
             'fullname' => $data['fullname'],
             'phone_number' => $data['phone_number'],
             'email' => $data['email'],
             'password' => $data['password'],
+            'code_verified_email' => $verificationCode,
+            'code_verified_at' => now()->addHours(24),
             "role" => UserRoleType::CUSTOMER,
             "status" => UserStatusType::ACTIVE
         ];
 
-        $user = $this->authCustomerRepository->registerCustomer($dataRegister);
-        $user = $data;
+
+
+        $this->authCustomerRepository->registerCustomer($dataRegister);
+        $user = User::query()->where('email', $dataRegister['email'])->first();
+        if ($user) {
+            $verificationUrl = route('auth.verification.verify', ['id' => $user->code_verified_email]); // Sử dụng ID user
+            Mail::to($user->email)->send(new VerifyEmail($user, $verificationUrl));
+        }
+
         return ['status' => 'success', 'message' => 'Đăng ký thành công!', 'user' => $user];
 
 

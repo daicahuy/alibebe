@@ -37,7 +37,14 @@
                 minh tài khoản của bạn.</p>
             <p>Nếu bạn không nhận được email, hãy nhấn vào nút bên dưới để gửi lại.</p>
             <div class="d-flex justify-content-center mt-4">
-                <a href="#" class="btn btn-primary me-2">Gửi lại Email</a>
+                @if (auth()->check())
+                    <form method="POST" action="{{ route('verification.send') }}">
+                        @csrf
+                        <button type="submit">Gửi lại email xác minh</button>
+                    </form>
+                @else
+                    <p>Vui lòng đăng nhập để gửi lại email xác minh.</p>
+                @endif
                 <a href="/login" class="btn btn-secondary">Login</a>
             </div>
             <p id="countdownText" class="mt-3 text-danger" style="display: none;"></p>

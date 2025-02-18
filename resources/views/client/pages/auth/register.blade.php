@@ -207,7 +207,7 @@
                             }).showToast();
 
                             setTimeout(function() {
-                                window.location.href = '/email/verify';
+                                window.location.href = '/login';
                             }, 3000);
                             // Chuyển hướng hoặc thao tác khác
                         } else {

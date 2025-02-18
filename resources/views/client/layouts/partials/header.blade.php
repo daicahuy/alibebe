@@ -240,7 +240,7 @@
 
                                     </div>
                                     @auth
-                                        @if (!Auth::user()->verified_at)
+                                        @if (!Auth::user()->email_verified_at)
                                             <p style="color: red">Tài khoản chưa xác minh</p>
                                         @endif
                                     @endauth
