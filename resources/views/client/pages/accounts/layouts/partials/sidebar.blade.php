@@ -68,5 +68,10 @@
                 </a>
             </li>
         </ul>
+        <div class="d-flex justify-content-center mt-3 mb-3">
+            <button class="btn theme-bg-color text-white fw-bold">
+                Đăng Xuất
+            </button>
+        </div>
     </div>
 </div>

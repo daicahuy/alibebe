@@ -455,7 +455,8 @@
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
                                                     <ul class="product-option">
-                                                        <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="View">
                                                             <a href="javascript:void(0)" data-bs-toggle="modal"
                                                                 data-bs-target="#view" data-id={{ $aiSuggest->id }}>
                                                                 <i data-feather="eye"></i>
@@ -483,8 +484,12 @@
                                                     </a>
 
                                                     <h5 class="sold text-content">
-                                                        <span class="theme-color price">{{ $aiSuggest->price }}</span>
-                                                        <del>{{ $aiSuggest->sale_price }}</del>
+                                                        <span
+                                                            class="theme-color price">{{ number_format($aiSuggest->sale_price ?? $aiSuggest->price) }}
+                                                            ₫</span>
+                                                        @if ($aiSuggest->sale_price)
+                                                            <del>{{ number_format($aiSuggest->price) }} ₫</del>
+                                                        @endif
                                                     </h5>
 
                                                     <div class="product-rating mt-sm-2 mt-1">
@@ -492,7 +497,7 @@
                                                             @for ($i = 1; $i <= 5; $i++)
                                                                 <li>
                                                                     <i data-feather="star"
-                                                                        class="{{ $i <= round($aiSuggest->average_rating) ? 'fill' : '' }}"></i>
+                                                                        class="{{ $i <= round($aiSuggest->average_rating) ? 'fill text-warning' : '' }}"></i>
                                                                 </li>
                                                             @endfor
                                                         </ul>
@@ -523,7 +528,6 @@
                                             </div>
                                         </div>
                                     @endforeach
-
                                 </div>
                             </div>
                         </div>
