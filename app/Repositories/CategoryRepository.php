@@ -161,6 +161,32 @@ class CategoryRepository extends BaseRepository
         $category->update($data);
         return $category;
     }
+    // Client
+
+    // Lấy danh sách category gồm name, icon, id
+    public function getAllParentCate()
+    {
+        $category = $this->model
+            ->whereNull('parent_id')
+            ->where('is_active', 1)
+            ->orderBy('id', 'ASC') //orinal
+            ->select('id', 'name', 'icon')
+            ->with('categories')
+            // ->withCount([
+
+            //     'childProductsCount AS child_products_count' => function ($query) {
+            //         $query->whereHas('categories', function ($q) {
+            //             $q->where('categories.is_active', 1);
+            //         });
+
+            //     }
+            // ])
+            ->withCount('products') //đếm cha
+            ->get();
+        // dd($category);
+        return $category;
+    }
+
 
     //  Home 
     public function listCategory()

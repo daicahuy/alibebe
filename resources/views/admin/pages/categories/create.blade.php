@@ -83,7 +83,7 @@
                                             </label>
                                             <div class="col-sm-9">
                                                 <input type="file" name="icon" id="icon"
-                                                    class="form-control @error('icton') is-invalid @enderror">
+                                                    class="form-control @error('icon') is-invalid @enderror">
                                                 @error('icon')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror

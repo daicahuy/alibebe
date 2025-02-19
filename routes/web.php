@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Route;
 // });
 Route::get('/', [HomeController::class, 'index'])->name('index')->middleware(["web"]);
 Route::get('/categories/{category?}', [ListCategoriesController::class, 'index'])->name('categories');
+// Route::get('/product/{id}', [ListCategoriesController::class, 'detailModal']);
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 
 

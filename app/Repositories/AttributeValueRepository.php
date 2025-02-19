@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\AttributeValue;
 use App\Models\Attribute;
+use App\Models\Category;
 
 class AttributeValueRepository extends BaseRepository
 {
@@ -106,5 +107,46 @@ class AttributeValueRepository extends BaseRepository
         return AttributeValue::whereIn('id', $ids)->forceDelete();
     }
     
+    // listcategory lọc giá trị thuộc tính
+    public function getVariantAttributesWithCounts($category = null)
+    {
+        $query = $this->model->query();
+    
+        // 1. Lọc CHỈ LẤY GIÁ TRỊ THUỘC TÍNH BIẾN THỂ (is_variant = 1)
+        $query->whereHas('attribute', function ($q) {
+            $q->where('is_variant', 1); // Lọc attribute theo is_variant = 1
+        });
+    
+        // 2. Lọc theo ID Danh Mục (nếu có)
+        $categoryIds = [];
+        if ($category) {
+            $parentID = $category;
+            $childCateIds = Category::where('parent_id', $parentID)
+                ->pluck('id')
+                ->toArray();
+            $categoryIds = array_merge([$parentID], $childCateIds);
+    
+            $query->whereHas('productVariants', function ($q) use ($categoryIds) {
+                $q->whereHas('product', function ($q2) use ($categoryIds) {
+                    $q2->whereHas('categories', function ($q3) use ($categoryIds) {
+                        $q3->whereIn('categories.id', $categoryIds); // Sản phẩm thuộc danh mục cha hoặc con
+                    });
+                });
+            });
+        }
+    
+        // 3. Đếm số lượng sản phẩm biến thể (ĐÃ ĐIỀU CHỈNH ĐỂ ĐẾM CHÍNH XÁC THEO DANH MỤC)
+        $query->withCount(['productVariants' => function ($q) use ($categoryIds, $category) {
+            if ($category) { // CHỈ ÁP DỤNG ĐIỀU KIỆN DANH MỤC KHI $category CÓ GIÁ TRỊ
+                $q->whereHas('product', function ($q2) use ($categoryIds) {
+                    $q2->whereHas('categories', function ($q3) use ($categoryIds) {
+                        $q3->whereIn('categories.id', $categoryIds); // Đếm sản phẩm biến thể thuộc danh mục đã chọn
+                    });
+                });
+            }
+        }])->with('attribute');
+    
+        return $query->get();
+    }
 
 }
