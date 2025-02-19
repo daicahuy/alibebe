@@ -58,6 +58,7 @@ class ProductRepository extends BaseRepository
                 'ps.total_stock'
             )
             ->orderByDesc('total_sold')
+            ->limit(24)
             ->get();
     }
 
@@ -92,9 +93,11 @@ class ProductRepository extends BaseRepository
                 'product_variants.id'
             )
             ->orderByDesc('total_sold')
+            ->limit(24)
             ->get();
     }
 
+    
     public function getPopularProducts()
     {
         return DB::table('order_items')
@@ -111,7 +114,7 @@ class ProductRepository extends BaseRepository
             )
             ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price')
             ->orderByDesc('total_sold')
-            ->limit(8)
+            ->limit(24)
             ->get();
     }
 
@@ -150,7 +153,7 @@ class ProductRepository extends BaseRepository
             )
             ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price', 'products.stock_quantity')
             ->orderByDesc('frequency')
-            ->limit(8)
+            ->limit(24)
             ->get();
 
         // Nếu không tìm thấy sản phẩm => gợi ý sản phẩm phổ biến
