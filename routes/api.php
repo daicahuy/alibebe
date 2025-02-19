@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\api\UserAddressController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -66,6 +67,20 @@ Route::prefix('/orders')
 Route::post('/orders/uploadImgConfirm/{idOrder}', [OrderController::class, 'uploadImgConfirm'])->name('uploadImgConfirm');
 Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');
 Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->name('getOrderDetail');
+
+
+
+Route::prefix('/address')
+    ->name('api.address.')
+    ->middleware('guest')
+    ->group(function () {
+        Route::get('/list/{id}', [UserAddressController::class, 'listAddress'])->name('listAddress');
+        Route::post('/add-address-user', [UserAddressController::class, 'addAddressUser'])->name('addAddressUser');
+        Route::post('/update-address-user', [UserAddressController::class, 'updateAddressUser'])->name('updateAddressUser');
+        Route::get('/get-address-edit/{id}', [UserAddressController::class, 'getDataAddress'])->name('getDataAddress');
+        Route::get('/get-address-one/{id}', [UserAddressController::class, 'getDataAddressOne'])->name('getDataAddressOne');
+
+    });
 
 Route::prefix('/coupons')
     ->name('coupons.')
