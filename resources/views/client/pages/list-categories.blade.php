@@ -126,15 +126,27 @@
                                                 <div class="price-range-inputs">
                                                     <div class="price-input">
                                                         <label for="min_price">Giá từ:</label>
-                                                        <input type="number" class="form-control" id="min_price"
-                                                            name="min_price" placeholder="Giá tối thiểu"
+                                                        <input type="number"
+                                                            class="form-control @error('min_price') is-invalid @enderror"
+                                                            id="min_price" name="min_price" placeholder="Giá tối thiểu"
                                                             value="{{ $currentFilters['min_price'] ?? '' }}">
+                                                        <div class="invalid-feedback">
+                                                            @error('min_price')
+                                                                {{ $message }}
+                                                            @enderror
+                                                        </div>
                                                     </div>
                                                     <div class="price-input">
                                                         <label for="max_price">Giá đến:</label>
-                                                        <input type="number" class="form-control" id="max_price"
-                                                            name="max_price" placeholder="Giá tối đa"
+                                                        <input type="number"
+                                                            class="form-control @error('max_price') is-invalid @enderror"
+                                                            id="max_price" name="max_price" placeholder="Giá tối đa"
                                                             value="{{ $currentFilters['max_price'] ?? '' }}">
+                                                        <div class="invalid-feedback">
+                                                            @error('max_price')
+                                                                {{ $message }}
+                                                            @enderror
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -435,20 +447,29 @@
                                                 {{ $item->short_description }}</p>
                                             <div class="product-rating mt-2">
                                                 <ul class="rating">
-                                                    @if ($item->reviews)
-                                                        @foreach ($item->reviews as $review)
-                                                            @for ($i = 0; $i < 5; $i++)
-                                                                <li>
-                                                                    @if ($i < $review->rating)
-                                                                        <i data-feather="star" class="fill"></i>
-                                                                    @else
-                                                                        <i data-feather="star"></i>
-                                                                    @endif
-                                                                </li>
-                                                            @endfor
-                                                            <span>({{ $review->rating }})</span>
-                                                        @endforeach
-                                                    @endif
+                                                    @php
+                                                        $avgRating = $item->reviews->avg('rating');
+                                                        $roundedRating = floor($avgRating); //làm tròn xuống
+                                                    @endphp
+                                                    @empty($item->reviews)
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            <li>
+                                                                <i data-feather="star"></i>
+                                                            </li>
+                                                        @endfor
+                                                        <span>(0)</span>
+                                                    @else
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            <li>
+                                                                @if ($i <= $roundedRating)
+                                                                    <i data-feather="star" class="fill"></i>
+                                                                @else
+                                                                    <i data-feather="star"></i>
+                                                                @endif
+                                                            </li>
+                                                        @endfor
+                                                        <span>({{ number_format($avgRating, 1) }})</span>
+                                                    @endempty
                                                 </ul>
                                             </div>
                                             <h6 class="unit">{{ $item->views }} lượt xem</h6>
@@ -579,27 +600,13 @@
                                 <h4 class="title-name" id='prdName'></h4>
                                 <h4 class="price" id='prdPrice'></h4>
 
-                                {{-- <div class="product-rating">
+                                <div class="product-rating" id="prdRating">
                                     <ul class="rating">
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star"></i>
-                                        </li>
+
                                     </ul>
-                                    <span class="ms-2">8 Reviews</span>
-                                    <span class="ms-2 text-danger">6 sold in last 16 hours</span>
-                                </div> --}}
+                                    {{-- <span class="ms-2">8 Reviews</span>
+                                    <span class="ms-2 text-danger">6 sold in last 16 hours</span> --}}
+                                </div>
 
                                 <div class="product-detail">
                                     <h4>Product Details :</h4>
@@ -697,24 +704,57 @@
     <script src="{{ asset('theme/admin/assets/js/filter-sidebar.js') }}"></script>
 
     <script>
+        function formatPrice(price) {
+            const number = parseFloat(price)
+
+            if (isNaN(number)) {
+                return "0 đ"
+            }
+            return number.toLocaleString('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            });
+
+        }
+
+
         $(document).ready(function() {
             $('a[data-bs-target="#view"]').click(function() {
                 var productId = $(this).data('id');
 
                 $.ajax({
-                    url: '/api/product/' + productId,
+                    url: '/api/productListCate/' + productId,
                     method: 'GET',
                     dataType: 'json',
                     success: function(response) {
 
                         $('#prdName').text(response.name);
-                        $('#prdPrice').text(response.price);
+                        $('#prdPrice').text(formatPrice(response.price));
                         $('#prdDescription').text(response.description);
                         $('#prdThumbnail').attr('src', response.thumbnail);
                         $('#prdBrand').text(response.brand);
                         $('#prdCategories').text(response.categories);
 
+                        // Xử lý hiển thị sao đánh giá
+                        const avgRating = response.avgRating || 0;
+                        let starsHtml = '';
+                        for (let i = 0; i < 5; i++) {
+                            if (i < avgRating) {
+                                starsHtml +=
+                                    '<li><i data-feather="star" class="fill"></i></li>';
+                            } else {
+                                starsHtml += '<li><i data-feather="star"></i></li>';
+                            }
+                        }
+                        $('#prdRating ul.rating').html(starsHtml);
+
+                        // Khởi tạo Feather Icons
+                        feather.replace();
+
+
+
                         $('#productVariants').empty();
+                        // console.log(response);
 
                         if (response.productVariants && response.productVariants.length > 0) {
                             let productVariantsData = {};
@@ -782,11 +822,10 @@
                                 console.log("Selected Variant Data:", selectedVariant);
 
                                 if (selectedVariant) {
-                                    $('#prdPrice').text(selectedVariant.price);
-                                    $('#prdThumbnail').attr('src', selectedVariant
-                                        .thumbnail);
+                                    $('#prdPrice').text(formatPrice(selectedVariant.price)); // CẬP NHẬT GIÁ VỚI FORMAT KHI CHỌN BIẾN THỂ
+                                    $('#prdThumbnail').attr('src', selectedVariant.thumbnail);
                                 } else {
-                                    $('#prdPrice').text(response.price);
+                                    $('#prdPrice').text(formatPrice(response.price)); // HIỂN THỊ GIÁ GỐC NẾU KHÔNG TÌM THẤY BIẾN THỂ
                                     $('#prdThumbnail').attr('src', response.thumbnail);
                                 }
                             });

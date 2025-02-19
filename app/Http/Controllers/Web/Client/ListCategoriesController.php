@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Client;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ListCategoriesFilterRequest;
 use App\Models\Category;
 use App\Services\Web\Admin\CategoryService;
 use App\Services\Web\Client\ListCategoriesService;
@@ -16,17 +17,26 @@ class ListCategoriesController extends Controller
     {
         $this->listCategoriesService = $listCategoriesService;
     }
-    public function index(Request $request, $category = null)
+    public function index(ListCategoriesFilterRequest $request, $category = null)
     {
+        // dd($request->all());
         $listParentCategories = $this->listCategoriesService->listParentCate();
+
         $perpage = $request->input('per_page', 5);
         $sortBy = $request->input('sort_by', 'default');
         $currentFilters = $request->query();
-        $listProductCate = $this->listCategoriesService->listProductCate($category, $perpage, $sortBy, $currentFilters);
+        $filters = []; // mảng lưu id của category, và các dư liệu từ currentFilters
+        if ($category) {
+            $filters['category'] = [$category];
+        }
+
+        $filters = array_merge($filters, $currentFilters);
+
+        $listProductCate = $this->listCategoriesService->listProductCate($perpage, $sortBy, $filters);
         $listStar = $this->listCategoriesService->getAllReviews();
         $listVariantAttributes = $this->listCategoriesService->listVariantAttributes($category);
 
-        // dd($currentFilters); 
+        // dd($listProductCate); // **THÊM DÒNG NÀY ĐỂ DEBUG**
 
         return view('client.pages.list-categories', compact(
             'listParentCategories',

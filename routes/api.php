@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // client
 // show modal
 // routes/api.php
-Route::get('/product/{id}', [ListCategoryController::class, 'detailModal']);
+Route::get('/productListCate/{id}', [ListCategoryController::class, 'detailModal']);
 
 Route::prefix('/categories')
     ->name('api.categories.')

@@ -77,55 +77,24 @@ class ListCategoriesService
 
     }
 
-    public function listProductCate($category, $perpage, $sortBy , $currentFilters  )
+    public function listProductCate($perpage, $sortBy, $filters)
     {
-        $listProductCate = $this->productRepo->getAllProductCate($category, $perpage, $sortBy, $currentFilters);
+        $listProductCate = $this->productRepo->getAllProductCate($perpage, $sortBy, $filters);
 
         return $listProductCate;
 
     }
 
-    // public function isChecked($listVariantAttributes, $currentFilters)
-    // {
-    //     \Log::info('--- isChecked() method START ---');
-    //     \Log::info('Current Filters (RAW in Service): ' . json_encode($currentFilters)); // Log RAW $currentFilters
-    
-    //     foreach ($listVariantAttributes as $attrName => $attrValues) {
-    //         \Log::info('Processing Attribute (RAW Name): ' . $attrName); // Log RAW Attribute Name
-    
-    //         // **LẤY GIÁ TRỊ FILTER REQUEST TRỰC TIẾP TỪ $currentFilters, KHÔNG SLUG, KHÔNG LOWERCASE**
-    //         $filterValuesRequest = $currentFilters[$attrName] ?? []; // **SỬ DỤNG $attrName TRỰC TIẾP làm key**
-    //         \Log::info('Filter Values Request (RAW): ' . json_encode($filterValuesRequest)); // Log RAW $filterValuesRequest
-    
-    //         foreach ($attrValues as $attrValue) {
-    //             \Log::info('  Checking Attribute Value (RAW): ' . $attrValue->value); // Log RAW Attribute Value
-    
-    //             // **SO SÁNH TRỰC TIẾP, KHÔNG TRIM, KHÔNG LOWERCASE**
-    //             $isCheckedResult = in_array($attrValue->value, $filterValuesRequest);
-    //             \Log::info('  in_array() result (RAW compare): ' . ($isCheckedResult ? 'true' : 'false')); // Log kết quả so sánh RAW
-    
-    //             if ($isCheckedResult) {
-    //                 $attrValue->isChecked = true;
-    //                 \Log::info('  Setting isChecked to true for (RAW): ' . $attrValue->value);
-    //             } else {
-    //                 $attrValue->isChecked = false;
-    //                 \Log::info('  Setting isChecked to false for (RAW): ' . $attrValue->value);
-    //             }
-    //         }
-    //         \Log::info('Finished processing Attribute (RAW Name): ' . $attrName);
-    //     }
-    
-    //     \Log::info('--- isChecked() method END ---');
-    //     return $listVariantAttributes;
-    // }
+
     public function detailModal($id)
     {
         try {
-            $product = $this->productRepo->detailModal($id);
+            $product = $this->productRepo->detailModal($id) ?? 0;
 
             if (!$product) {
                 throw new ModelNotFoundException('Không tìm thấy sản phẩm.');
             }
+            $avgRating = $product->reviews->avg('rating');
             // dd($product);
             $productVariants = $product->productVariants->map(function ($variant) { //sản phẩm biến thể
                 return [
@@ -156,6 +125,8 @@ class ListCategoriesService
                 'description' => $product->description,
                 'categories' => $product->categories->pluck('name')->implode(', '),
                 'brand' => $product->brand ? $product->brand->name : null,
+                // 'reviews' => $product->reviews ? $product->reviews : null,
+                'avgRating' => $avgRating,
                 'productVariants' => $productVariants,
             ];
         } catch (\Throwable $th) {

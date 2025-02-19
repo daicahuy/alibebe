@@ -7,6 +7,7 @@ use App\Models\Product;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Log;
 
 class ProductRepository extends BaseRepository
 {
@@ -17,32 +18,115 @@ class ProductRepository extends BaseRepository
     }
 
     // Lấy danh sách sản phẩm theo category
-    public function getAllProductCate($category = null, $perpage = 5, $sortBy = 'default', $filters = [])
+    public function getAllProductCate($perpage = 5, $sortBy = 'default', $filters = [])
     {
+
         $query = $this->model->query();
 
-        if ($category) {
-            $parentID = $category; //Id cate cha
-            $childCateIds = Category::where('parent_id', $parentID)  //lấy id con 
-                ->pluck('id')
-                ->toArray();
-            // Gộp id cha và con vào 1 
-            $categoryIds = array_merge([$parentID], $childCateIds);
-            // dd($categoryIds);
+        // filters
+        if (!empty($filters)) {
 
-            // lọc
 
-            $query->whereHas('categories', function ($q) use ($categoryIds) {
-                $q->whereIn('categories.id', $categoryIds)->where('is_active', 1);
-            });
-        } else {
+
+            // lọc theo danh mục
+            Log::info('Applying filters in ProductRepository: ' . json_encode($filters)); //log mangr theem json_endcode
+            if (isset($filters['category'])) {
+                $categoryFilters = $filters['category']; // id cha từ category  
+                Log::info('Giá trị mảng $category: ' . json_encode($categoryFilters));
+                $categoryIdsToFilter = []; // all id (parent + child)
+                foreach ($categoryFilters as $parentCategoryID) {
+                    $parentID = $parentCategoryID;
+                    $childCateIds = Category::where('parent_id', $parentID)
+                        ->pluck('id')
+                        ->toArray();
+                    // gộp id cha và con 
+                    $categoryIds = array_merge([$parentID], $childCateIds);
+                    $categoryIdsToFilter = array_merge($categoryIdsToFilter, $categoryIds);
+                }
+                $categoryIdsToFilter = array_map('intval', array_unique($categoryIdsToFilter)); // lọc trùng, chuyến sang int
+                $query->whereHas('categories', function ($q) use ($categoryIdsToFilter) {
+                    $q->whereIn('categories.id', $categoryIdsToFilter)->where('is_active', 1);
+                });
+            } //end filter category
+
+
+
+
+            if (isset($filters['min_price']) && isset($filters['max_price'])) { // Search Price Range
+
+                $minPrice = $filters['min_price'];
+                $maxPrice = $filters['max_price'];
+
+                // check input
+                if (is_numeric($minPrice) && is_numeric($maxPrice) && $minPrice >= 0 && $maxPrice >= 0 && $minPrice <= $maxPrice) {
+                    Log::info('min: ' . $minPrice . ' max: ' . $maxPrice);
+                    $query->whereBetween('price', [$minPrice, $maxPrice]);
+                } else {
+                    Log::warning('warning' . 'min: ' . $minPrice . ' max: ' . $maxPrice);
+                }
+
+            } //end search price
+
+
+
+            if (isset($filters['rating'])) { //filter rating
+                $ratingFilter = $filters['rating'];
+                // Log::info('Rating filter:' . $ratingFilter);
+                if (is_array($ratingFilter)) { // nhiều rating
+                    $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+                        $q->whereIn('rating', $ratingFilter);
+                    });
+                } else if (is_numeric($ratingFilter)) { // chỉ chọn một rating
+                    $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+                        $q->whereIn('rating', '=', $ratingFilter);
+                    });
+                }
+            } //end filter rating
+
+
+
+            if (isset($filters['search']) && !empty($filters['search'])) { // search basic
+                $searchItem = $filters['search'];
+                Log:
+                info('Search name: ' . $searchItem);
+                $query->where('name', 'LIKE', '%' . $searchItem . '%');
+            } // end search
+
+
+            // Lọc theo thuộc tính - biến thể
+
+            $variantAttributeFilters = [];
+            foreach ($filters as $filterName => $filterValues) {
+                if (in_array($filterName, ['kich-thuoc-man-hinh', 'bo-nho-ram', 'mau-sac'])) { // tạo mảng với key
+                    if (is_array($filterValues)) { // check mảng 
+                        $variantAttributeFilters[$filterName] = $filterValues; // gán giá trị vào mảng
+                    }
+                }
+                ;
+            }
+
+            if (!empty($variantAttributeFilters)) {
+                Log::info('variant: ' . json_encode($variantAttributeFilters));
+                $query->whereHas('productVariants', function ($variantQuery) use ($variantAttributeFilters) {
+                    foreach ($variantAttributeFilters as $attributeSlug => $attributeValues) {
+                        $variantQuery->whereHas('attributeValues', function ($attributeValueQuery) use ($attributeSlug) {
+                            $attributeValueQuery->whereHas('attribute', function ($attributeQuery) use ($attributeSlug) {
+                                $attributeQuery->where('slug', $attributeSlug);
+                            });
+                        })->whereHas('attributeValues', function ($attributeValueQuery) use ($attributeValues) {
+                            $attributeValueQuery->whereIn('value', $attributeValues);
+                        });
+                    }
+                });
+            } //end filter attribute variant
+            // dd($filters);
+
+
+
+        } else { // không có điều kiện lọc
             $query->whereHas('categories', function ($q) {
                 $q->where('is_active', 1);
             });
-        }
-        // filters
-        if (!empty($filters)) {
-            \Log::info('Applying filters in ProductRepository: ' . json_encode($filters)); // Log bộ lọc nhận được
         }
 
         // sort by
@@ -238,7 +322,9 @@ class ProductRepository extends BaseRepository
 
     public function detailModal($id)
     {
-        return $this->model->with(['categories', 'brand', 'productVariants.attributeValues.attribute'])->find($id);
+        $product = $this->model->with(['categories', 'brand', 'productVariants.attributeValues.attribute', 'reviews'])->find($id);
+        // dd($product);
+        return $product;
     }
 
 }
