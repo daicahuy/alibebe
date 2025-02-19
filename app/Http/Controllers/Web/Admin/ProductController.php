@@ -4,10 +4,18 @@ namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\Web\Admin\ProductService;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    protected ProductService $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
+
     public function index()
     {
         return view('admin.pages.products.list');
@@ -25,12 +33,13 @@ class ProductController extends Controller
 
     public function create()
     {
+        dd($this->productService->getData());
         return view('admin.pages.products.create');
     }
 
     public function store(Request $request)
     {
-        
+        dd($request->all());
     }
 
     public function edit(Product $product)

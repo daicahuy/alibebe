@@ -41,7 +41,8 @@
                                             </h5>
                                         </div>
                                     </div>
-                                    <form novalidate class="theme-form theme-form-2 mega-form   ">
+                                    <form action="{{ route('admin.products.store') }}" novalidate class="theme-form theme-form-2 mega-form" method="POST">
+                                        @csrf
                                         <div class="vertical-tabs">
                                             <div class="row">
                                                 <div class="col-xl-3 col-lg-3">
@@ -351,6 +352,27 @@
 
                                                                 <div class="align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0"
+                                                                        for="tags">
+                                                                        {{ __('form.brands') }}
+                                                                    </label>
+                                                                    <div class="col-sm-9">
+                                                                        <div>
+                                                                            <select id="brand" class="form-select select2" name="brand">
+                                                                                <option value="">Product</option>
+                                                                                <option value="">Phone 2025</option>
+                                                                                <option value="">Home & Furniture</option>
+                                                                                <option value="">Another</option>
+                                                                                <option value="">Baby & Kids</option>
+                                                                                <option value="">Health, Beauty & Perfumes</option>
+                                                                                <option value="">Uncategorized</option>
+                                                                            </select>
+                                                                            <div class="invalid-feedback"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="align-items-center g-2 mb-4 row">
+                                                                    <label class="col-sm-3 form-label-title mb-0"
                                                                         for="categories">
                                                                         {{ __('form.categories') }}
                                                                         <span
@@ -633,10 +655,10 @@
                 const variantContent = `
                     <div class="row attribute-content mb-3">
                         <div class="col-sm-3 variant-row">
-                            <select name="attributes" class="form-select select2 attribute-select"></select>
+                            <select class="form-select select2 attribute-select"></select>
                         </div>
                         <div class="col-sm-3 variant-row">
-                            <select name="attributes" class="form-select select2 value-select" multiple></select>
+                            <select class="form-select select2 value-select" multiple></select>
                         </div>
                         <div class="col-sm-2 variant-row">
                             <a href="javascript:void(0)" class="invalid-feedback remove-variant">

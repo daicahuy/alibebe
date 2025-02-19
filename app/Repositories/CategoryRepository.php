@@ -65,7 +65,11 @@ class CategoryRepository extends BaseRepository
     public function getParent()
     {
         return $this->model->whereNull('parent_id')->get();
+    }
 
+    public function getParentActive(int $isActive = 1)
+    {
+        return $this->model->whereNull('parent_id')->where('is_active', $isActive)->get();
     }
 
 
