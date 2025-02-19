@@ -2,41 +2,95 @@
 
 namespace App\Http\Controllers\Web\Client;
 
+use App\Enums\UserGenderType;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateAccountPasswordRequest;
+use App\Services\Web\Client\Account\AddressService;
 use App\Services\Web\Client\Account\OrderService;
+use App\Services\Web\Client\Account\ProfileService;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {
     protected $orderService;
-    public function __construct(OrderService $orderService){
+    protected $profileService;
+    protected $addressService;
+    public function __construct(
+        OrderService $orderService,
+        ProfileService $profileService,
+        AddressService $addressService
+    ) {
         $this->orderService = $orderService;
+        $this->profileService = $profileService;
+        $this->addressService = $addressService;
     }
 
+    // ============== dashboard ===============
     public function dashboard()
     {
         return view('client.pages.accounts.dashboard');
     }
 
+    // ============== address ===============
     public function address()
     {
-        return view('client.pages.accounts.address');
+        $addresses = $this->addressService->index();
+        return view('client.pages.accounts.address',compact('addresses'));
     }
 
-    public function order() {
+    public function order()
+    {
         $orders = $this->orderService->index();
-        return view('client.pages.accounts.order',compact('orders'));
+        return view('client.pages.accounts.order', compact('orders'));
     }
 
-    public function orderDetail() {
+    public function orderDetail()
+    {
         return view('client.pages.accounts.order_detail');
     }
 
-    public function profile() {
-        return view('client.pages.accounts.profile');
+    // ========= Profile ===========
+
+    public function profile()
+    {
+        $user = $this->profileService->index();
+        $genders = array_map('strtolower', UserGenderType::asSelectArray());
+        return view('client.pages.accounts.profile', compact('user', 'genders'));
     }
 
-    public function wishlist() {
+    public function updateBasicInfomation()
+    {
+        $result = $this->profileService->updateInfomation();
+        if ($result['status']) {
+            return redirect()->route('account.profile')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+
+    public function updateImage()
+    {
+        $result = $this->profileService->createOrUpdateImage();
+        if ($result['status']) {
+            return redirect()->route('account.profile')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+
+    public function updatePassword(UpdateAccountPasswordRequest $updateAccountPasswordRequest)
+    {
+        $result = $this->profileService->updatePasswordService($updateAccountPasswordRequest);
+        if ($result['status']) {
+            return redirect()->route('account.profile')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+
+    // ============= wishlist ===============
+    public function wishlist()
+    {
         return view('client.pages.accounts.wishlist');
     }
 }

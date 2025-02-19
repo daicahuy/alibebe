@@ -377,6 +377,10 @@ return [
         'verified_at' => 'Thời gian xác minh',
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
+
+        'male' => 'Nam',
+        'female' => 'Nữ',
+        'other' => 'Khác'
     ],
 
     'user_addresses' => 'Địa chỉ',
@@ -434,6 +438,11 @@ return [
         'total_order' => 'Tổng Số đơn hàng',
         'total_pending_order' => 'Đơn hàng đang chờ',
         'total_wishlist' => 'Danh sách yêu thích',
+
+        'profile' => 'Hồ Sơ Cá Nhân',
+        'profile_name' => 'Thông Tin Cá Nhân',
+        'profile_about' => 'Thông Tin Đại Diện',
+        'login_detail' => 'Tài Khoản Đăng Nhập',
 
         'edit_address' => 'Thay đổi địa chỉ',
         'order_history' => 'Danh sách đơn hàng',

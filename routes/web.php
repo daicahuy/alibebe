@@ -39,6 +39,7 @@ Route::get('/categories/{category?}', [ListCategoriesController::class, 'index']
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 
 Route::name('account.')
+    ->middleware(['auth'])
     ->prefix('account')
     ->controller(AccountClientController::class)
     ->group(function () {
@@ -50,6 +51,11 @@ Route::name('account.')
         Route::get('/address', 'address')->name('address');
 
         Route::get('/order/{id}','orderDetail')->name('order-detail');
+
+        //edit - update
+        Route::put('/update-infomation','updateBasicInfomation')->name('update-infomation');
+        Route::patch('/update-image','updateImage')->name('update-image');
+        Route::patch('/update-password','updatePassword')->name('update-password');
     });
 
 /*--------------AUTHENTICATION--------------*/

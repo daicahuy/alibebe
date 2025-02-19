@@ -14,19 +14,26 @@
             <div class="profile-contain">
                 <div class="profile-image">
                     <div class="position-relative">
-                        <img src="/theme/client/assets/images/inner-page/user/1.jpg"
-                            class="blur-up lazyload update_img" alt="">
+                        <img src="{{ Storage::url(Auth::user()->avatar) }}" class="blur-up lazyload update_img"
+                            alt="">
                         <div class="cover-icon">
-                            <i class="fa-solid fa-pen">
-                                <input type="file" onchange="readURL(this,0)">
-                            </i>
+                            <form action="{{ route('account.update-image') }}" method="POST"
+                                enctype="multipart/form-data">
+                                @csrf
+                                @method('PATCH')
+                                <label for="avatarInput">
+                                    <i class="fa-solid fa-pen"></i>
+                                </label>
+                                <input type="file" name="avatar" id="avatarInput" style="display: none;"
+                                    onchange="this.form.submit()">
+                            </form>
                         </div>
                     </div>
                 </div>
 
                 <div class="profile-name">
-                    <h3>Vicki E. Pope</h3>
-                    <h6 class="text-content">vicki.pope@gmail.com</h6>
+                    <h3>{{ Auth::user()->fullname }}</h3>
+                    <h6 class="text-content">{{ Auth::user()->email }}</h6>
                 </div>
             </div>
         </div>
@@ -75,3 +82,38 @@
         </div>
     </div>
 </div>
+
+@push('js_library')
+    <!-- Flatpickr JS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+@endpush
+
+@push('js')
+    <script>
+        $(document).ready(function() {
+            @if (session()->has('success'))
+                Toastify({
+                    text: "{{ session('success') }}",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+                }).showToast();
+            @endif
+
+            @if ($errors->any())
+                @foreach ($errors->all() as $error)
+                    Toastify({
+                        text: "{{ $error }}",
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    }).showToast();
+                @endforeach
+            @endif
+        });
+    </script>
+@endpush
