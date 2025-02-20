@@ -15,7 +15,9 @@ class UserAddress extends Model
         "id_default",
     ];
 
-
+    public $attributes = [
+        'id_default' => 0
+    ];
 
     /////////////////////////////////////////////////////
     // RELATIONS

@@ -23,6 +23,17 @@ class UserAddressRepository extends BaseRepository
 
         $user->load('addresses');
 
-        return $user->addresses;
+        return $user->addresses()->latest('id')->paginate(6);
+    }
+    
+    public function countAddress(){
+        /**
+         * @var mixed
+         */
+        $user = Auth::user();
+
+        $user->load('addresses');
+
+        return $user->addresses()->count();
     }
 }

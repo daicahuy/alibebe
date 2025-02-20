@@ -35,9 +35,42 @@ class AccountController extends Controller
     public function address()
     {
         $addresses = $this->addressService->index();
-        return view('client.pages.accounts.address',compact('addresses'));
+        return view('client.pages.accounts.address', compact('addresses'));
     }
 
+    public function storeAddress() {
+        $result = $this->addressService->createAddress();
+        if ($result['status']) {
+            return redirect()->route('account.address')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+    public function updateAddress($id) {
+        $result = $this->addressService->updateAddressService($id);
+        if ($result['status']) {
+            return redirect()->route('account.address')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+    public function updateDefaultAddress() {
+        $result = $this->addressService->updateIdDefault();
+        if ($result['status']) {
+            return redirect()->route('account.address')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+    public function deleteAddress($id) {
+        $result = $this->addressService->deleteAddress($id);
+        if ($result['status']) {
+            return redirect()->route('account.address')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+    // ============== orders ==================
     public function order()
     {
         $orders = $this->orderService->index();
