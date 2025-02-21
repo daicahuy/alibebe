@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\UserGenderType;
 use App\Enums\UserRoleType;
 use App\Enums\UserStatusType;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -38,7 +39,9 @@ class User extends Authenticatable
         'loyalty_points',
         'role',
         'status',
-        'verified_at',
+        'email_verified_at',
+        'code_verified_email',
+        'code_verified_at'
     ];
 
 
@@ -59,6 +62,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'password' => 'hashed',
+        'email_verified_at' => 'datetime',
     ];
 
 

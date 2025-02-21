@@ -31,122 +31,25 @@
             <div class="row">
                 <div class="col-12">
                     <div class="slider-7_1 no-space shop-box no-arrow">
-                        <div>
-                            <div class="shop-category-box">
-                                <a href="shop-left-sidebar.html">
-                                    <div class="shop-category-image">
-                                        <img src="{{ asset('theme/client/assets/svg/1/vegetable.svg') }}" class="blur-up lazyload" alt="">
-                                    </div>
-                                    <div class="category-box-name">
-                                        <h6>Vegetables & Fruit</h6>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
+                        {{-- menu category --}}
 
-                        <div>
-                            <div class="shop-category-box">
-                                <a href="shop-left-sidebar.html">
-                                    <div class="shop-category-image">
-                                        <img src="{{ asset('theme/client/assets/svg/1/cup.svg') }}" class="blur-up lazyload" alt="">
-                                    </div>
-                                    <div class="category-box-name">
-                                        <h6>Beverages</h6>
-                                    </div>
-                                </a>
+                        @foreach ($listParentCategories as $item)
+                            <div>
+                                <div class="shop-category-box">
+                                    <a href="{{ route('categories', $item->id) }}">
+                                        <div class="shop-category-image">
+                                            <img src="{{ Storage::url($item->icon) }}" class="blur-up lazyload"
+                                                alt="">
+                                        </div>
+                                        <div class="category-box-name">
+                                            <h6>{{ $item->name }}</h6>
+                                        </div>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
+                        @endforeach
 
-                        <div>
-                            <div class="shop-category-box">
-                                <a href="shop-left-sidebar.html">
-                                    <div class="shop-category-image">
-                                        <img src="{{ asset('theme/client/assets/svg/1/meats.svg') }}" class="blur-up lazyload" alt="">
-                                    </div>
-                                    <div class="category-box-name">
-                                        <h6>Meats & Seafood</h6>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
 
-                        <div>
-                            <div class="shop-category-box">
-                                <a href="shop-left-sidebar.html">
-                                    <div class="shop-category-image">
-                                        <img src="{{ asset('theme/client/assets/svg/1/breakfast.svg') }}" class="blur-up lazyload" alt="">
-                                    </div>
-                                    <div class="category-box-name">
-                                        <h6>Breakfast</h6>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="shop-category-box">
-                                <a href="shop-left-sidebar.html">
-                                    <div class="shop-category-image">
-                                        <img src="{{ asset('theme/client/assets/svg/1/frozen.svg') }}" class="blur-up lazyload" alt="">
-                                    </div>
-                                    <div class="category-box-name">
-                                        <h6>Frozen Foods</h6>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="shop-category-box">
-                                <a href="shop-left-sidebar.html">
-                                    <div class="shop-category-image">
-                                        <img src="{{ asset('theme/client/assets/svg/1/milk.svg') }}" class="blur-up lazyload" alt="">
-                                    </div>
-                                    <div class="category-box-name">
-                                        <h6>Milk & Dairies</h6>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="shop-category-box">
-                                <a href="shop-left-sidebar.html">
-                                    <div class="shop-category-image">
-                                        <img src="{{ asset('theme/client/assets/svg/1/pet.svg') }}" class="blur-up lazyload" alt="">
-                                    </div>
-                                    <div class="category-box-name">
-                                        <h6>Pet Food</h6>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="shop-category-box">
-                                <a href="shop-left-sidebar.html">
-                                    <div class="shop-category-image">
-                                        <img src="{{ asset('theme/client/assets/svg/1/biscuit.svg') }}" class="blur-up lazyload" alt="">
-                                    </div>
-                                    <div class="category-box-name">
-                                        <h6>Biscuits & Snacks</h6>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="shop-category-box">
-                                <a href="shop-left-sidebar.html">
-                                    <div class="shop-category-image">
-                                        <img src="{{ asset('theme/client/assets/svg/1/grocery.svg') }}" class="blur-up lazyload" alt="">
-                                    </div>
-                                    <div class="category-box-name">
-                                        <h6>Grocery & Staples</h6>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -158,6 +61,7 @@
     <section class="section-b-space shop-section">
         <div class="container-fluid-lg">
             <div class="row">
+                {{-- Filter --}}
                 <div class="col-custom-3 wow fadeInUp">
                     <div class="left-box">
                         <div class="shop-left-sidebar">
@@ -165,733 +69,303 @@
                                 <h3><i class="fa-solid fa-arrow-left"></i> Back</h3>
                             </div>
 
-                            <div class="filter-category">
-                                <div class="filter-title">
-                                    <h2>Filters</h2>
-                                    <a href="javascript:void(0)">Clear All</a>
-                                </div>
-                                <ul>
-                                    <li>
-                                        <a href="javascript:void(0)">Vegetable</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">Fruit</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">Fresh</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">Milk</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">Meat</a>
-                                    </li>
-                                </ul>
-                            </div>
+                            <form action="{{ route('categories') }}" method="GET" id="filter-form">
+                                <div class="accordion custom-accordion" id="accordionExample">
+                                    {{-- Categories --}}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapseOne">
+                                                <span>Categories</span>
+                                            </button>
+                                        </h2>
+                                        <div id="collapseOne" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
 
-                            <div class="accordion custom-accordion" id="accordionExample">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#collapseOne">
-                                            <span>Categories</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseOne" class="accordion-collapse collapse show">
-                                        <div class="accordion-body">
-                                            <div class="form-floating theme-form-floating-2 search-box">
-                                                <input type="search" class="form-control" id="search"
-                                                    placeholder="Search ..">
-                                                <label for="search">Search</label>
-                                            </div>
+                                                {{-- search --}}
+                                                <div class="form-floating theme-form-floating-2 search-box">
+                                                    <input type="search" class="form-control" id="search-category"
+                                                        name='search' placeholder="Search .."
+                                                        value="{{ $currentFilters['search'] ?? '' }}">
+                                                    <label for="search-category">Search</label>
+                                                </div>
 
-                                            <ul class="category-list custom-padding custom-height">
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="fruit">
-                                                        <label class="form-check-label" for="fruit">
-                                                            <span class="name">Fruits & Vegetables</span>
-                                                            <span class="number">(15)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="cake">
-                                                        <label class="form-check-label" for="cake">
-                                                            <span class="name">Bakery, Cake & Dairy</span>
-                                                            <span class="number">(12)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="behe">
-                                                        <label class="form-check-label" for="behe">
-                                                            <span class="name">Beverages</span>
-                                                            <span class="number">(20)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="snacks">
-                                                        <label class="form-check-label" for="snacks">
-                                                            <span class="name">Snacks & Branded Foods</span>
-                                                            <span class="number">(05)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="beauty">
-                                                        <label class="form-check-label" for="beauty">
-                                                            <span class="name">Beauty & Household</span>
-                                                            <span class="number">(30)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="pets">
-                                                        <label class="form-check-label" for="pets">
-                                                            <span class="name">Kitchen, Garden & Pets</span>
-                                                            <span class="number">(50)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="egg">
-                                                        <label class="form-check-label" for="egg">
-                                                            <span class="name">Eggs, Meat & Fish</span>
-                                                            <span class="number">(19)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="food">
-                                                        <label class="form-check-label" for="food">
-                                                            <span class="name">Gourment & World Food</span>
-                                                            <span class="number">(30)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="care">
-                                                        <label class="form-check-label" for="care">
-                                                            <span class="name">Baby Care</span>
-                                                            <span class="number">(20)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="fish">
-                                                        <label class="form-check-label" for="fish">
-                                                            <span class="name">Fish & Seafood</span>
-                                                            <span class="number">(10)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="marinades">
-                                                        <label class="form-check-label" for="marinades">
-                                                            <span class="name">Marinades</span>
-                                                            <span class="number">(05)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="lamb">
-                                                        <label class="form-check-label" for="lamb">
-                                                            <span class="name">Mutton & Lamb</span>
-                                                            <span class="number">(09)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="other">
-                                                        <label class="form-check-label" for="other">
-                                                            <span class="name">Port & other Meats</span>
-                                                            <span class="number">(06)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="pour">
-                                                        <label class="form-check-label" for="pour">
-                                                            <span class="name">Pourltry</span>
-                                                            <span class="number">(01)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="salami">
-                                                        <label class="form-check-label" for="salami">
-                                                            <span class="name">Sausages, bacon & Salami</span>
-                                                            <span class="number">(03)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
-                                        <button class="accordion-button collapsed" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                                            <span>Food Preference</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseTwo" class="accordion-collapse collapse show">
-                                        <div class="accordion-body">
-                                            <ul class="category-list custom-padding">
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="veget">
-                                                        <label class="form-check-label" for="veget">
-                                                            <span class="name">Vegetarian</span>
-                                                            <span class="number">(08)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox" id="non">
-                                                        <label class="form-check-label" for="non">
-                                                            <span class="name">Non Vegetarian</span>
-                                                            <span class="number">(09)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-headingThree">
-                                        <button class="accordion-button collapsed" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#collapseThree">
-                                            <span>Price</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseThree" class="accordion-collapse collapse show">
-                                        <div class="accordion-body">
-                                            <div class="range-slider">
-                                                <input type="text" class="js-range-slider" value="">
+                                                <ul class="category-list custom-padding custom-height">
+                                                    @foreach ($listParentCategories as $item)
+                                                        <li>
+                                                            <div class="form-check ps-0 m-0 category-list-box">
+                                                                <input class="checkbox_animated" type="checkbox"
+                                                                    name='category[]' value="{{ $item->id }}"
+                                                                    id="category-{{ $item->id }}"
+                                                                    {{ in_array($item->id, $currentFilters['category'] ?? []) ? 'checked' : '' }}>
+                                                                <label class="form-check-label"
+                                                                    for="category-{{ $item->id }}">
+                                                                    <span class="name">{{ $item->name }}</span>
+                                                                    <span
+                                                                        class="number">({{ $item->child_products_count + $item->products_count }})</span>
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-headingSix">
-                                        <button class="accordion-button collapsed" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#collapseSix">
-                                            <span>Rating</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseSix" class="accordion-collapse collapse show">
-                                        <div class="accordion-body">
-                                            <ul class="category-list custom-padding">
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox">
-                                                        <div class="form-check-label">
-                                                            <ul class="rating">
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                            </ul>
-                                                            <span class="text-content">(5 Star)</span>
+
+                                    {{-- Search Price Range --}}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                                <span>Price</span>
+                                            </button>
+                                        </h2>
+                                        <div id="collapseThree" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+                                                <div class="price-range-inputs">
+                                                    <div class="price-input">
+                                                        <label for="min_price">Giá từ:</label>
+                                                        <input type="number"
+                                                            class="form-control @error('min_price') is-invalid @enderror"
+                                                            id="min_price" name="min_price" placeholder="Giá tối thiểu"
+                                                            value="{{ $currentFilters['min_price'] ?? '' }}">
+                                                        <div class="invalid-feedback">
+                                                            @error('min_price')
+                                                                {{ $message }}
+                                                            @enderror
                                                         </div>
                                                     </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox">
-                                                        <div class="form-check-label">
-                                                            <ul class="rating">
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star"></i>
-                                                                </li>
-                                                            </ul>
-                                                            <span class="text-content">(4 Star)</span>
+                                                    <div class="price-input">
+                                                        <label for="max_price">Giá đến:</label>
+                                                        <input type="number"
+                                                            class="form-control @error('max_price') is-invalid @enderror"
+                                                            id="max_price" name="max_price" placeholder="Giá tối đa"
+                                                            value="{{ $currentFilters['max_price'] ?? '' }}">
+                                                        <div class="invalid-feedback">
+                                                            @error('max_price')
+                                                                {{ $message }}
+                                                            @enderror
                                                         </div>
                                                     </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox">
-                                                        <div class="form-check-label">
-                                                            <ul class="rating">
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star"></i>
-                                                                </li>
-                                                            </ul>
-                                                            <span class="text-content">(3 Star)</span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox">
-                                                        <div class="form-check-label">
-                                                            <ul class="rating">
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star"></i>
-                                                                </li>
-                                                            </ul>
-                                                            <span class="text-content">(2 Star)</span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox">
-                                                        <div class="form-check-label">
-                                                            <ul class="rating">
-                                                                <li>
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star"></i>
-                                                                </li>
-                                                                <li>
-                                                                    <i data-feather="star"></i>
-                                                                </li>
-                                                            </ul>
-                                                            <span class="text-content">(1 Star)</span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </ul>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-headingFour">
-                                        <button class="accordion-button collapsed" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#collapseFour">
-                                            <span>Discount</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseFour" class="accordion-collapse collapse show">
-                                        <div class="accordion-body">
-                                            <ul class="category-list custom-padding">
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault">
-                                                        <label class="form-check-label" for="flexCheckDefault">
-                                                            <span class="name">upto 5%</span>
-                                                            <span class="number">(06)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
+                                    <style>
+                                        .price-range-inputs {
+                                            display: flex;
+                                            gap: 10px;
+                                            /* Khoảng cách giữa hai ô input */
+                                        }
 
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault1">
-                                                        <label class="form-check-label" for="flexCheckDefault1">
-                                                            <span class="name">5% - 10%</span>
-                                                            <span class="number">(08)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
+                                        .price-input {
+                                            flex: 1;
+                                            /* Chia đều không gian cho cả hai ô input */
+                                        }
 
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault2">
-                                                        <label class="form-check-label" for="flexCheckDefault2">
-                                                            <span class="name">10% - 15%</span>
-                                                            <span class="number">(10)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
+                                        .price-input label {
+                                            display: block;
+                                            /* Label hiển thị trên ô input */
+                                            margin-bottom: 5px;
+                                            font-weight: bold;
+                                            /* Làm đậm label (tùy chọn) */
+                                        }
+                                    </style>
 
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault3">
-                                                        <label class="form-check-label" for="flexCheckDefault3">
-                                                            <span class="name">15% - 25%</span>
-                                                            <span class="number">(14)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
+                                    {{-- rating --}}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="panelsStayOpen-headingSix">
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#collapseSix">
+                                                <span>Rating</span>
+                                            </button>
+                                        </h2>
+                                        <div id="collapseSix" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
 
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault4">
-                                                        <label class="form-check-label" for="flexCheckDefault4">
-                                                            <span class="name">More than 25%</span>
-                                                            <span class="number">(13)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                            </ul>
+                                                <ul class="category-list custom-padding">
+                                                    @foreach ($listStar as $start)
+                                                        <li>
+                                                            <div class="form-check ps-0 m-0 category-list-box">
+                                                                <input class="checkbox_animated" type="checkbox"
+                                                                    id="rating-{{ $start->rating }}" name="rating[]"
+                                                                    value="{{ $start->rating }}"
+                                                                    {{ in_array($start->rating, $currentFilters['rating'] ?? []) ? 'checked' : '' }}>
+                                                                <div class="form-check-label">
+                                                                    <ul class="rating">
+
+                                                                        @for ($i = 0; $i < 5; $i++)
+                                                                            <li>
+                                                                                @if ($i < $start->rating)
+                                                                                    <i data-feather="star"
+                                                                                        class="fill"></i>
+                                                                                @else
+                                                                                    <i data-feather="star"></i>
+                                                                                @endif
+                                                                            </li>
+                                                                        @endfor
+
+                                                                    </ul>
+                                                                    <span class="text-content">({{ $start->rating }}
+                                                                        Start)</span>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    @endforeach
+
+
+
+                                                </ul>
+
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="panelsStayOpen-headingFive">
-                                        <button class="accordion-button collapsed" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#collapseFive">
-                                            <span>Pack Size</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseFive" class="accordion-collapse collapse show">
-                                        <div class="accordion-body">
-                                            <ul class="category-list custom-padding custom-height">
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault5">
-                                                        <label class="form-check-label" for="flexCheckDefault5">
-                                                            <span class="name">400 to 500 g</span>
-                                                            <span class="number">(05)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
+                                    {{-- Thuộc tính biến thể --}}
+                                    @foreach ($listVariantAttributes as $attrName => $attrValues)
+                                        {{-- @if ($attrName == 'Màu sắc') --}}
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="panelsStayOpen-heading{{ $loop->index }}">
+                                                <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapse{{ $loop->index }}">
+                                                    <span>{{ $attrName }}</span>
+                                                </button>
+                                            </h2>
+                                            <div id="collapse{{ $loop->index }}"
+                                                class="accordion-collapse collapse show">
+                                                <div class="accordion-body">
 
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault6">
-                                                        <label class="form-check-label" for="flexCheckDefault6">
-                                                            <span class="name">500 to 700 g</span>
-                                                            <span class="number">(02)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
+                                                    <ul class="category-list custom-padding custom-height">
+                                                        @foreach ($attrValues as $attrValue)
+                                                            <li>
+                                                                <div class="form-check ps-0 m-0 category-list-box">
+                                                                    @php
+                                                                        $slug = optional($attrValue->attribute)->slug;
+                                                                        $checked =
+                                                                            isset($currentFilters[$slug]) &&
+                                                                            in_array(
+                                                                                $attrValue->value,
+                                                                                $currentFilters[$slug],
+                                                                            ); // Kiểm tra giá trị trong $currentFilters[$slug]
+                                                                    @endphp
+                                                                    <input class="checkbox_animated" type="checkbox"
+                                                                        id="{{ $slug }}-{{ Str::slug($attrValue->value) }}"
+                                                                        name="{{ $slug }}[]"
+                                                                        value="{{ $attrValue->value }}"
+                                                                        @if ($checked) checked @endif>
+                                                                    <label class="form-check-label"
+                                                                        for="{{ $slug }}-{{ Str::slug($attrValue->value) }}">
+                                                                        <span
+                                                                            class="name">{{ $attrValue->value }}</span>
+                                                                        <span
+                                                                            class="number">({{ $attrValue->product_variants_count }})</span>
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        @endforeach
 
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault7">
-                                                        <label class="form-check-label" for="flexCheckDefault7">
-                                                            <span class="name">700 to 1 kg</span>
-                                                            <span class="number">(04)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
+                                                    </ul>
 
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault8">
-                                                        <label class="form-check-label" for="flexCheckDefault8">
-                                                            <span class="name">120 - 150 g each Vacuum 2 pcs</span>
-                                                            <span class="number">(06)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault9">
-                                                        <label class="form-check-label" for="flexCheckDefault9">
-                                                            <span class="name">1 pc</span>
-                                                            <span class="number">(09)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault10">
-                                                        <label class="form-check-label" for="flexCheckDefault10">
-                                                            <span class="name">1 to 1.2 kg</span>
-                                                            <span class="number">(06)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault11">
-                                                        <label class="form-check-label" for="flexCheckDefault11">
-                                                            <span class="name">2 x 24 pcs Multipack</span>
-                                                            <span class="number">(03)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault12">
-                                                        <label class="form-check-label" for="flexCheckDefault12">
-                                                            <span class="name">2x6 pcs Multipack</span>
-                                                            <span class="number">(04)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault13">
-                                                        <label class="form-check-label" for="flexCheckDefault13">
-                                                            <span class="name">4x6 pcs Multipack</span>
-                                                            <span class="number">(05)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault14">
-                                                        <label class="form-check-label" for="flexCheckDefault14">
-                                                            <span class="name">5x6 pcs Multipack</span>
-                                                            <span class="number">(09)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault15">
-                                                        <label class="form-check-label" for="flexCheckDefault15">
-                                                            <span class="name">Combo 2 Items</span>
-                                                            <span class="number">(10)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault16">
-                                                        <label class="form-check-label" for="flexCheckDefault16">
-                                                            <span class="name">Combo 3 Items</span>
-                                                            <span class="number">(14)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault17">
-                                                        <label class="form-check-label" for="flexCheckDefault17">
-                                                            <span class="name">2 pcs</span>
-                                                            <span class="number">(19)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault18">
-                                                        <label class="form-check-label" for="flexCheckDefault18">
-                                                            <span class="name">3 pcs</span>
-                                                            <span class="number">(14)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault19">
-                                                        <label class="form-check-label" for="flexCheckDefault19">
-                                                            <span class="name">2 pcs Vacuum (140 g to 180 g each
-                                                                )</span>
-                                                            <span class="number">(13)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault20">
-                                                        <label class="form-check-label" for="flexCheckDefault20">
-                                                            <span class="name">4 pcs</span>
-                                                            <span class="number">(18)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault21">
-                                                        <label class="form-check-label" for="flexCheckDefault21">
-                                                            <span class="name">4 pcs Vacuum (140 g to 180 g each
-                                                                )</span>
-                                                            <span class="number">(07)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault22">
-                                                        <label class="form-check-label" for="flexCheckDefault22">
-                                                            <span class="name">6 pcs</span>
-                                                            <span class="number">(09)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault23">
-                                                        <label class="form-check-label" for="flexCheckDefault23">
-                                                            <span class="name">6 pcs carton</span>
-                                                            <span class="number">(11)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-
-                                                <li>
-                                                    <div class="form-check ps-0 m-0 category-list-box">
-                                                        <input class="checkbox_animated" type="checkbox"
-                                                            id="flexCheckDefault24">
-                                                        <label class="form-check-label" for="flexCheckDefault24">
-                                                            <span class="name">6 pcs Pouch</span>
-                                                            <span class="number">(16)</span>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                            </ul>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                        {{-- @endif --}}
+                                    @endforeach
+                                    {{-- <button type="submit" class="btn btn-primary filter-button">Lọc sản phẩm</button> --}}
+                                    <button class="btn btn-animation w-100 justify-content-center filter-button"
+                                        type="submit">Lọc sản phẩm</button>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
 
+                {{-- Sotr By --}}
                 <div class="col-custom- wow fadeInUp">
                     <div class="show-button">
-                        <div class="filter-button-group mt-0">
+                        {{-- <div class="filter-button-group mt-0">
                             <div class="filter-button d-inline-block d-lg-none">
                                 <a><i class="fa-solid fa-filter"></i> Filter Menu</a>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="top-filter-menu">
                             <div class="category-dropdown">
-                                <h5 class="text-content">Sort By :</h5>
+                                <h5 class="text-content">Sắp xếp :</h5>
                                 <div class="dropdown">
                                     <button class="dropdown-toggle" type="button" id="dropdownMenuButton1"
                                         data-bs-toggle="dropdown">
-                                        <span>Most Popular</span> <i class="fa-solid fa-angle-down"></i>
+                                        <span>
+                                            @if ($sortBy == 'default')
+                                                Tất cả sản phẩm
+                                            @elseif($sortBy == 'low')
+                                                Giá thấp - cao
+                                            @elseif($sortBy == 'high')
+                                                Giá cao - thấp
+                                            @elseif($sortBy == 'aToz')
+                                                Theo tên A - Z
+                                            @elseif($sortBy == 'zToa')
+                                                Theo tên Z - A
+                                            @elseif($sortBy == 'rating')
+                                                Đánh giá trung bình
+                                            @elseif($sortBy == 'manyViews')
+                                                Xem nhiều
+                                            @elseif($sortBy == 'sellWell')
+                                                Bán chạy
+                                            @endif
+                                        </span> <i class="fa-solid fa-angle-down"></i>
                                     </button>
+
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a class="dropdown-item" id="pop" href="javascript:void(0)">Popularity</a>
+                                            <a class="dropdown-item" id="default"
+                                                href="{{ request()->fullUrlWithQuery(['sort_by' => 'default']) }}">Tất cả
+                                                sản
+                                                phẩm</a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" id="low" href="javascript:void(0)">Low - High
-                                                Price</a>
+                                            <a class="dropdown-item" id="low"
+                                                href="{{ request()->fullUrlWithQuery(['sort_by' => 'low']) }}">Giá thấp -
+                                                cao</a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" id="high" href="javascript:void(0)">High - Low
-                                                Price</a>
+                                            <a class="dropdown-item" id="high"
+                                                href="{{ request()->fullUrlWithQuery(['sort_by' => 'high']) }}">Giá cao -
+                                                thấp</a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" id="rating" href="javascript:void(0)">Average
-                                                Rating</a>
+                                            <a class="dropdown-item" id="rating"
+                                                href="{{ request()->fullUrlWithQuery(['sort_by' => 'rating']) }}">Đánh giá
+                                                trung bình</a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" id="aToz" href="javascript:void(0)">A - Z Order</a>
+                                            <a class="dropdown-item" id="aToz"
+                                                href="{{ request()->fullUrlWithQuery(['sort_by' => 'aToz']) }}">Theo tên A
+                                                - Z</a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" id="zToa" href="javascript:void(0)">Z - A Order</a>
+                                            <a class="dropdown-item" id="zToa"
+                                                href="{{ request()->fullUrlWithQuery(['sort_by' => 'zToa']) }}">Theo tên Z
+                                                - A
+                                            </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" id="off" href="javascript:void(0)">% Off - Hight To
-                                                Low</a>
+                                            <a class="dropdown-item" id="manyViews"
+                                                href="{{ request()->fullUrlWithQuery(['sort_by' => 'manyViews']) }}">Xem
+                                                nhiều
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" id="sellWell"
+                                                href="{{ request()->fullUrlWithQuery(['sort_by' => 'sellWell']) }}">Bán
+                                                chạy
+                                            </a>
                                         </li>
                                     </ul>
+
                                 </div>
                             </div>
 
@@ -899,7 +373,8 @@
                                 <ul>
                                     <li class="three-grid">
                                         <a href="javascript:void(0)">
-                                            <img src="{{ asset('theme/client/assets/svg/grid-3.svg') }}" class="blur-up lazyload" alt="">
+                                            <img src="{{ asset('theme/client/assets/svg/grid-3.svg') }}"
+                                                class="blur-up lazyload" alt="">
                                         </a>
                                     </li>
                                     <li class="grid-btn d-xxl-inline-block d-none active">
@@ -907,1317 +382,204 @@
                                             <img src="{{ asset('theme/client/assets/svg/grid-4.svg') }}"
                                                 class="blur-up lazyload d-lg-inline-block d-none" alt="">
                                             <img src="{{ asset('theme/client/assets/svg/grid.svg') }}"
-                                                class="blur-up lazyload img-fluid d-lg-none d-inline-block" alt="">
+                                                class="blur-up lazyload img-fluid d-lg-none d-inline-block"
+                                                alt="">
                                         </a>
                                     </li>
                                     <li class="list-btn">
                                         <a href="javascript:void(0)">
-                                            <img src="{{ asset('theme/client/assets/svg/list.svg') }}" class="blur-up lazyload" alt="">
+                                            <img src="{{ asset('theme/client/assets/svg/list.svg') }}"
+                                                class="blur-up lazyload" alt="">
                                         </a>
                                     </li>
                                 </ul>
                             </div>
+
                         </div>
                     </div>
 
                     <div
                         class="row g-sm-4 g-3 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-2 row-cols-md-3 row-cols-2 product-list-section">
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/2.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
+                        {{-- products --}}
+                        @foreach ($listProductCate as $item)
+                            <div>
+                                <div class="product-box-3 h-100 wow fadeInUp">
+                                    <div class="product-header">
+                                        <div class="product-image">
+                                            <a href="product-left-thumbnail.html">
+                                                <img src="{{ Storage::url($item->thumbnail) }}"
+                                                    class="img-fluid blur-up lazyload" alt="">
+                                            </a>
 
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
+                                            <ul class="product-option">
+                                                <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                                                    <a href="javascript:void(0)" data-bs-toggle="modal"
+                                                        data-bs-target="#view" data-id={{ $item->id }}>
+                                                        <i data-feather="eye"></i>
+                                                    </a>
+                                                </li>
 
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
+                                                <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
+                                                    <a href="compare.html">
+                                                        <i data-feather="refresh-cw"></i>
+                                                    </a>
+                                                </li>
 
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Vegetable</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Fresh Bread and Pastry Flour 200 g</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Cheesy feet cheesy grin brie.
-                                            Mascarpone cheese and wine hard cheese the big cheese everyone loves smelly
-                                            cheese macaroni cheese croque monsieur.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
+                                                <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
+                                                    <a href="wishlist.html" class="notifi-wishlist">
+                                                        <i data-feather="heart"></i>
+                                                    </a>
                                                 </li>
                                             </ul>
-                                            <span>(4.0)</span>
                                         </div>
-                                        <h6 class="unit">250 ml</h6>
-                                        <h5 class="price"><span class="theme-color">$08.02</span> <del>$15.15</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
+                                    </div>
+                                    <div class="product-footer">
+                                        <div class="product-detail">
+                                            @if ($item->categories)
+                                                @foreach ($item->categories as $cate)
+                                                    <span class="span-name">{{ $cate->name }}</span>
+                                                @endforeach
+                                            @endif
+                                            <a href="{{ route('categories', $item->id) }}">
+                                                <h5 class="name">{{ $item->name }}</h5>
+                                            </a>
+                                            <p class="text-content mt-1 mb-2 product-content">
+                                                {{ $item->short_description }}</p>
+                                            <div class="product-rating mt-2">
+                                                <ul class="rating">
+                                                    @php
+                                                        $avgRating = $item->reviews->avg('rating');
+                                                        $roundedRating = floor($avgRating); //làm tròn xuống
+                                                    @endphp
+                                                    @empty($item->reviews)
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            <li>
+                                                                <i data-feather="star"></i>
+                                                            </li>
+                                                        @endfor
+                                                        <span>(0)</span>
+                                                    @else
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            <li>
+                                                                @if ($i <= $roundedRating)
+                                                                    <i data-feather="star" class="fill"></i>
+                                                                @else
+                                                                    <i data-feather="star"></i>
+                                                                @endif
+                                                            </li>
+                                                        @endfor
+                                                        <span>({{ number_format($avgRating, 1) }})</span>
+                                                    @endempty
+                                                </ul>
+                                            </div>
+                                            <h6 class="unit">{{ $item->views }} lượt xem</h6>
+                                            <h5 class="price"><span
+                                                    class="theme-color">{{ number_format($item->display_price) }}đ</span>
+                                                {{-- Khi có giá sale thì hiện giá sale --}}
+                                                @if ($item->sale_price)
+                                                    @if (empty($item->price))
+                                                        <del></del>
+                                                    @else
+                                                        <del>{{ number_format($item->price) }}đ</del>
+                                                    @endif
+                                                @endif
+                                            </h5>
+                                            <div class="add-to-cart-box bg-white">
+                                                <a href="javascript:void(0)" data-bs-toggle="modal"
+                                                data-bs-target="#view" data-id={{ $item->id }}
+                                                class="btn btn-add-cart addcart-button">
+                                                Add
+                                            </a>
+                                                {{-- <button class="btn btn-add-cart addcart-button" >Add
+                                                    <span class="add-icon bg-light-gray">
+                                                        <i class="fa-solid fa-plus"></i>
+                                                    </span>
+                                                </button>
+                                                <div class="cart_qty qty-box">
+                                                    <div class="input-group bg-white">
+                                                        <button type="button" class="qty-left-minus bg-gray"
+                                                            data-type="minus" data-field="">
+                                                            <i class="fa fa-minus"></i>
+                                                        </button>
+                                                        <input class="form-control input-number qty-input" type="text"
+                                                            name="quantity" value="0">
+                                                        <button type="button" class="qty-right-plus bg-gray"
+                                                            data-type="plus" data-field="">
+                                                            <i class="fa fa-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </div> --}}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @endforeach
 
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.05s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/3.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
 
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
 
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Vegetable</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Peanut Butter Bite Premium Butter Cookies 600 g</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Feta taleggio croque monsieur
-                                            swiss manchego cheesecake dolcelatte jarlsberg. Hard cheese danish fontina
-                                            boursin melted cheese fondue.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(2.4)</span>
-                                        </div>
-                                        <h6 class="unit">350 G</h6>
-                                        <h5 class="price"><span class="theme-color">$04.33</span> <del>$10.36</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.1s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/4.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Snacks</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">SnackAmor Combo Pack of Jowar Stick and Jowar Chips</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Lancashire hard cheese
-                                            parmesan. Danish fontina mozzarella cream cheese smelly cheese cheese and
-                                            wine cheesecake dolcelatte stilton. Cream cheese parmesan who moved my
-                                            cheese when the cheese comes out everybody's happy cream cheese red
-                                            leicester ricotta edam.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(5.0)</span>
-                                        </div>
-                                        <h6 class="unit">570 G</h6>
-                                        <h5 class="price"><span class="theme-color">$12.52</span> <del>$13.62</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.15s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/5.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Snacks</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Yumitos Chilli Sprinkled Potato Chips 100 g</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Cheddar cheddar pecorino hard
-                                            cheese hard cheese cheese and biscuits bocconcini babybel. Cow goat paneer
-                                            cream cheese fromage cottage cheese cauliflower cheese jarlsberg.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(3.8)</span>
-                                        </div>
-                                        <h6 class="unit">100 G</h6>
-                                        <h5 class="price"><span class="theme-color">$10.25</span> <del>$12.36</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.2s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/6.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Vegetable</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Fantasy Crunchy Choco Chip Cookies</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Bavarian bergkase smelly
-                                            cheese swiss cut the cheese lancashire who moved my cheese manchego melted
-                                            cheese. Red leicester paneer cow when the cheese comes out everybody's happy
-                                            croque monsieur goat melted cheese port-salut.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(4.0)</span>
-                                        </div>
-
-                                        <h6 class="unit">550 G</h6>
-
-                                        <h5 class="price"><span class="theme-color">$14.25</span> <del>$16.57</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.25s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/7.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Vegetable</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Fresh Bread and Pastry Flour 200 g</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Melted cheese babybel chalk
-                                            and cheese. Port-salut port-salut cream cheese when the cheese comes out
-                                            everybody's happy cream cheese hard cheese cream cheese red leicester.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(3.8)</span>
-                                        </div>
-
-                                        <h6 class="unit">1 Kg</h6>
-
-                                        <h5 class="price"><span class="theme-color">$12.68</span> <del>$14.69</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.3s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/2.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Vegetable</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Fresh Bread and Pastry Flour 200 g</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Squirty cheese cottage cheese
-                                            cheese strings. Red leicester paneer danish fontina queso lancashire when
-                                            the cheese comes out everybody's happy cottage cheese paneer.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(4.0)</span>
-                                        </div>
-                                        <h6 class="unit">250 ml</h6>
-                                        <h5 class="price"><span class="theme-color">$08.02</span> <del>$15.15</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.35s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/3.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Vegetable</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Peanut Butter Bite Premium Butter Cookies 600 g</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Swiss ricotta cauliflower
-                                            cheese squirty cheese cheesy grin camembert de normandie airedale edam.
-                                            Squirty cheese babybel cheesecake the big cheese cauliflower cheese hard
-                                            cheese cheese and biscuits cheese and wine.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(2.4)</span>
-                                        </div>
-                                        <h6 class="unit">350 G</h6>
-                                        <h5 class="price"><span class="theme-color">$04.33</span> <del>$10.36</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.4s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/4.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Snacks</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">SnackAmor Combo Pack of Jowar Stick and Jowar Chips</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Boursin the big cheese
-                                            cheeseburger. Jarlsberg smelly cheese chalk and cheese gouda blue castello
-                                            monterey jack swiss boursin. Halloumi cheesy feet mozzarella red leicester
-                                            paneer boursin who moved my cheese croque monsieur.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(5.0)</span>
-                                        </div>
-                                        <h6 class="unit">570 G</h6>
-                                        <h5 class="price"><span class="theme-color">$12.52</span> <del>$13.62</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.45s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/5.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Snacks</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Yumitos Chilli Sprinkled Potato Chips 100 g</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Halloumi mozzarella monterey
-                                            jack smelly cheese emmental bocconcini when the cheese comes out everybody's
-                                            happy pecorino. Cut the cheese stilton danish fontina cheesy grin rubber
-                                            cheese smelly cheese roquefort paneer.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(3.8)</span>
-                                        </div>
-                                        <h6 class="unit">100 G</h6>
-                                        <h5 class="price"><span class="theme-color">$10.25</span> <del>$12.36</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.5s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/6.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Vegetable</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Fantasy Crunchy Choco Chip Cookies</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Manchego cow cheddar.
-                                            Port-salut roquefort hard cheese babybel when the cheese comes out
-                                            everybody's happy brie dolcelatte croque monsieur.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(4.0)</span>
-                                        </div>
-
-                                        <h6 class="unit">550 G</h6>
-
-                                        <h5 class="price"><span class="theme-color">$14.25</span> <del>$16.57</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.55s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/7.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Vegetable</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Fresh Bread and Pastry Flour 200 g</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Roquefort say cheese the big
-                                            cheese ricotta chalk and cheese when the cheese comes out everybody's happy
-                                            brie lancashire.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(3.8)</span>
-                                        </div>
-
-                                        <h6 class="unit">1 Kg</h6>
-
-                                        <h5 class="price"><span class="theme-color">$12.68</span> <del>$14.69</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.6">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/2.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Vegetable</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Fresh Bread and Pastry Flour 200 g</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Lancashire when the cheese
-                                            comes out everybody's happy blue castello halloumi boursin stinking bishop
-                                            pecorino fromage frais.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(4.0)</span>
-                                        </div>
-                                        <h6 class="unit">250 ml</h6>
-                                        <h5 class="price"><span class="theme-color">$08.02</span> <del>$15.15</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.65s">
-                                <div class="product-header">
-                                    <div class="product-image">
-                                        <a href="product-left-thumbnail.html">
-                                            <img src="{{ asset('theme/client/assets/images/cake/product/3.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </a>
-
-                                        <ul class="product-option">
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view">
-                                                    <i data-feather="eye"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Compare">
-                                                <a href="compare.html">
-                                                    <i data-feather="refresh-cw"></i>
-                                                </a>
-                                            </li>
-
-                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                <a href="wishlist.html" class="notifi-wishlist">
-                                                    <i data-feather="heart"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="product-footer">
-                                    <div class="product-detail">
-                                        <span class="span-name">Vegetable</span>
-                                        <a href="product-left-thumbnail.html">
-                                            <h5 class="name">Peanut Butter Bite Premium Butter Cookies 600 g</h5>
-                                        </a>
-                                        <p class="text-content mt-1 mb-2 product-content">Say cheese cheese and biscuits
-                                            feta. Queso bocconcini danish fontina camembert de normandie brie airedale
-                                            ricotta feta. Pecorino edam gouda caerphilly croque monsieur red leicester
-                                            cheese triangles caerphilly.</p>
-                                        <div class="product-rating mt-2">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span>(2.4)</span>
-                                        </div>
-                                        <h6 class="unit">350 G</h6>
-                                        <h5 class="price"><span class="theme-color">$04.33</span> <del>$10.36</del>
-                                        </h5>
-                                        <div class="add-to-cart-box bg-white">
-                                            <button class="btn btn-add-cart addcart-button">Add
-                                                <span class="add-icon bg-light-gray">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                            </button>
-                                            <div class="cart_qty qty-box">
-                                                <div class="input-group bg-white">
-                                                    <button type="button" class="qty-left-minus bg-gray"
-                                                        data-type="minus" data-field="">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                    <input class="form-control input-number qty-input" type="text"
-                                                        name="quantity" value="0">
-                                                    <button type="button" class="qty-right-plus bg-gray"
-                                                        data-type="plus" data-field="">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
+                    <!-- Phân trang -->
                     <nav class="custom-pagination">
                         <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="javascript:void(0)" tabindex="-1">
+                            <!-- Nút Previous -->
+                            <li class="page-item {{ $listProductCate->onFirstPage() ? 'disabled' : '' }}">
+                                <a class="page-link" href="{{ $listProductCate->previousPageUrl() }}" tabindex="-1">
                                     <i class="fa-solid fa-angles-left"></i>
                                 </a>
                             </li>
-                            <li class="page-item active">
-                                <a class="page-link" href="javascript:void(0)">1</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="javascript:void(0)">2</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="javascript:void(0)">3</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="javascript:void(0)">
+
+                            <!-- Hiển thị các trang xung quanh trang hiện tại -->
+                            @php
+                                $currentPage = $listProductCate->currentPage();
+                                $lastPage = $listProductCate->lastPage();
+                                $startPage = max($currentPage - 2, 1); // Bắt đầu = hiện tại - 2
+                                $endPage = min($currentPage + 2, $lastPage); // Kết thúc = hiện tại + 2
+                            @endphp
+
+                            <!-- Hiển thị trang đầu tiên nếu không nằm trong khoảng hiển thị -->
+                            @if ($startPage > 1)
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $listProductCate->url(1) }}">1</a>
+                                </li>
+                                @if ($startPage > 2)
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                @endif
+                            @endif
+
+                            <!-- Hiển thị các trang trong khoảng -->
+                            @for ($page = $startPage; $page <= $endPage; $page++)
+                                <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
+                                    <a class="page-link"
+                                        href="{{ $listProductCate->url($page) }}">{{ $page }}</a>
+                                </li>
+                            @endfor
+
+                            <!-- Hiển thị trang cuối cùng nếu không nằm trong khoảng hiển thị -->
+                            @if ($endPage < $lastPage)
+                                @if ($endPage < $lastPage - 1)
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                @endif
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="{{ $listProductCate->url($lastPage) }}">{{ $lastPage }}</a>
+                                </li>
+                            @endif
+
+                            <!-- Nút Next -->
+                            <li class="page-item {{ $listProductCate->hasMorePages() ? '' : 'disabled' }}">
+                                <a class="page-link" href="{{ $listProductCate->nextPageUrl() }}">
                                     <i class="fa-solid fa-angles-right"></i>
                                 </a>
                             </li>
                         </ul>
                     </nav>
+
                 </div>
             </div>
         </div>
@@ -2236,87 +598,66 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="row g-sm-4 g-2">
+                    <div class="row g-sm-4 g-2" id="productDetails">
                         <div class="col-lg-6">
                             <div class="slider-image">
-                                <img src="{{ asset('theme/client/assets/images/product/category/1.jpg') }}"
-                                    class="img-fluid blur-up lazyload" alt="">
+                                <img id="prdThumbnail" src="" class="img-fluid blur-up lazyload" alt="">
                             </div>
                         </div>
 
                         <div class="col-lg-6">
                             <div class="right-sidebar-modal">
-                                <h4 class="title-name">Peanut Butter Bite Premium Butter Cookies 600 g</h4>
-                                <h4 class="price">$36.99</h4>
-                                <div class="product-rating">
+                                <h4 class="title-name" id='prdName'></h4>
+                                <h4 class="price" id='prdPrice'></h4>
+
+                                <div class="product-rating" id="prdRating">
                                     <ul class="rating">
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star"></i>
-                                        </li>
+
                                     </ul>
-                                    <span class="ms-2">8 Reviews</span>
-                                    <span class="ms-2 text-danger">6 sold in last 16 hours</span>
+                                    {{-- <span class="ms-2">8 Reviews</span>
+                                    <span class="ms-2 text-danger">6 sold in last 16 hours</span> --}}
+                                </div>
+
+                                <div class="product-stock">
+                                    <span> </span>
                                 </div>
 
                                 <div class="product-detail">
                                     <h4>Product Details :</h4>
-                                    <p>Candy canes sugar plum tart cotton candy chupa chups sugar plum chocolate I love.
-                                        Caramels marshmallow icing dessert candy canes I love soufflé I love toffee.
-                                        Marshmallow pie sweet sweet roll sesame snaps tiramisu jelly bear claw. Bonbon
-                                        muffin I love carrot cake sugar plum dessert bonbon.</p>
+                                    <p id='prdDescription'></p>
                                 </div>
 
                                 <ul class="brand-list">
                                     <li>
                                         <div class="brand-box">
-                                            <h5>Brand Name:</h5>
-                                            <h6>Black Forest</h6>
+                                            <h5>Brand:</h5>
+                                            <h6 id = 'prdBrand'></h6>
                                         </div>
                                     </li>
 
-                                    <li>
+                                    {{-- <li>
                                         <div class="brand-box">
                                             <h5>Product Code:</h5>
                                             <h6>W0690034</h6>
                                         </div>
-                                    </li>
+                                    </li> --}}
 
                                     <li>
                                         <div class="brand-box">
-                                            <h5>Product Type:</h5>
-                                            <h6>White Cream Cake</h6>
+                                            <h5>Category:</h5>
+                                            <h6 id="prdCategories"></h6>
                                         </div>
                                     </li>
                                 </ul>
 
-                                <div class="select-size">
-                                    <h4>Cake Size :</h4>
-                                    <select class="form-select select-form-size">
-                                        <option selected>Select Size</option>
-                                        <option value="1.2">1/2 KG</option>
-                                        <option value="0">1 KG</option>
-                                        <option value="1.5">1/5 KG</option>
-                                        <option value="red">Red Roses</option>
-                                        <option value="pink">With Pink Roses</option>
-                                    </select>
+                               
+                                <div id="productVariants">
+
                                 </div>
 
                                 <div class="modal-button">
-                                    <button onclick="location.href = 'cart.html';"
-                                        class="btn btn-md add-cart-button icon">Add
-                                        To Cart</button>
+                                    <button type="button" class="btn btn-md add-cart-button icon">Thêm vào giỏ
+                                        hàng</button>
                                     <button onclick="location.href = 'product-left.html';"
                                         class="btn theme-bg-color view-button icon text-white fw-bold btn-md">
                                         View More Details</button>
@@ -2337,4 +678,315 @@
 
     <!-- sidebar open js -->
     <script src="{{ asset('theme/admin/assets/js/filter-sidebar.js') }}"></script>
+
+    <script>
+        // Hàm định dạng giá tiền sang VNĐ
+        function formatPrice(price) {
+            const number = parseFloat(price) // Chuyển đổi giá sang số thực
+            return isNaN(number) ? "0 đ" : number.toLocaleString('vi-VN', { // Định dạng số sang VNĐ
+                style: 'currency',
+                currency: 'VND'
+            })
+        }
+
+        $(document).ready(function() { 
+
+            // Khai báo biến toàn cục để lưu trữ variantMap
+            let globalVariantMap = {};
+
+            $('a[data-bs-target="#view"]').click(function() { // Bắt sự kiện  mở modal
+                const productId = $(this).data('id') // Lấy product ID từ thuộc tính `data-id` của thẻ `<a>`
+
+
+                $('#view').data('product-id', productId); // Lưu product_id vào data của modal #view
+                // loadProductDetails(productId);
+
+
+                $.ajax({ 
+                    url: '/api/productListCate/' +
+                    productId, 
+                    method: 'GET', 
+                    dataType: 'json', 
+                    success: function(
+                        response
+                    ) { 
+                        // Cập nhật thông tin cơ bản của sản phẩm trong modal
+                        $('#prdName').text(response.name) 
+                        $('#prdDescription').text(response.description) 
+                        $('#prdBrand').text(response.brand) 
+                        $('#prdCategories').text(response.categories) 
+
+                        // Xử lý rating (start)
+                        const avgRating = response.avgRating ||
+                            0 
+                        $('#prdRating ul.rating').html( 
+                            Array.from({
+                                    length: 5
+                                }, (_, i) => // Tạo mảng 5 phần tử để lặp qua 5 ngôi sao
+                                `<li><i data-feather="star" class="${i < avgRating ? 'fill' : ''}"></i></li>` // Tạo thẻ <li> chứa icon star, 
+                            ).join('') // Chuyển mảng thành chuỗi HTML
+                        )
+                        feather
+                            .replace() // loai lại idcon start
+
+
+                        // Xử lý biến thể sản phẩm (Product Variants)
+                        const variants = response.productVariants || [] // Lấy mảng biến thể, mặc định là mảng rỗng nếu không có
+                        
+                        $('#productVariants').empty() // Xóa nội dung hiện tại (để chuẩn bị hiển thị biến thể mới)
+                            
+                        if (variants.length > 0) { // Kiểm tra nếu sản phẩm có biến thể
+
+                            // Cập nhật globalVariantMap
+                            variants.forEach(variant => {
+                                const key = variant.attribute_values
+                                    .map(attr => attr.id)
+                                    .sort((a, b) => a - b)
+                                    .join('-');
+
+                                globalVariantMap[key] = {
+                                    variant_id: variant.id,
+                                    price: variant.price,
+                                    thumbnail: variant.thumbnail,
+                                    product_stock: variant.product_stock
+                                };
+                            });
+                            console.log("Global Variant Map updated:", globalVariantMap);
+
+                            // Tạo map attribute và options (loại bỏ trùng lặp giá trị thuộc tính)
+                            const attributes = {} //  tạo object để lưu trữ thông tin thuộc tính và giá trị
+                                
+                            variants.forEach(variant => { 
+                                variant.attribute_values.forEach(attr => { // Lặp qua từng giá trị thuộc tính của biến thể
+                                    
+                                        const attrSlug = attr.attributes_slug // Định dạng tên thuộc tính  -> slug)
+                                            
+                                        if (!attributes[attrSlug]) { // Nếu thuộc tính này chưa có trong object `attributes`
+                                            attributes[attrSlug] =new Map() // Tạo Map mới để lưu trữ giá trị thuộc tính (sử dụng Map để loại bỏ giá trị trùng lặp)
+                                        }
+                                        attributes[attrSlug].set(attr.id, attr.attribute_value) // Thêm giá trị thuộc tính vào Map, key là ID, value là tên giá trị
+                                    })
+                            })
+
+                            // Tạo HTML cho các select dropdown chọn thuộc tính biến thể
+                            let attributesHtml = ''
+                            Object.entries(attributes).forEach(([attrSlug, valuesMap]) => {
+                                // Để có giá trị đến attr.attributes_name,  cần  lấy lại thông tin attribute tương ứng với slug.
+                                // Tìm một attribute_value bất kỳ trong valuesMap có slug này và lấy attributes_name từ đó.
+                                let sampleAttrValue;
+                                for (const [id, value] of valuesMap.entries()) {
+                                    sampleAttrValue = variants.reduce((found,variant) => {
+                                        if (found)
+                                            return found; // Nếu đã tìm thấy, không cần tìm tiếp
+                                        return variant.attribute_values.find(av => av.attributes_slug ===attrSlug);
+                                    }, null);
+                                    if (sampleAttrValue)
+                                        break; // Tìm thấy một attribute_value, dừng vòng lặp
+                                }
+
+                                // hiện thị select option
+                                attributesHtml += `
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>${sampleAttrValue ? sampleAttrValue.attributes_name : attrSlug.split('-').join(' ')}</label>
+                                            <select class="form-control variant-attribute"
+                                                data-attribute="${attrSlug}">
+                                                ${Array.from(valuesMap).map(([id, value]) =>
+                                                    `<option value="${id}">${value}</option>`
+                                                ).join('')}
+                                            </select>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            $('#productVariants').html( `<div class="row">${attributesHtml}</div>`) 
+                               
+                            
+                            // Tạo variant map (Map ánh xạ giữa combination thuộc tính và thông tin biến thể) - QUAN TRỌNG
+                            const variantMap = {} // Khởi tạo object để lưu trữ map biến thể
+                            variants.forEach(variant => { // Lặp qua từng biến thể
+
+                                const key = variant
+                                    .attribute_values // Tạo key cho variantMap dựa trên ID của các giá trị thuộc tính
+                                    .map(attr => attr.id) // Lấy mảng ID giá trị thuộc tính
+                                    .sort((a, b) => a - b)// Sắp xếp ID để đảm bảo key nhất quán (ví dụ: luôn theo thứ tự tăng dần)
+                                    .join('-');// Nối các ID bằng dấu '-' để tạo key duy nhất (ví dụ: "1-35")
+                                console.log("Variant Key:", key, " - Variant:",variant); // Log key và variant
+                                    
+                                variantMap[key] = { // Lưu thông tin biến thể vào variantMap, key là chuỗi ID thuộc tính
+                                    price: variant.price, // Giá biến thể
+                                    thumbnail: variant.thumbnail, // Thumbnail biến thể
+                                    product_stock: variant.product_stock // Thông tin stock của biến thể
+                                }
+
+                            })
+                            console.log("Variant Map:",variantMap); // Log toàn bộ variantMap sau khi tạo
+                                
+                            // Tìm và hiển thị biến thể có giá thấp nhất làm mặc định
+                            const lowestVariant = variants.reduce((prev,curr) => // Sử dụng reduce để tìm biến thể có giá thấp nhất
+                                parseFloat(prev.price) < parseFloat(curr.price) ? prev :curr // So sánh giá và trả về biến thể có giá thấp hơn
+                            )
+                            // cập nhật thông tin theo biến thể giá min
+                            updateProductInfo(lowestVariant) // Cập nhật giá và thumbnail 
+                            setSelectedAttributes(lowestVariant.attribute_values) // selected
+                            updateStockInfo(lowestVariant) // kho
+                                
+                            // Xử lý sự kiện thay đổi select dropdown thuộc tính biến thể
+                            $('.variant-attribute').change(
+                                function() { // Bắt sự kiện `change` trên các select dropdown `.variant-attribute`
+                                    const selectedValues =getSelectedAttributes() // Lấy ID của các giá trị thuộc tính đã chọn từ dropdown
+                                        
+                                    const variantKey = selectedValues.sort((a, b) => a - b).join('-') // Tạo key tương ứng với combination thuộc tính đã chọn
+
+                                    const variant = variantMap[variantKey] // Tìm biến thể tương ứng trong variantMap
+
+                                    // console.log("Variant object khi thay đổi thuộc tính:",variant); // Log object variant vào console để debug
+                                    console.log("Selected Values:",selectedValues); // Log mảng ID thuộc tính đã chọn
+                                    console.log("Variant Key (change event):",variantKey); // Log variantKey tạo trong sự kiện change
+                                    console.log("Variant object khi thay đổi thuộc tính:", variant); // Log variant tìm được từ variantMap
+                                       
+
+                                    if (variant) { // Nếu tìm thấy biến thể tương ứng với combination thuộc tính đã chọn
+                                        updateProductInfo(variant) 
+                                        updateStockInfo(variant); 
+                                    } else { 
+                                        $('#prdPrice').text(formatPrice(response.price || 0)) 
+                                        $('#prdThumbnail').attr('src', response.thumbnail) 
+                                        $('.product-stock span').text(`Kho: 0`); // Cập nhật stock thành "Kho: 0" (hoặc giá trị mặc định khác)
+                                    }
+                                })
+
+                        } else { // Trường hợp sản phẩm không có biến thể
+                            $('#productVariants').html('<p>Sản phẩm này không có biến thể</p>') 
+                            $('#prdPrice').text(formatPrice(response.price || 0)) 
+                            $('#prdThumbnail').attr('src', response.thumbnail) 
+                            $('.product-stock span').text( `Kho: 0`);
+                        }
+                    },
+                    error: () => alert(
+                        'Không tìm thấy sản phẩm'
+                    ) 
+                })
+            })
+
+            // Hàm định dạng tên thuộc tính (ví dụ: "Kích thước màn hình" -> "kich_thuoc_man_hinh")
+            // function formatAttributeName(name) {
+            //     return name.trim()
+            //         .toLowerCase() // Chuyển về chữ thường
+            //         .replace(/[^a-z0-9à-ỹ]/g,'_') // Thay thế các ký tự không phải chữ cái, số và tiếng Việt có dấu thành '_'
+            //         .replace(/_+/g, '_') // Thay thế nhiều dấu '_' liên tiếp thành một dấu '_'
+            // }
+
+            // Hàm cập nhật giá và thumbnail sản phẩm trong modal
+            
+            function updateProductInfo(variant) {
+                $('#prdPrice').text(formatPrice(variant.price)) 
+                $('#prdThumbnail').attr('src', variant.thumbnail) 
+            }
+
+            // Hàm chọn giá trị thuộc tính trong dropdown (dựa trên biến thể được chọn)
+            function setSelectedAttributes(attributes) {
+                attributes.forEach(attr => { // Lặp qua mảng giá trị thuộc tính của biến thể
+                    const attrSlug = attr.attributes_slug // Định dạng tên thuộc tính
+                    $(`select[data-attribute="${attrSlug}"]`).val(attr
+                        .id
+                    ) // Chọn option trong select dropdown có `data-attribute` tương ứng và `value` là ID giá trị thuộc tính
+                })
+            }
+
+            // Hàm lấy ID của các giá trị thuộc tính đã được chọn từ dropdown
+            function getSelectedAttributes() {
+                const selected = [] // Khởi tạo mảng rỗng để lưu ID giá trị đã chọn
+                $('.variant-attribute').each(function() { // Lặp qua từng select dropdown `.variant-attribute`
+                    const val = $(this).val() // Lấy value (ID giá trị thuộc tính) của select dropdown
+                    if (val) selected.push( val) // Nếu có value (không phải option mặc định), thêm vào mảng `selected`
+                })
+                return selected // Trả về mảng ID giá trị thuộc tính đã chọn
+            }
+
+            // Hàm cập nhật thông tin stock sản phẩm trong modal
+            function updateStockInfo(variant) { //  HÀM  ĐỂ CẬP NHẬT STOCK
+                const stock = variant.product_stock ? variant.product_stock.stock : 0; // Lấy stock từ variant.product_stock
+                $('.product-stock span').text(
+                    `Kho: ${stock}`); 
+            }
+
+
+
+            // add to cart
+    
+            $('.add-cart-button').click(function() {
+                // Lấy product_id từ modal
+                const productId = $('#view').data('product-id');
+
+                // Kiểm tra xem sản phẩm có biến thể hay không
+                const hasVariants = $('#productVariants .variant-attribute').length > 0;
+
+                let cartData;
+
+                if (hasVariants) {
+                    // Xử lý sản phẩm có biến thể
+                    const selectedValues = getSelectedAttributes();
+                    const variantKey = selectedValues.sort((a, b) => a - b).join('-');
+                    const selectedVariant = globalVariantMap[variantKey];
+
+                    if (!selectedVariant) {
+                        alert('Vui lòng chọn đầy đủ thuộc tính sản phẩm');
+                        return;
+                    }
+
+                    // Lấy thông tin chi tiết về các biến thể đã chọn
+                    const variantDetails = [];
+                    $('.variant-attribute').each(function() {
+                        const $select = $(this);
+                        const attributeSlug = $select.data('attribute');
+                        const attributeName = $select.prev('label').text();
+                        const attributeValue = $select.find('option:selected').text();
+
+                        variantDetails.push({
+                            attribute_name: attributeName,
+                            attribute_value: attributeValue
+                        });
+                    });
+
+                    cartData = {
+                        product_id: productId,
+                        product_variant_id: selectedVariant.variant_id,
+                        quantity: 1,
+                        variant_info: {
+                            price: selectedVariant.price,
+                            thumbnail: selectedVariant.thumbnail,
+                            details: variantDetails
+                        }
+                    };
+                } else {
+                    // Xử lý sản phẩm không có biến thể
+                    cartData = {
+                        product_id: productId,
+                        quantity: 1,
+                        variant_info: {
+                            price: $('#prdPrice').text().replace(/[^\d]/g,''), // Loại bỏ ký tự không phải số
+                            thumbnail: $('#prdThumbnail').attr('src')
+                        }
+                    };
+                }
+
+                // Log dữ liệu để kiểm tra
+                console.log('Cart Data:', cartData);
+
+                // Sau khi có cartData, thêm AJAX request để gửi dữ liệu đến server
+                // $.ajax({
+                //     url: '/api/cart/add',
+                //     method: 'POST',
+                //     data: cartData,
+                //     success: function(response) {
+                //         alert('Thêm vào giỏ hàng thành công!');
+                //     },
+                //     error: function(error) {
+                //         alert('Có lỗi xảy ra khi thêm vào giỏ hàng');
+                //     }
+                // });
+            });
+        })
+    </script>
 @endpush

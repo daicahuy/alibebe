@@ -267,6 +267,8 @@ return [
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
         'deleted_at' => 'Ngày xóa',
+        'min_price' => 'Giá tối thiểu',
+        'max_price' => 'Giá tối đa',
     ],
 
     'product_accessories' => 'Phụ kiện đi kèm',

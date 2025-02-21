@@ -65,7 +65,11 @@ class CategoryRepository extends BaseRepository
     public function getParent()
     {
         return $this->model->whereNull('parent_id')->get();
+    }
 
+    public function getParentActive(int $isActive = 1)
+    {
+        return $this->model->whereNull('parent_id')->where('is_active', $isActive)->get();
     }
 
 
@@ -157,6 +161,32 @@ class CategoryRepository extends BaseRepository
         $category->update($data);
         return $category;
     }
+    // Client
+
+    // Lấy danh sách category gồm name, icon, id
+    public function getAllParentCate()
+    {
+        $category = $this->model
+            ->whereNull('parent_id')
+            ->where('is_active', 1)
+            ->orderBy('id', 'ASC') //orinal
+            ->select('id', 'name', 'icon')
+            ->with('categories')
+            // ->withCount([
+
+            //     'childProductsCount AS child_products_count' => function ($query) {
+            //         $query->whereHas('categories', function ($q) {
+            //             $q->where('categories.is_active', 1);
+            //         });
+
+            //     }
+            // ])
+            ->withCount('products') //đếm cha
+            ->get();
+        // dd($category);
+        return $category;
+    }
+
 
     //  Home 
     public function listCategory()
@@ -172,7 +202,7 @@ class CategoryRepository extends BaseRepository
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->join('category_product', 'products.id', '=', 'category_product.product_id')
             ->join('categories', 'category_product.category_id', '=', 'categories.id')
-            ->whereBetween('orders.created_at', [now()->startOfWeek(), now()->endOfWeek()])
+            ->whereBetween('orders.created_at', [now()->subDays(6)->startOfDay(), now()->endOfDay()])
             ->whereNull('parent_id')
             ->select(
                 'categories.id',

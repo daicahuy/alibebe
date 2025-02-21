@@ -6,13 +6,18 @@ use App\Http\Controllers\api\AuthCustomerApiController;
 use App\Http\Controllers\api\AuthCustomerController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\api\CouponApiController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
-use App\Http\Controllers\Web\Admin\AccountController;
+use App\Http\Controllers\api\PaymentController;
+use App\Http\Controllers\api\PaymentOnlineController;
+use App\Http\Controllers\api\UserAddressController;
 use App\Http\Controllers\Web\Admin\CouponController;
-
+use App\Http\Controllers\Api\ListCategoryController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Client\AccountController as ClientAccountController;
-
+use App\Http\Controllers\Web\Client\DetailProductController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +36,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// client
+// show modal
+// routes/api.php
+Route::get('/productListCate/{id}', [ListCategoryController::class, 'detailModal']);
+Route::get('/products/{id}', [DetailProductController::class, 'getProductDetail']);
+
 
 Route::prefix('/categories')
     ->name('api.categories.')
@@ -71,12 +83,34 @@ Route::post('/orders/uploadImgConfirm/{idOrder}', [OrderController::class, 'uplo
 Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');
 Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->name('getOrderDetail');
 
+
+Route::get("/payment/list", [PaymentController::class, 'getPaymentList'])->middleware(['guest'])->name('getPaymentList');
+Route::get("/listDiscountsByUser/{idUser}", [CouponApiController::class, "listCouponByUser"])->middleware(["guest"])->name("listCouponByUser");
+Route::post("/getValueDiscount", [CouponApiController::class, "getValueDiscount"])->middleware(['guest'])->name('getValueDiscount');
+Route::post("/confirmVNPay", [PaymentOnlineController::class, "confirmVNPay"])->middleware(['guest'])->name('confirmVNPay');
+
+Route::prefix('/address')
+    ->name('api.address.')
+    ->middleware('guest')
+    ->group(function () {
+        Route::get('/list/{id}', [UserAddressController::class, 'listAddress'])->name('listAddress');
+        Route::post('/add-address-user', [UserAddressController::class, 'addAddressUser'])->name('addAddressUser');
+        Route::post('/update-address-user', [UserAddressController::class, 'updateAddressUser'])->name('updateAddressUser');
+        Route::get('/get-address-edit/{id}', [UserAddressController::class, 'getDataAddress'])->name('getDataAddress');
+        Route::get('/get-address-one/{id}', [UserAddressController::class, 'getDataAddressOne'])->name('getDataAddressOne');
+
+    });
+
 Route::prefix('/coupons')
     ->name('coupons.')
     ->controller(CouponController::class)
     ->group(function () {
         Route::post('/update-coupon-status/{id}', 'apiUpdateStatus');
     });
+    
+Route::put('/brands/{brand}/status',[BrandController::class,'update'])->name('updateStatus');
+
+
 
 Route::put('/brands/{brand}/status', [BrandController::class, 'update'])->name('updateStatus');
 
@@ -91,6 +125,19 @@ Route::prefix('/auth')
         Route::get('/google-callback', [AuthCustomerApiController::class, "googleAuthentication"])->name('googleAuthentication')->middleware(['web']);
         Route::get('/facebookLogin', [AuthCustomerApiController::class, "facebookLogin"])->name('facebookLogin')->middleware(['web']);
         Route::get('/facebook-callback', [AuthCustomerApiController::class, "facebookAuthentication"])->name('facebookAuthentication')->middleware(['web']);
+        Route::post('/sendOpt', [AuthCustomerApiController::class, "sendOtp"])->name('sendOtp');
+        Route::post('/reSendOpt', [AuthCustomerApiController::class, "reSendOpt"])->name('reSendOpt');
+        Route::post('/verifyOpt', [AuthCustomerApiController::class, "verifyOpt"])->name('verifyOpt');
+        Route::post('/changePassword', [AuthCustomerApiController::class, "changePassword"])->name('changePassword');
+
+
+        Route::get('/email/verify', function () {
+            return view('client.pages.auth.verify-email');
+        })->middleware('auth')->name('verification.notice');
+
+
+        Route::get('/email/verify/{id}', [AuthCustomerApiController::class, 'actionVerifyEmail'])->middleware(['checknotLogin'])->name('verification.verify');
+
 
     });
 
@@ -104,4 +151,10 @@ Route::prefix('/auth')
 // });
 
 Route::get('/product/{id}', action: [HomeController::class, 'detailModal']);
+
+Route::prefix('/products')
+    ->name('api.products.')
+    ->group(function () {
+        Route::post('/single', [ProductController::class, 'storeSingle'])->name('storeSingle');
+    });
 

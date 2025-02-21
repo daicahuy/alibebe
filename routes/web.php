@@ -13,11 +13,15 @@ use App\Http\Controllers\Web\Admin\ReviewController;
 use App\Http\Controllers\Web\Admin\TagController;
 use App\Http\Controllers\Web\Auth\AuthAdminController;
 use App\Http\Controllers\Web\Auth\AuthCustomerController;
+use App\Http\Controllers\Web\Client\CheckoutController;
 use App\Http\Controllers\Web\Client\DetailProductController;
 use App\Http\Controllers\Web\Client\HomeController;
 use App\Http\Controllers\Web\Client\ListCategoriesController;
 use App\Http\Controllers\Web\Admin\UserCustomerController;
 use App\Http\Controllers\Web\Admin\UserEmployeeController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Web\Client\CartItemController;
 use App\Http\Controllers\Web\Client\AccountController as AccountClientController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,7 +40,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('index');
 Route::get('/categories/{category?}', [ListCategoriesController::class, 'index'])->name('categories');
+// Route::get('/product/{id}', [ListCategoriesController::class, 'detailModal']);
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
+Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
+Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middleware('auth');
+Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add');
+Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
+
+
+
+
+
 
 Route::name('account.')
     ->middleware(['auth'])
@@ -73,6 +87,13 @@ Route::name('account.')
     });
 
 /*--------------AUTHENTICATION--------------*/
+
+
+
+
+Route::get('/email/verify/{id}', [AuthCustomerController::class, 'actionVerifyEmail'])->middleware(['checknotLogin'])->name('auth.verification.verify');
+
+
 Route::name('auth.')
     ->group(function () {
 
@@ -100,8 +121,14 @@ Route::name('auth.')
                 Route::post('/handle', 'handleLogin')->name('handleLogin');
                 Route::get('/register', 'showFormRegister')->name('showFormRegister');
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
-                Route::get('/otp', 'showFormOtp')->name('showFormOtp');
-                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword');
+                Route::post('/send-otp', 'sendOtp')->name('sendOtp');
+                Route::get('/otp', 'showFormOtp')->name('showFormOtp')->middleware('check.reset.flow');
+                ;
+                Route::post('/verify-otp', 'verifyOtp')->name('verifyOtp');
+                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');
+                ;
+                Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');
+                ;
             });
     });
 
