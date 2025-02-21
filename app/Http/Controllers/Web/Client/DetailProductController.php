@@ -21,11 +21,11 @@ class DetailProductController extends Controller
 
         return view('client.pages.detail-product', compact('detail'));
     }
-    public function getProductDetail($id)
-    {
-        $data = $this->detailProductService->detailModal($id);
-        return response()->json($data);
-    }
+    // public function getProductDetail($id)
+    // {
+    //     $data = $this->detailProductService->detailModal($id);
+    //     return response()->json($data);
+    // }
 
 
 }
