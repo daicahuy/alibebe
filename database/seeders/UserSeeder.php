@@ -69,9 +69,6 @@ class UserSeeder extends Seeder
             'Trung'
         ];
 
-
-        $userAddresses = [];
-
         $homeNumbers = [
             'Số nhà 80',
             'Số nhà 76',
@@ -87,7 +84,7 @@ class UserSeeder extends Seeder
             'Số nhà 100',
             'Số nhà 01',
             'Số nhà 2',
-            'Số nhà 80',
+            'Số nhà 80'
         ];
 
         $streets = [
@@ -147,15 +144,16 @@ class UserSeeder extends Seeder
             'Đồng Nai'
         ];
 
-
         for ($i = 2; $i <= 51; $i++) {
+            $fullname = fake()->randomElement($firstNames)
+                . ' ' . fake()->randomElement($middleNames)
+                . ' ' . fake()->randomElement($lastNames);
+
             $users[] = [
                 'phone_number' => fake()->unique()->numerify('09########'),
                 'email' => fake()->unique()->userName() . '@gmail.com',
                 'password' => Hash::make('123456789'),
-                'fullname' => fake()->randomElement($firstNames)
-                    . ' ' . fake()->randomElement($middleNames)
-                    . ' ' . fake()->randomElement($lastNames),
+                'fullname' => $fullname,
                 'gender' => UserGenderType::getRandomValue(),
                 'loyalty_points' => fake()->randomElement([0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]),
                 'role' => UserRoleType::CUSTOMER,
@@ -164,8 +162,22 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
+        }
+
+        // Insert users first to get their IDs
+        DB::table('users')->insert($users);
+
+        // Get the inserted user IDs
+        $userIds = DB::table('users')->pluck('id')->toArray();
+
+        // Create addresses for each user
+        foreach ($userIds as $index => $userId) {
             $userAddresses[] = [
-                "user_id" => $i,
+                "user_id" => $userId,
+                'phone_number' => fake()->numerify('09########'),
+                'fullname' => fake()->randomElement($firstNames)
+                    . ' ' . fake()->randomElement($middleNames)
+                    . ' ' . fake()->randomElement($lastNames),
                 "address" => fake()->randomElement($homeNumbers)
                     . ' ' . fake()->randomElement($streets)
                     . ', ' . fake()->randomElement($wards)
@@ -175,21 +187,9 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
-
-            $userAddresses[] = [
-                "user_id" => $i,
-                "address" => fake()->randomElement($homeNumbers)
-                    . ' ' . fake()->randomElement($streets)
-                    . ', ' . fake()->randomElement($wards)
-                    . ', ' . fake()->randomElement($districts)
-                    . ', ' . fake()->randomElement($cities),
-                "id_default" => 0,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
         }
 
-        DB::table('users')->insert($users);
         DB::table('user_addresses')->insert($userAddresses);
     }
+
 }

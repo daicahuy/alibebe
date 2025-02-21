@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\api\PaymentOnlineController;
+use App\Http\Controllers\VNPayController;
 use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Admin\AttributeController;
 use App\Http\Controllers\Web\Admin\AttributeValueController;
@@ -45,6 +47,15 @@ Route::get('/', [HomeController::class, 'index'])->name('index')->middleware(["w
 Route::get('/categories/{category?}', [ListCategoriesController::class, 'index'])->name('categories');
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
+
+Route::post('/payment/vnpay', [VNPayController::class, 'createPayment'])->name('vnpay.create');
+Route::get('/payment/vnpay/return', [VNPayController::class, 'handleReturn'])->name('vnpay.return');
+
+Route::get('/page_successfully', function () {
+    return view('client.pages.checkout.page-successfully');
+})->name('thankyou.page');
+
+Route::get('/page_successfully', [CheckoutController::class, 'pageSuccessfully'])->middleware(['auth'])->name('pageSuccessfully');
 
 
 /*--------------AUTHENTICATION--------------*/

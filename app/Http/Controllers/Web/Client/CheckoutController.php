@@ -14,4 +14,10 @@ class CheckoutController extends Controller
 
         return view('client.pages.checkout.cart-checkout', compact('user'));
     }
+
+    public function pageSuccessfully()
+    {
+        return view('client.pages.checkout.page_successfully');
+
+    }
 }

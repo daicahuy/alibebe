@@ -75,7 +75,9 @@ Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->nam
 Route::get("/payment/list", [PaymentController::class, 'getPaymentList'])->middleware(['guest'])->name('getPaymentList');
 Route::get("/listDiscountsByUser/{idUser}", [CouponApiController::class, "listCouponByUser"])->middleware(["guest"])->name("listCouponByUser");
 Route::post("/getValueDiscount", [CouponApiController::class, "getValueDiscount"])->middleware(['guest'])->name('getValueDiscount');
-Route::post("/confirmVNPay", [PaymentOnlineController::class, "confirmVNPay"])->middleware(['guest'])->name('confirmVNPay');
+
+
+
 
 Route::prefix('/address')
     ->name('api.address.')

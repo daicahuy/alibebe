@@ -18,28 +18,19 @@ class PaymentSeeder extends Seeder
 
     public function fakePayment()
     {
-        
+
         $payments = [
             [
                 'name' => 'Thanh toán khi nhận hàng',
                 'logo' => 'payments/payment_cash_on_delivery.png',
                 'is_active' => 1,
             ],
-            [
-                'name' => 'Ví Momo',
-                'logo' => 'payments/payment_momo.png',
-                'is_active' => 1,
-            ],
+
             [
                 'name' => 'VNPay',
                 'logo' => 'payments/payment_paypal.png',
                 'is_active' => 1,
             ],
-            [
-                'name' => 'Paypal',
-                'logo' => 'payments/payment_vnpay.png',
-                'is_active' => 1,
-            ]
         ];
 
         DB::table('payments')->insert($payments);

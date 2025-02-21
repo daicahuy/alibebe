@@ -137,7 +137,7 @@
                             <div class="mt-3">
                                 <label for="comment" class="block text-sm/6 font-medium text-gray-900">Ghi chú</label>
                                 <div class="mt-2">
-                                    <textarea rows="4" name="note" id="note"
+                                    <textarea rows="4" name="noteOrder" id="noteOrder"
                                         class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"></textarea>
                                 </div>
                             </div>
@@ -258,7 +258,7 @@
 
 
                         <div class="border-t border-gray-200 px-4 py-6 sm:px-6">
-                            <button type="submit" style="background-color: var(--theme-color);"
+                            <button style="background-color: var(--theme-color);" id="button-confirm-order"
                                 class="w-full rounded-md border border-transparent  px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50">Xác
                                 nhận đơn hàng</button>
                         </div>
@@ -521,7 +521,20 @@
             const dataUser = <?php echo json_encode($user); ?>;
 
             let dataSaveOrder = {
-                'fullname': "abc"
+                fullname: "",
+                user_id: dataUser.id,
+                phone_number: "",
+                payment_id: "",
+                email: dataUser.email,
+                address: "",
+                note: "",
+                total_amount: "200000",
+                is_paid: "",
+                coupon_id: "",
+                coupon_code: "",
+                coupon_discount_type: "",
+                coupon_discount_value: "",
+                total_amount_discounted: "",
             }
 
             function displayPaymentMethods(paymentMethods) {
@@ -585,6 +598,7 @@
                         addresses = data.dataAddress
                         console.log(addresses);
 
+
                     });
                 addresses.forEach(address => {
                     existingAddressesDiv.append(createAddressHTML(address));
@@ -606,6 +620,11 @@
                                 </button>
     `);
                         } else {
+
+                            dataSaveOrder.fullname = data.dataAddressOne.fullname;
+                            dataSaveOrder.address = data.dataAddressOne.address
+                            dataSaveOrder.phone_number = data.dataAddressOne.phone_number
+
                             $('#address-container').html(`
                             <div class="flex items-start">
                                     <div>
@@ -648,7 +667,6 @@
             }
 
             function createAddressHTML(address) {
-
                 return `
                 <div class="mt-4">
                             <div class="flex justify-between items-center">
@@ -706,6 +724,10 @@
                                         </button>
                                     `);
                             } else {
+                                dataSaveOrder.fullname = data.dataEditAddress.fullname;
+                                dataSaveOrder.address = data.dataEditAddress.address
+                                dataSaveOrder.phone_number = data.dataEditAddress.phone_number
+
                                 $('#address-container').html(`
                                 <div class="flex items-start">
                                             <div>
@@ -947,12 +969,40 @@
                 }
             });
 
-            const totalAmount = 10000;
 
-            $("#totalItemsMoney").text(`${formatCurrency(totalAmount)}(VND)`);
-            $("#totalAllOrderMoney").text(`${formatCurrency(totalAmount)}(VND)`);
 
-            async function callApiGetValueDiscount(discountCode, totalAmount) {
+            $("#totalItemsMoney").text(`${formatCurrency(dataSaveOrder.total_amount)}(VND)`);
+            $("#totalAllOrderMoney").text(`${formatCurrency(dataSaveOrder.total_amount)}(VND)`);
+
+
+            $("#button-confirm-order").on("click", async function() {
+
+                dataSaveOrder.note = $("#noteOrder").val();
+
+                console.log("Order: ", dataSaveOrder);
+
+                // $.ajax({
+                //     url: 'http://127.0.0.1:8000/payment/vnpay',
+                //     type: 'POST',
+                //     data: {
+                //         amount: dataSaveOrder.total_amount,
+                //         _token: '{{ csrf_token() }}' // Laravel CSRF token
+                //     },
+                //     success: function(response) {
+                //         if (response.url) {
+                //             // Chuyển hướng tới VNPay để thanh toán
+                //             window.location.href = response.url;
+                //         }
+                //     },
+                //     error: function() {
+                //         alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                //     }
+                // });
+
+            })
+
+
+            async function callApiGetValueDiscount(discountCode, total_amount) {
 
                 $("#codeDiscountSelected").empty();
                 await $.ajax({
@@ -961,15 +1011,19 @@
                     data: {
                         discountCode: discountCode,
                         user_id: dataUser.id,
-                        total_amount: totalAmount
+                        total_amount: total_amount
                     },
                     dataType: "json",
                     success: function(response) {
                         // console.log(response);
                         // return;
                         if (response.status === 200) {
+                            $('#formDiscountCode .error-message').remove();
+                            $('#formDiscountCode input.is-invalid').removeClass('is-invalid');
+
                             $("#codeDiscountSelected").text(response.dataDiscount.code);
-                            $("#totalItemsMoney").text(`${formatCurrency(totalAmount)}(VND)`);
+                            $("#totalItemsMoney").text(
+                                `${formatCurrency(total_amount)}(VND)`);
 
                             const formattedDiscountValue = "-" + formatCurrency(response
                                 .dataDiscount.discount_amount) + "(VND)"; // Giả sử trả về số dương
@@ -978,8 +1032,18 @@
 
 
                             $("#totalAllOrderMoney").text(
-                                `${formatCurrency(totalAmount - response.dataDiscount.discount_amount)}(VND)`
+                                `${formatCurrency(total_amount - response.dataDiscount.discount_amount)}(VND)`
                             );
+
+                            dataSaveOrder.total_amount_discounted = total_amount - response
+                                .dataDiscount.discount_amount;
+                            dataSaveOrder.coupon_discount_value = response.dataDiscount
+                                .discount_amount;
+                            dataSaveOrder.coupon_discount_type = response.dataDiscount
+                                .discount_type;
+                            dataSaveOrder.coupon_id = response.dataDiscount.coupon_id;
+                            dataSaveOrder.coupon_code = response.dataDiscount.code;
+
 
                         } else {
                             $('.error-message').remove();
@@ -1038,7 +1102,7 @@
 
                 // Lấy mã giảm giá từ input
                 const discountCode = $("#discountCode").val();
-                callApiGetValueDiscount(discountCode, totalAmount)
+                callApiGetValueDiscount(discountCode, dataSaveOrder.total_amount)
 
             });
 
@@ -1050,14 +1114,14 @@
                 listCoupons.forEach(function(voucher) {
                     // Tạo HTML cho mỗi voucher
                     let voucherHtml = `
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between">
+                    <div class="${parseFloat(dataSaveOrder.total_amount) < parseFloat(voucher.coupon.restriction.min_order_value)?"bg-gray-300" :"bg-gray-50"}  border border-gray-200 rounded-lg p-3 flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="bg-teal-100 text-teal-600 rounded-lg p-2">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500">Code: ${voucher.coupon.code}</p>
-                                ${voucher.coupon.discount_type == 1 ? `<h3 class='text-sm font-medium text-gray-700'>Giảm ${voucher.coupon.discount_value}% Giảm tối đa ${voucher.coupon.restriction.max_discount_value ? parseFloat(voucher.coupon.restriction.max_discount_value)/1000 + 'k' : '...' }</h3>`:`<h3 class='text-sm font-medium text-gray-700'>Giảm tối đa ₫${voucher.coupon.max_discount_value ? parseFloat(voucher.coupon.max_discount_value)/1000 + 'k' : '...' }</h3>`}
+                                ${voucher.coupon.discount_type == 1 ? `<h3 class='text-sm font-medium text-gray-700'>Giảm ${voucher.coupon.discount_value}% Giảm tối đa ${voucher.coupon.restriction.max_discount_value ? parseFloat(voucher.coupon.restriction.max_discount_value)/1000 + 'k' : '...' }</h3>`:`<h3 class='text-sm font-medium text-gray-700'>Giảm ${parseFloat(voucher.coupon.discount_value)/1000 + 'k'}</h3>`}
                                 <p class="text-xs text-gray-500">Đơn Tối Thiếu ₫${voucher.coupon.restriction.min_order_value ? parseFloat(voucher.coupon.restriction.min_order_value)/1000 + 'k' : '...' }</p>
                                 ${voucher.coupon.is_shopee_video ? '<div class="bg-red-50 text-red-500 text-xs font-medium rounded-full px-2 py-1 mt-1 inline-block">Chỉ có trên Shopee Video</div>' : ''}
                                
@@ -1066,7 +1130,7 @@
                         </div>
                         <div class="flex flex-col items-end">
                             <span class="text-xs text-gray-400">x${voucher.amount}</span>
-                            <input type="radio" name="voucher" value="${voucher.coupon.code}" class="form-radio h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300">
+                            <input type="radio" name="voucher" ${parseFloat(dataSaveOrder.total_amount) < parseFloat(voucher.coupon.restriction.min_order_value)?"disabled":""} value="${voucher.coupon.code}" class="form-radio h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300">
                         </div>
                     </div>
                 `;
@@ -1078,13 +1142,15 @@
             $("#choseVouchers").on("click", async function(e) {
                 $("#listVoucherModal").empty();
                 await $.ajax({
-                    url: `http://127.0.0.1:8000/api/listDiscountsByUser/${dataUser.id}`, // Thay đổi URL API của bạn
+                    url: `http://127.0.0.1:8000/api/listDiscountsByUser/${dataUser.id}?total_amount=${dataSaveOrder.total_amount}`, // Thay đổi URL API của bạn
                     type: 'GET',
                     dataType: 'json',
                     success: function(response) {
 
                         const listVoucherModal = $("#listVoucherModal");
 
+                        // console.log(response.listCouponsByUser)
+                        // return;
                         renderHtmlListCouponUser(response.listCouponsByUser)
                         // Xử lý thành công
                         // populateDiscountItems(response.listCouponsByUser)
@@ -1120,7 +1186,7 @@
 
                 let url = `http://127.0.0.1:8000/api/listDiscountsByUser/${dataUser.id}`;
                 if (code) {
-                    url += `?code=${code}`; // Thêm tham số code nếu có
+                    url += `?code=${code}&total_amount=${dataSaveOrder.total_amount}`; // Thêm tham số code nếu có
                 }
 
                 $.ajax({
@@ -1158,7 +1224,7 @@
 
                 if (selectedValue) {
                     $("#discountCode").val(selectedValue);
-                    await callApiGetValueDiscount(selectedValue, totalAmount)
+                    await callApiGetValueDiscount(selectedValue, dataSaveOrder.total_amount)
                     $("#modal-voucher").addClass("hidden")
                 } else {
                     $("#modal-voucher").addClass("hidden")
@@ -1172,7 +1238,7 @@
                 $("#codeDiscountSelected").text("");
 
                 $("#totalAllOrderMoney").text(
-                    `${formatCurrency(totalAmount)}(VND)`
+                    `${formatCurrency(dataSaveOrder.total_amount)}(VND)`
                 );
 
                 $("#discountValue").text(0);
@@ -1181,48 +1247,34 @@
                 $("#discountCode").val("");
                 $(`#formDiscountCode #discountCode`).removeClass("is-invalid")
 
+                dataSaveOrder.total_amount_discounted = dataSaveOrder.total_amount;
+                dataSaveOrder.coupon_discount_value = "";
+                dataSaveOrder.coupon_discount_type = "";
+                dataSaveOrder.coupon_id = "";
+                dataSaveOrder.coupon_code = "";
+
 
             })
-
-
-
-            // function populateDiscountItems(codes) {
-            //     const container = $("#discount-items");
-            //     container.empty(); // Clear any existing items
-
-            //     codes.forEach((code) => {
-            //         let discountText = "";
-
-            //         // Determine the discount type (percent or fixed)
-            //         if (code.coupon.discount_type == 1) {
-            //             discountText = `Giảm ${code.coupon.discount_value}%`;
-            //         } else if (code.coupon.discount_type == 0) {
-            //             discountText =
-            //                 `Giảm ${formatCurrency(code.coupon.discount_value)}₫`; // Format fixed amount with currency
-            //         }
-            //         const item =
-            //             `<div class="item" data-code="${code.coupon.code}">
-        //                 <div class="code">${code.coupon.code}</div>
-        //                 <div class="discount-value">${discountText}</div>
-        //                 </div>`;
-            //         container.append(item);
-            //     });
-
-            //     // Attach click event to dynamically added items
-            //     $(".scrollable-items .item").on("click", function() {
-            //         const code = $(this).data("code"); // Get the discount code from 'data-code'
-            //         $("#discount-code").val(code); // Fill the input field with the code
-            //     });
-            // }
-
-
-
-
-
-
 
             $('#loading-overlay').fadeOut();
         })
     </script>
     <script src="{{ asset('js/utility.js') }}"></script>
+
+    @if (session('error'))
+        <script>
+            Toastify({
+                text: "{{ session('error') }}",
+                duration: 4000,
+                newWindow: true,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: "red",
+                },
+            }).showToast();
+        </script>
+    @endif
 @endpush
