@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class ProductRepository extends BaseRepository
 {
-
     public function getModel()
     {
         return Product::class;
@@ -157,9 +156,59 @@ class ProductRepository extends BaseRepository
         return $suggestedProducts->isNotEmpty() ? $suggestedProducts : $this->getPopularProducts();
     }
 
-    public function detailModal($id)
+
+    public function detailProduct(int $id, array $columns = ['*'])
     {
-        return $this->model->with(['categories', 'brand', 'productVariants.attributeValues.attribute'])->find($id);
+        return Product::select($columns)
+            ->with([
+                'productGallery',
+                'productAccessories',
+                'reviews.user',
+                'attributeValues.attribute',
+                'productVariants',
+                'productStock',
+                'productVariants.attributeValues.attribute',
+            ])
+            ->with(['attributeValues' => function ($query) {
+                $query->whereHas('attribute', function ($q) {
+                    $q->where('name', 'Bộ nhớ trong');
+                });
+            }])
+            ->findOrFail($id);
     }
 
+
+    public function getRelatedProducts(Product $product, int $limit = 6)
+    {
+        $relatedProducts = Product::where('id', '!=', $product->id)
+            ->where('is_active', 1)
+            ->whereBetween('sale_price', [$product->sale_price * 0.8, $product->sale_price * 1.2])
+            ->whereHas('categories', function ($query) use ($product) {
+                $query->whereIn('category_id', $product->categories->pluck('id')); // Lấy tất cả danh mục của sản phẩm
+            })
+            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price]) // Ưu tiên cùng brand
+            ->limit($limit)
+            ->get();
+
+        // Nếu không tìm thấy sản phẩm tương tự, lấy sản phẩm trong cùng danh mục
+        if ($relatedProducts->isEmpty()) {
+            $relatedProducts = Product::where('id', '!=', $product->id)
+                ->where('is_active', 1)
+                ->whereHas('categories', function ($query) use ($product) {
+                    $query->whereIn('category_id', $product->categories->pluck('id'));
+                })
+                ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price])
+                ->limit($limit)
+                ->get();
+        }
+
+        return $relatedProducts;
+    }
+
+    public function detailModal($id)
+    {
+        $product = $this->model->with(['categories', 'brand', 'productVariants.attributeValues.attribute', 'reviews', 'productVariants.productStock'])->find($id);
+        // dd($product);
+        return $product;
+    }
 }
