@@ -6,8 +6,11 @@ use App\Http\Controllers\api\AuthCustomerApiController;
 use App\Http\Controllers\api\AuthCustomerController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\api\CouponApiController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\api\PaymentController;
+use App\Http\Controllers\api\PaymentOnlineController;
 use App\Http\Controllers\api\UserAddressController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use Illuminate\Http\Request;
@@ -69,6 +72,10 @@ Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoi
 Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->name('getOrderDetail');
 
 
+Route::get("/payment/list", [PaymentController::class, 'getPaymentList'])->middleware(['guest'])->name('getPaymentList');
+Route::get("/listDiscountsByUser/{idUser}", [CouponApiController::class, "listCouponByUser"])->middleware(["guest"])->name("listCouponByUser");
+Route::post("/getValueDiscount", [CouponApiController::class, "getValueDiscount"])->middleware(['guest'])->name('getValueDiscount');
+Route::post("/confirmVNPay", [PaymentOnlineController::class, "confirmVNPay"])->middleware(['guest'])->name('confirmVNPay');
 
 Route::prefix('/address')
     ->name('api.address.')
