@@ -26,14 +26,14 @@ class UserRepository extends BaseRepository
 
         // Định nghĩa các giới hạn loyalty_points
         $loyaltyRanges = [
-            1 => [0, 100], // newbie
-            2 => [101, 200], // iron
-            3 => [201, 400], // bronze
-            4 => [301, 400], // silver
-            5 => [401, 500], // gold
-            6 => [501, 600], // platinum
-            7 => [700, 1000], // Từ 700 trở lên diamond
-        ];
+            1 => [0, 100],       // Newbie (0 - 100 điểm, tương ứng 0 - 10 lần mua hàng)
+            2 => [101, 300],     // Iron (101 - 300 điểm, tương ứng 11 - 30 lần mua hàng)
+            3 => [301, 500],     // Bronze (301 - 500 điểm, tương ứng 31 - 50 lần mua hàng)
+            4 => [501, 700],     // Silver (501 - 700 điểm, tương ứng 51 - 70 lần mua hàng)
+            5 => [701, 850],     // Gold (701 - 850 điểm, tương ứng 71 - 85 lần mua hàng)
+            6 => [851, 999],     // Platinum (851 - 999 điểm, tương ứng 86 - 99 lần mua hàng)
+            7 => [1000, PHP_INT_MAX] // Diamond (từ 1000 điểm trở lên, không giới hạn tối đa)
+        ];        
 
         // Kiểm tra xem có nhóm loyalty_points tương ứng không
         if (array_key_exists($userGroup, $loyaltyRanges)) {

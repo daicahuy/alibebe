@@ -47,8 +47,8 @@
                 </a>
             </li>
             <li class="nav-item" role="presentation">
-                <a class="nav-link  {{ Request::is('account/order') ? 'active' : '' }}" id="pills-order-tab"
-                    data-bs-target="#pills-order" href="{{ route('account.order') }}">
+                <a class="nav-link  {{ Request::is('account/order-history') ? 'active' : '' }}" id="pills-order-tab"
+                    data-bs-target="#pills-order" href="{{ route('account.order-history') }}">
                     <i data-feather="shopping-bag"></i>
                     Đơn Hàng
                 </a>
@@ -58,6 +58,13 @@
                     data-bs-target="#pills-wishlist" href="{{ route('account.wishlist') }}">
                     <i data-feather="heart"></i>
                     Danh Sách Yêu Thích
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link {{ Request::is('account/coupon') ? 'active' : '' }}" id="pills-coupon-tab"
+                    data-bs-target="#pills-coupon" href="{{ route('account.coupon') }}">
+                    <i data-feather="tag"></i>
+                    Kho Mã Giảm Giá
                 </a>
             </li>
             <li class="nav-item" role="presentation">

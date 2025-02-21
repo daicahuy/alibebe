@@ -56,13 +56,20 @@ Route::name('account.')
         Route::put('/update-address/{id}','updateAddress')->name('update-address');
         Route::delete('/delete-address/{id}', 'deleteAddress')->name('account.delete-address');
 
+        //coupon
+        Route::get('/coupon','coupon')->name('coupon');
+
         //dashboard
         Route::get('/', 'dashboard')->name('dashboard');
+
         //order
-        Route::get('/order', 'order')->name('order');
-        Route::get('/order/{id}', 'orderDetail')->name('order-detail');
+        Route::get('/order-history', 'order')->name('order-history');
+        Route::get('/order-history/{id}', 'orderHistoryDetail')->name('order-history-detail');
+        
         //wishlist
         Route::get('/wishlist', 'wishlist')->name('wishlist');
+        Route::post('/add/{id}','addWishlist')->name('add');
+        Route::delete('/remove-wishlist/{id}','removeWishlist')->name('remove-wishlist');
     });
 
 /*--------------AUTHENTICATION--------------*/

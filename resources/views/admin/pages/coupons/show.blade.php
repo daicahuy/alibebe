@@ -124,7 +124,7 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex">
+                            <div class="d-flex">70up;. 
                                 <a href="{{ route('admin.coupons.edit', $coupon->id) }}"
                                     class="btn btn-primary me-2">Chỉnh Sửa</a>
                                 <form action="{{ route('admin.coupons.destroy', $coupon->id) }}" method="POST">

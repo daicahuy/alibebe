@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateAccountPasswordRequest;
 use App\Services\Web\Client\Account\AddressService;
 use App\Services\Web\Client\Account\OrderService;
 use App\Services\Web\Client\Account\ProfileService;
+use App\Services\Web\Client\Account\WishlistService;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
@@ -15,14 +16,17 @@ class AccountController extends Controller
     protected $orderService;
     protected $profileService;
     protected $addressService;
+    protected $wishlistService;
     public function __construct(
         OrderService $orderService,
         ProfileService $profileService,
-        AddressService $addressService
+        AddressService $addressService,
+        WishlistService $wishlistService
     ) {
         $this->orderService = $orderService;
         $this->profileService = $profileService;
         $this->addressService = $addressService;
+        $this->wishlistService = $wishlistService;
     }
 
     // ============== dashboard ===============
@@ -124,6 +128,29 @@ class AccountController extends Controller
     // ============= wishlist ===============
     public function wishlist()
     {
-        return view('client.pages.accounts.wishlist');
+        $wishlist = $this->wishlistService->index();
+        return view('client.pages.accounts.wishlist',compact('wishlist'));
+    }
+
+    public function addWishlist($id) {
+        $result = $this->wishlistService->add($id);
+        if ($result['status']) {
+            return redirect()->route('account.wishlist')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+    public function removeWishlist($id) {
+        $result = $this->wishlistService->remove($id);
+        if ($result['status']) {
+            return redirect()->route('account.wishlist')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+
+    // ============= coupon ================
+    public function coupon() {
+        return view('client.pages.accounts.coupons');
     }
 }
