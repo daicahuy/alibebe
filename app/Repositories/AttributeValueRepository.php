@@ -114,10 +114,9 @@ class AttributeValueRepository extends BaseRepository
     
         // 1. Lọc CHỈ LẤY GIÁ TRỊ THUỘC TÍNH BIẾN THỂ (is_variant = 1)
         $query->whereHas('attribute', function ($q) {
-            $q->where('is_variant', 1); // Lọc attribute theo is_variant = 1
+            $q->where('is_variant', 1);
         });
     
-        // 2. Lọc theo ID Danh Mục (nếu có)
         $categoryIds = [];
         if ($category) {
             $parentID = $category;
@@ -125,19 +124,16 @@ class AttributeValueRepository extends BaseRepository
                 ->pluck('id')
                 ->toArray();
             $categoryIds = array_merge([$parentID], $childCateIds);
-    
-            $query->whereHas('productVariants', function ($q) use ($categoryIds) {
-                $q->whereHas('product', function ($q2) use ($categoryIds) {
-                    $q2->whereHas('categories', function ($q3) use ($categoryIds) {
-                        $q3->whereIn('categories.id', $categoryIds); // Sản phẩm thuộc danh mục cha hoặc con
-                    });
-                });
-            });
         }
     
-        // 3. Đếm số lượng sản phẩm biến thể (ĐÃ ĐIỀU CHỈNH ĐỂ ĐẾM CHÍNH XÁC THEO DANH MỤC)
+        // 2. Đếm số lượng sản phẩm BIẾN THỂ CÓ SẴN (STOCK > 0), ÁP DỤNG LỌC DANH MỤC NẾU CÓ
         $query->withCount(['productVariants' => function ($q) use ($categoryIds, $category) {
-            if ($category) { // CHỈ ÁP DỤNG ĐIỀU KIỆN DANH MỤC KHI $category CÓ GIÁ TRỊ
+            // Lọc thêm: Chỉ đếm biến thể có stock > 0
+            $q->whereHas('productStock', function ($qStock) {
+                $qStock->where('stock', '>', 0); // Chỉ đếm biến thể có stock > 0
+            });
+    
+            if (!empty($categoryIds)) { // Kiểm tra xem $categoryIds có rỗng không
                 $q->whereHas('product', function ($q2) use ($categoryIds) {
                     $q2->whereHas('categories', function ($q3) use ($categoryIds) {
                         $q3->whereIn('categories.id', $categoryIds); // Đếm sản phẩm biến thể thuộc danh mục đã chọn
@@ -146,6 +142,17 @@ class AttributeValueRepository extends BaseRepository
             }
         }])->with('attribute');
     
+        // 3. Lọc AttributeValue THEO danh mục SAU KHI ĐÃ ĐẾM (để đảm bảo đếm chính xác trên tập AttributeValue đã lọc theo danh mục)
+        if (!empty($categoryIds)) { // Chỉ lọc AttributeValue theo danh mục khi $categoryIds không rỗng
+            $query->whereHas('productVariants', function ($q) use ($categoryIds) {
+                $q->whereHas('product', function ($q2) use ($categoryIds) {
+                    $q2->whereHas('categories', function ($q3) use ($categoryIds) {
+                        $q3->whereIn('categories.id', $categoryIds);
+                    });
+                });
+            });
+        }
+    // dd($query->get());
         return $query->get();
     }
 

@@ -50,4 +50,16 @@ class ProductService
             'attributes' => json_encode($newAttributes)
         ];
     }
+
+    public function getProducts()
+    {
+        $products = $this->productRepository->getProducts();
+        // $products->getCollection()->each(function ($product) {
+        //     $totalStock = $product->productStock ? $product->productStock->stock : 0;
+        //     $product->stock = $totalStock;
+           
+        // });
+        // dd($products);
+        return $products;
+    }
 }

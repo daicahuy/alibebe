@@ -109,8 +109,16 @@ class ListCategoriesService
                             // 'attribute_id' => $attributeValue->attribute_id,//id liên kết thuộc tính
                             'attribute_value' => $attributeValue->value,            //Giá trị thuộc tính 
                             'attributes_name' => $attributeValue->attribute->name, //tên thuộc tính (table attributes)
+                            'attributes_slug' => $attributeValue->attribute->slug, //tên thuộc tính (table attributes)
                         ];
                     }),
+                    'product_stock' => $variant->productStock ? //hAS ONE :))))
+                         [
+                            "product_id" => $variant->productStock->product_id,
+                            'product_variant_id' => $variant->productStock->product_variant_id,            
+                            'stock' => $variant->productStock->stock, 
+                        ] : [],
+                    
 
 
                 ];

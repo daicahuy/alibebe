@@ -15,10 +15,12 @@ class ProductController extends Controller
     {
         $this->productService = $productService;
     }
-
     public function index()
     {
-        return view('admin.pages.products.list');
+        $products = $this->productService->getProducts();
+        return view('admin.pages.products.list', compact(
+            'products'
+        ));
     }
 
     public function trash()
@@ -39,7 +41,6 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
     }
 
     public function edit(Product $product)
