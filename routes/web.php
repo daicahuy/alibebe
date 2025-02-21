@@ -19,10 +19,9 @@ use App\Http\Controllers\Web\Client\HomeController;
 use App\Http\Controllers\Web\Client\ListCategoriesController;
 use App\Http\Controllers\Web\Admin\UserCustomerController;
 use App\Http\Controllers\Web\Admin\UserEmployeeController;
-
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Controllers\Web\Client\CartItemController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,6 +45,14 @@ Route::get('/categories/{category?}', [ListCategoriesController::class, 'index']
 // Route::get('/product/{id}', [ListCategoriesController::class, 'detailModal']);
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
+Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middleware('auth');
+Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add');
+Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
+
+
+
+
+
 
 
 /*--------------AUTHENTICATION--------------*/
