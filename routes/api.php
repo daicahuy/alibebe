@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\ListCategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Client\AccountController as ClientAccountController;
+use App\Http\Controllers\Web\Client\DetailProductController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // show modal
 // routes/api.php
 Route::get('/productListCate/{id}', [ListCategoryController::class, 'detailModal']);
+Route::get('/products/{id}', [DetailProductController::class, 'getProductDetail']);
+
 
 Route::prefix('/categories')
     ->name('api.categories.')
