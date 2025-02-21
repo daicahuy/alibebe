@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->truncateAllTable();
-        
+
         // Fake User
         $this->call([
             UserSeeder::class,
@@ -52,20 +52,18 @@ class DatabaseSeeder extends Seeder
     {
         Schema::disableForeignKeyConstraints();
 
-        $tables = DB::select('SHOW TABLES');
         $dbName = env('DB_DATABASE');
-        $tableKey = 'Tables_in_' . $dbName;
+        $tables = DB::table('information_schema.tables')
+            ->where('table_schema', $dbName)
+            ->pluck('table_name');
 
-        foreach ($tables as $table) {
-            $tableName = $table->$tableKey;
-
-            if ($tableName === 'migrations') {
-                continue;
+        foreach ($tables as $tableName) {
+            if ($tableName !== 'migrations') {
+                DB::table($tableName)->truncate();
             }
-
-            DB::table($tableName)->truncate();
         }
 
         Schema::enableForeignKeyConstraints();
     }
+
 }

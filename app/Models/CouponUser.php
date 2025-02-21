@@ -4,28 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class UserAddress extends Model
+class CouponUser extends Model
 {
     use HasFactory;
-
+    public $timestamps = false;
     protected $fillable = [
-        "user_id",
-        "address",
-        "fullname",
-        "phone_number",
-        "id_default",
+        'user_id',
+        'coupon_id',
+        'amount'
     ];
 
-
-
-    /////////////////////////////////////////////////////
-    // RELATIONS
+    public function coupon()
+    {
+        return $this->belongsTo(Coupon::class);
+    }
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
-
 }

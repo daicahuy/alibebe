@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,13 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('user_addresses', function (Blueprint $table) {
+        Schema::create('otps', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained();
-            $table->string('address', 255)->nullable();
-            $table->string('phone_number', 20)->nullable();
-            $table->string('fullname', 100);
-            $table->boolean('id_default')->default(false);
+            $table->string('email')->index(); // Chỉ mục email để tìm kiếm nhanh
+            $table->string('otp');
+            $table->timestamp('expire_at');
             $table->timestamps();
         });
     }
@@ -27,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_addresses');
+        Schema::dropIfExists('otps');
     }
 };

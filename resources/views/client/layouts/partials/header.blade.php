@@ -233,12 +233,17 @@
 
                                         @auth
                                             <div class="delivery-detail">
-                                                <h6>{{ __('messager.hello') }},</h6>
+                                                <h6>{{ __('message.hello') }},</h6>
                                                 <h5>{{ Auth::user()->fullname }}</h5>
                                             </div>
                                         @endauth
 
                                     </div>
+                                    @auth
+                                        @if (!Auth::user()->email_verified_at)
+                                            <p style="color: red">Tài khoản chưa xác minh</p>
+                                        @endif
+                                    @endauth
 
                                     <div class="onhover-div onhover-div-login">
 

@@ -42,6 +42,7 @@
 
 <!-- theme setting js -->
 {{-- <script src="{{ asset('/theme/client/assets/js/theme-setting.js') }}"></script> --}}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 @stack('js_library')
 

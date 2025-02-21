@@ -13,12 +13,15 @@ use App\Http\Controllers\Web\Admin\ReviewController;
 use App\Http\Controllers\Web\Admin\TagController;
 use App\Http\Controllers\Web\Auth\AuthAdminController;
 use App\Http\Controllers\Web\Auth\AuthCustomerController;
+use App\Http\Controllers\Web\Client\CheckoutController;
 use App\Http\Controllers\Web\Client\DetailProductController;
 use App\Http\Controllers\Web\Client\HomeController;
 use App\Http\Controllers\Web\Client\ListCategoriesController;
 use App\Http\Controllers\Web\Admin\UserCustomerController;
 use App\Http\Controllers\Web\Admin\UserEmployeeController;
 
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\Route;
 
@@ -42,9 +45,17 @@ Route::get('/', [HomeController::class, 'index'])->name('index')->middleware(["w
 Route::get('/categories/{category?}', [ListCategoriesController::class, 'index'])->name('categories');
 // Route::get('/product/{id}', [ListCategoriesController::class, 'detailModal']);
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
+Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
 
 
 /*--------------AUTHENTICATION--------------*/
+
+
+
+
+Route::get('/email/verify/{id}', [AuthCustomerController::class, 'actionVerifyEmail'])->middleware(['checknotLogin'])->name('auth.verification.verify');
+
+
 Route::name('auth.')
     ->group(function () {
 
@@ -73,10 +84,13 @@ Route::name('auth.')
                 Route::get('/register', 'showFormRegister')->name('showFormRegister');
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
                 Route::post('/send-otp', 'sendOtp')->name('sendOtp');
-                Route::get('/otp', 'showFormOtp')->name('showFormOtp')->middleware('check.reset.flow');;
+                Route::get('/otp', 'showFormOtp')->name('showFormOtp')->middleware('check.reset.flow');
+                ;
                 Route::post('/verify-otp', 'verifyOtp')->name('verifyOtp');
-                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');;
-                Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');;
+                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');
+                ;
+                Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');
+                ;
             });
 
 
@@ -88,7 +102,7 @@ Route::name('auth.')
 
 Route::prefix('/admin')
     ->name('admin.')
-    ->middleware(['isAdmin','admin'])
+    ->middleware(['isAdmin', 'admin'])
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
@@ -99,13 +113,13 @@ Route::prefix('/admin')
             ->controller(AccountController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
-            Route::put('/{user}/update-provider', 'updateProvider')->name('updateProvider');
+                Route::put('/{user}/update-provider', 'updateProvider')->name('updateProvider');
 
-            Route::put('/{user}/update-password', 'updatePassword')->name('updatePassword');
+                Route::put('/{user}/update-password', 'updatePassword')->name('updatePassword');
 
-        });
+            });
 
 
 
