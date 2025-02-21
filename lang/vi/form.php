@@ -224,7 +224,7 @@ return [
         'processing' => 'Đang xử lý',
         'shipping' => 'Đang giao hàng',
         'delivered' => 'Đã giao hàng',
-        'failed_delivery' => 'Giao hàng thất bại',
+        'failed delivery' => 'Giao hàng thất bại',
         'completed' => 'Hoàn thành',
         'cancel' => 'Đã hủy',
     ],
@@ -379,6 +379,10 @@ return [
         'verified_at' => 'Thời gian xác minh',
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
+
+        'male' => 'Nam',
+        'female' => 'Nữ',
+        'other' => 'Khác'
     ],
 
     'user_addresses' => 'Địa chỉ',
@@ -430,4 +434,23 @@ return [
     'help_product_accessories' => '*Chọn tối đa 6 phụ kiện để hiển thị phụ kiện đi kèm hiệu quả.',
     'help_is_featured' => '*Bật tùy chọn này sẽ hiển thị cờ <Nổi bật> trên sản phẩm.',
     'help_is_trending' => '*Bật tùy chọn này sẽ hiển thị sản phẩm trong thanh bên của trang sản phẩm dưới dạng mặt hàng thịnh hành.',
+
+    'accounts' => 'Tài Khoản',
+    'account' => [
+        'total_order' => 'Tổng Số đơn hàng',
+        'total_pending_order' => 'Đơn hàng đang chờ',
+        'total_wishlist' => 'Danh sách yêu thích',
+
+        'profile' => 'Hồ Sơ Cá Nhân',
+        'profile_name' => 'Thông Tin Cá Nhân',
+        'profile_about' => 'Thông Tin Đại Diện',
+        'login_detail' => 'Tài Khoản Đăng Nhập',
+
+        'edit_address' => 'Thay đổi địa chỉ',
+        'order_history' => 'Danh sách đơn hàng',
+        'account_infomation' => 'Thông tin tài khoản',
+        'contact_infomation' => 'Thông tin liên hệ',
+        'address_book' => 'Sổ địa chỉ',
+        'default_address' => 'Địa chỉ mặc định'
+    ]
 ];

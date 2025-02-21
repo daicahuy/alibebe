@@ -15,6 +15,9 @@ use App\Http\Controllers\api\UserAddressController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Api\ListCategoryController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Web\Admin\AccountController;
+use App\Http\Controllers\Web\Client\AccountController as ClientAccountController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

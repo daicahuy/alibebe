@@ -23,7 +23,6 @@ class checkCouponUsage
 
         if ($coupon && $coupon->orders()->exists()) {
             return back()->withErrors(['message' => 'Mã Này Đã Sử Dụng , Không Được Chỉnh Sửa']);
-
         }
 
         return $next($request);

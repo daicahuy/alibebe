@@ -308,8 +308,7 @@
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
                                                     <ul class="product-option">
-                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
-                                                            title="View">
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                                                             <a href="javascript:void(0)" data-bs-toggle="modal"
                                                                 data-bs-target="#view" data-id={{ $topSell->id }}>
                                                                 <i data-feather="eye"></i>
@@ -732,7 +731,7 @@
                                             <h5>Brand:</h5>
                                             <h6 id = 'prdBrand'></h6>
                                         </div>
-                                    </li>
+</li>
 
                                     {{-- <li>
                                         <div class="brand-box">
