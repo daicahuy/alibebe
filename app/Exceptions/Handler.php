@@ -27,7 +27,8 @@ class Handler extends ExceptionHandler
             //
         });
     }
-    // public function shouldReturnJson($request, Throwable $e){
-    //     return $request->is('api/*') || $request->json() || $request->ajax() || $request->wantsJson();
-    // }
+    
+    public function shouldReturnJson($request, Throwable $e){
+        return $request->is('api/*') || $request->json() || $request->ajax() || $request->wantsJson();
+    }
 }

@@ -32,12 +32,22 @@ class ProductService
 
     public function getData()
     {
+        $attributes = $this->attributeRepository->getAllActive(['*'], ['attributeValues'])->toArray();
+        $newAttributes = [];
+
+        foreach ($attributes as $attribute) {  
+            $attributeName = $attribute['name'];
+            $attributeValues = array_column($attribute['attribute_values'], 'value');
+            
+            $newAttributes[$attributeName] = $attributeValues;
+        }
+
         return [
-            // 'tags' => $this->tagRepository->getAll(),
-            // 'brands' => $this->brandRepository->getAllActive(),
-            // 'categories' => $this->categoryRepository->getParentActive(),
-            // 'productAccessories' => $this->productRepository->getAllActive(),
-            'attributes' => $this->attributeRepository->getAllActive(['*'], ['attributeValues'])->toArray()
+            'tags' => $this->tagRepository->getAll(),
+            'brands' => $this->brandRepository->getAllActive(),
+            'categories' => $this->categoryRepository->getParentActive(),
+            'productAccessories' => $this->productRepository->getAllActive(),
+            'attributes' => json_encode($newAttributes)
         ];
     }
 }
