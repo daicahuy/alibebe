@@ -23,6 +23,30 @@ class ProductRepository extends BaseRepository
 
         $query = $this->model->query();
 
+        //  giá sản phẩm thường và biến thể
+        $priceFiled = DB::raw('
+        CASE 
+            WHEN products.type = 1 THEN (
+                SELECT price 
+                FROM product_variants 
+                WHERE product_variants.product_id = products.id
+                ORDER BY product_variants.price ASC LIMIT 1
+            )
+            ELSE products.price 
+         END ');
+
+        $query->select(
+            'id',
+            'name',
+            'thumbnail',
+            DB::raw('COALESCE(NULLIF(sale_price, 0), ' . $priceFiled->getValue(DB::connection()->getQueryGrammar()) . ') as display_price'), // Nội suy giá trị của $priceFiled
+            'sale_price',
+            'price',
+            'short_description',
+            'views',
+            'type'
+        );
+
         // filters
         if (!empty($filters)) {
 
@@ -58,12 +82,23 @@ class ProductRepository extends BaseRepository
                 $maxPrice = $filters['max_price'];
 
                 // check input
-                if (is_numeric($minPrice) && is_numeric($maxPrice) && $minPrice >= 0 && $maxPrice >= 0 && $minPrice <= $maxPrice) {
-                    Log::info('min: ' . $minPrice . ' max: ' . $maxPrice);
-                    $query->whereBetween('price', [$minPrice, $maxPrice]);
-                } else {
-                    Log::warning('warning' . 'min: ' . $minPrice . ' max: ' . $maxPrice);
-                }
+                // if (is_numeric($minPrice) && is_numeric($maxPrice) && $minPrice >= 0 && $maxPrice >= 0 && $minPrice <= $maxPrice) {
+                //     Log::info('min: ' . $minPrice . ' max: ' . $maxPrice);
+                //     $query->whereBetween('price', [$minPrice, $maxPrice]);
+                // } else {
+                //     Log::warning('warning' . 'min: ' . $minPrice . ' max: ' . $maxPrice);
+                // }
+                $query->where(function ($q) use ($minPrice, $maxPrice) {
+                    $q->where('type', 0)
+                        ->whereBetween('price', [$minPrice, $maxPrice])
+                        ->orWhere(function ($q) use ($minPrice, $maxPrice) {
+                            $q->where('type', 1)
+                                ->whereHas('productVariants', function ($variantQuery) use ($minPrice, $maxPrice) {
+                                    $variantQuery->whereBetween('price', [$minPrice, $maxPrice]);
+                                });
+                        });
+
+                });
 
             } //end search price
 
@@ -132,10 +167,10 @@ class ProductRepository extends BaseRepository
         // sort by
         switch ($sortBy) {
             case 'low':
-                $query->orderBy('price', 'ASC');
+                $query->orderBy('display_price', 'ASC');
                 break;
             case 'high':
-                $query->orderBy('price', 'DESC');
+                $query->orderBy('display_price', 'DESC');
                 break;
             case 'aToz':
                 $query->orderBy('name', 'ASC');
@@ -171,9 +206,17 @@ class ProductRepository extends BaseRepository
 
         }
 
-        $query->select('id', 'name', 'thumbnail', 'price', 'sale_price', 'short_description', 'views')->with('categories:id,name')->with('reviews');
-        $products = $query->paginate($perpage)->appends(['sort_by' => $sortBy]); // Lưu  $products
 
+        // ->with('categories:id,name')->with('reviews');
+        $query->with([
+            'categories:id,name',
+            'reviews',
+            'productVariants' => function ($q) {
+                $q->orderBy('price', 'ASC')->select('product_id', 'price');
+            }
+        ]);
+        $products = $query->paginate($perpage)->appends(['sort_by' => $sortBy]); // Lưu  $products
+        // dd($products);
         return $products;
     }
 
@@ -322,9 +365,28 @@ class ProductRepository extends BaseRepository
 
     public function detailModal($id)
     {
-        $product = $this->model->with(['categories', 'brand', 'productVariants.attributeValues.attribute', 'reviews'])->find($id);
+        $product = $this->model->with(['categories', 'brand', 'productVariants.attributeValues.attribute', 'reviews', 'productVariants.productStock'])->find($id);
         // dd($product);
         return $product;
     }
+    // Mạnh - admin - list - delete - products
+    public function getProducts($perpage = 5, $sortBy = 'default', $filters = [])
+    {
+        $query = $this->model->query();
 
+        $query->select(
+            'id',
+            'sku',
+            'thumbnail',
+            'name',
+            'price',
+            'is_active'
+        )->with(['categories', 'productStock']);
+        $products = $query->paginate(5);
+        // dd($products);
+       
+        return $products;
+    }
+
+    
 }

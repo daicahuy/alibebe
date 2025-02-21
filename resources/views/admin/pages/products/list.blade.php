@@ -136,55 +136,68 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td class="sm-width">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" id="checkbox-table"
-                                                        class="custom-control-input checkbox_animated checkbox-input">
-                                                </div>
-                                            </td>
-                                            <td class="cursor-pointer sm-width">1</td>
-                                            <td class="cursor-pointer">PHO125821</td>
-                                            <td class="cursor-pointer sm-width"><img alt="image" class="tbl-image"
-                                                    src="https://laravel.pixelstrap.net/fastkart/storage/90/Pomegranate_2.png">
-                                            </td>
-                                            <td class="cursor-pointer">iPhone 16 Pro 128GB | Chính hãng VN/A</td>
-                                            <td class="cursor-pointer">Điện thoại</td>
-                                            <td class="cursor-pointer">45.000.000 VND</td>
-                                            <td class="cursor-pointer">50</td>
-                                            <td class="cursor-pointer">
-                                                <div class="status-in_stock">
-                                                    <span>{{ __('form.product_stock_in_stock') }}</span>
-                                                </div>
-                                                {{-- <div class="status-out_of_stock">
-                                                    <span>{{ __('form.product_stock_out_of_stock') }}</span>
-                                                </div>
-                                                <div class="status-low_stock">
-                                                    <span>{{ __('form.product_stock_low_stock') }}</span>
-                                                </div> --}}
-                                            </td>
-                                            <td class="cursor-pointer">
-                                                <div class="form-check form-switch ps-0">
-                                                    <label class="switch switch-sm">
-                                                        <input type="checkbox" id="status-0"value="0">
-                                                        <span class="switch-state"></span>
-                                                    </label>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <ul id="actions">
-                                                    <li>
-                                                        <a href="" class="btn-detail"><i class="ri-eye-line"></i></a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="" class="btn-edit"><i class="ri-pencil-line"></i></a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="" class="btn-move-to-trash"><i class="ri-delete-bin-line"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
+                                        @foreach ($products as $product)
+                                            <tr>
+                                                <td class="sm-width">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" id="checkbox-table"
+                                                            class="custom-control-input checkbox_animated checkbox-input">
+                                                    </div>
+                                                </td>
+                                                <td class="cursor-pointer sm-width">{{ $product->id }}</td>
+                                                <td class="cursor-pointer">{{ $product->sku }}</td>
+                                                <td class="cursor-pointer sm-width"><img alt="image" class="tbl-image"
+                                                        src="{{ Storage::url($product->thumbnail) }}">
+                                                </td>
+                                                <td class="cursor-pointer">{{ $product->name }}</td>
+                                                <td class="cursor-pointer">Điện thoại</td>
+                                                <td class="cursor-pointer">{{ number_format($product->price) }} VND</td>
+                                                <td class="cursor-pointer">{{ $product->productStock->stock }}</td>
+                                                <td class="cursor-pointer">
+                                                    @if ($product->productStock->stock > 10)
+                                                        <div class="status-in_stock">
+                                                            <span>{{ __('form.product_stock_in_stock') }}</span>
+                                                            {{-- còn  --}}
+                                                        </div>
+                                                    @elseif($product->productStock->stock > 0)
+                                                        <div class="status-low_stock">
+                                                            <span>{{ __('form.product_stock_low_stock') }}</span>{{-- hết  --}}
+                                                        </div>
+                                                    @else
+                                                        <div class="status-out_of_stock">
+                                                            <span>{{ __('form.product_stock_out_of_stock') }}</span>{{-- sắp hết  --}}
+                                                        </div>
+                                                    @endif
+                                                </td>
+                                                <td class="cursor-pointer">
+                                                    <div class="form-check form-switch ps-0">
+                                                        <label class="switch switch-sm">
+                                                            <input type="checkbox" id="status-0"value="0"
+                                                                {{ $product->is_active == 1 ? 'checked' : '' }}>
+                                                            <span class="switch-state"></span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <ul id="actions">
+                                                        <li>
+                                                            <a href="" class="btn-detail"><i
+                                                                    class="ri-eye-line"></i></a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="" class="btn-edit"><i
+                                                                    class="ri-pencil-line"></i></a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="" class="btn-move-to-trash"><i
+                                                                    class="ri-delete-bin-line"></i></a>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+
+
                                     </tbody>
                                 </table>
                             </div>
@@ -194,7 +207,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-
+                            {{$products->links()}}
                         </div>
                         <!-- END PAGINATIOn -->
 
