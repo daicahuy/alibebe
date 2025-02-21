@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Web\Client\CartItemService;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Auth;
@@ -27,5 +28,15 @@ class AppServiceProvider extends ServiceProvider
             $view->with('user', Auth::user());
         });
         // Giúp $user luôn có trong header.blade.php mà không cần truyền từ controller.
+
+        View::composer('client.layouts.partials.header', function ($view) {
+            $cartItems = [];
+
+            if (Auth::check()) {
+            $cartItemService = app(CartItemService::class); 
+            $cartItems = $cartItemService->getAllCartItem();
+        }
+            $view->with('cartItems', $cartItems);
+        });
     }
 }

@@ -18,8 +18,7 @@ use App\Http\Controllers\Web\Client\HomeController;
 use App\Http\Controllers\Web\Client\ListCategoriesController;
 use App\Http\Controllers\Web\Admin\UserCustomerController;
 use App\Http\Controllers\Web\Admin\UserEmployeeController;
-
-
+use App\Http\Controllers\Web\Client\CartItemController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +40,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('index')->middleware(["web"]);
 Route::get('/categories/{category?}', [ListCategoriesController::class, 'index'])->name('categories');
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
+Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middleware('auth');
+Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add');
+Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
+
+
+
+
+
 
 
 /*--------------AUTHENTICATION--------------*/
