@@ -31,6 +31,13 @@ class Product extends Model
         'is_active',
     ];
 
+    protected $attributes = [
+        'is_sale' => 0,
+        'is_featured' => 0,
+        'is_trending' => 0,
+        'is_active' => 0,
+    ];
+
     public function isSingle()
     {
         return $this->type = ProductType::SINGLE;

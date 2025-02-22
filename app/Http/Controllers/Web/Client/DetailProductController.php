@@ -18,7 +18,7 @@ class DetailProductController extends Controller
     public function index(Product $product)
     {
         $detail = $this->detailProductService->getProductDetail($product->id, ['*']);
-
+        
         return view('client.pages.detail-product', compact('detail'));
     }
     // public function getProductDetail($id)

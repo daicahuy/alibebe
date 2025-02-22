@@ -2,10 +2,12 @@
 
 namespace App\Repositories;
 
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Log;
 
 class ProductRepository extends BaseRepository
 {
@@ -13,6 +15,210 @@ class ProductRepository extends BaseRepository
     {
         return Product::class;
     }
+
+    // Lấy danh sách sản phẩm theo category
+    public function getAllProductCate($perpage = 5, $sortBy = 'default', $filters = [])
+    {
+
+        $query = $this->model->query();
+
+        //  giá sản phẩm thường và biến thể
+        $priceFiled = DB::raw('
+        CASE 
+            WHEN products.type = 1 THEN (
+                SELECT price 
+                FROM product_variants 
+                WHERE product_variants.product_id = products.id
+                ORDER BY product_variants.price ASC LIMIT 1
+            )
+            ELSE products.price 
+         END ');
+
+        $query->select(
+            'id',
+            'name',
+            'thumbnail',
+            DB::raw('COALESCE(NULLIF(sale_price, 0), ' . $priceFiled->getValue(DB::connection()->getQueryGrammar()) . ') as display_price'), // Nội suy giá trị của $priceFiled
+            'sale_price',
+            'price',
+            'short_description',
+            'views',
+            'type'
+        );
+
+        // filters
+        if (!empty($filters)) {
+
+
+
+            // lọc theo danh mục
+            Log::info('Applying filters in ProductRepository: ' . json_encode($filters)); //log mangr theem json_endcode
+            if (isset($filters['category'])) {
+                $categoryFilters = $filters['category']; // id cha từ category  
+                Log::info('Giá trị mảng $category: ' . json_encode($categoryFilters));
+                $categoryIdsToFilter = []; // all id (parent + child)
+                foreach ($categoryFilters as $parentCategoryID) {
+                    $parentID = $parentCategoryID;
+                    $childCateIds = Category::where('parent_id', $parentID)
+                        ->pluck('id')
+                        ->toArray();
+                    // gộp id cha và con 
+                    $categoryIds = array_merge([$parentID], $childCateIds);
+                    $categoryIdsToFilter = array_merge($categoryIdsToFilter, $categoryIds);
+                }
+                $categoryIdsToFilter = array_map('intval', array_unique($categoryIdsToFilter)); // lọc trùng, chuyến sang int
+                $query->whereHas('categories', function ($q) use ($categoryIdsToFilter) {
+                    $q->whereIn('categories.id', $categoryIdsToFilter)->where('is_active', 1);
+                });
+            } //end filter category
+
+
+
+
+            if (isset($filters['min_price']) && isset($filters['max_price'])) { // Search Price Range
+
+                $minPrice = $filters['min_price'];
+                $maxPrice = $filters['max_price'];
+
+                // check input
+                // if (is_numeric($minPrice) && is_numeric($maxPrice) && $minPrice >= 0 && $maxPrice >= 0 && $minPrice <= $maxPrice) {
+                //     Log::info('min: ' . $minPrice . ' max: ' . $maxPrice);
+                //     $query->whereBetween('price', [$minPrice, $maxPrice]);
+                // } else {
+                //     Log::warning('warning' . 'min: ' . $minPrice . ' max: ' . $maxPrice);
+                // }
+                $query->where(function ($q) use ($minPrice, $maxPrice) {
+                    $q->where('type', 0)
+                        ->whereBetween('price', [$minPrice, $maxPrice])
+                        ->orWhere(function ($q) use ($minPrice, $maxPrice) {
+                            $q->where('type', 1)
+                                ->whereHas('productVariants', function ($variantQuery) use ($minPrice, $maxPrice) {
+                                    $variantQuery->whereBetween('price', [$minPrice, $maxPrice]);
+                                });
+                        });
+
+                });
+
+            } //end search price
+
+
+
+            if (isset($filters['rating'])) { //filter rating
+                $ratingFilter = $filters['rating'];
+                // Log::info('Rating filter:' . $ratingFilter);
+                if (is_array($ratingFilter)) { // nhiều rating
+                    $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+                        $q->whereIn('rating', $ratingFilter);
+                    });
+                } else if (is_numeric($ratingFilter)) { // chỉ chọn một rating
+                    $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+                        $q->whereIn('rating', '=', $ratingFilter);
+                    });
+                }
+            } //end filter rating
+
+
+
+            if (isset($filters['search']) && !empty($filters['search'])) { // search basic
+                $searchItem = $filters['search'];
+                Log:
+                info('Search name: ' . $searchItem);
+                $query->where('name', 'LIKE', '%' . $searchItem . '%');
+            } // end search
+
+
+            // Lọc theo thuộc tính - biến thể
+
+            $variantAttributeFilters = [];
+            foreach ($filters as $filterName => $filterValues) {
+                if (in_array($filterName, ['kich-thuoc-man-hinh', 'bo-nho-ram', 'mau-sac'])) { // tạo mảng với key
+                    if (is_array($filterValues)) { // check mảng 
+                        $variantAttributeFilters[$filterName] = $filterValues; // gán giá trị vào mảng
+                    }
+                }
+                ;
+            }
+
+            if (!empty($variantAttributeFilters)) {
+                Log::info('variant: ' . json_encode($variantAttributeFilters));
+                $query->whereHas('productVariants', function ($variantQuery) use ($variantAttributeFilters) {
+                    foreach ($variantAttributeFilters as $attributeSlug => $attributeValues) {
+                        $variantQuery->whereHas('attributeValues', function ($attributeValueQuery) use ($attributeSlug) {
+                            $attributeValueQuery->whereHas('attribute', function ($attributeQuery) use ($attributeSlug) {
+                                $attributeQuery->where('slug', $attributeSlug);
+                            });
+                        })->whereHas('attributeValues', function ($attributeValueQuery) use ($attributeValues) {
+                            $attributeValueQuery->whereIn('value', $attributeValues);
+                        });
+                    }
+                });
+            } //end filter attribute variant
+            // dd($filters);
+
+
+
+        } else { // không có điều kiện lọc
+            $query->whereHas('categories', function ($q) {
+                $q->where('is_active', 1);
+            });
+        }
+
+        // sort by
+        switch ($sortBy) {
+            case 'low':
+                $query->orderBy('display_price', 'ASC');
+                break;
+            case 'high':
+                $query->orderBy('display_price', 'DESC');
+                break;
+            case 'aToz':
+                $query->orderBy('name', 'ASC');
+                break;
+            case 'zToa':
+                $query->orderBy('name', 'DESC');
+                break;
+            case 'sellWell':
+                $query->orderByDesc(function ($query) {
+                    $query->selectRaw('COALESCE(SUM(order_items.quantity),0)')
+                        ->from('order_items')
+                        ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                        ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+                        ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
+                        ->whereColumn('order_items.product_id', 'products.id')
+                        ->where('order_statuses.name', '=', 'Hoàn thành');
+                });
+                break;
+            case 'manyViews':
+                $query->orderBy('views', 'DESC');
+                break;
+            case 'rating':
+                $query->orderByDesc(function ($query) {
+                    $query->selectRaw('COALESCE(AVG(reviews.rating),0)')
+                        ->from('reviews')
+                        ->whereColumn('reviews.product_id', 'products.id');
+                });
+                // dd("Đang sắp xếp rating", $query->toSql(), $query->getBindings());
+                break;
+            default:
+                $query->orderBy('updated_at', 'DESC');
+
+
+        }
+
+
+        // ->with('categories:id,name')->with('reviews');
+        $query->with([
+            'categories:id,name',
+            'reviews',
+            'productVariants' => function ($q) {
+                $q->orderBy('price', 'ASC')->select('product_id', 'price');
+            }
+        ]);
+        $products = $query->paginate($perpage)->appends(['sort_by' => $sortBy]); // Lưu  $products
+        // dd($products);
+        return $products;
+    }
+
 
     public function getTrendingProducts()
     {
@@ -57,6 +263,7 @@ class ProductRepository extends BaseRepository
                 'ps.total_stock'
             )
             ->orderByDesc('total_sold')
+            ->limit(24)
             ->get();
     }
 
@@ -91,9 +298,11 @@ class ProductRepository extends BaseRepository
                 'product_variants.id'
             )
             ->orderByDesc('total_sold')
+            ->limit(24)
             ->get();
     }
 
+    
     public function getPopularProducts()
     {
         return DB::table('order_items')
@@ -110,7 +319,7 @@ class ProductRepository extends BaseRepository
             )
             ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price')
             ->orderByDesc('total_sold')
-            ->limit(8)
+            ->limit(24)
             ->get();
     }
 
@@ -149,11 +358,30 @@ class ProductRepository extends BaseRepository
             )
             ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price', 'products.stock_quantity')
             ->orderByDesc('frequency')
-            ->limit(8)
+            ->limit(24)
             ->get();
 
         // Nếu không tìm thấy sản phẩm => gợi ý sản phẩm phổ biến
         return $suggestedProducts->isNotEmpty() ? $suggestedProducts : $this->getPopularProducts();
+    }
+
+    // Mạnh - admin - list - delete - products
+    public function getProducts($perpage = 5, $sortBy = 'default', $filters = [])
+    {
+        $query = $this->model->query();
+
+        $query->select(
+            'id',
+            'sku',
+            'thumbnail',
+            'name',
+            'price',
+            'is_active'
+        )->with(['categories', 'productStock']);
+        $products = $query->paginate(5);
+        // dd($products);
+       
+        return $products;
     }
 
 

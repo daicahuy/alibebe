@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
             'gender' => UserGenderType::MALE,
             'role' => UserRoleType::ADMIN,
             'status' => UserStatusType::ACTIVE,
-            'verified_at' => now(),
+            'email_verified_at' => now(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -160,7 +160,7 @@ class UserSeeder extends Seeder
                 'loyalty_points' => fake()->randomElement([0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]),
                 'role' => UserRoleType::CUSTOMER,
                 'status' => UserStatusType::getRandomValue(),
-                'verified_at' => now(),
+                'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

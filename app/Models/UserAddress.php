@@ -12,10 +12,14 @@ class UserAddress extends Model
     protected $fillable = [
         "user_id",
         "address",
+        "fullname",
+        "phone_number",
         "id_default",
     ];
 
-
+    public $attributes = [
+        'id_default' => 0
+    ];
 
     /////////////////////////////////////////////////////
     // RELATIONS

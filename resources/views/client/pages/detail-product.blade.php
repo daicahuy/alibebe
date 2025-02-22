@@ -217,9 +217,9 @@
                                         @endforeach
                                     </ul>
 
-                                    <!-- Dung lượng -->
+                                    <!-- Bộ nhớ RAM -->
                                     <div class="product-title">
-                                        <h4>Dung lượng</h4>
+                                        <h4>Bộ nhớ RAM</h4>
                                     </div>
                                     <ul class="circle select-package" id="memory-options">
                                         @php
@@ -227,7 +227,7 @@
                                         @endphp
                                         @foreach ($detail->productVariants as $item)
                                             @foreach ($item->attributeValues as $attrValue)
-                                                @if ($attrValue->attribute->name == 'Bộ nhớ trong' && !in_array($attrValue->value, $displayedMemories))
+                                                @if ($attrValue->attribute->name == 'Bộ nhớ RAM' && !in_array($attrValue->value, $displayedMemories))
                                                     @php
                                                         $displayedMemories[] = $attrValue->value;
                                                     @endphp

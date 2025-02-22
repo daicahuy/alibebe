@@ -163,7 +163,7 @@
                                 <li class="right-side">
                                     <div class="onhover-dropdown header-badge">
                                         <button type="button" class="btn p-0 position-relative header-wishlist">
-                                            <i data-feather="shopping-cart"></i>
+                                            <a href="{{ route('cart') }}"><i data-feather="shopping-cart"></i></a>
                                             <span class="position-absolute top-0 start-100 translate-middle badge">2
                                                 <span class="visually-hidden">unread messages</span>
                                             </span>
@@ -171,56 +171,68 @@
 
                                         <div class="onhover-div">
                                             <ul class="cart-list">
-                                                <li class="product-box-contain">
-                                                    <div class="drop-cart">
-                                                        <a href="product-left-thumbnail.html" class="drop-image">
-                                                            <img src="{{ asset('theme/client/assets/images/vegetable/product/1.png') }}"
-                                                                class="blur-up lazyload" alt="">
-                                                        </a>
+                                                @php
+                                                    $totalSum = 0; // Khởi tạo tổng tiền giỏ hàng
+                                                @endphp
 
-                                                        <div class="drop-contain">
-                                                            <a href="product-left-thumbnail.html">
-                                                                <h5>Fantasy Crunchy Choco Chip Cookies</h5>
+                                                @foreach ($cartItems as $cartItem)
+                                                    <li class="product-box-contain">
+                                                        <div class="drop-cart">
+                                                            @php
+                                                                // Kiểm tra nếu có productVariant thì lấy ảnh từ productVariant, nếu không thì lấy ảnh từ product
+                                                                $thumbnail =
+                                                                    $cartItem->productVariant->product->thumbnail ??
+                                                                    $cartItem->product->thumbnail;
+                                                            @endphp
+
+                                                            <a href="product-left-thumbnail.html" class="drop-image">
+                                                                <img src="{{ Storage::url($thumbnail) }}"
+                                                                    class="blur-up lazyload" alt="">
                                                             </a>
-                                                            <h6><span>1 x</span> $80.58</h6>
-                                                            <button class="close-button close_button">
-                                                                <i class="fa-solid fa-xmark"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </li>
 
-                                                <li class="product-box-contain">
-                                                    <div class="drop-cart">
-                                                        <a href="product-left-thumbnail.html" class="drop-image">
-                                                            <img src="{{ asset('theme/client/assets/images/vegetable/product/2.png') }}"
-                                                                class="blur-up lazyload" alt="">
-                                                        </a>
+                                                            <div class="drop-contain">
+                                                                <a href="product-left-thumbnail.html">
+                                                                    <h5>{{ $cartItem->productVariant->product->name ?? $cartItem->product->name }}
+                                                                    </h5>
+                                                                </a>
 
-                                                        <div class="drop-contain">
-                                                            <a href="product-left-thumbnail.html">
-                                                                <h5>Peanut Butter Bite Premium Butter Cookies 600 g
-                                                                </h5>
-                                                            </a>
-                                                            <h6><span>1 x</span> $25.68</h6>
-                                                            <button class="close-button close_button">
-                                                                <i class="fa-solid fa-xmark"></i>
-                                                            </button>
+                                                                @php
+                                                                    // Lấy giá ưu tiên sale_price, nếu không có thì lấy price
+                                                                    $price =
+                                                                        $cartItem->productVariant->sale_price ??
+                                                                        ($cartItem->productVariant->price ??
+                                                                            $cartItem->product->price);
+                                                                    $sumOnePrd = $cartItem->quantity * $price;
+                                                                    $totalSum += $sumOnePrd; // Cộng dồn vào tổng tiền giỏ hàng
+                                                                @endphp
+
+                                                                <h6><span>{{ $cartItem->quantity }} x</span>
+                                                                    {{ number_format($price, 0, ',', '.') }}đ
+                                                                </h6>
+
+                                                                <button class="close-button close_button">
+                                                                    <i class="fa-solid fa-xmark"></i>
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </li>
+                                                    </li>
+                                                @endforeach
+
                                             </ul>
 
                                             <div class="price-box">
-                                                <h5>Total :</h5>
-                                                <h4 class="theme-color fw-bold">$106.58</h4>
+                                                <h5>Tổng cộng :</h5>
+                                                <h4 class="theme-color fw-bold">
+                                                    {{ number_format($totalSum, 0, ',', '.') }}đ</h4>
                                             </div>
 
                                             <div class="button-group">
-                                                <a href="cart.html" class="btn btn-sm cart-button">View Cart</a>
+                                                {{-- <a href="{{ route('cart', ['user' => auth()->id()]) }}"
+                                                    class="btn btn-sm cart-button">Giỏ hàng</a> --}}
                                                 <a href="checkout.html"
                                                     class="btn btn-sm cart-button theme-bg-color
-                                                text-white">Checkout</a>
+                                                text-white">Thanh
+                                                    toán</a>
                                             </div>
                                         </div>
                                     </div>
@@ -233,17 +245,26 @@
 
                                         @auth
                                             <div class="delivery-detail">
-                                                <h6>{{ __('messager.hello') }},</h6>
+                                                <h6>{{ __('message.hello') }},</h6>
                                                 <h5>{{ Auth::user()->fullname }}</h5>
                                             </div>
                                         @endauth
 
                                     </div>
+                                    @auth
+                                        @if (!Auth::user()->email_verified_at)
+                                            <p style="color: red">Tài khoản chưa xác minh</p>
+                                        @endif
+                                    @endauth
 
                                     <div class="onhover-div onhover-div-login">
 
                                         @auth
                                             <ul class="user-box-name">
+                                                <li class="product-box-contain">
+                                                    <a
+                                                        href="{{ route('account.dashboard') }}">{{ __('form.accounts') }}</a>
+                                                </li>
                                                 <li class="product-box-contain">
                                                     <a
                                                         href="{{ route('api.auth.logout') }}">{{ __('form.auth.logout') }}</a>

@@ -144,7 +144,6 @@
 
 @push('js_library')
     <!-- Flatpickr JS -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 @endpush
 
 @push('js')
@@ -160,10 +159,13 @@
                     data: formData,
                     dataType: "json",
                     success: function(response) {
-                        if (response.status === 'success') {
+                        console.log(response);
+                        if (response.status === 200) {
+
+
                             Toastify({
                                 text: "Đăng nhập thành công",
-                                duration: 1000,
+                                duration: 2000,
                                 newWindow: true,
                                 close: true,
                                 gravity: "top",
