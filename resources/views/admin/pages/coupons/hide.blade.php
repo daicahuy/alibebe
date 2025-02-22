@@ -68,18 +68,6 @@
                         <div class="datepicker-wrap">
 
                         </div>
-
-                        <form action="{{ route('admin.coupons.search') }}" method="GET">
-                            <div class="row">
-                                <div class="table-search col-sm-8">
-                                    <label for="role-search" class="form-label">Tìm Kiếm:</label>
-                                    <input type="search" id="role-search" name="searchKey" class="form-control">
-                                </div>
-                                <div class="col-sm-4">
-                                    <button type="submit" class="btn btn-theme">Search</button>
-                                </div>
-                            </div>
-                        </form>
                     </div>
                     <div>
                         <div class="table-responsive datatable-wrapper border-table mt-3">

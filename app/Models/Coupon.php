@@ -53,7 +53,7 @@ class Coupon extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class)->withPivot('created_at', 'updated_at');
+        return $this->belongsToMany(User::class,'coupon_users', 'coupon_id', 'user_id')->withPivot('created_at', 'updated_at');
     }
 
     public function restriction() {

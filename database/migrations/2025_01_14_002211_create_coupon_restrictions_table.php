@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('coupon_id')->constrained('coupons')->onDelete('cascade');
             $table->decimal('min_order_value', 11, 2);
-            $table->decimal('max_discount_value', 11, 2);
+            $table->decimal('max_discount_value', 11, 2)->nullable();
             $table->jsonb('valid_categories')->nullable();
             $table->jsonb('valid_products')->nullable();
             $table->softDeletes();

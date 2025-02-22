@@ -166,24 +166,14 @@ class UserSeeder extends Seeder
             ];
             $userAddresses[] = [
                 "user_id" => $i,
+                "fullname" => fake()->name(),
+                "phone_number" => fake()->phoneNumber(),
                 "address" => fake()->randomElement($homeNumbers)
                     . ' ' . fake()->randomElement($streets)
                     . ', ' . fake()->randomElement($wards)
                     . ', ' . fake()->randomElement($districts)
                     . ', ' . fake()->randomElement($cities),
                 "id_default" => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-
-            $userAddresses[] = [
-                "user_id" => $i,
-                "address" => fake()->randomElement($homeNumbers)
-                    . ' ' . fake()->randomElement($streets)
-                    . ', ' . fake()->randomElement($wards)
-                    . ', ' . fake()->randomElement($districts)
-                    . ', ' . fake()->randomElement($cities),
-                "id_default" => 0,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

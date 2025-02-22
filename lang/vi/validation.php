@@ -187,6 +187,8 @@ return [
     */
 
     'attributes' => [
+        'fullname' => 'Họ Và Tên',
+        'phone_number' => 'Số Điện Thoại',
         'address' => 'Địa chỉ',
         'code' => 'Mã giảm giá',
         'title' => 'Tiêu đề',

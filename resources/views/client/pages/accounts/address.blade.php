@@ -46,16 +46,18 @@
                                         <tr>
                                             <td>{{ __('form.user_addresses') }} :</td>
                                             <td>
-                                                <p class="text-truncate d-inline-block" style="max-width: 150px;" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $address->address }}">
+                                                <p class="text-truncate d-inline-block" style="max-width: 150px;"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="{{ $address->address }}">
                                                     {{ $address->address }}
                                                 </p>
-                                            </td>                                            
+                                            </td>
                                         </tr>
 
                                         <tr>
-                                            <td>{{ __('form.user_address.created_at') }}</td>
+                                            <td>{{ __('form.user.fullname') }}</td>
                                             <td>
-                                                {{ $address->created_at }}
+                                                {{ $address->fullname }}
                                             </td>
                                         </tr>
 
@@ -70,7 +72,8 @@
 
                         <div class="button-group">
                             <button class="btn btn-sm add-button w-100" data-bs-toggle="modal" data-bs-target="#editAddress"
-                                data-id="{{ $address->id }}" data-address="{{ $address->address }}"
+                                data-id="{{ $address->id }}" data-address="{{ $address->address }}" data-fullname="{{$address->fullname}}"
+                                data-phone_number="{{$address->phone_number}}"
                                 data-default="{{ $address->id_default }}">
                                 <i data-feather="edit"></i>
                                 {{ __('message.edit') }}
@@ -119,6 +122,17 @@
                             <input type="text" class="form-control" name="address" id="address"
                                 placeholder="Mời Nhập {{ __('form.user_addresses') }}">
                             <label for="address">{{ __('form.user_addresses') }}</label>
+                            <span></span>
+                        </div>
+                        <div class="form-floating mb-4 theme-form-floating">
+                            <input type="text" class="form-control" name="fullname" id="fullname"
+                                placeholder="Mời Nhập {{ __('form.user.fullname') }}">
+                            <label for="fullname">{{ __('form.user.fullname') }}</label>
+                        </div>
+                        <div class="form-floating mb-4 theme-form-floating">
+                            <input type="text" class="form-control" name="phone_number" id="phone_number"
+                                placeholder="Mời Nhập {{ __('form.user.phone_number') }}">
+                            <label for="phone_number">{{ __('form.user.phone_number') }}</label>
                         </div>
                         <div class="form-group mb-4">
                             <div class="form-check form-switch">
@@ -146,7 +160,8 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editAddressLabel">{{ __('message.edit') }} {{ __('form.user_addresses') }}
+                    <h5 class="modal-title" id="editAddressLabel">{{ __('message.edit') }}
+                        {{ __('form.user_addresses') }}
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -157,6 +172,14 @@
                         <div class="mb-3">
                             <label for="address" class="form-label">{{ __('form.user_addresses') }}</label>
                             <input type="text" class="form-control" name="address" id="address">
+                        </div>
+                        <div class="mb-3">
+                            <label for="fullname" class="form-label">{{ __('form.user.fullname') }}</label>
+                            <input type="text" class="form-control" name="fullname" id="fullname">
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">{{ __('form.user.phone_number') }}</label>
+                            <input type="text" class="form-control" name="phone_number" id="phone_number">
                         </div>
                         <div class="form-check form-switch">
                             <input type="checkbox" class="form-check-input" id="id_default" name="id_default"
@@ -223,10 +246,15 @@
             // Lấy dữ liệu từ thuộc tính data-*
             const addressId = $(this).data('id');
             const address = $(this).data('address');
+            const fullname = $(this).data('fullname');
+            const phone_number = $(this).data('phone_number');
             const isDefault = $(this).data('default');
+            console.log(address,fullname,phone_number);
 
             // Gán giá trị vào form trong modal
             $('#editAddress input[name="address"]').val(address);
+            $('#editAddress input[name="fullname"]').val(fullname);
+            $('#editAddress input[name="phone_number"]').val(phone_number);
             $('#editAddress input[name="id_default"]').prop('checked', isDefault === 1);
 
             // Thiết lập action cho form với ID của địa chỉ
@@ -242,6 +270,7 @@
             if ($(this).find('input[name="id_default"]').is(':checked')) {
                 return;
             }
+
             const addressId = $(this).data('id');
 
             // Gán id này vào input ẩn

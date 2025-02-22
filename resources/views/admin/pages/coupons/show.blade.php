@@ -124,7 +124,7 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex">70up;. 
+                            <div class="d-flex">
                                 <a href="{{ route('admin.coupons.edit', $coupon->id) }}"
                                     class="btn btn-primary me-2">Chỉnh Sửa</a>
                                 <form action="{{ route('admin.coupons.destroy', $coupon->id) }}" method="POST">
@@ -176,7 +176,7 @@
                                                         {{ isset($value) ? $value : 'N/A' }}
                                                     @break
 
-                                                    @case('valid_categories')
+                                                    {{-- @case('valid_categories')
                                                         <ul>
                                                             @foreach ($coupon->categories as $category)
                                                                 <li>{{ $category->name }}</li>
@@ -190,7 +190,7 @@
                                                                 <li>{{ $product->name }}</li>
                                                             @endforeach
                                                         </ul>
-                                                    @break
+                                                    @break --}}
 
                                                     @default
                                                         {{ $value }}

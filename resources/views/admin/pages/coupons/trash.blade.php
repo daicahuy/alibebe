@@ -64,19 +64,6 @@
 
                         </div>
 
-                        <form action="" method="POST">
-                            <div class="row">
-                                <div class="table-search col-sm-8">
-                                    <label for="role-search" class="form-label">Tìm Kiếm:</label>
-                                    <input type="search" id="role-search" name="searchKey" class="form-control">
-                                </div>
-                                <div class="col-sm-4">
-                                    <button type="submit" class="btn btn-theme">Search</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-
                     <div class="table-responsive datatable-wrapper border-table">
                         <table class="table all-package theme-table no-footer">
                             <thead>
