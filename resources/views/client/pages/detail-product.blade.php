@@ -176,6 +176,7 @@
                                             off)</span>
 
                                     </h2>
+                                    
                                     <div class="product-rating custom-rate">
                                         <ul class="rating">
 
@@ -1348,168 +1349,167 @@
         //////
         // console.log(productVariants);
 
-        document.addEventListener("DOMContentLoaded", function() {
-            let productVariants = JSON.parse(document.getElementById("productVariantsData").textContent);
+        document.addEventListener("DOMContentLoaded", function () {
+    let productVariants = JSON.parse(document.getElementById("productVariantsData").textContent);
 
-            console.log("🛠 Danh sách biến thể:", productVariants);
+    console.log("🛠 Danh sách biến thể:", productVariants);
 
-            let selectedColor = null;
-            let selectedMemory = null;
-            let defaultSalePrice = "{{ number_format($detail->sale_price, 0, ',', '.') }}";
-            let defaultPrice = "{{ number_format($detail->price, 0, ',', '.') }}";
-            let discountPercent = "{{ Str::before($sl, '.') }}"; // Phần trăm giảm giá
-            let defaultImage = "{{ asset('storage/' . $detail->thumbnail) }}";
+    let selectedColor = null;
+    let selectedMemory = null;
+    let defaultSalePrice = "{{ $detail->sale_price !== null ? number_format($detail->sale_price, 0, ',', '.') : 'null' }}";
+    let defaultPrice = "{{ number_format($detail->price, 0, ',', '.') }}";
+    let discountPercent = "{{ Str::before($sl, '.') }}"; // Phần trăm giảm giá
+    let defaultImage = "{{ asset('storage/' . $detail->thumbnail) }}";
 
-            let productImageElement = document.getElementById("productImage");
-            let priceElement = document.getElementById("productPrice");
+    let productImageElement = document.getElementById("productImage");
+    let priceElement = document.getElementById("productPrice");
 
-            function selectDefaultVariant() {
-                if (productVariants.length > 0) {
-                    let firstVariant = productVariants[0];
+    function selectDefaultVariant() {
+        if (productVariants.length > 0) {
+            let firstVariant = productVariants[0];
 
-                    // Lấy thông tin màu và dung lượng của biến thể đầu tiên
-                    selectedColor = firstVariant.attribute_values.find(attr => attr.name === "Màu sắc")?.value ||
-                        null;
-                    selectedMemory = firstVariant.attribute_values.find(attr => attr.name === "Dung lượng")
-                        ?.value || null;
+            selectedColor = firstVariant.attribute_values.find(attr => attr.name === "Màu sắc")?.value || null;
+            selectedMemory = firstVariant.attribute_values.find(attr => attr.name === "Dung lượng")?.value || null;
 
-                    console.log("✅ Biến thể mặc định:", firstVariant);
-                    console.log("🎨 Màu mặc định:", selectedColor);
-                    console.log("💾 Dung lượng mặc định:", selectedMemory);
+            console.log("✅ Biến thể mặc định:", firstVariant);
+            console.log("🎨 Màu mặc định:", selectedColor);
+            console.log("💾 Dung lượng mặc định:", selectedMemory);
 
-                    // Cập nhật giao diện
-                    updateImage();
-                    updatePrice();
+            updateImage();
+            updatePrice();
 
-                    // Tự động chọn màu sắc
-                    if (selectedColor) {
-                        let colorBtn = document.querySelector(`.color-option[data-value="${selectedColor}"]`);
-                        if (colorBtn) colorBtn.classList.add("active");
-                    }
-
-                    // Tự động chọn dung lượng
-                    if (selectedMemory) {
-                        let memoryBtn = document.querySelector(`.memory-option[data-value="${selectedMemory}"]`);
-                        if (memoryBtn) memoryBtn.classList.add("active");
-                    }
-                }
+            if (selectedColor) {
+                let colorBtn = document.querySelector(`.color-option[data-value="${selectedColor}"]`);
+                if (colorBtn) colorBtn.classList.add("active");
             }
 
-            document.querySelectorAll(".color-option").forEach(colorBtn => {
-                colorBtn.addEventListener("click", function() {
-                    document.querySelectorAll(".color-option").forEach(btn => btn.classList.remove(
-                        "active"));
-                    this.classList.add("active");
-
-                    selectedColor = this.getAttribute("data-value")?.trim();
-                    console.log("🔴 Màu sắc đã chọn:", selectedColor ||
-                        "⚠️ Không lấy được giá trị");
-
-                    updateImage();
-                    updatePrice();
-                });
-            });
-
-            document.querySelectorAll(".memory-option").forEach(memoryBtn => {
-                memoryBtn.addEventListener("click", function() {
-                    document.querySelectorAll(".memory-option").forEach(btn => btn.classList.remove(
-                        "active"));
-                    this.classList.add("active");
-
-                    selectedMemory = this.getAttribute("data-value")?.trim();
-                    console.log("🔵 Dung lượng đã chọn:", selectedMemory ||
-                        "⚠️ Không lấy được giá trị");
-
-                    updatePrice();
-                });
-            });
-
-            function updatePrice() {
-                let selectedVariant = productVariants.find(variant => {
-                    let hasColor = variant.attribute_values?.some(attr => attr?.value?.trim() ===
-                        selectedColor);
-                    let hasMemory = variant.attribute_values?.some(attr => attr?.value?.trim() ===
-                        selectedMemory);
-                    return hasColor && hasMemory;
-                });
-
-                if (selectedVariant) {
-                    console.log("✅ Biến thể được chọn:", selectedVariant);
-
-                    let salePrice = formatPrice(selectedVariant.sale_price);
-                    let originalPrice = formatPrice(selectedVariant.price);
-                    let discount = calculateDiscount(selectedVariant.price, selectedVariant.sale_price);
-
-                    priceElement.innerHTML = `
-                ${salePrice} ₫
-                <br><del class="text-content">${originalPrice} ₫</del>
-                <span class="offer theme-color">(${discount}% off)</span>
-            `;
-                } else {
-                    console.log("⚠️ Không tìm thấy biến thể phù hợp.");
-                    updatePriceWithoutVariant();
-                }
+            if (selectedMemory) {
+                let memoryBtn = document.querySelector(`.memory-option[data-value="${selectedMemory}"]`);
+                if (memoryBtn) memoryBtn.classList.add("active");
             }
+        }
+    }
 
-            function updatePriceWithoutVariant() {
-                let filteredVariants = productVariants.filter(variant => {
-                    let hasColor = selectedColor ? variant.attribute_values.some(attr => attr.value
-                        .trim() === selectedColor) : false;
-                    let hasMemory = selectedMemory ? variant.attribute_values.some(attr => attr.value
-                        .trim() === selectedMemory) : false;
-                    return hasColor || hasMemory;
-                });
+    document.querySelectorAll(".color-option").forEach(colorBtn => {
+        colorBtn.addEventListener("click", function () {
+            document.querySelectorAll(".color-option").forEach(btn => btn.classList.remove("active"));
+            this.classList.add("active");
 
-                if (filteredVariants.length > 0) {
-                    let maxPriceVariant = filteredVariants.reduce((max, variant) => {
-                        let price = parseFloat(variant.sale_price || variant.price);
-                        return price > parseFloat(max.sale_price || max.price) ? variant : max;
-                    }, filteredVariants[0]);
+            selectedColor = this.getAttribute("data-value")?.trim();
+            console.log("🔴 Màu sắc đã chọn:", selectedColor || "⚠️ Không lấy được giá trị");
 
-                    let salePrice = formatPrice(maxPriceVariant.sale_price);
-                    let originalPrice = formatPrice(maxPriceVariant.price);
-                    let discount = calculateDiscount(maxPriceVariant.price, maxPriceVariant.sale_price);
-
-                    priceElement.innerHTML = `
-                ${salePrice} ₫
-                <br><del class="text-content">${originalPrice} ₫</del>
-                <span class="offer theme-color">(${discount}% off)</span>
-            `;
-                } else {
-                    priceElement.innerHTML = `
-                ${defaultSalePrice} ₫
-                <br><del class="text-content">${defaultPrice} ₫</del>
-                <span class="offer theme-color">(${discountPercent}% off)</span>
-            `;
-                }
-            }
-
-            function updateImage() {
-                let selectedVariant = productVariants.find(variant =>
-                    variant.attribute_values.some(attr => attr.value.trim() === selectedColor)
-                );
-
-                if (selectedVariant && selectedVariant.thumbnail) {
-                    productImageElement.src = "{{ asset('storage/') }}/" + selectedVariant.thumbnail;
-                    console.log("🖼 Ảnh hiển thị:", selectedVariant.thumbnail);
-                } else {
-                    productImageElement.src = defaultImage;
-                    console.log("🖼 Hiển thị ảnh mặc định");
-                }
-            }
-
-            function formatPrice(price) {
-                return new Intl.NumberFormat("vi-VN").format(price);
-            }
-
-            function calculateDiscount(original, sale) {
-                let discount = ((original - sale) / original) * 100;
-                return Math.round(discount);
-            }
-
-            // Chạy khi trang load để chọn biến thể đầu tiên
-            selectDefaultVariant();
+            updateImage();
+            updatePrice();
         });
+    });
+
+    document.querySelectorAll(".memory-option").forEach(memoryBtn => {
+        memoryBtn.addEventListener("click", function () {
+            document.querySelectorAll(".memory-option").forEach(btn => btn.classList.remove("active"));
+            this.classList.add("active");
+
+            selectedMemory = this.getAttribute("data-value")?.trim();
+            console.log("🔵 Dung lượng đã chọn:", selectedMemory || "⚠️ Không lấy được giá trị");
+
+            updatePrice();
+        });
+    });
+
+    function updatePrice() {
+        let selectedVariant = productVariants.find(variant => {
+            let hasColor = selectedColor ? variant.attribute_values?.some(attr => attr?.value?.trim() === selectedColor) : true;
+            let hasMemory = selectedMemory ? variant.attribute_values?.some(attr => attr?.value?.trim() === selectedMemory) : true;
+            return hasColor && hasMemory;
+        });
+
+        if (selectedVariant) {
+            console.log("✅ Biến thể được chọn:", selectedVariant);
+
+            let salePrice = selectedVariant.sale_price !== null ? formatPrice(selectedVariant.sale_price) : null;
+            let originalPrice = formatPrice(selectedVariant.price);
+            let discount = salePrice ? calculateDiscount(selectedVariant.price, selectedVariant.sale_price) : null;
+
+            if (salePrice) {
+                priceElement.innerHTML = `
+                    ${salePrice} ₫
+                    <br><del class="text-content">${originalPrice} ₫</del>
+                    <span class="offer theme-color">(${discount}% off)</span>
+                `;
+            } else {
+                priceElement.innerHTML = `${originalPrice} ₫`;
+            }
+        } else {
+            console.log("⚠️ Không tìm thấy biến thể phù hợp.");
+            updatePriceWithoutVariant();
+        }
+    }
+
+    function updatePriceWithoutVariant() {
+        let filteredVariants = productVariants.filter(variant => {
+            let hasColor = selectedColor ? variant.attribute_values.some(attr => attr.value.trim() === selectedColor) : false;
+            let hasMemory = selectedMemory ? variant.attribute_values.some(attr => attr.value.trim() === selectedMemory) : false;
+            return hasColor || hasMemory;
+        });
+
+        if (filteredVariants.length > 0) {
+            let maxPriceVariant = filteredVariants.reduce((max, variant) => {
+                let price = parseFloat(variant.sale_price ?? variant.price);
+                return price > parseFloat(max.sale_price ?? max.price) ? variant : max;
+            }, filteredVariants[0]);
+
+            let salePrice = maxPriceVariant.sale_price !== null ? formatPrice(maxPriceVariant.sale_price) : null;
+            let originalPrice = formatPrice(maxPriceVariant.price);
+            let discount = salePrice ? calculateDiscount(maxPriceVariant.price, maxPriceVariant.sale_price) : null;
+
+            if (salePrice) {
+                priceElement.innerHTML = `
+                    ${salePrice} ₫
+                    <br><del class="text-content">${originalPrice} ₫</del>
+                    <span class="offer theme-color">(${discount}% off)</span>
+                `;
+            } else {
+                priceElement.innerHTML = `${originalPrice} ₫`;
+            }
+        } else {
+            if (defaultSalePrice !== "null") {
+                priceElement.innerHTML = `
+                    ${defaultSalePrice} ₫
+                    <br><del class="text-content">${defaultPrice} ₫</del>
+                    <span class="offer theme-color">(${discountPercent}% off)</span>
+                `;
+            } else {
+                priceElement.innerHTML = `${defaultPrice} ₫`;
+            }
+        }
+    }
+
+    function updateImage() {
+        let selectedVariant = productVariants.find(variant =>
+            variant.attribute_values.some(attr => attr.value.trim() === selectedColor)
+        );
+
+        if (selectedVariant && selectedVariant.thumbnail) {
+            productImageElement.src = "{{ asset('storage/') }}/" + selectedVariant.thumbnail;
+            console.log("🖼 Ảnh hiển thị:", selectedVariant.thumbnail);
+        } else {
+            productImageElement.src = defaultImage;
+            console.log("🖼 Hiển thị ảnh mặc định");
+        }
+    }
+
+    function formatPrice(price) {
+        return new Intl.NumberFormat("vi-VN").format(price);
+    }
+
+    function calculateDiscount(original, sale) {
+        let discount = ((original - sale) / original) * 100;
+        return Math.round(discount);
+    }
+
+    // Chạy khi trang load để chọn biến thể đầu tiên
+    selectDefaultVariant();
+});
+
     </script>
     <!-- JSON chứa danh sách biến thể sản phẩm -->
     <script type="application/json" id="productVariantsData">
