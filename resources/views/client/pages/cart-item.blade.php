@@ -134,6 +134,33 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+
+        /* submit delete */
+        .submit-delete {
+            border: none;
+            /* Xóa viền */
+            background: none;
+            /* Xóa nền */
+            cursor: pointer;
+            /* Hiển thị con trỏ tay khi hover */
+            padding: 5px;
+            /* Giữ khoảng cách hợp lý */
+        }
+
+        .submit-delete svg {
+            color: red;
+            /* Đổi màu icon thành đỏ */
+            width: 20px;
+            /* Điều chỉnh kích thước nếu cần */
+            height: 20px;
+            transition: color 0.3s ease;
+            /* Hiệu ứng đổi màu mượt mà */
+        }
+
+        .submit-delete:hover svg {
+            color: darkred;
+            /* Khi hover, chuyển sang màu đỏ đậm */
+        }
     </style>
 @endpush
 @section('content')
@@ -165,7 +192,7 @@
                     <input type="checkbox" id="checkbox-table" class="custom-control-input checkbox_animated">Chọn tất cả
                 </div>
             </div>
-            <form action="" method="POST" id="delete-all-form">
+            <form action="{{ route('cart.delete') }}" method="POST" id="delete-all-form">
                 @csrf
                 @method('DELETE')
 
@@ -203,11 +230,11 @@
                                 @endphp
 
                                 @foreach ($data as $cartItem)
-                                    <tr class="product-box-contain">
+                                    <tr class="product-box-contain" data-id="{{ $cartItem->id }}">
                                         <td class="product-detail">
                                             <div class="product border-0">
                                                 <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" value="" id="checkbox-table"
+                                                    <input type="checkbox" value="{{ $cartItem->id }}" id="checkbox-table"
                                                         class="custom-control-input checkbox_animated checkbox-input">
                                                 </div>
 
@@ -229,24 +256,21 @@
                                                                 {{ Str::limit($cartItem->productVariant->product->name ?? $cartItem->product->name, 20, '...') }}
                                                             </a>
                                                         </li>
+                                                        <li>
+                                                                Phân loại hàng:
+                                                                <span class="selected-variation">
+                                                                    @if ($cartItem->productVariant)
+                                                                        @foreach ($cartItem->productVariant->attributeValues as $attributeValue)
+                                                                            {{ $attributeValue->value }}{{ !$loop->last ? ', ' : '' }}
+                                                                        @endforeach
+                                                                    @else
+                                                                        Không có phân loại
+                                                                    @endif
+                                                                </span>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>
-                                        </td>
-
-                                        <td class="variation-selection">
-                                            <button class="toggle-button">
-                                                Phân loại hàng:
-                                                <span class="selected-variation">
-                                                    @if ($cartItem->productVariant)
-                                                        @foreach ($cartItem->productVariant->attributeValues as $attributeValue)
-                                                            {{ $attributeValue->value }}{{ !$loop->last ? ', ' : '' }}
-                                                        @endforeach
-                                                    @else
-                                                        Không có phân loại
-                                                    @endif
-                                                </span>
-                                            </button>
                                         </td>
 
                                         @php
@@ -279,7 +303,7 @@
                                             @endif
                                         </td>
 
-                                        <td class="quantity">
+                                        <td class="quantity" >
                                             <h4 class="table-title text-content">Số lượng</h4>
                                             <div class="quantity-price">
                                                 <div class="cart_qty">
@@ -320,10 +344,14 @@
                                             <form method="POST" action="{{ route('cart.delete') }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <input type="hidden" name="id" value="{{$cartItem->id}}">
-                                                <button class="btn-delete" type="submit" onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')" class="remove close_button">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-                                                        <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                                <input type="hidden" name="id" value="{{ $cartItem->id }}">
+                                                <button class="submit-delete" type="submit"
+                                                    onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')"
+                                                    class="remove close_button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
                                                     </svg>
                                                 </button>
                                             </form>
@@ -332,7 +360,7 @@
                                 @endforeach
 
                                 {{-- Hiển thị tổng tiền giỏ hàng --}}
-                               
+
 
                             </tbody>
                         </table>
@@ -350,10 +378,7 @@
                                 <h4>Tổng cộng</h4>
                                 <h4 class="price total">0đ</h4>
                             </li>
-                            <li class="align-items-start">
-                                <h4>Vận chuyển</h4>
-                                <h4 class="price text-end">Cost at Checkout</h4>
-                            </li>
+                           
                         </ul>
                     </div>
                     <ul class="summery-total">
@@ -380,144 +405,183 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        $(document).ready(function() {
-
-
-            @if (session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công!',
-                    text: "{{ session('success') }}",
-                    timer: 1500,
-                    showConfirmButton: true
-                });
-            @endif
-
-            @if (session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi!',
-                    text: "{{ session('error') }}",
-                    showConfirmButton: true
-                });
-            @endif
-
-
-
-            // Sự kiện giảm số lượng
-            $(".qty-left-minus").off("click").on("click", function() {
-                let qtyInput = $(this).closest(".cart_qty").find(".input-number");
-                let qty = parseInt(qtyInput.val()) || 1;
-                if (qty > 1) {
-                    qtyInput.val(qty - 1);
-                }
-                updateTotalPrice();
-            });
-
-            // Sự kiện tăng số lượng
-            $(".qty-right-plus").off("click").on("click", function() {
-                let qtyInput = $(this).closest(".cart_qty").find(".input-number");
-                let qty = parseInt(qtyInput.val()) || 1;
-                qtyInput.val(qty + 1);
-                updateTotalPrice();
-            });
-
-            // --- Logic Checkbox ---
-            $("#checkbox-table").off("click").on("click", function() {
-                $(".checkbox-input").prop("checked", $(this).prop("checked"));
-                toggleDeleteButton();
-                updateTotalPrice();
-            });
-
-            $(".checkbox-input").off("click").on("click", function() {
-                let total = $(".checkbox-input").length;
-                let checked = $(".checkbox-input:checked").length;
-                $("#checkbox-table").prop("checked", total === checked);
-                toggleDeleteButton();
-                updateTotalPrice();
-            });
-
-            function toggleDeleteButton() {
-                let isChecked = $(".checkbox-input:checked").length > 0;
-                $("#btn-delete-all").toggleClass("visually-hidden", !isChecked);
-            }
-
-            function updateTotalPrice() {
-                let totalSum = 0;
-                $(".checkbox-input:checked").each(function() {
-                    let row = $(this).closest(".product-box-contain");
-                    let price = parseInt(row.find(".subtotal h5").text().replace(/\D/g, "")) || 0;
-                    totalSum += price;
-                });
-
-                $(".summery-total .total").text(totalSum.toLocaleString("vi-VN") + "đ");
-                $(".summery-contain .total").text(totalSum.toLocaleString("vi-VN") + "đ");
-            }
-
-
-
-            // phân loại
-            $(".toggle-button").click(function(e) {
-                let $parent = $(this).closest(".variation-selection");
-                let $variationBox = $parent.find(".variation-container");
-
-                // Đóng các popup khác trước khi mở
-                $(".variation-container").not($variationBox).hide();
-
-                // Xác định vị trí chính xác
-                let buttonOffset = $(this).offset();
-                let buttonHeight = $(this).outerHeight();
-
-                $variationBox.css({
-                    "top": buttonOffset.top + buttonHeight + 5 + "px", // Xuống dưới 5px
-                    "left": buttonOffset.left + "px",
-                    "position": "absolute",
-                    "z-index": "1000",
-                    "display": "block"
-                });
-
-                e.stopPropagation();
-            });
-
-            $(".product-variation").click(function() {
-                let $parent = $(this).closest(".variation-selection");
-                let type = $(this).data("type");
-                let value = $(this).data("value");
-
-                if (type === "size") {
-                    $parent.data("selectedSize", value);
-                    $parent.find("[data-type='size']").removeClass("product-variation--selected");
-                } else if (type === "color") {
-                    $parent.data("selectedColor", value);
-                    $parent.find("[data-type='color']").removeClass("product-variation--selected");
-                }
-
-                $(this).addClass("product-variation--selected");
-            });
-
-            $(".confirm-btn").click(function() {
-                let $parent = $(this).closest(".variation-selection");
-                let selectedSize = $parent.data("selectedSize") || "1 Chiếc 1cm";
-                let selectedColor = $parent.data("selectedColor") || "Bạc";
-
-                // Cập nhật nội dung nút toggle
-                $parent.find(".selected-variation").text(`${selectedSize}, ${selectedColor}`);
-                $parent.find(".variation-container").hide();
-            });
-
-            $(".cancel-btn").click(function() {
-                $(this).closest(".variation-selection").find(".variation-container").hide();
-            });
-
-            // Ẩn popup khi click ra ngoài
-            $(document).click(function(event) {
-                if (!$(event.target).closest(".variation-selection").length) {
-                    $(".variation-container").hide();
-                }
-            });
+      $(document).ready(function() {
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: "{{ session('success') }}",
+            timer: 1500,
+            showConfirmButton: true
         });
+    @endif
+
+    @if (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi!',
+            text: "{{ session('error') }}",
+            showConfirmButton: true
+        });
+    @endif
+
+    $(".qty-left-minus").off("click").on("click", function () {
+        let qtyInput = $(this).closest(".cart_qty").find(".input-number");
+        let cartItemId = $(this).closest("tr").data("id"); // Lấy ID sản phẩm
+        let qty = parseInt(qtyInput.val()) || 1;
+        if (qty > 1) {
+            qtyInput.val(qty - 1);
+            updateCartQuantity(cartItemId, qty - 1, qtyInput);
+        }
+    });
+
+    $(".qty-right-plus").off("click").on("click", function () {
+        let qtyInput = $(this).closest(".cart_qty").find(".input-number");
+        let cartItemId = $(this).closest("tr").data("id"); // Lấy ID sản phẩm
+        let qty = parseInt(qtyInput.val()) || 1;
+        qtyInput.val(qty + 1);
+        updateCartQuantity(cartItemId, qty + 1, qtyInput);
+    });
+
+    // --- Logic Checkbox ---
+    $('#checkbox-table').on('click', function() {
+        let isChecked = $(this).prop('checked');
+        $('.checkbox-input').prop('checked', isChecked);
+        toggleDeleteAllButton();
+        updateIdsToDelete();
+        updateTotalPrice(); // Cập nhật tổng tiền khi chọn tất cả
+    });
+
+    $('.checkbox-input').on('click', function() {
+        const total = $('.checkbox-input').length;
+        const checked = $('.checkbox-input:checked').length;
+
+        $('#checkbox-table').prop('checked', total === checked);
+        toggleDeleteAllButton();
+        updateIdsToDelete();
+        updateTotalPrice(); // Cập nhật tổng tiền khi chọn checkbox
+    });
+
+    function toggleDeleteAllButton() {
+        if ($('.checkbox-input:checked').length > 0) {
+            $('#btn-delete-all').removeClass('visually-hidden');
+        } else {
+            $('#btn-delete-all').addClass('visually-hidden');
+        }
+    }
+
+     // Hàm AJAX cập nhật giỏ hàng
+     function updateCartQuantity(cartItemId, newQty, qtyInput) {
+        $.ajax({
+            url: "{{ route('cart.update') }}", // Đặt route cập nhật giỏ hàng
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                id: cartItemId,
+                quantity: newQty
+            },
+            success: function(response) {
+                if (response.success) {
+
+                    qtyInput.closest("tr").find(".subtotal h5").text(response.newSubtotal);
+                    updateTotalPrice();
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    icon: "error",
+                    title: "Lỗi!",
+                    text: "Không thể cập nhật số lượng.",
+                    showConfirmButton: true
+                });
+            }
+        });
+    }
+
+    // tính tổng tiền
+    function updateIdsToDelete() {
+        let selectedIds = [];
+        $('.checkbox-input:checked').each(function() {
+            selectedIds.push($(this).val());
+        });
+
+        $('#ids-to-delete').val(selectedIds.join(',')); 
+    }
+
+    function updateTotalPrice() {
+        let totalSum = 0;
+
+        $(".checkbox-input:checked").each(function() {
+            let row = $(this).closest("tr");
+            let priceText = row.find(".subtotal h5").text().trim();
+            let price = parseInt(priceText.replace(/\D/g, "")) || 0;
+
+            totalSum += price;
+        });
+
+        $(".summery-total .total").text(totalSum.toLocaleString("vi-VN") + "đ");
+        $(".summery-contain .total").text(totalSum.toLocaleString("vi-VN") + "đ");
+    }
+
+    // --- Phân loại ---
+    $(".toggle-button").click(function(e) {
+        let $parent = $(this).closest(".variation-selection");
+        let $variationBox = $parent.find(".variation-container");
+
+        $(".variation-container").not($variationBox).hide();
+
+        let buttonOffset = $(this).offset();
+        let buttonHeight = $(this).outerHeight();
+
+        $variationBox.css({
+            "top": buttonOffset.top + buttonHeight + 5 + "px",
+            "left": buttonOffset.left + "px",
+            "position": "absolute",
+            "z-index": "1000",
+            "display": "block"
+        });
+
+        e.stopPropagation();
+    });
+
+    $(".product-variation").click(function() {
+        let $parent = $(this).closest(".variation-selection");
+        let type = $(this).data("type");
+        let value = $(this).data("value");
+
+        if (type === "size") {
+            $parent.data("selectedSize", value);
+            $parent.find("[data-type='size']").removeClass("product-variation--selected");
+        } else if (type === "color") {
+            $parent.data("selectedColor", value);
+            $parent.find("[data-type='color']").removeClass("product-variation--selected");
+        }
+
+        $(this).addClass("product-variation--selected");
+    });
+
+    $(".confirm-btn").click(function() {
+        let $parent = $(this).closest(".variation-selection");
+        let selectedSize = $parent.data("selectedSize") || "1 Chiếc 1cm";
+        let selectedColor = $parent.data("selectedColor") || "Bạc";
+
+        $parent.find(".selected-variation").text(`${selectedSize}, ${selectedColor}`);
+        $parent.find(".variation-container").hide();
+    });
+
+    $(".cancel-btn").click(function() {
+        $(this).closest(".variation-selection").find(".variation-container").hide();
+    });
+
+    $(document).click(function(event) {
+        if (!$(event.target).closest(".variation-selection").length) {
+            $(".variation-container").hide();
+        }
+    });
+});
+
     </script>
 @endpush

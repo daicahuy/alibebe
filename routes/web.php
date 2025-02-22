@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CartItemController as ApiCartItemController;
 use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Admin\AttributeController;
 use App\Http\Controllers\Web\Admin\AttributeValueController;
@@ -46,6 +47,8 @@ Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middl
 Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middleware('auth');
 Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add');
 Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
+Route::post('/cart/update', [ApiCartItemController::class, 'update'])->name('cart.update');
+
 
 
 

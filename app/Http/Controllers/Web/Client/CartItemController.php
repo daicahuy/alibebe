@@ -44,20 +44,25 @@ class CartItemController extends Controller
     
     public function delete(Request $request)
     {
-        $id = $request->input('id');
-        // $ids = $request->input('ids',[]);
-        try {
-            // if($id){
-                $a = $this->cartItemService->delete($id);
-                // dd($a);
-            // }else if( $ids){
-            //     $idsArray = explode(',', $ids); // Chuyển chuỗi IDs thành mảng
-            //     $this->cartItemService->deleteAll($idsArray); // Gọi phương thức xóa tất cả trong service
-            // }else{}
-            return back()->with('success','Xóa thành công!');
-        } catch (\Exception $e) {
-            // Trả về thông báo lỗi qua session
-            return back()->with('error', $e->getMessage());
-        }
-    } 
+            $id = $request->input('id');
+            $ids = $request->input('ids', []);
+            // dd($ids);
+            if (is_string($ids)) {
+                $ids = explode(',', $ids);
+            }
+            $ids = array_map('intval', (array) $ids);
+    
+            if ($id) {
+                $this->cartItemService->delete($id);
+            } elseif (!empty($ids)) {
+                $this->cartItemService->deleteAll($ids);
+            } else {
+                return back()->with('error', 'Không có sản phẩm nào để xóa.');
+            }
+    
+            return back()->with('success', 'Xóa thành công!');
+        
+    }
+    
+    
 }

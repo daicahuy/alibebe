@@ -77,27 +77,13 @@ class CartItemRepository extends BaseRepository
     }
     
 
-    // public function deleteAll(array $ids)
-    // {
-    //     $cartItems = CartItem::whereIn('id', $ids)->get();
-    //     $cartItemIds = [];
-
-    //     // Kiểm tra các thuộc tính bị ràng buộc
-    //     foreach ($cartItems as $cartItem) {
-    //         // Kiểm tra liên kết trong bảng attribute_values
-    //         if ($cartItem->attributeValues()->exists()) {
-    //             $attributeIds[] = $attribute->id;
-    //         }
-    //     }
-    //     // Loại bỏ các giá trị trùng lặp
-    //     $attributeIds = array_unique($attributeIds);
-
-    //     // Nếu có thuộc tính không thể xóa, tạo thông báo lỗi
-    //     if (!empty($attributeIds)) {
-    //         $attributeIdsList = implode(', ', $attributeIds);
-    //         throw new \Exception("Không thể xóa thuộc tính {$attributeIdsList} vì giá trị thuộc tính đang được sử dụng.");
-    //     }
-
-    //     return Attribute::whereIn('id', $ids)->forceDelete();
-    // }
+    public function deleteAll(array $ids)
+    {
+        if (empty($ids)) {
+            return false; 
+        }
+    
+        return CartItem::whereIn('id', $ids)->forceDelete();
+    }
+    
 }

@@ -50,4 +50,17 @@ class CartItemService
             throw $th;
         }
     }
+
+    public function deleteAll(array $ids)
+    {
+        try {
+            return $this->cartItemRepository->deleteAll($ids);
+        } catch (\Throwable $th) {
+            Log::error(
+                __CLASS__ . "@" . __FUNCTION__,
+                ['error' => $th->getMessage()]
+            );
+            throw $th;
+        }
+    }
 }
