@@ -15,11 +15,16 @@ class ProductController extends Controller
     {
         $this->productService = $productService;
     }
-    public function index()
+    public function index(Request $request)
     {
-        $products = $this->productService->getProducts();
+
+        $perPage = $request->get('per_page',5);
+
+        $products = $this->productService->getProducts($perPage);
+        $categories = $this->productService->getCategories();
         return view('admin.pages.products.list', compact(
-            'products'
+            'products',
+            'categories'
         ));
     }
 

@@ -370,7 +370,7 @@ class ProductRepository extends BaseRepository
         return $product;
     }
     // Mạnh - admin - list - delete - products
-    public function getProducts($perpage = 5, $sortBy = 'default', $filters = [])
+    public function getProducts($perPage = 5, $sortBy = 'default', $filters = [])
     {
         $query = $this->model->query();
 
@@ -382,7 +382,7 @@ class ProductRepository extends BaseRepository
             'price',
             'is_active'
         )->with(['categories', 'productStock']);
-        $products = $query->paginate(5);
+        $products = $query->paginate($perPage);
         // dd($products);
        
         return $products;

@@ -38,8 +38,10 @@
 
                         <!-- HEADER TABLE -->
                         <div class="show-box">
-                            <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                <select class="form-control">
+                            <div class="selection-box">
+                               <form action="{{route('admin.products.index')}}" method="GET" id="perPageForm">
+                                <label>{{ __('message.show') }} :</label>
+                                <select class="form-control" name="perpage" >
                                     <option value="15">15
                                     </option>
                                     <option value="30">30
@@ -47,6 +49,8 @@
                                     <option value="45">45
                                     </option>
                                 </select>
+                               </form>
+
                                 <label>{{ __('message.items_per_page') }}</label>
                                 <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
                                     id="btn-move-to-trash">
@@ -67,7 +71,9 @@
                             <div>
                                 <select name="" class="form-select">
                                     <option value="">{{ __('form.category_all') }}</option>
-                                    <option value="">Điện thoại</option>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div>
@@ -207,7 +213,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-                            {{$products->links()}}
+                            {{ $products->links() }}
                         </div>
                         <!-- END PAGINATIOn -->
 
