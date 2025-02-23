@@ -40,12 +40,12 @@ class ProductController extends Controller
 
     public function create()
     {
-        return view('admin.pages.products.create');
+        // dd($this->productService->getData());
+        return view('admin.pages.products.create', $this->productService->getData());
     }
 
     public function store(Request $request)
     {
-
     }
 
     public function edit(Product $product)

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -14,10 +13,10 @@ return new class extends Migration
         Schema::create('coupon_restrictions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('coupon_id')->constrained('coupons')->onDelete('cascade');
-            $table->decimal('min_order_value',11,2);
-            $table->decimal('max_discount_value',11,2);
-            $table->jsonb('valid_categories');
-            $table->jsonb('valid_products');
+            $table->decimal('min_order_value', 11, 2);
+            $table->decimal('max_discount_value', 11, 2);
+            $table->jsonb('valid_categories')->nullable();
+            $table->jsonb('valid_products')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

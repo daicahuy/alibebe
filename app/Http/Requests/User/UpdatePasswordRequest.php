@@ -23,7 +23,7 @@ class UpdatePasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'password' => ['required', 'min:6'],
+            'password' => ['required', 'min:6','confirmed'],
             'password_confirmation' => ['required'], // Bắt buộc nhập lại mật khẩu
         ];
     }
@@ -31,6 +31,7 @@ class UpdatePasswordRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'old_password.required' => 'Vui Lòng Nhập Lại Mật Khẩu Cũ',
             'password.required' => 'Vui lòng nhập mật khẩu mới.',
             'password.min' => 'Mật khẩu mới phải có ít nhất 6 ký tự.',
             'password_confirmation.required' => 'Vui lòng nhập xác nhận mật khẩu mới.',

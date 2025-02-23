@@ -13,13 +13,16 @@ use App\Http\Controllers\Web\Admin\ReviewController;
 use App\Http\Controllers\Web\Admin\TagController;
 use App\Http\Controllers\Web\Auth\AuthAdminController;
 use App\Http\Controllers\Web\Auth\AuthCustomerController;
+use App\Http\Controllers\Web\Client\CheckoutController;
 use App\Http\Controllers\Web\Client\DetailProductController;
 use App\Http\Controllers\Web\Client\HomeController;
 use App\Http\Controllers\Web\Client\ListCategoriesController;
 use App\Http\Controllers\Web\Admin\UserCustomerController;
 use App\Http\Controllers\Web\Admin\UserEmployeeController;
-
-
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Web\Client\CartItemController;
+use App\Http\Controllers\Web\Client\AccountController as AccountClientController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,22 +38,61 @@ use Illuminate\Support\Facades\Route;
 
 /*--------------CLIENT--------------*/
 
-// Route::middleware(['ApiAuthenticate'])->group(function () {
-//     // ... các route khác cần kiểm tra đăng nhập ...
-// });
-Route::get('/', [HomeController::class, 'index'])->name('index')->middleware(["web"]);
+Route::get('/', [HomeController::class, 'index'])->name('index');
 Route::get('/categories/{category?}', [ListCategoriesController::class, 'index'])->name('categories');
 // Route::get('/product/{id}', [ListCategoriesController::class, 'detailModal']);
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
+Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
+Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middleware('auth');
+Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add');
+Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
 
+
+
+
+
+
+Route::name('account.')
+    ->middleware(['auth'])
+    ->prefix('account')
+    ->controller(AccountClientController::class)
+    ->group(function () {
+        //profile
+        Route::get('/profile', 'profile')->name('profile');
+        Route::put('/update-infomation', 'updateBasicInfomation')->name('update-infomation');
+        Route::patch('/update-image', 'updateImage')->name('update-image');
+        Route::patch('/update-password', 'updatePassword')->name('update-password');
+
+        //address
+        Route::get('/address', 'address')->name('address');
+        Route::post('/store-address', 'storeAddress')->name('store-address');
+        Route::put('/update-default-address', 'updateDefaultAddress')->name('update-default-address');
+        Route::put('/update-address/{id}','updateAddress')->name('update-address');
+        Route::delete('/delete-address/{id}', 'deleteAddress')->name('account.delete-address');
+
+        //dashboard
+        Route::get('/', 'dashboard')->name('dashboard');
+        //order
+        Route::get('/order', 'order')->name('order');
+        Route::get('/order/{id}', 'orderDetail')->name('order-detail');
+        //wishlist
+        Route::get('/wishlist', 'wishlist')->name('wishlist');
+    });
 
 /*--------------AUTHENTICATION--------------*/
+
+
+
+
+Route::get('/email/verify/{id}', [AuthCustomerController::class, 'actionVerifyEmail'])->middleware(['checknotLogin'])->name('auth.verification.verify');
+
+
 Route::name('auth.')
     ->group(function () {
 
+
         Route::name('customer.')
             ->controller(AuthCustomerController::class)
-            ->middleware(['guest'])
             ->group(function () {
 
                 Route::get('/login', 'showFormLogin')->name('showFormLogin');
@@ -58,7 +100,6 @@ Route::name('auth.')
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
                 Route::get('/otp', 'showFormOtp')->name('showFormOtp');
                 Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword');
-
             });
 
 
@@ -67,28 +108,28 @@ Route::name('auth.')
             ->controller(AuthAdminController::class)
             ->group(function () {
 
+
                 Route::get('/login', 'showFormLogin')->name('showFormLogin');
                 Route::get('/logout', 'logout')->name('logout');
                 Route::post('/handle', 'handleLogin')->name('handleLogin');
                 Route::get('/register', 'showFormRegister')->name('showFormRegister');
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
                 Route::post('/send-otp', 'sendOtp')->name('sendOtp');
-                Route::get('/otp', 'showFormOtp')->name('showFormOtp')->middleware('check.reset.flow');;
+                Route::get('/otp', 'showFormOtp')->name('showFormOtp')->middleware('check.reset.flow');
+                ;
                 Route::post('/verify-otp', 'verifyOtp')->name('verifyOtp');
-                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');;
-                Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');;
+                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');
+                ;
+                Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');
+                ;
             });
-
-
     });
-
-
 
 /*--------------ADMIN--------------*/
 
 Route::prefix('/admin')
     ->name('admin.')
-    ->middleware(['isAdmin','admin'])
+    ->middleware(['isAdmin', 'admin'])
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
@@ -99,13 +140,12 @@ Route::prefix('/admin')
             ->controller(AccountController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
-            Route::put('/{user}/update-provider', 'updateProvider')->name('updateProvider');
+                Route::put('/{user}/update-provider', 'updateProvider')->name('updateProvider');
 
-            Route::put('/{user}/update-password', 'updatePassword')->name('updatePassword');
-
-        });
+                Route::put('/{user}/update-password', 'updatePassword')->name('updatePassword');
+            });
 
 
 
@@ -115,40 +155,39 @@ Route::prefix('/admin')
             ->controller(CategoryController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
-            Route::get('/trash', 'trash')->name('trash');
+                Route::get('/trash', 'trash')->name('trash');
 
-            Route::get('/hidden', 'hidden')->name('hidden');
+                Route::get('/hidden', 'hidden')->name('hidden');
 
-            Route::get('/{category}', 'show')->name('show')->where(['category' => '[0-9]+']);
+                Route::get('/{category}', 'show')->name('show')->where(['category' => '[0-9]+']);
 
-            Route::get('/create', 'create')->name('create');
+                Route::get('/create', 'create')->name('create');
 
-            Route::post('/', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
-            Route::get('/edit/{category}', 'edit')->name('edit');
+                Route::get('/edit/{category}', 'edit')->name('edit');
 
-            Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
+                Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
 
-            Route::put('/{category}/restore', 'restore')->name('restore');
+                Route::put('/{category}/restore', 'restore')->name('restore');
 
-            Route::delete('{category}/delete', 'delete')->name('delete');
+                Route::delete('{category}/delete', 'delete')->name('delete');
 
-            Route::delete('/{category}', 'destroy')->name('destroy');
+                Route::delete('/{category}', 'destroy')->name('destroy');
 
 
-            // bulk
-            Route::post('/bulk-restore', 'bulkRestore')->name('bulkRestore');
+                // bulk
+                Route::post('/bulk-restore', 'bulkRestore')->name('bulkRestore');
 
-            Route::post('/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
+                Route::post('/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
 
-            Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
+                Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
 
-            // search
-            route::get('/search', 'search')->name('search');
-
-        });
+                // search
+                route::get('/search', 'search')->name('search');
+            });
 
 
 
@@ -158,54 +197,32 @@ Route::prefix('/admin')
             ->controller(ProductController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
-            Route::get('/trash', 'trash')->name('trash');
+                Route::get('/trash', 'trash')->name('trash');
 
-            Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
+                Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
 
-            Route::get('/create', 'create')->name('create');
+                Route::get('/create', 'create')->name('create');
 
-            Route::post('/', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
-            Route::get('/edit/{product}', 'edit')->name('edit');
+                Route::get('/edit/{product}', 'edit')->name('edit');
 
-            Route::put('/{product}', 'update')->name('update');
+                Route::put('/{product}', 'update')->name('update');
 
-            Route::put('/restore', 'restore')->name('restore');
+                Route::put('/restore', 'restore')->name('restore');
 
-            Route::delete('/delete', 'delete')->name('delete');
+                Route::delete('/delete', 'delete')->name('delete');
 
-            Route::delete('/destroy', 'destroy')->name('destroy');
-
-        });
+                Route::delete('/destroy', 'destroy')->name('destroy');
+            });
 
         // ATTRIBUTES
         Route::prefix('/attributes')
             ->name('attributes.')
             ->controller(AttributeController::class)
             ->group(function () {
-
-            Route::get('/', 'index')->name('index');
-
-            Route::get('/hidden', 'hidden')->name('hidden');
-
-            Route::get('/create', 'create')->name('create');
-
-            Route::post('/', 'store')->name('store');
-
-            Route::get('/edit/{attribute}', 'edit')->name('edit');
-
-            Route::put('/{attribute}', 'update')->name('update');
-
-            Route::delete('/destroy', 'destroy')->name('destroy');
-
-            // Attribute Values
-            Route::prefix('{attribute}/attribute_values')
-                ->name('attribute_values.')
-                ->controller(AttributeValueController::class)
-                ->where(['attribute' => '[0-9]+'])
-                ->group(function () {
 
                 Route::get('/', 'index')->name('index');
 
@@ -215,15 +232,34 @@ Route::prefix('/admin')
 
                 Route::post('/', 'store')->name('store');
 
-                Route::get('/edit/{attributeValue}', 'edit')->name('edit');
+                Route::get('/edit/{attribute}', 'edit')->name('edit');
 
-                Route::put('/{attributeValue}', 'update')->name('update');
+                Route::put('/{attribute}', 'update')->name('update');
 
                 Route::delete('/destroy', 'destroy')->name('destroy');
 
-            });
+                // Attribute Values
+                Route::prefix('{attribute}/attribute_values')
+                    ->name('attribute_values.')
+                    ->controller(AttributeValueController::class)
+                    ->where(['attribute' => '[0-9]+'])
+                    ->group(function () {
 
-        });
+                        Route::get('/', 'index')->name('index');
+
+                        Route::get('/hidden', 'hidden')->name('hidden');
+
+                        Route::get('/create', 'create')->name('create');
+
+                        Route::post('/', 'store')->name('store');
+
+                        Route::get('/edit/{attributeValue}', 'edit')->name('edit');
+
+                        Route::put('/{attributeValue}', 'update')->name('update');
+
+                        Route::delete('/destroy', 'destroy')->name('destroy');
+                    });
+            });
 
 
         // BRANDS
@@ -232,22 +268,22 @@ Route::prefix('/admin')
             ->controller(BrandController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
-            Route::get('/hidden', 'hidden')->name('hidden');
+                Route::get('/hidden', 'hidden')->name('hidden');
 
-            Route::get('/brands/{brand}/products', 'showProduct')->name('showProduct');
+                Route::get('/brands/{brand}/products', 'showProduct')->name('showProduct');
 
-            Route::get('/create', 'create')->name('create');
+                Route::get('/create', 'create')->name('create');
 
-            Route::post('/', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
-            Route::get('/edit/{brand}', 'edit')->name('edit');
+                Route::get('/edit/{brand}', 'edit')->name('edit');
 
-            Route::put('/{brand}', 'update')->name('update');
+                Route::put('/{brand}', 'update')->name('update');
 
-            Route::delete('/destroy', 'destroy')->name('destroy');
-        });
+                Route::delete('/destroy', 'destroy')->name('destroy');
+            });
 
         // TAGS
         Route::prefix('/tags')
@@ -255,21 +291,20 @@ Route::prefix('/admin')
             ->controller(TagController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
-            Route::get('/create', 'create')->name('create');
+                Route::get('/create', 'create')->name('create');
 
-            Route::get('/{tag}/products', 'showProducts')->name('showProducts');
+                Route::get('/{tag}/products', 'showProducts')->name('showProducts');
 
-            Route::post('/', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
-            Route::get('/edit/{tag}', 'edit')->name('edit');
+                Route::get('/edit/{tag}', 'edit')->name('edit');
 
-            Route::put('/{tag}', 'update')->name('update');
+                Route::put('/{tag}', 'update')->name('update');
 
-            Route::delete('/destroy', 'destroy')->name('destroy');
-
-        });
+                Route::delete('/destroy', 'destroy')->name('destroy');
+            });
 
         Route::prefix('/orders')
             ->name('orders.')
@@ -277,11 +312,12 @@ Route::prefix('/admin')
             ->group(function () {
 
                 Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
+                Route::get('/{order}', 'show')->name('show')->where(['order' => '[0-9]+']);
                 Route::get('/{order}', 'show')->name('show')->where(['order' => '[0-9]+']);
 
                 Route::put('/{order}', 'update')->name('update');
-
             });
 
         // USERS
@@ -289,63 +325,60 @@ Route::prefix('/admin')
             ->name('users.')
             ->group(function () {
 
-            Route::prefix('/customer')
-                ->name('customer.')
-                ->controller(UserCustomerController::class)
-                ->group(function () {
+                Route::prefix('/customer')
+                    ->name('customer.')
+                    ->controller(UserCustomerController::class)
+                    ->group(function () {
 
-                    Route::get('/', 'index')->name('index');
+                        Route::get('/', 'index')->name('index');
 
-                    Route::post('/', 'store')->name('store');
+                        Route::post('/', 'store')->name('store');
 
-                    Route::get('/show/{user}', 'show')->name('show');
+                        Route::get('/show/{user}', 'show')->name('show');
 
-                    Route::get('/edit/{user}', 'edit')->name('edit');
+                        Route::get('/edit/{user}', 'edit')->name('edit');
 
-                    Route::put('/update/{user}', 'update')->name('update');
+                        Route::put('/update/{user}', 'update')->name('update');
 
-                    Route::get('/lock', 'lock')->name('lock');
+                        Route::get('/lock', 'lock')->name('lock');
 
-                    Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
+                        Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
 
-                    Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
+                        Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
 
-                    Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
+                        Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
 
-                    Route::post('update-status', 'updateStatus')->name('update-status');
+                        Route::post('update-status',  'updateStatus')->name('update-status');
+                    });
 
-                });
+                Route::prefix('/employee')
+                    ->name('employee.')
+                    ->controller(UserEmployeeController::class)
+                    ->group(function () {
 
-            Route::prefix('/employee')
-                ->name('employee.')
-                ->controller(UserEmployeeController::class)
-                ->group(function () {
+                        Route::get('/', 'index')->name('index');
 
-                    Route::get('/', 'index')->name('index');
+                        Route::get('/create', 'create')->name('create');
 
-                    Route::get('/create', 'create')->name('create');
+                        Route::post('/', 'store')->name('store');
 
-                    Route::post('/', 'store')->name('store');
+                        Route::get('/show/{user}', 'show')->name('show');
 
-                    Route::get('/show/{user}', 'show')->name('show');
+                        Route::get('/edit/{user}', 'edit')->name('edit');
 
-                    Route::get('/edit/{user}', 'edit')->name('edit');
+                        Route::put('/update/{user}', 'update')->name('update');
 
-                    Route::put('/update/{user}', 'update')->name('update');
+                        Route::get('/lock', 'lock')->name('lock');
 
-                    Route::get('/lock', 'lock')->name('lock');
+                        Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
 
-                    Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
+                        Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
 
-                    Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
+                        Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
 
-                    Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
-
-                    Route::post('update-status', 'updateStatus')->name('update-status');
-
-                });
-
-        });
+                        Route::post('update-status',  'updateStatus')->name('update-status');
+                    });
+            });
 
 
         // REVIEWS
@@ -354,13 +387,12 @@ Route::prefix('/admin')
             ->controller(ReviewController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
-            Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
+                Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
 
-            Route::put('/{review}', 'update')->name('update');
-
-        });
+                Route::put('/{review}', 'update')->name('update');
+            });
 
         // COUPONS
         Route::prefix('/coupons')
@@ -368,34 +400,34 @@ Route::prefix('/admin')
             ->controller(CouponController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
-            Route::get('/hide', 'hide')->name('hide');
+                Route::get('/hide', 'hide')->name('hide');
 
-            Route::get('/{coupon}', 'show')->name('show')->where(['coupon' => '[0-9]+']);
+                Route::get('/{coupon}', 'show')->name('show')->where(['coupon' => '[0-9]+']);
 
-            Route::get('/create', 'create')->name('create');
+                Route::get('/create', 'create')->name('create');
 
-            Route::post('/', 'store')->name('store');
+                Route::post('/', 'store')->name('store');
 
-            Route::get('/edit/{coupon}', 'edit')->name('edit')->middleware(['check.coupon.usage']);
+                Route::get('/edit/{coupon}', 'edit')->name('edit')->middleware(['check.coupon.usage']);
 
-            Route::put('/{coupon}', 'update')->name('update');
+                Route::put('/{coupon}', 'update')->name('update');
 
-            Route::delete('/{coupon}/destroy', 'destroy')->name('destroy');
+                Route::delete('/{coupon}/destroy', 'destroy')->name('destroy');
 
-            Route::get('/trash', 'trash')->name('trash');
+                Route::get('/trash', 'trash')->name('trash');
 
-            Route::post('/{coupon}/restore', 'restore')->name('restore');
+                Route::post('/{coupon}/restore', 'restore')->name('restore');
 
-            Route::post('/restore-selected', 'restoreSelected')->name('restore-selected');
+                Route::post('/restore-selected', 'restoreSelected')->name('restore-selected');
 
-            Route::delete('/{coupon}/force-destroy', 'forceDestroy')->name('force-destroy');
+                Route::delete('/{coupon}/force-destroy', 'forceDestroy')->name('force-destroy');
 
-            Route::delete('/destroy-selected', 'destroySelected')->name('destroy-selected');
+                Route::delete('/destroy-selected', 'destroySelected')->name('destroy-selected');
 
-            Route::delete('/force-destroy-selected', 'forceDestroySelected')->name('force-destroy-selected');
+                Route::delete('/force-destroy-selected', 'forceDestroySelected')->name('force-destroy-selected');
 
-            Route::get('/search', 'searchCoupon')->name('search');
-        });
+                Route::get('/search', 'searchCoupon')->name('search');
+            });
     });

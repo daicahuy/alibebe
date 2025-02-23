@@ -84,9 +84,7 @@
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <textarea id="description" name="description" class="form-control @error('description') is-invalid @enderror"
-                                                        placeholder="Nhập Mô Tả Giảm Giá">
-                                                        {{ old('description') }}
-                                                    </textarea>
+                                                        placeholder="Nhập Mô Tả Giảm Giá">{{ old('description') }}</textarea>
                                                     @error('description')
                                                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                                                     @enderror

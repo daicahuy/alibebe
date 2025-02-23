@@ -65,7 +65,11 @@ class CategoryRepository extends BaseRepository
     public function getParent()
     {
         return $this->model->whereNull('parent_id')->get();
+    }
 
+    public function getParentActive(int $isActive = 1)
+    {
+        return $this->model->whereNull('parent_id')->where('is_active', $isActive)->get();
     }
 
 
@@ -198,7 +202,7 @@ class CategoryRepository extends BaseRepository
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->join('category_product', 'products.id', '=', 'category_product.product_id')
             ->join('categories', 'category_product.category_id', '=', 'categories.id')
-            ->whereBetween('orders.created_at', [now()->startOfWeek(), now()->endOfWeek()])
+            ->whereBetween('orders.created_at', [now()->subDays(6)->startOfDay(), now()->endOfDay()])
             ->whereNull('parent_id')
             ->select(
                 'categories.id',

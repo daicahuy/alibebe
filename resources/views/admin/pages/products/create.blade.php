@@ -41,7 +41,9 @@
                                             </h5>
                                         </div>
                                     </div>
-                                    <form novalidate class="theme-form theme-form-2 mega-form   ">
+                                    <form action="{{ route('admin.products.store') }}" novalidate
+                                        class="theme-form theme-form-2 mega-form" method="POST" enctype="multipart/form-data">
+                                        @csrf
                                         <div class="vertical-tabs">
                                             <div class="row">
                                                 <div class="col-xl-3 col-lg-3">
@@ -104,7 +106,8 @@
                                                                 <div class="align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0">
                                                                         {{ __('form.product.short_description') }}
-                                                                        <span class="theme-color ms-2 required-dot">*</span>
+                                                                        <span
+                                                                            class="theme-color ms-2 required-dot">*</span>
                                                                     </label>
                                                                     <div class="col-sm-9">
                                                                         <textarea id="sort_description" rows="3" class="form-control"
@@ -118,11 +121,12 @@
                                                                 <div class="align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0">
                                                                         {{ __('form.product.description') }}
-                                                                        <span class="theme-color ms-2 required-dot">*</span>
+                                                                        <span
+                                                                            class="theme-color ms-2 required-dot">*</span>
                                                                     </label>
                                                                     <div class="col-sm-9">
                                                                         <div id="editor"></div>
-                                                                        <textarea name="product[description]" class="d-none"></textarea>
+                                                                        <textarea name="product[description]" style="visibility: hidden;"></textarea>
                                                                         <div class="invalid-feedback"></div>
                                                                     </div>
                                                                 </div>
@@ -141,10 +145,12 @@
                                                                     <div class="col-sm-9">
                                                                         <select id="type" name="product[type]"
                                                                             class="form-select">
-                                                                            <option value="{{ ProductType::getKey(ProductType::SINGLE) }}">
+                                                                            <option
+                                                                                value="{{ ProductType::SINGLE }}">
                                                                                 {{ __('form.product_type_single') }}
                                                                             </option>
-                                                                            <option value="{{ ProductType::getKey(ProductType::VARIANT) }}">
+                                                                            <option
+                                                                                value="{{ ProductType::VARIANT }}">
                                                                                 {{ __('form.product_type_variant') }}
                                                                             </option>
                                                                         </select>
@@ -177,7 +183,7 @@
                                                                         <input id="stock" type="number"
                                                                             class="form-control"
                                                                             placeholder="{{ __('form.enter_product_stock') }}"
-                                                                            name="product[stock]">
+                                                                            name="stock">
                                                                     </div>
                                                                 </div>
 
@@ -199,7 +205,8 @@
                                                                     </div>
                                                                 </div>
 
-                                                                <div class="sale_price-box align-items-center g-2 mb-4 row">
+                                                                <div
+                                                                    class="sale_price-box align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0"
                                                                         for="sale_price">
                                                                         {{ __('form.product.sale_price') }}
@@ -224,7 +231,7 @@
                                                                         <div class="form-check form-switch ps-0">
                                                                             <label class="switch">
                                                                                 <input type="checkbox" id="is_sale"
-                                                                                    name="product[is_sale]">
+                                                                                    name="product[is_sale]" value="1">
                                                                                 <span class="switch-state"></span>
                                                                             </label>
                                                                         </div>
@@ -237,7 +244,9 @@
                                                                     </label>
                                                                     <div class="col-sm-9">
                                                                         <div class="input-group custom-dt-picker">
-                                                                            <input placeholder="YYY-MM-DD" name="product[sale_price_start_at]" id="start_date_input"
+                                                                            <input placeholder="YYY-MM-DD"
+                                                                                name="product[sale_price_start_at]"
+                                                                                id="start_date_input"
                                                                                 class="form-control form-date">
                                                                             <button type="button" id="startDatePickerBtn"
                                                                                 class="btn btn-outline-secondary">
@@ -253,9 +262,10 @@
                                                                     </label>
                                                                     <div class="col-sm-9">
                                                                         <div class="input-group custom-dt-picker">
-                                                                            <input placeholder="YYY-MM-DD" name="product[sale_price_end_at]" id="end_date_input"
-                                                                                class="form-control form-date"
-                                                                            >
+                                                                            <input placeholder="YYY-MM-DD"
+                                                                                name="product[sale_price_end_at]"
+                                                                                id="end_date_input"
+                                                                                class="form-control form-date">
                                                                             <button type="button" id="startDatePickerBtn"
                                                                                 class="btn btn-outline-secondary">
                                                                                 <i class="ri-calendar-line"></i>
@@ -272,12 +282,14 @@
                                                                                 <div class="variant-inputs">
                                                                                     <div class="row d-none mb-3">
                                                                                         <div class="col-sm-3 variant-row">
-                                                                                            <label class="form-label-title mb-0">
+                                                                                            <label
+                                                                                                class="form-label-title mb-0">
                                                                                                 {{ __('form.attributes') }}
                                                                                             </label>
                                                                                         </div>
                                                                                         <div class="col-sm-3 variant-row">
-                                                                                            <label class="form-label-title mb-0">
+                                                                                            <label
+                                                                                                class="form-label-title mb-0">
                                                                                                 {{ __('form.attribute_value.value') }}
                                                                                             </label>
                                                                                         </div>
@@ -286,39 +298,57 @@
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    
 
-                                                                    <button class="btn btn-theme btn-sm d-inline" id="add-attribute-btn" type="button">
-                                                                        <div>{{ __('message.add') . ' ' . __('form.attributes') }}</div>
+
+                                                                    <button class="btn btn-theme btn-sm d-inline"
+                                                                        id="add-attribute-btn" type="button">
+                                                                        <div>
+                                                                            {{ __('message.add') . ' ' . __('form.attributes') }}
+                                                                        </div>
                                                                     </button>
-                                                                    <button class="btn btn-warning btn-sm ms-2 d-inline" id="genarate-variant-btn" type="button">
-                                                                        <div>{{ __('message.create') . ' ' . __('form.product_variants') }}</div>
+                                                                    <button class="btn btn-warning btn-sm ms-2 d-inline"
+                                                                        id="genarate-variant-btn" type="button">
+                                                                        <div>
+                                                                            {{ __('message.create') . ' ' . __('form.product_variants') }}
+                                                                        </div>
                                                                     </button>
-                                                                    <button class="btn btn-danger btn-sm ms-2 d-inline d-none" id="remove-all-variant-btn" type="button">
+                                                                    <button
+                                                                        class="btn btn-danger btn-sm ms-2 d-inline d-none"
+                                                                        id="remove-all-variant-btn" type="button">
                                                                         <div>{{ __('message.delete_all') }}</div>
                                                                     </button>
 
-                                                                    <div class="table-responsive datatable-wrapper border-table mt-4 d-none" id="table-variants">
-                                                                        <table class="table all-package theme-table no-footer">
+                                                                    <div class="table-responsive datatable-wrapper border-table mt-4 d-none"
+                                                                        id="table-variants">
+                                                                        <table
+                                                                            class="table all-package theme-table no-footer">
                                                                             <thead>
                                                                                 <tr>
-                                                                                    <th class="sm-width">{{ __('form.product_variant.thumbnail') }}</th>
-                                                                                    <th>{{ __('form.product_variants') }}</th>
-                                                                                    <th>{{ __('form.product_variant.sku') }}</th>
-                                                                                    <th>{{ __('form.product_variant.price') }}</th>
-                                                                                    <th>{{ __('form.product_variant.sale_price') }}</th>
-                                                                                    <th>{{ __('form.product_stock.stock') }}</th>
-                                                                                    <th>{{ __('form.product_variant.is_active') }}</th>
+                                                                                    <th class="sm-width">
+                                                                                        {{ __('form.product_variant.thumbnail') }}
+                                                                                    </th>
+                                                                                    <th>{{ __('form.product_variants') }}
+                                                                                    </th>
+                                                                                    <th>{{ __('form.product_variant.sku') }}
+                                                                                    </th>
+                                                                                    <th>{{ __('form.product_variant.price') }}
+                                                                                    </th>
+                                                                                    <th>{{ __('form.product_variant.sale_price') }}
+                                                                                    </th>
+                                                                                    <th>{{ __('form.product_stock.stock') }}
+                                                                                    </th>
+                                                                                    <th>{{ __('form.product_variant.is_active') }}
+                                                                                    </th>
                                                                                     <th>{{ __('form.action') }}</th>
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
-                                                                                
+
                                                                             </tbody>
                                                                         </table>
                                                                     </div>
                                                                 </div>
-                                                                
+
                                                             </div>
                                                         </div>
                                                         <div class="tab-pane fade" id="setup-panel"
@@ -331,18 +361,29 @@
                                                                     </label>
                                                                     <div class="col-sm-9">
                                                                         <div>
-                                                                            <select id="tags" class="form-select select2"
-                                                                                multiple name="tags[]"
-                                                                            >
-                                                                                <option value="">Product</option>
-                                                                                <option value="">Phone 2025</option>
-                                                                                <option value="">TV & Appliances
-                                                                                </option>
-                                                                                <option value="">Home & Furniture</option>
-                                                                                <option value="">Another</option>
-                                                                                <option value="">Baby & Kids</option>
-                                                                                <option value="">Health, Beauty & Perfumes</option>
-                                                                                <option value="">Uncategorized</option>
+                                                                            <select id="tags" class="form-select select2" multiple name="tags[]">
+                                                                                @foreach ($tags as $tag)
+                                                                                    <option value="{{ $tag->id }}">
+                                                                                        {{ $tag->name }}</option>
+                                                                                @endforeach
+                                                                            </select>
+                                                                            <div class="invalid-feedback"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="align-items-center g-2 mb-4 row">
+                                                                    <label class="col-sm-3 form-label-title mb-0"
+                                                                        for="tags">
+                                                                        {{ __('form.brands') }}
+                                                                    </label>
+                                                                    <div class="col-sm-9">
+                                                                        <div>
+                                                                            <select id="brand" class="form-select select2" name="product[brand_id]">
+                                                                                @foreach ($brands as $brand)
+                                                                                    <option value="{{ $brand->id }}">
+                                                                                        {{ $brand->name }}</option>
+                                                                                @endforeach
                                                                             </select>
                                                                             <div class="invalid-feedback"></div>
                                                                         </div>
@@ -353,23 +394,13 @@
                                                                     <label class="col-sm-3 form-label-title mb-0"
                                                                         for="categories">
                                                                         {{ __('form.categories') }}
-                                                                        <span
-                                                                            class="theme-color ms-2 required-dot">*</span>
                                                                     </label>
                                                                     <div class="col-sm-9">
                                                                         <div>
-                                                                            <select id="categories" class="form-select select2"
-                                                                                multiple name="categories[]"
-                                                                            >
-                                                                                <option data-type="parent"
-                                                                                    value="1"disabled>Electronics
-                                                                                </option>
-                                                                                <option data-type="child" value="1">TV & Appliances</option>
-                                                                                <option data-type="child" value="1">Home & Furniture</option>
-                                                                                <option data-type="child" value="1">Another</option>
-                                                                                <option data-type="parent" value="1">Baby & Kids</option>
-                                                                                <option data-type="parent" value="1">Health, Beauty & Perfumes</option>
-                                                                                <option data-type="parent" value="1">Uncategorized</option>
+                                                                            <select id="categories" class="form-select select2" name="category_id">
+                                                                                @foreach ($categories as $category)
+                                                                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                                                @endforeach
                                                                             </select>
                                                                             <div class="invalid-feedback"></div>
                                                                         </div>
@@ -383,12 +414,12 @@
                                                                     </label>
                                                                     <div class="col-sm-9">
                                                                         <div>
-                                                                            <select id="product_accessories" class="form-select select2"
-                                                                                multiple name="product_accessories[]"
-                                                                            >
-                                                                                <option value="1">iPhone 16 Pro 128GB | Chính hãng VN/A</option>
-                                                                                <option value="1">iPhone 17 Pro 128GB | Chính hãng VN/A</option>
-                                                                                <option value="1">iPhone 18 Pro 128GB | Chính hãng VN/A</option>
+                                                                            <select id="product_accessories"
+                                                                                class="form-select select2" multiple
+                                                                                name="product_accessories[]">
+                                                                                @foreach ($productAccessories as $productAccessory)
+                                                                                    <option value="{{ $productAccessory->id }}">{{ $productAccessory->name }}</option>
+                                                                                @endforeach
                                                                             </select>
                                                                             <p class="help-text">
                                                                                 {{ __('form.help_product_accessories') }}
@@ -403,9 +434,9 @@
                                                             aria-labelledby="images">
                                                             <div tab="images" class="tab">
                                                                 <div class="align-items-center g-2 mb-4 row">
-                                                                    <label class="col-sm-3 form-label-title mb-0"
-                                                                        for="thumbnail">
+                                                                    <label class="col-sm-3 form-label-title mb-0" for="thumbnail">
                                                                         {{ __('form.product.thumbnail') }}
+                                                                        <span class="theme-color ms-2 required-dot">*</span>
                                                                     </label>
                                                                     <div class="col-sm-9">
                                                                         <input type="file" name="product[thumbnail]"
@@ -420,6 +451,7 @@
                                                                     <label class="col-sm-3 form-label-title mb-0"
                                                                         for="product_galleries">
                                                                         {{ __('form.product_galleries') }}
+                                                                        <span class="theme-color ms-2 required-dot">*</span>
                                                                     </label>
                                                                     <div class="col-sm-9">
                                                                         <input type="file" name="product_galleries[]"
@@ -444,7 +476,7 @@
                                                                         <div class="form-check form-switch ps-0">
                                                                             <label class="switch">
                                                                                 <input type="checkbox" id="is_featured"
-                                                                                    name="product[is_featured]">
+                                                                                    name="product[is_featured]" value="1">
                                                                                 <span class="switch-state"></span>
                                                                             </label>
                                                                             <p class="help-text">
@@ -462,7 +494,7 @@
                                                                         <div class="form-check form-switch ps-0">
                                                                             <label class="switch">
                                                                                 <input type="checkbox" id="is_trending"
-                                                                                    name="product[is_trending]">
+                                                                                    name="product[is_trending]" value="1">
                                                                                 <span class="switch-state"></span>
                                                                             </label>
                                                                             <p class="help-text">
@@ -480,7 +512,7 @@
                                                                         <div class="form-check form-switch ps-0">
                                                                             <label class="switch">
                                                                                 <input type="checkbox" id="is_active"
-                                                                                    name="product[is_active]">
+                                                                                    name="product[is_active]" value="1">
                                                                                 <span class="switch-state"></span>
                                                                             </label>
                                                                         </div>
@@ -535,7 +567,7 @@
             $(".form-date").flatpickr({
                 dateFormat: "Y-m-d"
             });
-            
+
             $(".start_date_input").click(function() {
                 $("#start_date_input").open();
             });
@@ -544,11 +576,13 @@
             });
 
             // VARIANT
-            const attributeData = {
-                Liter: ['5 Liter', '10 Liter', '20 Liter'],
-                Waist: ['30', '32', '34'],
-                Size: ['S', 'M', 'L', 'XL'],
-            };
+
+            // attributeData = {
+            //     Liter: ['5 Liter', '10 Liter', '20 Liter'],
+            //     Waist: ['30', '32', '34'],
+            //     Size: ['S', 'M', 'L', 'XL'],
+            // }
+            const attributeData = JSON.parse(<?php echo json_encode($attributes, JSON_UNESCAPED_UNICODE); ?>);
 
             // Populate attributes dropdown
             function populateAttributes(selectElement) {
@@ -576,8 +610,8 @@
             }
 
             $('#type').on('change', function() {
-                switch($(this).val()) {
-                    case 'SINGLE': {
+                switch ($(this).val()) {
+                    case '0': {
 
                         if (!$('.variant-box').hasClass('d-none')) {
                             $('.variant-box').addClass('d-none');
@@ -594,10 +628,10 @@
                         if ($('.sale_price-box').hasClass('d-none')) {
                             $('.sale_price-box').removeClass('d-none');
                         }
-                        
+
                         break;
                     }
-                    case 'VARIANT': {
+                    case '1': {
 
                         if ($('.variant-box').hasClass('d-none')) {
                             $('.variant-box').removeClass('d-none');
@@ -627,16 +661,16 @@
                 const valueSelect = $(this).closest('.variant-inputs').find('.value-select');
                 populateValues(valueSelect, attribute);
             });
-            
+
             $('#add-attribute-btn').on('click', function(e) {
                 e.preventDefault();
                 const variantContent = `
                     <div class="row attribute-content mb-3">
                         <div class="col-sm-3 variant-row">
-                            <select name="attributes" class="form-select select2 attribute-select"></select>
+                            <select class="form-select select2 attribute-select"></select>
                         </div>
                         <div class="col-sm-3 variant-row">
-                            <select name="attributes" class="form-select select2 value-select" multiple></select>
+                            <select class="form-select select2 value-select" multiple></select>
                         </div>
                         <div class="col-sm-2 variant-row">
                             <a href="javascript:void(0)" class="invalid-feedback remove-variant">
@@ -646,17 +680,18 @@
                     </div>
                 `;
 
-                
+
                 $('.variant-inputs').append(variantContent);
-                
-                const newAttributeSelect = $('.variant-inputs .attribute-content:last-child .attribute-select');
+
+                const newAttributeSelect = $(
+                    '.variant-inputs .attribute-content:last-child .attribute-select');
                 const newValueSelect = $('.variant-inputs .attribute-content:last-child .value-select');
                 const removeVariant = $('.variant-inputs .attribute-content:last-child .remove-variant');
                 const removeAllVariant = $('#remove-all-variant-btn');
-                
+
                 newAttributeSelect.select2();
                 newValueSelect.select2();
-                
+
                 // Show something
                 if ($('.variant-inputs').children().length > 1) {
 
@@ -666,7 +701,7 @@
                     }
 
                 }
-                
+
 
                 populateAttributes(newAttributeSelect);
                 populateValues(newValueSelect, newAttributeSelect.val());
@@ -675,8 +710,8 @@
                     const attribute = $(this).val();
                     populateValues(newValueSelect, attribute);
                 });
-                
-                
+
+
                 if ($('#variant-inputs').children().first().hasClass('d-none')) {
                     titleAttributeValue.removeClass('d-none');
                 }
@@ -695,7 +730,7 @@
                         $('#variant-inputs').children().first().addClass('d-none');
                     }
                 });
-                
+
 
             });
 
@@ -779,14 +814,18 @@
                         $(this).closest('.variant').remove();
                     });
 
-                }
-                else {
+                } else {
                     $('#table-variants tbody').html('');
                     $('#table-variants').addClass('d-none');
                 }
 
-                
+
             });
+
+            $('.ck-editor__editable').on('input', function() {
+                console.log($("input"));
+                $('textarea[name="product[description]"]').html($('.ck-editor__editable').html());
+            })
 
         });
     </script>

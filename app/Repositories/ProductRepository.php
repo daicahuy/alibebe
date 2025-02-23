@@ -11,7 +11,6 @@ use Log;
 
 class ProductRepository extends BaseRepository
 {
-
     public function getModel()
     {
         return Product::class;
@@ -264,6 +263,7 @@ class ProductRepository extends BaseRepository
                 'ps.total_stock'
             )
             ->orderByDesc('total_sold')
+            ->limit(24)
             ->get();
     }
 
@@ -298,9 +298,11 @@ class ProductRepository extends BaseRepository
                 'product_variants.id'
             )
             ->orderByDesc('total_sold')
+            ->limit(24)
             ->get();
     }
 
+    
     public function getPopularProducts()
     {
         return DB::table('order_items')
@@ -317,7 +319,7 @@ class ProductRepository extends BaseRepository
             )
             ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price')
             ->orderByDesc('total_sold')
-            ->limit(8)
+            ->limit(24)
             ->get();
     }
 
@@ -356,19 +358,13 @@ class ProductRepository extends BaseRepository
             )
             ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price', 'products.stock_quantity')
             ->orderByDesc('frequency')
-            ->limit(8)
+            ->limit(24)
             ->get();
 
         // Nếu không tìm thấy sản phẩm => gợi ý sản phẩm phổ biến
         return $suggestedProducts->isNotEmpty() ? $suggestedProducts : $this->getPopularProducts();
     }
 
-    public function detailModal($id)
-    {
-        $product = $this->model->with(['categories', 'brand', 'productVariants.attributeValues.attribute', 'reviews', 'productVariants.productStock'])->find($id);
-        // dd($product);
-        return $product;
-    }
     // Mạnh - admin - list - delete - products
     public function getProducts($perPage = 5, $sortBy = 'default', $filters = [])
     {
@@ -388,5 +384,59 @@ class ProductRepository extends BaseRepository
         return $products;
     }
 
-    
+
+    public function detailProduct(int $id, array $columns = ['*'])
+    {
+        return Product::select($columns)
+            ->with([
+                'productGallery',
+                'productAccessories',
+                'reviews.user',
+                'attributeValues.attribute',
+                'productVariants',
+                'productStock',
+                'productVariants.attributeValues.attribute',
+            ])
+            ->with(['attributeValues' => function ($query) {
+                $query->whereHas('attribute', function ($q) {
+                    $q->where('name', 'Bộ nhớ trong');
+                });
+            }])
+            ->findOrFail($id);
+    }
+
+
+    public function getRelatedProducts(Product $product, int $limit = 6)
+    {
+        $relatedProducts = Product::where('id', '!=', $product->id)
+            ->where('is_active', 1)
+            ->whereBetween('sale_price', [$product->sale_price * 0.8, $product->sale_price * 1.2])
+            ->whereHas('categories', function ($query) use ($product) {
+                $query->whereIn('category_id', $product->categories->pluck('id')); // Lấy tất cả danh mục của sản phẩm
+            })
+            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price]) // Ưu tiên cùng brand
+            ->limit($limit)
+            ->get();
+
+        // Nếu không tìm thấy sản phẩm tương tự, lấy sản phẩm trong cùng danh mục
+        if ($relatedProducts->isEmpty()) {
+            $relatedProducts = Product::where('id', '!=', $product->id)
+                ->where('is_active', 1)
+                ->whereHas('categories', function ($query) use ($product) {
+                    $query->whereIn('category_id', $product->categories->pluck('id'));
+                })
+                ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price])
+                ->limit($limit)
+                ->get();
+        }
+
+        return $relatedProducts;
+    }
+
+    public function detailModal($id)
+    {
+        $product = $this->model->with(['categories', 'brand', 'productVariants.attributeValues.attribute', 'reviews', 'productVariants.productStock'])->find($id);
+        // dd($product);
+        return $product;
+    }
 }

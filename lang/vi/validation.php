@@ -187,6 +187,7 @@ return [
     */
 
     'attributes' => [
+        'address' => 'Địa chỉ',
         'code' => 'Mã giảm giá',
         'title' => 'Tiêu đề',
         'description' => 'Mô tả',
