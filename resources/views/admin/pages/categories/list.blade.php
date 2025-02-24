@@ -51,11 +51,11 @@
 
                                     <select class="form-control" name="per_page" onchange="this.form.submit()">
                                         {{-- Thêm name và onchange --}}
-                                        <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5
+                                        <option value="5" {{ request('per_page') == 15 ? 'selected' : '' }}>15
                                         </option>
-                                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10
+                                        <option value="10" {{ request('per_page') == 30 ? 'selected' : '' }}>30
                                         </option>
-                                        <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15
+                                        <option value="15" {{ request('per_page') == 45 ? 'selected' : '' }}>45
                                         </option>
                                         {{-- <option value="all" {{ request('per_page')=='all' ? 'selected' : '' }}>Tất
                                             cả --}}

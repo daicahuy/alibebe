@@ -6,6 +6,7 @@ use App\Enums\ProductType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Log;
 
 class Product extends Model
 {
@@ -140,4 +141,30 @@ class Product extends Model
             ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price')
             ->orderByDesc('total_sold');
     }
+
+    public function getTotalStockQuantityAttribute()
+    {
+        // Kiểm tra loại sản phẩm (type)
+        if ($this->type == 1) { // Nếu là sản phẩm biến thể (type = 1)
+            $totalStock = 0;
+            // Đảm bảo relation 'productVariants.productStock' đã được load (eager loading)
+            if ($this->relationLoaded('productVariants')) {
+                foreach ($this->productVariants as $variant) {
+                    $variantStock = $variant->productStock ? $variant->productStock->stock : 0;
+                    $totalStock += $variantStock;
+                }
+            } else {
+                return 0; // Hoặc null
+            }
+            return $totalStock;
+        } else { // Nếu là sản phẩm đơn (type khác 1)
+            // Đảm bảo relation 'productStock' đã được load (eager loading)
+            if ($this->relationLoaded('productStock') && $this->productStock) {
+                return $this->productStock->stock;
+            } else {
+                return 0; // Hoặc null
+            }
+        }
+    }
+
 }

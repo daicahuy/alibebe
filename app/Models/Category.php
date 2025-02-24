@@ -47,11 +47,16 @@ class Category extends Model
     {
         return $this->belongsToMany(Product::class);
     }
-    // public function childProductsCount(): BelongsToMany
-    // {
-    //     // Quan trọng: Quan hệ này phải trỏ đến relationship products() để đếm SẢN PHẨM
-    //     return $this->products();
-    // }
+
+    // lấy id category child
+    public function getAllChildrenIds()
+    {
+        $ids = collect([$this->id]);
+        foreach ($this->categories as $child) {
+            $ids = $ids->merge($child->getAllChildrenIds());
+        }
+        return $ids;
+    }
 
 
 }

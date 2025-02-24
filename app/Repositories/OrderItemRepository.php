@@ -24,6 +24,11 @@ class OrderItemRepository extends BaseRepository
 
     }
 
+    public function isProductInOrderItems($productId)
+    {
+        return $this->model->where('product_id', $productId)->exists();
+    }
+
 
 
 }

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductVariant extends Model
 {
-
+    use SoftDeletes;
     protected $fillable = [
         'product_id',
         'sku',
@@ -51,6 +51,6 @@ class ProductVariant extends Model
     {
         return $this->belongsToMany(AttributeValue::class);
     }
-    
+
 
 }
