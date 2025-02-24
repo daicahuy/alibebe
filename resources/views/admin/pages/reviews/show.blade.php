@@ -11,7 +11,6 @@
 
 @push('css')
     <style>
-
         .content {
             display: flex;
             gap: 20px;
@@ -87,6 +86,16 @@
         .btn-dg {
             color: red
         }
+        .star {
+    font-size: 24px; 
+    color: white; 
+    text-shadow: 0px 0px 2px gold;
+    cursor: pointer;
+}
+
+.star.filled {
+    color: gold; /* Khi click sẽ đổi màu */
+}
     </style>
 @endpush
 
@@ -103,78 +112,56 @@
             <div class="title-header option-title">
                 <h5><i class="fa-solid fa-filter"></i>Lọc</h5>
             </div>
-            <div class="mb-3">
-                <label for="searchReviews" class="form-label">Search reviews</label>
-                <input type="text" class="form-control" id="searchReviews" placeholder="Enter keywords">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Rating</label>
-                <div style="color: yellow">
-                    <a href=""><i class="ri-star-fill"></i></a>
-                    <a href=""><i class="ri-star-fill"></i></a>
-                    <a href=""><i class="ri-star-fill"></i></a>
-                    <a href=""><i class="ri-star-fill"></i></a>
-                    <a href=""><i class="ri-star-fill"></i></a>
+            <form method="GET" action="{{ route('admin.reviews.show', $product->id) }}" id="reviewFilterForm">
+                <div class="mb-3">
+                    <label for="searchReviews" class="form-label">Search reviews</label>
+                    <input type="text" name="search" class="form-control" id="searchReviews"
+                        placeholder="Enter keywords" value="{{ request('search') }}">
                 </div>
-            </div>
-            <div class="mb-3">
-                <label for="dateRange" class="form-label">Date range</label>
-                <input type="date" class="form-control mb-2" id="dateRangeFrom" placeholder="From">
-                <input type="date" class="form-control" id="dateRangeTo" placeholder="To">
-            </div>
-            <div class="mb-3">
-                <label for="locations" class="form-label">Locations</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="location1">
-                    <label class="form-check-label" for="location1">
-                        Lattmate
-                    </label>
+
+                <div class="mb-3">
+                    <label class="form-label">Rating</label>
+                    <div id="ratingStars" style="color: yellow">
+                        <input type="hidden" name="rating" id="ratingInput" value="{{ request('rating') }}">
+                        @for ($i = 5; $i >= 1; $i--)
+                            <a href="#" onclick="setRating({{ $i }}, event)">
+                                <i class="ri-star-line star" data-value="{{ $i }}"></i>
+                            </a>
+                        @endfor
+                    </div>
+                    
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="location2">
-                    <label class="form-check-label" for="location2">
-                        Kicha king
-                    </label>
+
+                <div class="mb-3">
+                    <label for="dateRange" class="form-label">Date range</label>
+                    <input type="date" name="date_from" class="form-control mb-2" id="dateRangeFrom"
+                        value="{{ request('date_from') }}">
+                    <input type="date" name="date_to" class="form-control" id="dateRangeTo"
+                        value="{{ request('date_to') }}">
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="location3">
-                    <label class="form-check-label" for="location3">
-                        Yo sushi
-                    </label>
+
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    </div>
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="location4">
-                    <label class="form-check-label" for="location4">
-                        Panda express
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="location5">
-                    <label class="form-check-label" for="location5">
-                        Drink & go
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="location6">
-                    <label class="form-check-label" for="location6">
-                        Burgors best
-                    </label>
-                </div>
-            </div>
+            </form>
         </div>
 
         <!-- Review Section -->
         <div class="review-section">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h3 class="title-header option-title fw-bold pb-0">44 Đánh Giá</h3>
+                    <div>
+                        <h3 class="title-header option-title fw-bold pb-0">{{ $totalReviews }} Đánh Giá</h3>
+                    </div>
                 </div>
                 <div class="d-flex justify-content-between">
                     <div class="me-3">
-                        <select class="form-select">
-                            <option>Sort by date</option>
-                            <option>Newest first</option>
-                            <option>Oldest first</option>
+                        <select class="form-select" name="sort" id="sortSelect" onchange="applySort()">
+                            <option value="">Sort by date</option>
+                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest first</option>
+                            <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest first</option>
                         </select>
                     </div>
                     <div>
@@ -186,175 +173,62 @@
                     </div>
                 </div>
             </div>
-            <div class="review-card">
-                <div class="review-header">
-                    <div>
-                        <h5>Hiệp Đen HN | <small>City Walk, Dubai, UAE</small></h5>
-                    </div>
-                    <span class="flex justify-content-end">29/12/2024 22:04 pm</span>
-
-                </div>
-                <div class="mt-2">
-                    <h4 class="mt-2">Sohaib Bismal
-                        <a href="" style="color: yellow"><i class="ri-star-fill"></i></a>
-                        <a href=""style="color: yellow"><i class="ri-star-fill"></i></a>
-                        <a href=""style="color: yellow"><i class="ri-star-fill"></i></a>
-                        <a href=""style="color: yellow"><i class="ri-star-fill"></i></a>
-                        <a href=""style="color: yellow"><i class="ri-star-fill"></i></a>
-                    </h4>
-
-                </div>
-                <h6 class="mt-3 fst-italic">No comment added</h6>
-                <a href="#" class="text-primary flex justify-content-end"
-                    onclick="showReview(event, 'review1')">Detail</a>
-            </div>
-
-            <div id="review1" class="review-card hidden border border-primary p-3">
-                <div class="review-header flex justify-content-end">
-                    <a href="#" onclick="return confirm('')" class="btn-dg "><i class="fa-solid fa-trash"></i></a>
-                </div>
-
-                <div class="mt-2">
-                    <h5 class="fw-bold">Image & Video :</h5>
-                </div>
-
-                <div class="flex items-center gap-2 mb-4 mt-3 ">
-
-                    <!-- Hình ảnh thumbnail cho video -->
-                    <video controls
-                        class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 cursor-pointer border"
-                        onclick="openModal('https://www.w3schools.com/html/mov_bbb.mp4')">
-                        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-                    </video>
-                    <img src="https://adoreyou.vn/wp-content/uploads/khanh-sky-se-thay-the-khabanh-de-phat-1-kieu-toc-tro-thanh-trend-86d4f8.jpg"
-                        alt="Ảnh 1"
-                        class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 object-contain cursor-pointer border">
-
-                    <img src="https://adoreyou.vn/wp-content/uploads/khanh-sky-se-thay-the-khabanh-de-phat-1-kieu-toc-tro-thanh-trend-86d4f8.jpg"
-                        alt="Ảnh 2"
-                        class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 object-contain cursor-pointer border">
-
-                    <img src="https://adoreyou.vn/wp-content/uploads/khanh-sky-se-thay-the-khabanh-de-phat-1-kieu-toc-tro-thanh-trend-86d4f8.jpg"
-                        alt="Ảnh 3"
-                        class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 object-contain cursor-pointer border">
-
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyO5yRs3gQPNWOxgjOua8N9-hsjUI6sFX17Q&s"
-                        alt="Ảnh 4"
-                        class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 object-contain cursor-pointer border">
-
-
-                </div>
-                <!-- Modal Video -->
-                <div id="videoModal"
-                    class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50">
-                    <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-1/2 p-4">
-                        <div class="flex justify-end">
-                            <button onclick="closeModal()"
-                                class="text-gray-600 hover:text-gray-900 font-bold text-xl">×</button>
+            @foreach ($reviews as $review)
+                <div class="review-card">
+                    <div class="review-header">
+                        <div>
+                            <h5>{{ $review->user->fullname }} | <small>Địa chỉ</small></h5>
                         </div>
-                        <video id="modalVideoPlayer" class="w-full h-64" controls>
-                            <source id="modalVideoSource" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
+                        <span
+                            class="flex justify-content-end">{{ date('d/m/Y H:i', strtotime($review->created_at)) }}</span>
+                    </div>
+
+                    <div class="mt-2">
+                        <h4 class="mt-2">
+                            @for ($i = 0; $i < $review->rating; $i++)
+                                <a href="" style="color: yellow"><i class="ri-star-fill"></i></a>
+                            @endfor
+                        </h4>
+                    </div>
+
+                    <h6 class="mt-3 fst-italic">
+                        {{ $review->review_text ?? 'No comment added' }}
+                    </h6>
+
+                    <a href="#" class="text-primary flex justify-content-end"
+                        onclick="showReview(event, 'review{{ $review->id }}')">Detail</a>
+                </div>
+
+                <div id="review{{ $review->id }}" class="review-card hidden border border-primary p-3">
+                    <div class="review-header flex justify-content-end">
+                        <a href="#" onclick="return confirm('')" class="btn-dg "><i class="fa-solid fa-trash"></i></a>
+                    </div>
+
+                    <div class="mt-2">
+                        <h5 class="fw-bold">Image & Video :</h5>
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-4 mt-3 ">
+                        @foreach ($review->reviewMultimedia as $media)
+                            @if ($media->file_type == 'video')
+                                <video controls
+                                    class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 cursor-pointer border"
+                                    onclick="openModal('{{ Storage::url($media->file) }}')">
+                                    <source src="{{ Storage::url($media->file) }}" type="video/mp4">
+                                </video>
+                            @else
+                                <img src="{{ Storage::url($media->file) }}" alt="Ảnh đánh giá"
+                                    class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 object-contain cursor-pointer border">
+                            @endif
+                        @endforeach
+                    </div>
+
+                    <div class="mt-3">
+                        <h5 class="fw-bold">Review Comment:</h5>
+                        <span class="mt-3 fst-italic">" {{ $review->review_text }} "</span>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <h5 class="fw-bold">Reviw Comment:</h5>
-                    <span class="mt-3 fst-italic">" Nhiều thằng cứ nhờn với thầy sản phẩm mà hỏng dách việc với bố nhớ chưa
-                        nhớ chưa
-                        nhớ chưa nhớ chưa
-                        nhớ chưa nhớ chưa nhớ chưa nhớ chưa nhớ chưa "</span>
-                </div>
-                <div class="mt-3">
-                    <span><strong>Category : </strong> Laptop</span>
-                </div>
-
-            </div>
-
-            <div class="review-card">
-                <div class="review-header">
-                    <div>
-                        <h6>Drink & Go</h6>
-                        <small>Marina Walk, Dubai, UAE</small>
-                    </div>
-                </div>
-                <p class="mt-2">John Doe</p>
-                <small>Great service and ambiance.</small>
-                <a href="#" class="text-primary flex justify-content-end"
-                    onclick="showReview(event, 'review2')">Detail</a>
-            </div>
-
-            <div id="review2" class="review-card hidden">
-                <div class="review-header">
-                    <div>
-                        <h5 class="fw-bold">Rating :</h5>
-                    </div>
-                    <a href="#" class="btn-dg"><i class="fa-solid fa-trash"></i></a>
-
-                </div>
-                <div class="mt-2" style="color: yellow">
-                    <a href=""><i class="ri-star-fill"></i></a>
-                    <a href=""><i class="ri-star-fill"></i></a>
-                    <a href=""><i class="ri-star-fill"></i></a>
-                    <a href=""><i class="ri-star-fill"></i></a>
-                    <a href=""><i class="ri-star-fill"></i></a>
-                </div>
-                <div class="mt-2">
-                    <h5 class="fw-bold">Image & Video :</h5>
-                </div>
-
-                <div class="flex items-center gap-2 mb-4 mt-2">
-
-                    <!-- Hình ảnh thumbnail cho video -->
-                    <img src="https://adoreyou.vn/wp-content/uploads/khanh-sky-se-thay-the-khabanh-de-phat-1-kieu-toc-tro-thanh-trend-86d4f8.jpg"
-                        alt="Ảnh 1"
-                        class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 object-contain cursor-pointer border"
-                        onclick="openModal('https://www.w3schools.com/html/mov_bbb.mp4')">
-
-                    <img src="https://adoreyou.vn/wp-content/uploads/khanh-sky-se-thay-the-khabanh-de-phat-1-kieu-toc-tro-thanh-trend-86d4f8.jpg"
-                        alt="Ảnh 2"
-                        class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 object-contain cursor-pointer border"
-                        onclick="openModal('https://www.w3schools.com/html/mov_bbb.mp4')">
-
-                    <img src="https://adoreyou.vn/wp-content/uploads/khanh-sky-se-thay-the-khabanh-de-phat-1-kieu-toc-tro-thanh-trend-86d4f8.jpg"
-                        alt="Ảnh 3"
-                        class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 object-contain cursor-pointer border"
-                        onclick="openModal('https://www.w3schools.com/html/mov_bbb.mp4')">
-
-                    <img src="https://adoreyou.vn/wp-content/uploads/khanh-sky-se-thay-the-khabanh-de-phat-1-kieu-toc-tro-thanh-trend-86d4f8.jpg"
-                        alt="Ảnh 4"
-                        class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 object-contain cursor-pointer border"
-                        onclick="openModal('https://www.w3schools.com/html/mov_bbb.mp4')">
-                </div>
-
-                <div>
-                    <video controls
-                        class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 cursor-pointer"
-                        onclick="openModal('video-modal-url.mp4', 'originalVideoId');">
-                        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-                    </video>
-                </div>
-                <!-- Modal Video -->
-                <div id="videoModal"
-                    class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50">
-                    <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-1/2 p-4">
-                        <div class="flex justify-end">
-                            <button onclick="closeModal()"
-                                class="text-gray-600 hover:text-gray-900 font-bold text-xl">×</button>
-                        </div>
-                        <video id="modalVideoPlayer" class="w-full h-64" controls>
-                            <source id="modalVideoSource" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <h5 class="fw-bold">Reviw Comment:</h5>
-                    <span class="mt-3">Nhiều thằng cứ nhờn với thầy sản phẩm mà hỏng dách việc với bố nhớ chưa nhớ chưa
-                        nhớ chưa nhớ chưa
-                        nhớ chưa nhớ chưa nhớ chưa nhớ chưa nhớ chưa </span>
-                </div>
-            </div>
+            @endforeach
         </div>
 
     </div>
@@ -390,6 +264,59 @@
             $('#videoModal').addClass('hidden');
             modalPlayer.pause();
             modalPlayer.currentTime = 0;
+        }
+
+        function setRating(value, event) {
+    event.preventDefault(); // Ngăn chặn reload trang
+
+    let ratingInput = document.getElementById('ratingInput');
+    ratingInput.value = value; // Gán giá trị rating vào input
+
+    console.log("Rating selected:", value); // Debug
+
+    // Cập nhật giao diện các sao
+    let stars = document.querySelectorAll('.star');
+    stars.forEach(star => {
+        let starValue = parseInt(star.getAttribute('data-value'));
+
+        if (starValue <= value) {
+            star.classList.remove('ri-star-line');
+            star.classList.add('ri-star-fill', 'filled');
+        } else {
+            star.classList.remove('ri-star-fill', 'filled');
+            star.classList.add('ri-star-line');
+        }
+    });
+
+    // Tự động submit form sau khi chọn rating
+    document.getElementById('reviewFilterForm').submit();
+}
+
+// Xử lý giữ trạng thái rating khi reload trang
+document.addEventListener('DOMContentLoaded', function () {
+    let savedRating = parseInt(document.getElementById('ratingInput').value) || 0;
+    let stars = document.querySelectorAll('.star');
+
+    stars.forEach(star => {
+        let starValue = parseInt(star.getAttribute('data-value'));
+
+        if (starValue <= savedRating) {
+            star.classList.remove('ri-star-line');
+            star.classList.add('ri-star-fill', 'filled');
+        } else {
+            star.classList.remove('ri-star-fill', 'filled');
+            star.classList.add('ri-star-line');
+        }
+    });
+});
+
+
+
+        function applySort() {
+            let sortValue = document.getElementById('sortSelect').value;
+            let url = new URL(window.location.href);
+            url.searchParams.set('sort', sortValue);
+            window.location.href = url.toString();
         }
     </script>
 @endpush

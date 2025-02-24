@@ -25,14 +25,20 @@ class ReviewController extends Controller
         return view('admin.pages.reviews.list',compact('reviewsWithProduct','search','startDate','endDate'));
     }
 
-    public function show(Product $product)
-    {
-        return view('admin.pages.reviews.show');
-    }
+    public function show(Product $product, Request $request)
+{
+    // Nhận dữ liệu từ request để lọc
+    $filters = [
+        'search'    => $request->input('search'),
+        'rating'    => $request->input('rating'),
+        'date_from' => $request->input('date_from'),
+        'date_to'   => $request->input('date_to'),
+        'sort'      => $request->input('sort'),
+    ];
+    $reviews = $this->reviewService->getReviewByProduct($product->id, $filters);
+    $totalReviews = $this->reviewService->getTotalReview($product->id);
 
-    public function update(Request $request, Review $review)
-    {
-        
-    }
+    return view('admin.pages.reviews.show', compact('product', 'reviews', 'totalReviews'));
+}
 
 }
