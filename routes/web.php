@@ -47,9 +47,10 @@ Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middlew
 Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add');
 Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
 
+Route::post('/comments', [DetailProductController::class, 'store'])->middleware('auth');
+Route::post('/comment-replies', [DetailProductController::class, 'storeReply'])->middleware('auth');
 
-
-
+Route::post('/reviewsSp', [DetailProductController::class, 'storeReview'])->name('reviewsSp.store')->middleware('auth');
 
 
 Route::name('account.')
