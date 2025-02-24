@@ -65,7 +65,7 @@ class CartItemController extends Controller
             $cartItem->save();
     
             // Lấy giá từ quan hệ sản phẩm
-            $productPrice = $cartItem->productVariant->price ?? $cartItem->product->price;
+            $productPrice = $cartItem->productVariant->sale_price ?? $cartItem->product->price;
             $newSubtotal = number_format($cartItem->quantity * $productPrice, 0, ',', '.') . 'đ';
     
             return response()->json([
@@ -76,7 +76,48 @@ class CartItemController extends Controller
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
     }
+
+    public function saveSession(Request $request)
+    {
+        $selectedProducts = [];
     
+        if (!empty($request->selectedProducts)) {
+            foreach ($request->selectedProducts as $product) {
+                $selectedProducts[] = [
+                    'id' => $product['id'] ?? null, // ID của giỏ hàng
+                    'product_id' => $product['product_id'] ?? null,
+                    'product_variant_id' => $product['product_variant_id'] ?? null,
+                    'name' => $product['name'] ?? 'Sản phẩm không xác định',
+                    'name_variant' => isset($product['name_variant']) ? $product['name_variant'] : "Không có biến thể",
+                    'image' => $product['image'] ?? asset('default-image.jpg'),
+                    'quantity' => $product['quantity'] ?? null, 
+                    'quantity_variant' => $product['quantity_variant'] ?? null, 
+                    'price' => $product['price'] ?? 0,  
+                    'price_variant' => $product['sale_price'] ?? null,
+                ];
+            }
+    
+            session(['selectedProducts' => $selectedProducts]);
+            session(['totalPrice' => $request->total ?? 0]);
+    
+            return response()->json([
+                'message' => 'Giỏ hàng đã được lưu vào session!',
+                'sessionData' => session('selectedProducts'),
+                'total' => session('totalPrice')
+            ]);
+        }
+    
+        return response()->json([
+            'message' => 'Không có sản phẩm nào được chọn!',
+            'sessionData' => []
+        ], 400);
+    }
+    
+    
+    
+    
+    
+
 
     /**
      * Remove the specified resource from storage.
