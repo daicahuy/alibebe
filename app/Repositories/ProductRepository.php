@@ -7,7 +7,7 @@ use App\Models\Product;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ProductRepository extends BaseRepository
 {
