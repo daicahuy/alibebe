@@ -22,6 +22,7 @@ use App\Http\Controllers\Web\Client\ListCategoriesController;
 use App\Http\Controllers\Web\Admin\UserCustomerController;
 use App\Http\Controllers\Web\Admin\UserEmployeeController;
 
+use App\Http\Controllers\Web\Client\ListOrderController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,9 +48,10 @@ Route::get('/', [HomeController::class, 'index'])->name('index')->middleware(["w
 Route::get('/categories/{category?}', [ListCategoriesController::class, 'index'])->name('categories');
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
+Route::get('/list-order', [ListOrderController::class, 'index'])->middleware(['auth'])->name('index');
 
-Route::post('/payment/vnpay', [VNPayController::class, 'createPayment'])->name('vnpay.create');
-Route::get('/payment/vnpay/return', [VNPayController::class, 'handleReturn'])->name('vnpay.return');
+Route::post('/payment/vnpay', [VNPayController::class, 'createPayment'])->middleware(["web"])->name('vnpay.create');
+Route::get('/payment/vnpay/return', [VNPayController::class, 'handleReturn'])->middleware(["web"])->name('vnpay.return');
 
 Route::get('/page_successfully', function () {
     return view('client.pages.checkout.page-successfully');

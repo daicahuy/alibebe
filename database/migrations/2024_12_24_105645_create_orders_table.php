@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->string('email')->nullable();
             $table->string('fullname');
             $table->text('address');
-            $table->text('note');
+            $table->text('note')->nullable();
             $table->decimal('total_amount', 12, 2);
             $table->boolean('is_paid')->default(false);
             $table->foreignIdFor(Coupon::class)->nullable()->constrained();

@@ -536,6 +536,34 @@
                 coupon_discount_value: "",
                 total_amount_discounted: "",
             }
+            const ordersItem = [{
+                    product_id: 1,
+                    product_variant_id: null,
+                    name: "Sản phẩm A",
+                    price: 50000,
+                    quantity: 2,
+                    name_variant: "",
+                    attributes_variant: "",
+                    price_variant: 199.99,
+                    quantity_variant: 2,
+                },
+                {
+                    product_id: 2,
+                    product_variant_id: 1,
+                    name: "Sản phẩm B",
+                    price: 299.99,
+                    quantity: 1,
+                    name_variant: "Màu xanh - M",
+                    attributes_variant: "",
+                    price_variant: 50000,
+                    quantity_variant: 2,
+                },
+            ];
+
+
+
+            dataSaveOrder.payment_id = $("input[name='payment-type']:checked").val()
+            dataSaveOrder.total_amount_discounted = dataSaveOrder.total_amount
 
             function displayPaymentMethods(paymentMethods) {
                 const paymentMethodsContainer = $("#list-payment"); // Chọn container
@@ -543,12 +571,14 @@
                 paymentMethodsContainer.empty(); // Xóa các radio button cũ
 
                 paymentMethods.forEach(paymentMethod => {
-                    const div = $("<div>").addClass("flex items-center ml-3");
+                    const div = $("<div>").addClass("flex items-center ml-3 divChosePayment");
                     const input = $("<input>")
                         .attr("type", "radio")
                         .attr("id", paymentMethod.id)
                         .attr("name", "payment-type")
-                        .addClass("h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded")
+                        .addClass(
+                            "h-4 w-4 text-indigo-600 focus:ring-indigo-500 inputChosePayment border-gray-300 rounded"
+                        )
                         .val(paymentMethod.id); // Thêm value để dễ dàng lấy giá trị sau này
 
                     const label = $("<label>")
@@ -978,26 +1008,60 @@
             $("#button-confirm-order").on("click", async function() {
 
                 dataSaveOrder.note = $("#noteOrder").val();
+                console.log("Order: ", $("input[name='payment-type']:checked").val());
 
-                console.log("Order: ", dataSaveOrder);
+                if ($("input[name='payment-type']:checked").val() == 1) {
 
-                // $.ajax({
-                //     url: 'http://127.0.0.1:8000/payment/vnpay',
-                //     type: 'POST',
-                //     data: {
-                //         amount: dataSaveOrder.total_amount,
-                //         _token: '{{ csrf_token() }}' // Laravel CSRF token
-                //     },
-                //     success: function(response) {
-                //         if (response.url) {
-                //             // Chuyển hướng tới VNPay để thanh toán
-                //             window.location.href = response.url;
-                //         }
-                //     },
-                //     error: function() {
-                //         alert('Có lỗi xảy ra. Vui lòng thử lại.');
-                //     }
-                // });
+                    //chưa thanh toán
+                    dataSaveOrder.payment_id = $("input[name='payment-type']:checked").val();
+                    dataSaveOrder.is_paid = "0";
+
+                    $.ajax({
+                        url: 'http://127.0.0.1:8000/api/createOrder',
+                        type: 'POST',
+                        data: {
+                            dataOrder: dataSaveOrder,
+                            ordersItem: ordersItem,
+                            _token: '{{ csrf_token() }}' // Laravel CSRF token
+                        },
+                        success: function(response) {
+                            console.log("Order: ", response);
+                            if (response.status == 200) {
+                                window.location.href = '/page_successfully';
+
+                            }
+                        },
+                        error: function() {
+                            alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                        }
+                    });
+
+
+                } else {
+                    dataSaveOrder.payment_id = $("input[name='payment-type']:checked").val();
+                    dataSaveOrder.is_paid = "1";
+
+                    $.ajax({
+                        url: 'http://127.0.0.1:8000/payment/vnpay',
+                        type: 'POST',
+                        data: {
+                            amount: dataSaveOrder.total_amount,
+                            dataOrder: dataSaveOrder,
+                            ordersItem: ordersItem,
+                            _token: '{{ csrf_token() }}' // Laravel CSRF token
+                        },
+                        success: function(response) {
+                            if (response.url) {
+                                // Chuyển hướng tới VNPay để thanh toán
+                                window.location.href = response.url;
+                            }
+                        },
+                        error: function() {
+                            alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                        }
+                    });
+                }
+
 
             })
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\api\CouponApiController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\api\OrderCustomerControllerApi;
 use App\Http\Controllers\api\PaymentController;
 use App\Http\Controllers\api\PaymentOnlineController;
 use App\Http\Controllers\api\UserAddressController;
@@ -76,7 +77,7 @@ Route::get("/payment/list", [PaymentController::class, 'getPaymentList'])->middl
 Route::get("/listDiscountsByUser/{idUser}", [CouponApiController::class, "listCouponByUser"])->middleware(["guest"])->name("listCouponByUser");
 Route::post("/getValueDiscount", [CouponApiController::class, "getValueDiscount"])->middleware(['guest'])->name('getValueDiscount');
 
-
+Route::post("/createOrder", [OrderCustomerControllerApi::class, "addOrderCustomerAction"])->middleware(['guest']);
 
 
 Route::prefix('/address')

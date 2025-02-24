@@ -7,8 +7,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -23,7 +22,7 @@ return new class extends Migration
             $table->decimal('price', 11, 2)->nullable();
             $table->unsignedSmallInteger('quantity')->nullable();
             $table->string('name_variant')->nullable();
-            $table->jsonb('attributes_variant');
+            $table->jsonb('attributes_variant')->nullable();
             $table->decimal('price_variant', 11, 2)->nullable();
             $table->unsignedSmallInteger('quantity_variant')->nullable();
         });
