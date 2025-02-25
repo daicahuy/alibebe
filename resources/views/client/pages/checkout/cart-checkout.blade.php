@@ -455,10 +455,7 @@
 @endpush
 
 @push('js')
-<script>
-    let data = <?php echo json_encode(session('selectedProducts'), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE); ?>;
-    console.log(data);
-</script>
+    <script></script>
 
     <script>
         async function openAddressEdit(id) {
@@ -499,6 +496,8 @@
 
         $(document).ready(function() {
             const dataUser = <?php echo json_encode($user); ?>;
+            let selectedProducts = <?php echo json_encode(session('selectedProducts'), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE); ?>;
+            let totalPrice = <?php echo json_encode(session('totalPrice'), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE); ?>;
 
             let dataSaveOrder = {
                 fullname: "",
@@ -508,7 +507,7 @@
                 email: dataUser.email,
                 address: "",
                 note: "",
-                total_amount: "200000",
+                total_amount: totalPrice,
                 is_paid: "",
                 coupon_id: "",
                 coupon_code: "",
@@ -516,35 +515,37 @@
                 coupon_discount_value: "",
                 total_amount_discounted: "",
             }
-            const ordersItem = [{
-                    product_id: 1,
-                    image: "products/product_iphone-16-pro-max.webp",
-                    product_variant_id: null,
-                    name: "Sản phẩm A",
-                    old_price: null,
-                    price: 50000,
-                    quantity: 2,
-                    name_variant: "",
-                    attributes_variant: "",
-                    old_price_variant: null,
-                    price_variant: 199.99,
-                    quantity_variant: 2,
-                },
-                {
-                    product_id: 2,
-                    image: "products/product_iphone-16-pro-max.webp",
-                    product_variant_id: 1,
-                    name: "Sản phẩm B",
-                    old_price: 60000,
-                    price: 50000,
-                    quantity: 1,
-                    name_variant: "Màu xanh - M",
-                    attributes_variant: "",
-                    old_price_variant: null,
-                    price_variant: 50000,
-                    quantity_variant: 2,
-                },
-            ];
+
+            const ordersItem = selectedProducts;
+            // const ordersItem = [{
+            //         product_id: 1,
+            //         image: "products/product_iphone-16-pro-max.webp",
+            //         product_variant_id: null,
+            //         name: "Sản phẩm A",
+            //         old_price: null,
+            //         price: 50000,
+            //         quantity: 2,
+            //         name_variant: "",
+            //         attributes_variant: "",
+            //         old_price_variant: null,
+            //         price_variant: 199.99,
+            //         quantity_variant: 2,
+            //     },
+            //     {
+            //         product_id: 2,
+            //         image: "products/product_iphone-16-pro-max.webp",
+            //         product_variant_id: 1,
+            //         name: "Sản phẩm B",
+            //         old_price: 60000,
+            //         price: 50000,
+            //         quantity: 1,
+            //         name_variant: "Màu xanh - M",
+            //         attributes_variant: "",
+            //         old_price_variant: null,
+            //         price_variant: 50000,
+            //         quantity_variant: 2,
+            //     },
+            // ];
 
 
 
