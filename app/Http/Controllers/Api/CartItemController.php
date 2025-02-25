@@ -84,16 +84,18 @@ class CartItemController extends Controller
         if (!empty($request->selectedProducts)) {
             foreach ($request->selectedProducts as $product) {
                 $selectedProducts[] = [
-                    'id' => $product['id'] ?? null, // ID của giỏ hàng
+                    'id' => $product['id'] ?? null, 
                     'product_id' => $product['product_id'] ?? null,
                     'product_variant_id' => $product['product_variant_id'] ?? null,
                     'name' => $product['name'] ?? 'Sản phẩm không xác định',
-                    'name_variant' => isset($product['name_variant']) ? $product['name_variant'] : "Không có biến thể",
+                    'name_variant' => $product['name_variant'] ?? "Không có biến thể",
                     'image' => $product['image'] ?? asset('default-image.jpg'),
                     'quantity' => $product['quantity'] ?? null, 
                     'quantity_variant' => $product['quantity_variant'] ?? null, 
                     'price' => $product['price'] ?? 0,  
-                    'price_variant' => $product['sale_price'] ?? null,
+                    'old_price' => isset($product['old_price']) ? $product['old_price'] : null, 
+                    'price_variant' => $product['price_variant'] ?? 0, 
+                    'old_price_variant' => isset($product['old_price_variant']) ? $product['old_price_variant'] : null, 
                 ];
             }
     
@@ -112,6 +114,11 @@ class CartItemController extends Controller
             'sessionData' => []
         ], 400);
     }
+    
+    
+    
+    
+    
     
     
     

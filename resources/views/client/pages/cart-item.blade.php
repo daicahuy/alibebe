@@ -290,20 +290,33 @@ body {
                                         @php
                                             // Nếu sản phẩm có biến thể, lấy giá từ biến thể, nếu không thì lấy từ product
                                             $price = $cartItem->productVariant->price ?? $cartItem->product->price;
-                                            $salePrice =
-                                                $cartItem->productVariant?->sale_price > 0
-                                                    ? $cartItem->productVariant->sale_price
-                                                    : $price;
+                                             // Kiểm tra nếu biến thể tồn tại và có sale_price > 0 thì lấy sale_price của biến thể, nếu không thì lấy sale_price của product
+    $salePrice = null;
+    if ($cartItem->productVariant?->sale_price > 0) {
+        $salePrice = $cartItem->productVariant->sale_price;
+    } elseif ($cartItem->product?->sale_price > 0) {
+        $salePrice = $cartItem->product->sale_price;
+    } else {
+        $salePrice = $price; // Nếu không có giảm giá, salePrice bằng giá gốc
+    }
                                             $saving = $price - $salePrice;
 
                                             // Tính tổng tiền sản phẩm này
                                             $sumOnePrd = $cartItem->quantity * $salePrice;
                                             $totalSum += $sumOnePrd;
                                         @endphp
-                                            <input type="hidden" class="original-price" value="{{ $cartItem->productVariant->price ?? $cartItem->product->price}}">
-                                            <input type="hidden" class="sale-price" value="{{ $cartItem->productVariant?->sale_price > 0
+                                            {{-- <input type="hi" class="original-price" value="{{ $cartItem->productVariant->price ?? $cartItem->product->price}}">
+                                            <input type="text" class="sale-price" value="{{ $cartItem->productVariant?->sale_price > 0
                                                     ? $cartItem->productVariant->sale_price
-                                                    : null}}">
+                                                    : null}}"> --}}
+                                                        <input type="hidden" class="price"
+                                            value="{{ $cartItem->product->price ?? $cartItem->productVariant->product->price}}">
+                                        <input type="hidden" class="old_price"
+                                            value="{{ $cartItem->product->sale_price ?? $cartItem->productVariant->product->sale_price }}">
+                                        <input type="hidden" class="price_variant"
+                                            value="{{ $cartItem->productVariant?->price > 0 ? $cartItem->productVariant->price : null }}">
+                                        <input type="hidden" class="old_price_variant"
+                                            value="{{ $cartItem->productVariant?->sale_price > 0 ? $cartItem->productVariant->sale_price : null }}">
 
                                         <td class="price">
                                             <h4 class="table-title text-content">Giá</h4>
@@ -624,19 +637,30 @@ function updateCartSession() {
         let row = $(this).closest("tr");
         let cartItemId = row.data("id");
         let qty = parseInt(row.find(".input-number").val()) || 1;
-        let priceText = row.find(".subtotal h5").text().trim();
-        let price = parseInt(priceText.replace(/\D/g, "")) || 0;
-        let originalPrice = parseInt(row.find(".original-price").val()) || 0;
-        let price_variant = parseInt(row.find(".sale-price").val()) || null;
-        let imageUrl = row.find(".product-image img").attr("src") || "";
-        let productName = row.find(".name_product").text().trim();
         let productId = row.data("product-id") || null;
         let productVariantId = row.data("product-variant-id") || null;
+        let productName = row.find(".name_product").text().trim();
         let nameVariant = row.find(".selected-variation").text().trim() || null;
+        let imageUrl = row.find(".product-image img").attr("src") || "";
 
-        // Xác định quantity phù hợp
-        let quantity = productVariantId ? null : qty;
-        let quantityVariant = productVariantId ? qty : null;
+        // Lấy giá của sản phẩm gốc
+        let originalPrice = parseInt(row.find(".price").val()) || 0;
+        let salePrice = parseInt(row.find(".old_price").val()) || 0;
+
+        // Lấy giá của biến thể
+        let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
+        let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
+
+        let finalPrice, oldPrice;
+        let finalPriceVariant, oldPriceVariant;
+
+        // Xử lý giá cho sản phẩm gốc
+        finalPrice = salePrice > 0 ? salePrice : originalPrice;
+        oldPrice = salePrice > 0 ? originalPrice : null;
+
+        // Xử lý giá cho sản phẩm biến thể (nếu có)
+        finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
+        oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
 
         selectedProducts.push({
             id: cartItemId,
@@ -645,20 +669,19 @@ function updateCartSession() {
             name: productName,
             name_variant: nameVariant,
             image: imageUrl,
-            price: originalPrice,  // Lưu giá gốc
-            price_variant: price_variant, // Lưu giá sale
-            quantity: quantity,
-            quantity_variant: quantityVariant,
+            price: finalPrice,  // Lưu giá của sản phẩm gốc
+            old_price: oldPrice,  // Lưu giá cũ của sản phẩm gốc
+            price_variant: productVariantId ? finalPriceVariant : null,  
+            old_price_variant: productVariantId ? oldPriceVariant : null,  
+            quantity: productVariantId ? null : qty,
+            quantity_variant: productVariantId ? qty : null,
         });
 
-        let salePrice = price_variant ? price_variant : originalPrice;
-        totalSum += salePrice * qty; // Nhân giá gốc hoặc giá sale với số lượng
-
+        totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
     });
 
     console.log("Dữ liệu gửi lên:", selectedProducts);
-    console.log("Dữ liệu gửi lên:", totalSum); // Kiểm tra console.log
-     // Kiểm tra console.log
+    console.log("Tổng tiền:", totalSum);
 
     $.ajax({
         url: "{{ route('cart.saveSession') }}",
@@ -671,19 +694,20 @@ function updateCartSession() {
         success: function (response) {
             console.log("Session updated!", response);
         },
-       
     });
 }
+
 
 // Gọi hàm khi checkbox thay đổi
 $(".checkbox-input").on("click", function() {
     updateCartSession();
-
 });
+
 $("#checkbox-table").on("click", function() {
     $(".checkbox-input").prop("checked", $(this).prop("checked"));
     updateCartSession(); // Cập nhật ngay lập tức khi chọn tất cả
 });
+
 
 
 

@@ -480,6 +480,11 @@
 @endpush
 
 @push('js')
+<script>
+    let data = <?php echo json_encode(session('selectedProducts'), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE); ?>;
+    console.log(data);
+</script>
+
     <script>
         async function openAddressEdit(id) {
             document.getElementById('edit-address-modal').reset();
