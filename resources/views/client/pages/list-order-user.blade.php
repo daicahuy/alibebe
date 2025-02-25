@@ -109,6 +109,11 @@
 @section('content')
     @php
         use App\Enums\OrderStatusType;
+        use App\Enums\CouponDiscountType;
+
+        $CouponDiscountType_PERCENT = CouponDiscountType::PERCENT;
+        $CouponDiscountType_FIX_AMOUNT = CouponDiscountType::FIX_AMOUNT;
+
     @endphp
     <div class="container-fluid-lg">
         <!-- Tabs -->
@@ -177,6 +182,8 @@
     <!-- Thêm SweetAlert2 CDN -->
     <script>
         $(document).ready(function() {
+            let CouponDiscountType_FIX_AMOUNT = <?php echo json_encode($CouponDiscountType_FIX_AMOUNT); ?>;
+            let CouponDiscountType_PERCENT = <?php echo json_encode($CouponDiscountType_PERCENT); ?>;
             const dataUser = <?php echo json_encode($user); ?>;
             let activeTab = null;
             let currentPage = 1;
@@ -255,6 +262,13 @@
 
                 // Duyệt qua các đơn hàng và tạo HTML
                 orders.forEach(order => {
+
+
+                    let discountValueOrder = 0;
+                    let amountAllItems = 0;
+
+
+
                     let orderHTML = `
             <div class="order-card">
 
@@ -262,10 +276,13 @@
     <h4 class="ml-3 d-block">ID: ${order.code}</h4>
 
     <div class="d-flex align-items-center">
+        <div class="d-flex" style="align-items:center">
+            ${order.order_statuses[0].id == 4 && order.order_statuses[0].pivot.customer_confirmation == 0? "<p  class='' style='color:red; margin:unset'>!Không nhận được hàng</p>" : ""}
+            </div>
         <span class="badge bg-success complete ms-2"  style='font-size: 1.2em; ${order.order_statuses[0].id == 7?'background-color: red !important; color: #fff':''}'>
             ${order.order_statuses[0].name}
         </span>
-
+        
         ${order.order_statuses[0].id == 6 ? "<span class='order-status ms-2'>Đơn hàng đã được giao thành công</span>" : ""}
         ${order.order_statuses[0].id == 7 ? "<span class='order-status ms-2' style='color: red'>Đơn hàng đã được hủy</span>" : ""}
     </div>
@@ -274,12 +291,22 @@
         `;
 
                     // Thêm danh sách sản phẩm của đơn hàng
+                    console.log("order.coupon_discount_type:", order.coupon_discount_type)
+
                     orderHTML += order.order_items.map(item => {
+
+                        if (!item.product_variant_id) {
+                            amountAllItems += parseFloat(item.price) * parseInt(item.quantity);
+                        } else {
+                            amountAllItems += parseFloat(item.price_variant) * parseInt(item
+                                .quantity_variant);
+                        }
+
                         const imageUrl =
                             `{{ Storage::url('${item.product.thumbnail}') }}`; // Đường dẫn ảnh
                         // const imageUrl = `/storage/${item.product.thumbnail}`; // Đường dẫn ảnh
                         return `
-                <div class="d-flex flex-row" style="justify-content: space-between; align-items: center;">
+                <div class="d-flex flex-row" style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
                     <div class="order-body d-flex">
                         <img src="${imageUrl}" alt="Product" class="me-3"
                             style="width: 100px; height: 100px; object-fit: cover;">
@@ -320,6 +347,23 @@
             `;
                     }).join(""); // Kết hợp tất cả các sản phẩm thành một chuỗi
 
+                    console.log("amountAllItems: ", amountAllItems)
+                    console.log("order.coupon_discount_value ", order.coupon_discount_value)
+                    if (order.coupon_discount_type == CouponDiscountType_PERCENT) {
+                        if (amountAllItems * order.coupon_discount_value / 100 >
+                            order.coupon.restriction.max_discount_value) {
+                            discountValueOrder = order.coupon.restriction.max_discount_value
+
+                        } else {
+                            discountValueOrder = amountAllItems * order.coupon_discount_value / 100
+                        }
+                    } else if (order.coupon_discount_type == CouponDiscountType_FIX_AMOUNT) {
+                        discountValueOrder = order.coupon_discount_value
+
+                    }
+
+                    console.log("discountValueOrder:", discountValueOrder)
+
                     // Thêm phần footer của đơn hàng
                     orderHTML += `
             <div class="order-footer">
@@ -327,20 +371,30 @@
     ${
         order.order_statuses[0].id === 1
             ? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}">Hủy hàng</button>
-                                                                                                                                        `
+                                                                                                                                                                                                                                                                                                                            `
             : order.order_statuses[0].id === 4
             ? `
-                                                                <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
-                                                                    Đã nhận
-                                                                </button>
-                                                                <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
-                                                                `
+                <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
+                    Đã nhận
+                </button>
+                <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
+                `
             : ""
     }
 </div>
                 <div>
-                    <span>Tổng tiền: </span>
+                    <div>${order.coupon_discount_type ? `
+                                                                    
+                            <span>Giảm giá: </span>
+                        <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
+                        </div>
+                            
+                            
+                            `:""}
+                    <div>
+                        <span>Tổng tiền: </span>
                     <span class="price-new">${formatCurrency(order.total_amount)}₫</span>
+                        </div>
                 </div>
             </div>
         </div>
@@ -351,13 +405,9 @@
                 });
                 $(".btn-cancel-order").click(function() {
                     const orderId = $(this).data("idordercancel");
-                    console.log("Order ID to cancel:", orderId);
-
-                    // Gọi API hoặc thực hiện hành động hủy ở đây
-                    // cancelOrder(orderId);
 
                     if (!confirm('Bạn có chắc chắn hủy hàng không?')) {
-                        return; // Ngưng nếu người dùng không xác nhận
+                        return;
                     }
 
                     $.ajax({
@@ -383,7 +433,6 @@
 
                 $(".btn-received-order").click(function() {
                     const orderId = $(this).data("idorderreceived");
-                    console.log("Order ID to cancel:", orderId);
                     if (!confirm('Bạn có chắc chắn thao tác này không?')) {
                         return; // Ngưng nếu người dùng không xác nhận
                     }

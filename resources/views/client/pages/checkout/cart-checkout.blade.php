@@ -168,38 +168,9 @@
 
                         <div class="mt-4 rounded-lg border border-gray-200 bg-white shadow-sm">
                             <h3 class="sr-only">Danh sách sản phẩm</h3>
-                            <ul role="list" class="divide-y divide-gray-200">
+                            <ul role="list" id="listProductCheckout" class="divide-y divide-gray-200">
 
 
-                                <li class="flex px-4 py-6 sm:px-6">
-                                    <div class="shrink-0">
-                                        <img src="https://tailwindui.com/plus-assets/img/ecommerce-images/checkout-page-02-product-01.jpg"
-                                            alt="Front of men&#039;s Basic Tee in black." class="w-20 rounded-md">
-                                    </div>
-
-                                    <div class="ml-6 flex flex-1 flex-col">
-                                        <div class="flex">
-                                            <div class="min-w-0 flex-1">
-                                                <h4 class="text-sm">
-                                                    <a href="#"
-                                                        class="font-medium text-gray-700 hover:text-gray-800">Basic Tee</a>
-                                                </h4>
-                                                <p class="mt-1 text-sm text-gray-500">Black</p>
-                                                <p class="mt-1 text-sm text-gray-500">Large</p>
-                                            </div>
-
-                                            <p>Số lượng: 12</p>
-                                        </div>
-
-                                        <div class="flex flex-1 items-end justify-between pt-2">
-                                            <p class="mt-1 text-sm font-medium text-gray-900">(VND)32.00</p>
-
-                                            <div class="ml-4 grid grid-cols-1">
-                                                <p>Thành tiền: 123123(VND)</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
 
                                 <!-- More products... -->
                             </ul>
@@ -538,6 +509,7 @@
             }
             const ordersItem = [{
                     product_id: 1,
+                    image: "products/product_iphone-16-pro-max.webp",
                     product_variant_id: null,
                     name: "Sản phẩm A",
                     price: 50000,
@@ -549,6 +521,7 @@
                 },
                 {
                     product_id: 2,
+                    image: "products/product_iphone-16-pro-max.webp",
                     product_variant_id: 1,
                     name: "Sản phẩm B",
                     price: 50000,
@@ -559,6 +532,50 @@
                     quantity_variant: 2,
                 },
             ];
+
+
+
+            $("#listProductCheckout").empty();
+
+
+            ordersItem.forEach((item) => {
+                const imageUrl =
+                    `{{ Storage::url('${item.image}') }}`; // Đường dẫn ảnh
+                $("#listProductCheckout").append(`
+            
+            <li class="flex px-4 py-6 sm:px-6">
+                                    <div class="shrink-0">
+                                        <img src="${imageUrl}"
+                                            alt="Front of men&#039;s Basic Tee in black." class="w-20 rounded-md">
+                                    </div>
+
+                                    <div class="ml-6 flex flex-1 flex-col">
+                                        <div class="flex">
+                                            <div class="min-w-0 flex-1">
+                                                <h4 class="text-sm">
+                                                    <a href="#"
+                                                        class="font-medium text-gray-700 hover:text-gray-800">${item.name}</a>
+                                                </h4>
+                                                <p class="mt-1 text-sm text-gray-500">${item.product_variant_id ? item.name_variant: ""}</p>
+                                            </div>
+
+                                            <p>Số lượng: ${item.product_variant_id ? item.quantity_variant: item.quantity}</p>
+                                        </div>
+
+                                        <div class="flex flex-1 items-end justify-between pt-2">
+                                            <p class="mt-1 text-sm font-medium text-gray-900">${item.product_variant_id ? formatCurrency(parseFloat(item.price_variant)): formatCurrency(parseFloat(item.price))}đ</p>
+
+                                            <div class="ml-4 grid grid-cols-1">
+                                                <p>Thành tiền: ${item.product_variant_id ? formatCurrency(parseInt(item.quantity_variant)*parseFloat(item.price_variant)): formatCurrency(parseInt(item.quantity)*parseFloat(item.price))}đ</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+            
+            
+            `);
+
+            })
 
 
 

@@ -52,7 +52,11 @@ class OrderRepository extends BaseRepository
             'orderItems' => function ($query) {
                 $query->with("product");
             }
-        ])->with("orderStatuses")->with("payment")->orderBy('created_at', 'desc');
+        ])->with([
+                    "coupon" => function ($query) {
+                        $query->with('restriction');
+                    }
+                ])->with("orderStatuses")->with("payment")->orderBy('created_at', 'desc');
 
         // dd($filters);
 
