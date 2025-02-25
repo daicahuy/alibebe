@@ -61,8 +61,10 @@ Route::prefix('/orders')
     ->group(function () {
 
         Route::get('/list', [OrderController::class, 'index'])->name('index');
+        Route::post('/listByUser', [OrderController::class, 'getOrdersByUser'])->name('getOrdersByUser');
         Route::get('/list/count', [OrderController::class, 'countByStatus'])->name('countByStatus');
         Route::post('/updateOrderStatus', [OrderController::class, 'changeStatusOrder'])->name('changeStatusOrder');
+        Route::post('/updateOrderStatusWithUserCheck', [OrderController::class, 'updateOrderStatusWithUserCheck'])->name('updateOrderStatusWithUserCheck');
         Route::post('/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');
         Route::post('/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
 

@@ -708,8 +708,8 @@
                                         class="custom-control-input checkbox_animated checkbox-input">
                                     </div>
                                 </td>
-                                <td class="px-4 py-2"><span
-                                        class="font-semibold uppercase text-xs">${ order.code }</span></td>
+                                <td class="px-4 py-2"><p
+                                        class="font-semibold uppercase text-xs">${ order.code }</p></td>
                                 <td class="px-4 py-2"><span class="text-sm">${ convertDate(order.created_at) }</span></td>
                                 <td class="px-4 py-2 text-xs" style="text-align: left">
                                     <span class="block">
@@ -747,16 +747,16 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                                                                                                                                                                                                                                                                            <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                                                                                                                                                                                                                                                                                <div class="status-pending">
-                                                                                                                                                                                                                                                                                                                                                    <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                            ` : `
-                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                            `}
+        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+        <div class="status-pending">
+        <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+        </div>
+        </div>
+
+
+        ` : `
+
+        `}
                                         <li>
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">

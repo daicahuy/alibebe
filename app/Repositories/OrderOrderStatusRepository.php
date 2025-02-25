@@ -43,6 +43,23 @@ class OrderOrderStatusRepository extends BaseRepository
 
     }
 
+    public function changeStatusOrderWithUserCheck($idOrder, $idStatus, $customerCheck)
+    {
+        if ($customerCheck == 0) {
+            OrderOrderStatus::query()
+                ->where('order_id', $idOrder)
+                ->update(['customer_confirmation' => $customerCheck]);
+        } else if ($customerCheck == 1) {
+            OrderOrderStatus::query()
+                ->where('order_id', $idOrder)
+                ->update(['order_status_id' => $idStatus, "customer_confirmation" => $customerCheck]);
+            HistoryOrderStatus::create([
+                'order_id' => $idOrder,
+                'order_status_id' => $idStatus,
+            ]);
+        }
+    }
+
     public function changeNoteStatusOrder($idOrder, $note)
     {
         return DB::transaction(function () use ($idOrder, $note) {

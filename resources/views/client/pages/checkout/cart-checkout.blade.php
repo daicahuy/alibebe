@@ -551,7 +551,7 @@
                     product_id: 2,
                     product_variant_id: 1,
                     name: "Sản phẩm B",
-                    price: 299.99,
+                    price: 50000,
                     quantity: 1,
                     name_variant: "Màu xanh - M",
                     attributes_variant: "",
@@ -1014,7 +1014,7 @@
 
                     //chưa thanh toán
                     dataSaveOrder.payment_id = $("input[name='payment-type']:checked").val();
-                    dataSaveOrder.is_paid = "0";
+                    dataSaveOrder.is_paid = 0;
 
                     $.ajax({
                         url: 'http://127.0.0.1:8000/api/createOrder',
@@ -1039,7 +1039,7 @@
 
                 } else {
                     dataSaveOrder.payment_id = $("input[name='payment-type']:checked").val();
-                    dataSaveOrder.is_paid = "1";
+                    dataSaveOrder.is_paid = 1;
 
                     $.ajax({
                         url: 'http://127.0.0.1:8000/payment/vnpay',
@@ -1102,7 +1102,7 @@
                             dataSaveOrder.total_amount_discounted = total_amount - response
                                 .dataDiscount.discount_amount;
                             dataSaveOrder.coupon_discount_value = response.dataDiscount
-                                .discount_amount;
+                                .discount_value;
                             dataSaveOrder.coupon_discount_type = response.dataDiscount
                                 .discount_type;
                             dataSaveOrder.coupon_id = response.dataDiscount.coupon_id;

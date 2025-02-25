@@ -59,7 +59,7 @@ class OrderCustomerControllerApi extends Controller
                 'note' => $dataOrderCustomer['note'],
                 'payment_id' => $dataOrderCustomer['payment_id'],
                 'total_amount' => $dataOrderCustomer['total_amount_discounted'],
-                'is_paid' => "0", // Giả sử đơn hàng chưa được thanh toán
+                'is_paid' => $dataOrderCustomer['is_paid'], // Giả sử đơn hàng chưa được thanh toán
                 'coupon_id' => isset($coupon) ? $coupon->id : null,
                 'coupon_discount_value' => $dataOrderCustomer["coupon_discount_value"],
                 'coupon_discount_type' => $dataOrderCustomer["coupon_discount_type"],

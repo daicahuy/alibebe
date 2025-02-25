@@ -16,7 +16,11 @@ class OrderItemRepository extends BaseRepository
     {
         $query = OrderItem::query()->with([
             'order' => function ($query) use ($idOrder) {
-                $query->with('payment')->with("orderStatuses"); // Giả sử bạn đã define relationship 'payment' trong model Order
+                $query->with('payment')->with("orderStatuses")->with([
+                    "coupon" => function ($query1) {
+                        $query1->with('restriction');
+                    }
+                ]);
             }
         ])->where("order_id", $idOrder)->with("product");
 
