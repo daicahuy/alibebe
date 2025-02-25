@@ -37,8 +37,18 @@ abstract class BaseRepository
     public function getAll(
         array $columns = ['*'],
         array $relations = [],
-    ) {
+    )
+    {
         return $this->model->select($columns)->with($relations)->get();
+    }
+
+    public function getAllActive(
+        array $columns = ['*'],
+        array $relations = [],
+        int $isActive = 1,
+    )
+    {
+        return $this->model->select($columns)->with($relations)->where('is_active', $isActive)->get();
     }
 
     public function findById(int $id, array $columns = ['*'])

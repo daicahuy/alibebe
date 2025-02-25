@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\api\PaymentOnlineController;
 use App\Http\Controllers\VNPayController;
+use App\Http\Controllers\Api\CartItemController as ApiCartItemController;
 use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Admin\AttributeController;
 use App\Http\Controllers\Web\Admin\AttributeValueController;
@@ -25,7 +26,8 @@ use App\Http\Controllers\Web\Admin\UserEmployeeController;
 use App\Http\Controllers\Web\Client\ListOrderController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Controllers\Web\Client\CartItemController;
+use App\Http\Controllers\Web\Client\AccountController as AccountClientController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,11 +43,9 @@ use Illuminate\Support\Facades\Route;
 
 /*--------------CLIENT--------------*/
 
-// Route::middleware(['ApiAuthenticate'])->group(function () {
-//     // ... các route khác cần kiểm tra đăng nhập ...
-// });
-Route::get('/', [HomeController::class, 'index'])->name('index')->middleware(["web"]);
+Route::get('/', [HomeController::class, 'index'])->name('index');
 Route::get('/categories/{category?}', [ListCategoriesController::class, 'index'])->name('categories');
+// Route::get('/product/{id}', [ListCategoriesController::class, 'detailModal']);
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
 Route::get('/list-order', [ListOrderController::class, 'index'])->middleware(['auth'])->name('index');
@@ -58,7 +58,45 @@ Route::get('/page_successfully', function () {
 })->name('thankyou.page');
 
 Route::get('/page_successfully', [CheckoutController::class, 'pageSuccessfully'])->middleware(['auth'])->name('pageSuccessfully');
+Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middleware('auth');
+Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add')->middleware('auth');
+;
+Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
+Route::post('/cart/update', [ApiCartItemController::class, 'update'])->name('cart.update');
+Route::post('/cart/save-session', [ApiCartItemController::class, 'saveSession'])->name('cart.saveSession');
 
+
+
+
+
+
+
+Route::name('account.')
+    ->middleware(['auth'])
+    ->prefix('account')
+    ->controller(AccountClientController::class)
+    ->group(function () {
+        //profile
+        Route::get('/profile', 'profile')->name('profile');
+        Route::put('/update-infomation', 'updateBasicInfomation')->name('update-infomation');
+        Route::patch('/update-image', 'updateImage')->name('update-image');
+        Route::patch('/update-password', 'updatePassword')->name('update-password');
+
+        //address
+        Route::get('/address', 'address')->name('address');
+        Route::post('/store-address', 'storeAddress')->name('store-address');
+        Route::put('/update-default-address', 'updateDefaultAddress')->name('update-default-address');
+        Route::put('/update-address/{id}', 'updateAddress')->name('update-address');
+        Route::delete('/delete-address/{id}', 'deleteAddress')->name('account.delete-address');
+
+        //dashboard
+        Route::get('/', 'dashboard')->name('dashboard');
+        //order
+        Route::get('/order', 'order')->name('order');
+        Route::get('/order/{id}', 'orderDetail')->name('order-detail');
+        //wishlist
+        Route::get('/wishlist', 'wishlist')->name('wishlist');
+    });
 
 /*--------------AUTHENTICATION--------------*/
 
@@ -71,9 +109,9 @@ Route::get('/email/verify/{id}', [AuthCustomerController::class, 'actionVerifyEm
 Route::name('auth.')
     ->group(function () {
 
+
         Route::name('customer.')
             ->controller(AuthCustomerController::class)
-            ->middleware(['guest'])
             ->group(function () {
 
                 Route::get('/login', 'showFormLogin')->name('showFormLogin');
@@ -81,7 +119,6 @@ Route::name('auth.')
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
                 Route::get('/otp', 'showFormOtp')->name('showFormOtp');
                 Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword');
-
             });
 
 
@@ -89,6 +126,7 @@ Route::name('auth.')
             ->prefix('admin')
             ->controller(AuthAdminController::class)
             ->group(function () {
+
 
                 Route::get('/login', 'showFormLogin')->name('showFormLogin');
                 Route::get('/logout', 'logout')->name('logout');
@@ -104,11 +142,7 @@ Route::name('auth.')
                 Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');
                 ;
             });
-
-
     });
-
-
 
 /*--------------ADMIN--------------*/
 
@@ -130,7 +164,6 @@ Route::prefix('/admin')
                 Route::put('/{user}/update-provider', 'updateProvider')->name('updateProvider');
 
                 Route::put('/{user}/update-password', 'updatePassword')->name('updatePassword');
-
             });
 
 
@@ -173,7 +206,6 @@ Route::prefix('/admin')
 
             // search
             route::get('/search', 'search')->name('search');
-
         });
 
 
@@ -203,7 +235,6 @@ Route::prefix('/admin')
             Route::delete('/delete', 'delete')->name('delete');
 
             Route::delete('/destroy', 'destroy')->name('destroy');
-
         });
 
         // ATTRIBUTES
@@ -246,9 +277,7 @@ Route::prefix('/admin')
                 Route::put('/{attributeValue}', 'update')->name('update');
 
                 Route::delete('/destroy', 'destroy')->name('destroy');
-
             });
-
         });
 
 
@@ -294,7 +323,6 @@ Route::prefix('/admin')
             Route::put('/{tag}', 'update')->name('update');
 
             Route::delete('/destroy', 'destroy')->name('destroy');
-
         });
 
         Route::prefix('/orders')
@@ -303,11 +331,12 @@ Route::prefix('/admin')
             ->group(function () {
 
                 Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
+                Route::get('/{order}', 'show')->name('show')->where(['order' => '[0-9]+']);
                 Route::get('/{order}', 'show')->name('show')->where(['order' => '[0-9]+']);
 
                 Route::put('/{order}', 'update')->name('update');
-
             });
 
         // USERS
@@ -339,7 +368,6 @@ Route::prefix('/admin')
                     Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
 
                     Route::post('update-status', 'updateStatus')->name('update-status');
-
                 });
 
             Route::prefix('/employee')
@@ -368,9 +396,7 @@ Route::prefix('/admin')
                     Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
 
                     Route::post('update-status', 'updateStatus')->name('update-status');
-
                 });
-
         });
 
 
@@ -385,7 +411,6 @@ Route::prefix('/admin')
             Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
 
             Route::put('/{review}', 'update')->name('update');
-
         });
 
         // COUPONS

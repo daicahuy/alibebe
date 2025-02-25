@@ -19,6 +19,7 @@ trait FormatsValidationErrors
                 }
                 $temp = &$temp[$innerKey];
             }
+
             $temp[$lastKey] = $message[0];
         }
 
