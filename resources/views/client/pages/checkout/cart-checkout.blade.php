@@ -8,6 +8,10 @@
 
 @push('css')
     <style>
+        .price-old {
+            text-decoration: line-through;
+        }
+
         .error-message {
             color: red;
             font-size: 12px;
@@ -512,10 +516,12 @@
                     image: "products/product_iphone-16-pro-max.webp",
                     product_variant_id: null,
                     name: "Sản phẩm A",
+                    old_price: null,
                     price: 50000,
                     quantity: 2,
                     name_variant: "",
                     attributes_variant: "",
+                    old_price_variant: null,
                     price_variant: 199.99,
                     quantity_variant: 2,
                 },
@@ -524,10 +530,12 @@
                     image: "products/product_iphone-16-pro-max.webp",
                     product_variant_id: 1,
                     name: "Sản phẩm B",
+                    old_price: 60000,
                     price: 50000,
                     quantity: 1,
                     name_variant: "Màu xanh - M",
                     attributes_variant: "",
+                    old_price_variant: null,
                     price_variant: 50000,
                     quantity_variant: 2,
                 },
@@ -539,6 +547,10 @@
 
 
             ordersItem.forEach((item) => {
+
+                const oldPriceDisplay = item.old_price_variant ? item.old_price_variant : item.old_price ?
+                    item.old_price : "";
+                const formattedOldPrice = oldPriceDisplay ? `${oldPriceDisplay}₫` : "";
                 const imageUrl =
                     `{{ Storage::url('${item.image}') }}`; // Đường dẫn ảnh
                 $("#listProductCheckout").append(`
@@ -563,7 +575,10 @@
                                         </div>
 
                                         <div class="flex flex-1 items-end justify-between pt-2">
-                                            <p class="mt-1 text-sm font-medium text-gray-900">${item.product_variant_id ? formatCurrency(parseFloat(item.price_variant)): formatCurrency(parseFloat(item.price))}đ</p>
+                                            <div>
+                                                <span class="price-old">${formattedOldPrice}</span>
+                                                <p class="text-sm font-medium text-red-900">${item.product_variant_id ? formatCurrency(parseFloat(item.price_variant)): formatCurrency(parseFloat(item.price))}đ</p>
+                                                </div>
 
                                             <div class="ml-4 grid grid-cols-1">
                                                 <p>Thành tiền: ${item.product_variant_id ? formatCurrency(parseInt(item.quantity_variant)*parseFloat(item.price_variant)): formatCurrency(parseInt(item.quantity)*parseFloat(item.price))}đ</p>
@@ -1045,7 +1060,19 @@
                             console.log("Order: ", response);
                             if (response.status == 200) {
                                 window.location.href = '/page_successfully';
-
+                            } else {
+                                Toastify({
+                                    text: response.message,
+                                    duration: 4000,
+                                    newWindow: true,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    stopOnFocus: true,
+                                    style: {
+                                        background: "red",
+                                    },
+                                }).showToast();
                             }
                         },
                         error: function() {

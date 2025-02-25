@@ -91,9 +91,11 @@ class OrderCustomerControllerApi extends Controller
                     'product_variant_id' => $item['product_variant_id'],
                     'name' => $item['name'],
                     'price' => $item['price'],
+                    'old_price' => $item['old_price'],
                     'quantity' => $item['quantity'],
                     'name_variant' => $item['name_variant'],
                     'price_variant' => $item['price_variant'],
+                    'old_price_variant' => $item['old_price_variant'],
                     'quantity_variant' => $item['quantity_variant'],
                 ]);
 

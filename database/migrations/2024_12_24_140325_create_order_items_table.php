@@ -20,6 +20,8 @@ return new class extends Migration {
             $table->foreignIdFor(ProductVariant::class)->nullable()->constrained();
             $table->string('name')->nullable();
             $table->decimal('price', 11, 2)->nullable();
+            $table->decimal('old_price', 11, 2)->nullable();
+            $table->decimal('old_price_variant', 11, 2)->nullable();
             $table->unsignedSmallInteger('quantity')->nullable();
             $table->string('name_variant')->nullable();
             $table->jsonb('attributes_variant')->nullable();
