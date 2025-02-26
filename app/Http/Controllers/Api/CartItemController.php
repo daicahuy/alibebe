@@ -64,8 +64,16 @@ class CartItemController extends Controller
             $cartItem->quantity = $request->quantity;
             $cartItem->save();
     
-            // Lấy giá từ quan hệ sản phẩm
-            $productPrice = $cartItem->productVariant->sale_price ?? $cartItem->product->price;
+            // Kiểm tra sản phẩm có biến thể hay không
+            if ($cartItem->productVariant) {
+                // Nếu có biến thể, ưu tiên sale_price, nếu null thì lấy price
+                $productPrice = $cartItem->productVariant->sale_price ?? $cartItem->productVariant->price;
+            } else {
+                // Nếu không có biến thể, ưu tiên sale_price của sản phẩm, nếu null thì lấy price
+                $productPrice = $cartItem->product->sale_price ?? $cartItem->product->price;
+            }
+    
+            // Tính tổng tiền sản phẩm này
             $newSubtotal = number_format($cartItem->quantity * $productPrice, 0, ',', '.') . 'đ';
     
             return response()->json([
@@ -76,6 +84,9 @@ class CartItemController extends Controller
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
     }
+    
+    
+    
 
     public function saveSession(Request $request)
     {
@@ -84,16 +95,18 @@ class CartItemController extends Controller
         if (!empty($request->selectedProducts)) {
             foreach ($request->selectedProducts as $product) {
                 $selectedProducts[] = [
-                    'id' => $product['id'] ?? null, // ID của giỏ hàng
+                    'id' => $product['id'] ?? null, 
                     'product_id' => $product['product_id'] ?? null,
                     'product_variant_id' => $product['product_variant_id'] ?? null,
                     'name' => $product['name'] ?? 'Sản phẩm không xác định',
-                    'name_variant' => isset($product['name_variant']) ? $product['name_variant'] : "Không có biến thể",
+                    'name_variant' => $product['name_variant'] ?? "Không có biến thể",
                     'image' => $product['image'] ?? asset('default-image.jpg'),
                     'quantity' => $product['quantity'] ?? null, 
                     'quantity_variant' => $product['quantity_variant'] ?? null, 
                     'price' => $product['price'] ?? 0,  
-                    'price_variant' => $product['sale_price'] ?? null,
+                    'old_price' => isset($product['old_price']) ? $product['old_price'] : null, 
+                    'price_variant' => $product['price_variant'] ?? 0, 
+                    'old_price_variant' => isset($product['old_price_variant']) ? $product['old_price_variant'] : null, 
                 ];
             }
     
@@ -112,6 +125,11 @@ class CartItemController extends Controller
             'sessionData' => []
         ], 400);
     }
+    
+    
+    
+    
+    
     
     
     
