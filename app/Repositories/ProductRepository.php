@@ -270,39 +270,39 @@ class ProductRepository extends BaseRepository
     public function getBestSellingProducts()
     {
         return DB::table('order_items')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('order_order_status', function ($join) {
+                $join->on('orders.id', '=', 'order_order_status.order_id')
+                    ->where('order_order_status.order_status_id', '=', 6);
+            })
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->leftJoin('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
+            ->leftJoin('attribute_value_product_variant', 'product_variants.id', '=', 'attribute_value_product_variant.product_variant_id')
+            ->leftJoin('attribute_values', 'attribute_value_product_variant.attribute_value_id', '=', 'attribute_values.id')
             ->select(
-                DB::raw('products.name as product_name'),
-                DB::raw('COALESCE(
-                CASE 
-                    WHEN product_variants.thumbnail LIKE "http%" THEN product_variants.thumbnail
-                    ELSE CONCAT("/storage/", product_variants.thumbnail) 
-                END,
-                CASE 
-                    WHEN products.thumbnail LIKE "http%" THEN products.thumbnail
-                    ELSE CONCAT("/storage/", products.thumbnail) 
-                END
-            ) as thumbnail'),
-                DB::raw('COALESCE(product_variants.price, products.price) as price'),
-                DB::raw('COALESCE(product_variants.id, products.id) as product_id'),
+                DB::raw('IFNULL(product_variants.id, products.id) as product_id'),
+                DB::raw('IFNULL(CONCAT(products.name, " - ", GROUP_CONCAT(attribute_values.value SEPARATOR ", ")), products.name) as product_name'),
+                DB::raw('IFNULL(product_variants.price, products.price) as price'),
+                DB::raw('IFNULL(
+                    CASE 
+                        WHEN product_variants.thumbnail LIKE "http%" THEN product_variants.thumbnail
+                        ELSE CONCAT("/storage/", product_variants.thumbnail) 
+                    END,
+                    CASE 
+                        WHEN products.thumbnail LIKE "http%" THEN products.thumbnail
+                        ELSE CONCAT("/storage/", products.thumbnail) 
+                    END
+                ) as thumbnail'),
                 DB::raw('SUM(order_items.quantity) as total_sold')
             )
-            ->groupBy(
-                'products.id',
-                'products.name',
-                'product_variants.thumbnail',
-                'products.thumbnail',
-                'product_variants.price',
-                'products.price',
-                'product_variants.id'
-            )
+            ->groupBy('product_id', 'products.name', 'price', 'thumbnail')
             ->orderByDesc('total_sold')
             ->limit(24)
             ->get();
     }
-
     
+
+
     public function getPopularProducts()
     {
         return DB::table('order_items')
@@ -380,7 +380,7 @@ class ProductRepository extends BaseRepository
         )->with(['categories', 'productStock']);
         $products = $query->paginate(5);
         // dd($products);
-       
+
         return $products;
     }
 
@@ -397,11 +397,13 @@ class ProductRepository extends BaseRepository
                 'productStock',
                 'productVariants.attributeValues.attribute',
             ])
-            ->with(['attributeValues' => function ($query) {
-                $query->whereHas('attribute', function ($q) {
-                    $q->where('name', 'Bộ nhớ trong');
-                });
-            }])
+            ->with([
+                'attributeValues' => function ($query) {
+                    $query->whereHas('attribute', function ($q) {
+                        $q->where('name', 'Bộ nhớ trong');
+                    });
+                }
+            ])
             ->findOrFail($id);
     }
 

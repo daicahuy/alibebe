@@ -159,7 +159,7 @@
                                             <img src="{{ Storage::url($category->icon) }}" class="blur-up lazyload"
                                                 alt="">
                                             <h5>
-                                                <a href="">{{ $category->name }}</a>
+                                                <a href="{{ route('categories',['category' => $category->id])}}">{{ $category->name }}</a>
                                             </h5>
                                         </div>
                                     </li>
@@ -229,25 +229,25 @@
 
                         <div class="section-t-space">
                             <div class="category-menu">
-                                <h3>Trending Products</h3>
+                                <h3>Sản Phẩm Hót</h3>
 
                                 <ul class="product-list border-0 p-0 d-block">
 
                                     @foreach ($trendingProducts as $trendingProduct)
                                         <li>
                                             <div class="offer-product">
-                                                <a href="product-left-thumbnail.html" class="offer-image">
+                                                <a href="{{route('categories',['category' => $trendingProduct->id])}}" class="offer-image">
                                                     <img src="{{ Storage::url($trendingProduct->thumbnail) }}"
                                                         class="blur-up lazyload" alt="">
                                                 </a>
 
                                                 <div class="offer-detail">
                                                     <div>
-                                                        <a href="product-left-thumbnail.html" class="text-title">
+                                                        <a href="{{route('categories',['category' => $trendingProduct->id])}}" class="text-title">
                                                             <h6 class="name">{{ $trendingProduct->name }}</h6>
                                                         </a>
                                                         <span>{{ $trendingProduct->views }}</span>
-                                                        <h6 class="price theme-color">{{ $trendingProduct->price }}</h6>
+                                                        <h6 class="price theme-color">{{ number_format($trendingProduct->price, 0, ',', '.') }}₫</h6>
                                                     </div>
                                                 </div>
                                             </div>
@@ -303,7 +303,7 @@
                                         <div class="col-lg-3 col-md-4 col-sm-6 ">
                                             <div class="product-box border rounded shadow-sm p-3">
                                                 <div class="product-image">
-                                                    <a href="product-left-thumbnail.html">
+                                                    <a href="{{route('products',['product' => $topSell->id])}}">
                                                         <img src="{{ Storage::url($topSell->thumbnail) }}"
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
@@ -331,14 +331,15 @@
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
-                                                    <a href="product-left-thumbnail.html">
+                                                    <a href="{{route('products',['product' => $topSell->id])}}">
                                                         <h6 class="name">{{ $topSell->product_names }}</h6>
                                                     </a>
 
                                                     <h5 class="sold text-content">
-                                                        <span class="theme-color price">{{ $topSell->price }}</span>
-                                                        <del>{{ $topSell->sale_price }}</del>
+                                                        <span class="theme-color price">{{ number_format($topSell->price, 0, ',', '.') }}₫</span>
+                                                        <del>{{ number_format($topSell->sale_price, 0, ',', '.') }}₫</del>
                                                     </h5>
+                                                    
 
                                                     <div class="product-rating mt-sm-2 mt-1">
                                                         <ul class="rating">
@@ -389,7 +390,7 @@
                     <div class="category-slider-2 product-wrapper no-arrow">
                         @foreach ($topCategoriesInweek as $topCategory)
                             <div>
-                                <a href="shop-left-sidebar.html" class="category-box category-dark">
+                                <a href="{{ route('categories',['category' => $topCategory->id])}}" class="category-box category-dark">
                                     <div>
                                         <img src="{{ Storage::url($topCategory->icon) }}" class="blur-up lazyload"
                                             alt="">
@@ -448,7 +449,7 @@
                                         <div class="col-lg-3 col-md-4 col-sm-6 ">
                                             <div class="product-box border rounded shadow-sm p-3">
                                                 <div class="product-image">
-                                                    <a href="product-left-thumbnail.html">
+                                                    <a href="{{route('products',['product' => $aiSuggest->id])}}">
                                                         <img src="{{ Storage::url($aiSuggest->thumbnail) }}"
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
@@ -477,7 +478,7 @@
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
-                                                    <a href="product-left-thumbnail.html">
+                                                    <a href="{{route('products',['product' => $aiSuggest->id])}}">
                                                         <h6 class="name">{{ $aiSuggest->name }}</h6>
                                                     </a>
 
@@ -596,19 +597,19 @@
                                     @foreach ($chunk as $product)
                                         <li>
                                             <div class="offer-product">
-                                                <a href="" class="offer-image">
+                                                <a href="{{route('products',['product' => $product->product_id])}}" class="offer-image">
                                                     <img src="{{ $product->thumbnail }}" class="blur-up lazyload"
                                                         alt="{{ $product->product_name }}">
                                                 </a>
 
                                                 <div class="offer-detail">
                                                     <div>
-                                                        <a href="" class="text-title">
+                                                        <a href="{{route('products',['product' => $product->product_id])}}" class="text-title">
                                                             <h6 class="name">{{ $product->product_name }}</h6>
                                                         </a>
                                                         <span>{{ $product->total_sold }} đã bán</span>
                                                         <h6 class="price theme-color">
-                                                            ${{ number_format($product->price, 2) }}</h6>
+                                                            {{ number_format($product->price) }}₫</h6>
                                                     </div>
                                                 </div>
                                             </div>
