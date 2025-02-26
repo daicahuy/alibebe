@@ -394,8 +394,6 @@ Route::prefix('/admin')
                 Route::get('/', 'index')->name('index');
 
                 Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
-
-                Route::put('/{review}', 'update')->name('update');
             });
 
         // COUPONS

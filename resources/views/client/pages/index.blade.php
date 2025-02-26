@@ -348,11 +348,7 @@
                                                                         class="{{ $i <= round($topSell->average_rating) ? 'fill' : '' }}"></i>
                                                                 </li>
                                                             @endfor
-                                                        </ul>
-
-                                                        <h6 class="theme-color">
-                                                            {{ $topSell->stock_quantity >= 1 ? 'In Stock' : 'Out of Stock' }}
-                                                        </h6>
+                                                        </ul> 
                                                     </div>
 
                                                     <div class="add-to-cart-box">
