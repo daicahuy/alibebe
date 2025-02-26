@@ -32,7 +32,7 @@ class OrderSeeder extends Seeder
                 $orders[] = [
                     'code' => fake()->randomElement(['HN-', 'HCM-', 'HP-', 'NA-', 'TH-']) . fake()->unique()->numberBetween(1000, 90000),
                     'user_id' => $user->id,
-                    'payment_id' => rand(1, 4),
+                    'payment_id' => rand(1, 2),
                     'phone_number' => $user->phone_number,
                     'email' => $user->email,
                     'fullname' => $user->fullname,

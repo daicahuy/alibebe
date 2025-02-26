@@ -15,7 +15,7 @@ class OrderRepository extends BaseRepository
 
     public function filterOrders(array $filters, int $page, int $limit): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        $query = Order::query()->with("orderStatuses")->with("payment");
+        $query = Order::query()->with("orderStatuses")->with("payment")->orderBy('created_at', 'desc');
 
         // dd($filters);
 
@@ -44,6 +44,48 @@ class OrderRepository extends BaseRepository
 
         return $query->paginate($limit, ['*'], 'page', $page);
     }
+
+    public function filterOrdersByUser(array $filters, int $page, int $limit, $user_id): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        $query = Order::query()->where("user_id", $user_id)->with([
+
+            'orderItems' => function ($query) {
+                $query->with("product");
+            }
+        ])->with([
+                    "coupon" => function ($query) {
+                        $query->with('restriction');
+                    }
+                ])->with("orderStatuses")->with("payment")->orderBy('created_at', 'desc');
+
+        // dd($filters);
+
+        // Áp dụng các bộ lọc tương tự như trong controller cũ
+        foreach ($filters as $key => $value) {
+
+            // dd($key, $value);
+            if ($key === 'order_status_id' && isset($value)) {
+                $query->whereHas('orderStatuses', function ($q) use ($value) {
+                    $q->where('order_status_id', $value);
+                });
+            } elseif ($key == 'search' && isset($value)) {
+                $query->where(function ($query1) use ($value) {
+                    $query1->where('orders.fullname', 'LIKE', "%{$value}%")
+                        ->orWhere('orders.code', 'LIKE', "%{$value}%")
+                        ->orWhere('orders.phone_number', 'LIKE', "%{$value}%");
+                });
+            } elseif ($key == 'startDate' && isset($value)) {
+                $query->whereDate('created_at', '>=', $value);
+            } elseif ($key == 'endDate' && isset($value)) {
+                $query->whereDate('created_at', '<=', $value);
+            }
+        }
+
+        // dd($query->toSql());
+
+        return $query->paginate($limit, ['*'], 'page', $page);
+    }
+
     public function getOrdersByStatus(int $activeTab)
     {
         $query = Order::query()->with([
@@ -71,8 +113,6 @@ class OrderRepository extends BaseRepository
 
         return $orders;
     }
-
-
     public function countOrdersByStatus(array $filters): \Illuminate\Database\Eloquent\Collection
     {
         $orderStatusCounts = Order::query()
@@ -101,12 +141,5 @@ class OrderRepository extends BaseRepository
         $orderStatusCounts = $orderStatusCounts->get();
         return $orderStatusCounts;
     }
-
-
-
-
-
-
-
 
 }

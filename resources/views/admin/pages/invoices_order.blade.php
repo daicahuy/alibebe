@@ -160,7 +160,9 @@ function formatCurrencyVND($number)
         </table>
 
         <!-- Total Price -->
-        <div class="total">Tổng Tiền: {{ formatCurrencyVND($dataOrder[0]['order']['total_amount']) }}đ</div>
+        <div class="total">Thu tiền:
+            {{ $dataOrder[0]['order']['is_paid'] == 0 ? formatCurrencyVND($dataOrder[0]['order']['total_amount']) : '0' }}đ
+        </div>
 
         <!-- Customer Information -->
         <div class="customer-info">

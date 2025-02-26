@@ -38,7 +38,20 @@ class OrderController extends Controller
         ]);
     }
 
+    public function getOrdersByUser(Request $request)
+    {
+        $filters = $request->all();
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 10);
+        $user_id = $request->input('user_id');
 
+        $orders = $this->orderService->getOrdersByUser($filters, $page, $limit, $user_id);
+
+        return response()->json([
+            'orders' => $orders->items(),
+            'totalPages' => $orders->lastPage(),
+        ]);
+    }
 
     public function getOrderDetail(int $idOrder)
     {
@@ -147,6 +160,33 @@ class OrderController extends Controller
             } else {
                 $this->orderService->changeStatusOrder($idOrder, $idStatus);
             }
+
+
+
+            return response()->json([
+                'message' => 'Query executed successfully',
+                'status' => Response::HTTP_OK,
+
+            ]);
+        } catch (Exception $e) {
+
+            return response()->json([
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function updateOrderStatusWithUserCheck(Request $request)
+    {
+        try {
+
+            $idOrder = $request->input("order_id");
+            $idStatus = $request->input("status_id");
+            $customerCheck = $request->input("customer_check");
+
+            $this->orderService->updateOrderStatusWithUserCheck($idOrder, $idStatus, $customerCheck);
 
 
 

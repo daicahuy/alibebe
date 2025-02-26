@@ -151,7 +151,8 @@
         </table>
 
         <!-- Total Price -->
-        <div class="total">Tổng Tiền: {{ number_format($dataOrder['total_amount'], 2, ',', '.') }}đ</div>
+        <div class="total">Thu Tiền:
+            {{ $dataOrder['is_paid'] == 0 ? number_format($dataOrder['total_amount'], 2, ',', '.') : '0' }}đ</div>
 
         <!-- Customer Information -->
         <div class="customer-info">

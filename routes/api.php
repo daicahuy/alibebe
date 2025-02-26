@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\api\CouponApiController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\api\OrderCustomerControllerApi;
 use App\Http\Controllers\api\PaymentController;
 use App\Http\Controllers\api\PaymentOnlineController;
 use App\Http\Controllers\api\UserAddressController;
@@ -70,8 +71,10 @@ Route::prefix('/orders')
     ->group(function () {
 
         Route::get('/list', [OrderController::class, 'index'])->name('index');
+        Route::post('/listByUser', [OrderController::class, 'getOrdersByUser'])->name('getOrdersByUser');
         Route::get('/list/count', [OrderController::class, 'countByStatus'])->name('countByStatus');
         Route::post('/updateOrderStatus', [OrderController::class, 'changeStatusOrder'])->name('changeStatusOrder');
+        Route::post('/updateOrderStatusWithUserCheck', [OrderController::class, 'updateOrderStatusWithUserCheck'])->name('updateOrderStatusWithUserCheck');
         Route::post('/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');
         Route::post('/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
 
@@ -85,7 +88,9 @@ Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->nam
 Route::get("/payment/list", [PaymentController::class, 'getPaymentList'])->middleware(['guest'])->name('getPaymentList');
 Route::get("/listDiscountsByUser/{idUser}", [CouponApiController::class, "listCouponByUser"])->middleware(["guest"])->name("listCouponByUser");
 Route::post("/getValueDiscount", [CouponApiController::class, "getValueDiscount"])->middleware(['guest'])->name('getValueDiscount');
-Route::post("/confirmVNPay", [PaymentOnlineController::class, "confirmVNPay"])->middleware(['guest'])->name('confirmVNPay');
+
+Route::post("/createOrder", [OrderCustomerControllerApi::class, "addOrderCustomerAction"])->middleware(['guest']);
+
 
 Route::prefix('/address')
     ->name('api.address.')

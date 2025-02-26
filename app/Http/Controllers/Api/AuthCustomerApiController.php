@@ -142,12 +142,8 @@ class AuthCustomerApiController extends Controller
         $googleUser = Socialite::driver('google')->user();
 
         $user = User::where('email', $googleUser->getEmail())->first();
-        if (!$user->isEmployee()) {
-            return redirect()->intended('/login');
 
-        }
         if ($user) {
-
             Auth::login($user);
             return redirect()->intended('/');
         } else {

@@ -17,6 +17,7 @@ class CouponApiController extends Controller
     {
         try {
             $code = $request->query('code');
+            $total_amount = $request->query('total_amount');
             // return response()->json(["status" => Response::HTTP_OK, "$code" => $code]);
 
             if ($code) {
@@ -26,15 +27,31 @@ class CouponApiController extends Controller
                             'coupon' => function ($query) use ($code) {
                                 $query->with("restriction");
                             }
-                        ])->get();
+                        ])->get()->sortByDesc(function ($couponUser) use ($total_amount) {
+                            // Lấy min_order_value từ restriction
+                            $minOrderValue = (float) ($couponUser->coupon->restriction->min_order_value ?? 0);
+                            // So sánh total_amount với min_order_value
+                            return (float) ($total_amount) > $minOrderValue ? 1 : 0;
+                        });
+                ;
             } else {
-                $listCouponsByUser = CouponUser::query()->where("user_id", $idUser)->where("amount", ">", 0)->with([
-                    'coupon' => function ($query) {
-                        $query->with("restriction");
-                    }
-                ])->get();
+                $listCouponsByUser = CouponUser::query()
+                    ->where("user_id", $idUser)
+                    ->where("amount", ">", 0)
+                    ->with([
+                        'coupon' => function ($query) {
+                            $query->with("restriction");
+                        }
+                    ])
+                    ->get()
+                    ->sortByDesc(function ($couponUser) use ($total_amount) {
+                        // Lấy min_order_value từ restriction
+                        $minOrderValue = (float) ($couponUser->coupon->restriction->min_order_value ?? 0);
+                        // So sánh total_amount với min_order_value
+                        return (float) ($total_amount) > $minOrderValue ? 1 : 0;
+                    });
             }
-            return response()->json(["status" => Response::HTTP_OK, "listCouponsByUser" => $listCouponsByUser]);
+            return response()->json(["status" => Response::HTTP_OK, "listCouponsByUser" => $listCouponsByUser->values()]);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'An error occurred: ' . $th->getMessage(),
@@ -88,7 +105,7 @@ class CouponApiController extends Controller
                 if (!$coupon) {
                     $validator->errors()->add('discountCode', 'Mã giảm giá không tồn tại!');
                 } else if ($coupon->is_expired == 1 && (now()->lt($coupon->start_date) || now()->gt($coupon->end_date))) {
-                    $validator->errors()->add('discountCode', 'Mã giảm giá hết hạn!');
+                    $validator->errors()->add('discountCode', 'Mã giảm giá hết hạn!' . now());
                 } else if ($coupon->usage_limit !== null && $coupon->usage_count >= $coupon->usage_limit) {
                     $validator->errors()->add('discountCode', 'Mã giảm giá hết lượt sử dụng!');
                 } else if ($couponRestrictions && $couponRestrictions->min_order_value !== null && $data["total_amount"] < $couponRestrictions->min_order_value) {
@@ -109,12 +126,11 @@ class CouponApiController extends Controller
                 }
             } else {
                 $discountValue = $coupon->discount_value;
-                if ($couponRestrictions && $couponRestrictions->max_discount_value !== null && $discountValue > $couponRestrictions->max_discount_value) {
-                    $discountValue = $couponRestrictions->max_discount_value;
-                }
+
             }
 
             $dataDiscount = [
+                'coupon_id' => $coupon->id,
                 'code' => $coupon->code,
                 'discount_type' => $coupon->discount_type,
                 'discount_value' => $coupon->discount_value, // Giá trị gốc của mã giảm giá (ví dụ: 10% hoặc 10000)

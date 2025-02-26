@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->primary(['order_id', 'order_status_id']);
             $table->foreignId('modified_by')->nullable()->constrained('users');
             $table->string('note')->nullable();
-            $table->string('employee_evidence', 255);
+            $table->string('employee_evidence', 255)->nullable();
             $table->boolean('customer_confirmation')->nullable();
             $table->boolean('is_current')->default(true);
             $table->timestamps();
