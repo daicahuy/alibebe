@@ -20,7 +20,6 @@ return new class extends Migration {
             $table->string('thumbnail');
             $table->boolean('is_active');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
