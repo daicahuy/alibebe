@@ -15,11 +15,24 @@ class ProductController extends Controller
     {
         $this->productService = $productService;
     }
-    public function index()
+    public function index(Request $request)
     {
-        $products = $this->productService->getProducts();
+
+        $perPage = $request->get('per_page', 5);
+        $categoryId = $request->get('category_id');
+        $stockStatus = $request->get('stock_status');
+        $keyword = $request->get('_keyword');
+        // dd($categoryId);
+        $products = $this->productService->getProducts($perPage, $categoryId, $stockStatus, $keyword);
+        $categories = $this->productService->getCategories();
+
         return view('admin.pages.products.list', compact(
-            'products'
+            'products',
+            'categories',
+            'perPage',
+            'categoryId',
+            'stockStatus',
+            'keyword',
         ));
     }
 
@@ -65,9 +78,24 @@ class ProductController extends Controller
 
     }
 
-    public function delete(Request $request)
+    public function delete(Request $request, $product)
     {
-
+        // dd($product);
+        $deleteResult = $this->productService->delete($product);
+        if ($deleteResult['success']) {
+            return
+                redirect()
+                    ->route('admin.products.index')
+                    ->with([
+                        'msg' => $deleteResult['message'],
+                        'type' => 'success'
+                    ]);
+        } else {
+            return redirect()->route('admin.products.index')->with([
+                'msg' => $deleteResult['message'],
+                'type' => 'error'
+            ]);
+        }
     }
 
     public function destroy(Request $request)

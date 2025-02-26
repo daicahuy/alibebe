@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->foreignIdFor(User::class)->constrained();
             $table->string('address', 255)->nullable();
             $table->string('phone_number', 20)->nullable();
-            $table->string('fullname', 100);
+            $table->string('fullname', 100)->nullable(); //khắc phục tạm
             $table->boolean('id_default')->default(false);
             $table->timestamps();
         });

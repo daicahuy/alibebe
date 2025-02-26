@@ -306,7 +306,7 @@ class ProductRepository extends BaseRepository
             ->get();
     }
 
-    
+
     public function getPopularProducts()
     {
         return DB::table('order_items')
@@ -370,7 +370,7 @@ class ProductRepository extends BaseRepository
     }
 
     // Mạnh - admin - list - delete - products
-    public function getProducts($perpage = 5, $sortBy = 'default', $filters = [])
+    public function getProducts($perPage = 15, $categoryId, $stockStatus = null, $keyword = null, $filters = [])
     {
         $query = $this->model->query();
 
@@ -380,12 +380,82 @@ class ProductRepository extends BaseRepository
             'thumbnail',
             'name',
             'price',
-            'is_active'
-        )->with(['categories', 'productStock']);
-        $products = $query->paginate(5);
+            'is_active',
+            'type',
+        )
+            ->with(['categories', 'productStock', 'productVariants.productStock'])
+            ->where('deleted_at', null)
+            ->orderBy('updated_at', 'DESC');
+
+
+
+        // Category
+        if (isset($categoryId) && $categoryId) {
+            // Log::info('Filtering by category ID: ' . $categoryId);
+
+            $selectCategory = Category::findOrFail($categoryId);
+            $categoryIdsToFilter = $selectCategory->getAllChildrenIds()->toArray();
+
+            // Log::info('Category IDs to filter: ' . json_encode($categoryIdsToFilter));
+
+            $query->whereHas('categories', function ($q) use ($categoryIdsToFilter) {
+                $q->whereIn('categories.id', $categoryIdsToFilter);
+            });
+
+        }
+
+
+        // search
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('products.name', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('products.sku', 'LIKE', '%' . $keyword . '%')
+                    ->orWhereHas('productVariants', function ($variantQuery) use ($keyword) {
+                        $variantQuery->where(function ($variant) use ($keyword) {
+                            $variant->where('name', 'LIKE', '%' . $keyword . '%')
+                                ->orWhere('sku', 'LIKE', '%' . $keyword . '%');
+                        });
+                    });
+            });
+        }
+
+
+
+        $products = $query->paginate($perPage)->appends([
+            'per_page' => $perPage,
+            'category_id' => $categoryId,
+            'stock_status' => $stockStatus,
+            '_keyword' => $keyword,
+        ]);
+
+        $products->getCollection()->each(function ($product) {
+            // Lấy tổng stock quantity thông qua Accessor (thuộc tính ảo) đã được eager load quan hệ!**
+            $stockQuantity = $product->totalStockQuantity;
+            $product->stock_quantity = $stockQuantity;
+        });
+
         // dd($products);
-       
+
         return $products;
+    }
+
+    // Xóa mềm sản phẩm
+    public function delete($productId)
+    {
+        $product = $this->model->find($productId);
+        if (!$product) {
+            return false;
+        }
+
+        if ($product->type == 1) {
+            $product->productVariants()->delete();
+        }
+
+        return $product->delete();
+    }
+    public function find($productId)
+    {
+        return $this->model->find($productId);
     }
 
 

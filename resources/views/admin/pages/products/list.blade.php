@@ -37,55 +37,85 @@
                         </div>
 
                         <!-- HEADER TABLE -->
-                        <div class="show-box">
-                            <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                <select class="form-control">
-                                    <option value="15">15
-                                    </option>
-                                    <option value="30">30
-                                    </option>
-                                    <option value="45">45
-                                    </option>
-                                </select>
-                                <label>{{ __('message.items_per_page') }}</label>
-                                <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
-                                    id="btn-move-to-trash">
-                                    {{ __('message.move_to_trash') }}
-                                </button>
-                                <a href="{{ route('admin.products.trash') }}"
-                                    class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
-                                    <i class="ri-delete-bin-line"></i>
-                                    {{ __('message.trash') }}
-                                    <span
-                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">10</span>
-                                </a>
+                        <form action="{{ route('admin.products.index') }}" method="GET" id="filterForm">
 
-                            </div>
-                            <div class="datepicker-wrap">
+                            <div class="show-box">
+                                {{-- perpage --}}
+                                <div class="selection-box">
 
-                            </div>
-                            <div>
-                                <select name="" class="form-select">
-                                    <option value="">{{ __('form.category_all') }}</option>
-                                    <option value="">Điện thoại</option>
-                                </select>
-                            </div>
-                            <div>
-                                <select name="" class="form-select">
-                                    <option value="">{{ __('form.product_stock_status_all') }}</option>
-                                    <option value="">{{ __('form.product_stock_in_stock') }}</option>
-                                    <option value="">{{ __('form.product_stock_out_of_stock') }}</option>
-                                    <option value="">{{ __('form.product_stock_low_stock') }}</option>
-                                </select>
-                            </div>
-                            <form action="" method="GET">
+                                    <label for="perPageSelect">{{ __('message.show') }} :</label>
+                                    <select id="perPageSelect" class="form-control" name="per_page"
+                                        onchange="document.getElementById('filterForm').submit();">
+                                        <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15
+                                        </option>
+                                        <option value="30" {{ $perPage == 30 ? 'selected' : '' }}>30
+                                        </option>
+                                        <option value="45" {{ $perPage == 45 ? 'selected' : '' }}>45
+                                        </option>
+                                    </select>
+
+                                    <label>{{ __('message.items_per_page') }}</label>
+                                    <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
+                                        id="btn-move-to-trash">
+                                        {{ __('message.move_to_trash') }}
+                                    </button>
+                                    <a href="{{ route('admin.products.trash') }}"
+                                        class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
+                                        <i class="ri-delete-bin-line"></i>
+                                        {{ __('message.trash') }}
+                                        <span
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">10</span>
+                                    </a>
+
+                                </div>
+                                <div class="datepicker-wrap">
+
+                                </div>
+
+                                {{-- category --}}
+                                <div>
+                                    <select name="category_id" class="form-select"
+                                        onchange="document.getElementById('filterForm').submit();">
+                                        <option value="">{{ __('form.category_all') }}</option>
+                                        @foreach ($categories as $category)
+                                            <option
+                                                value="{{ $category->id }}"{{ $categoryId == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                {{-- stock --}}
+                                <div>
+                                    <select name="stock_status" class="form-select"
+                                        onchange="document.getElementById('filterForm').submit();">
+                                        <option value="" {{ $stockStatus == '' ? 'selected' : '' }}>
+                                            {{ __('form.product_stock_status_all') }}</option>
+                                        <option value="in_stock" {{ $stockStatus == 'in_stock' ? 'selected' : '' }}>
+                                            {{ __('form.product_stock_in_stock') }}</option>
+                                        <option value="out_of_stock"
+                                            {{ $stockStatus == 'out_of_stock' ? 'selected' : '' }}>
+                                            {{ __('form.product_stock_out_of_stock') }}</option>
+                                        <option value="low_stock" {{ $stockStatus == 'low_stock' ? 'selected' : '' }}>
+                                            {{ __('form.product_stock_low_stock') }}</option>
+                                    </select>
+                                </div>
+
+                                {{-- search --}}
+                                {{-- <form action="" method="GET"> --}}
                                 <div class="table-search">
                                     <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword">
+                                    <input type="search" class="form-control" name="_keyword" id="role-search"
+                                        value="{{ $keyword ?? '' }}">
+                                    <button type="submit" class="btn btn-primary">{{ __('message.search') }}</button>
                                 </div>
-                            </form>
+                                {{-- </form> --}}
 
-                        </div>
+
+                            </div>
+                        </form>
+
                         <!-- END HEADER TABLE -->
 
 
@@ -150,16 +180,15 @@
                                                         src="{{ Storage::url($product->thumbnail) }}">
                                                 </td>
                                                 <td class="cursor-pointer">{{ $product->name }}</td>
-                                                <td class="cursor-pointer">Điện thoại</td>
+                                                <td class="cursor-pointer">{{ $product->categories[0]->name }}</td>
                                                 <td class="cursor-pointer">{{ number_format($product->price) }} VND</td>
-                                                <td class="cursor-pointer">{{ $product->productStock->stock }}</td>
+                                                <td class="cursor-pointer">{{ $product->stock_quantity }}</td>
                                                 <td class="cursor-pointer">
-                                                    @if ($product->productStock->stock > 10)
+                                                    @if ($product->stock_quantity > 10)
                                                         <div class="status-in_stock">
-                                                            <span>{{ __('form.product_stock_in_stock') }}</span>
-                                                            {{-- còn  --}}
+                                                            <span>{{ __('form.product_stock_in_stock') }}</span>{{-- còn  --}}
                                                         </div>
-                                                    @elseif($product->productStock->stock > 0)
+                                                    @elseif($product->stock_quantity > 0)
                                                         <div class="status-low_stock">
                                                             <span>{{ __('form.product_stock_low_stock') }}</span>{{-- hết  --}}
                                                         </div>
@@ -189,8 +218,15 @@
                                                                     class="ri-pencil-line"></i></a>
                                                         </li>
                                                         <li>
-                                                            <a href="" class="btn-move-to-trash"><i
-                                                                    class="ri-delete-bin-line"></i></a>
+                                                            <form action="{{ route('admin.products.delete', $product) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn-delete"
+                                                                    onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
+                                                                    <i class="ri-delete-bin-line"></i>
+                                                                </button>
+                                                            </form>
                                                         </li>
                                                     </ul>
                                                 </td>
@@ -207,7 +243,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-                            {{$products->links()}}
+                            {{ $products->links() }}
                         </div>
                         <!-- END PAGINATIOn -->
 
@@ -279,6 +315,23 @@
                     console.log('Move to trash');
                 }
             })
+
+            // thông báo sw2
+
+
+            // alert
+            // Kiểm tra session flash message
+            let message = "{{ session('msg') }}";
+            let type = "{{ session('type') }}";
+
+            if (message && type) {
+                Swal.fire({
+                    icon: type,
+                    title: type === 'success' ? 'Thành công!' : 'Lỗi!',
+                    text: message,
+                });
+            }
+
 
         });
     </script>

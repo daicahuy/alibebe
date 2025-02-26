@@ -233,7 +233,7 @@ Route::prefix('/admin')
 
             Route::put('/restore', 'restore')->name('restore');
 
-            Route::delete('/delete', 'delete')->name('delete');
+            Route::delete('{product}/delete', 'delete')->name('delete');
 
             Route::delete('/destroy', 'destroy')->name('destroy');
         });
