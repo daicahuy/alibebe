@@ -176,7 +176,7 @@
                                                         {{ isset($value) ? $value : 'N/A' }}
                                                     @break
 
-                                                    @case('valid_categories')
+                                                    {{-- @case('valid_categories')
                                                         <ul>
                                                             @foreach ($coupon->categories as $category)
                                                                 <li>{{ $category->name }}</li>
@@ -190,7 +190,7 @@
                                                                 <li>{{ $product->name }}</li>
                                                             @endforeach
                                                         </ul>
-                                                    @break
+                                                    @break --}}
 
                                                     @default
                                                         {{ $value }}

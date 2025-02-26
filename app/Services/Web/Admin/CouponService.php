@@ -111,7 +111,7 @@ class CouponService
 
                 $userIds = $allUsers->pluck('id')->toArray();
 
-                $coupon->users()->attach($userIds);
+                
             } else if ($user_group == UserGroupType::NEWBIE) {
                 $curentDate = now();
                 // giới hạn thời gian
@@ -127,9 +127,8 @@ class CouponService
                     ];
                 }
 
-                $newUserIds = $newUsers->pluck('id')->toArray();
+                $serIds = $newUsers->pluck('id')->toArray();
 
-                $coupon->users()->attach($newUserIds);
             } else {
                 $users = $this->userRepository->getUsersByGroupAndLoyaltyPoints($user_group);
                 if ($users->isEmpty()) {
@@ -140,30 +139,31 @@ class CouponService
                 }
                 $userIds = $users->pluck('id')->toArray();
 
-                $coupon->users()->attach($userIds);
             }
+            
+            $coupon->users()->attach($userIds);
 
             // Lấy dữ liệu ràng buộc
             $restrictionsData = [
                 'min_order_value' => $data['coupon_restrictions']['min_order_value'] ?? 0,
-                'max_discount_value' => $data['coupon_restrictions']['max_discount_value'] ?? null,
-                'valid_categories' => json_encode(array_map('intval', $data['coupon_restrictions']['valid_categories'])),
+                'max_discount_value' => $data['coupon_restrictions']['max_discount_value'] ?? 0,
+                // 'valid_categories' => json_encode(array_map('intval', $data['coupon_restrictions']['valid_categories'])),
                 'coupon_id' => $coupon->id
             ];
 
-            $data['is_apply_all'] = request('is_apply_all');
+            // $data['is_apply_all'] = request('is_apply_all');
 
-            // Kiểm tra nếu checkbox 'is_apply_all' được chọn
-            if (isset($data['is_apply_all']) && $data['is_apply_all'] == 'on') {
-                // Lấy tất cả sản phẩm từ bảng products
-                $products = $this->showProducts();
-                $restrictionsData['valid_products'] = json_encode($products->pluck('id')->toArray());
-            } else {
-                // Kiểm tra nếu có 'valid_products' trong request, nếu không thì gán giá trị mặc định là mảng rỗng
-                $restrictionsData['valid_products'] = isset($data['coupon_restrictions']['valid_products'])
-                    ? json_encode(array_map('intval', $data['coupon_restrictions']['valid_products']))
-                    : json_encode([]);  // Gán giá trị mặc định là mảng rỗng nếu không có valid_products
-            }
+            // // Kiểm tra nếu checkbox 'is_apply_all' được chọn
+            // if (isset($data['is_apply_all']) && $data['is_apply_all'] == 'on') {
+            //     // Lấy tất cả sản phẩm từ bảng products
+            //     $products = $this->showProducts();
+            //     $restrictionsData['valid_products'] = json_encode($products->pluck('id')->toArray());
+            // } else {
+            //     // Kiểm tra nếu có 'valid_products' trong request, nếu không thì gán giá trị mặc định là mảng rỗng
+            //     $restrictionsData['valid_products'] = isset($data['coupon_restrictions']['valid_products'])
+            //         ? json_encode(array_map('intval', $data['coupon_restrictions']['valid_products']))
+            //         : json_encode([]);  // Gán giá trị mặc định là mảng rỗng nếu không có valid_products
+            // }
 
             // Lưu ràng buộc nếu có
             if (!empty($restrictionsData)) {
@@ -223,15 +223,6 @@ class CouponService
                 ];
             }
 
-            $coupon = $this->couponRepository->findByIdWithRelation($couponId, ['restriction', 'orders', 'users']);
-
-            if ($coupon->orders()->exists()) {
-                return [
-                    'status' => false,
-                    'message' => 'Mã Này Đang Được Sử Dụng, Không Được Chỉnh Sửa !!!'
-                ];
-            }
-
             $coupon->update($couponData);
 
             $user_group = request('user_group');
@@ -247,8 +238,7 @@ class CouponService
                 }
 
                 $userIds = $allUsers->pluck('id')->toArray();
-
-                $coupon->users()->sync($userIds);
+                
             } else if ($user_group == UserGroupType::NEWBIE) {
                 $curentDate = now();
                 // giới hạn thời gian
@@ -264,9 +254,7 @@ class CouponService
                     ];
                 }
 
-                $newUserIds = $newUsers->pluck('id')->toArray();
-
-                $coupon->users()->sync($newUserIds);
+                $userIds = $newUsers->pluck('id')->toArray();
             } else {
                 $users = $this->userRepository->getUsersByGroupAndLoyaltyPoints($user_group);
                 if ($users->isEmpty()) {
@@ -276,31 +264,31 @@ class CouponService
                     ];
                 }
                 $userIds = $users->pluck('id')->toArray();
-
-                $coupon->users()->sync($userIds);
             }
+
+            $coupon->users()->sync($userIds);
 
             // Lấy dữ liệu ràng buộc
             $restrictionsData = [
                 'min_order_value' => $data['coupon_restrictions']['min_order_value'] ?? 0,
                 'max_discount_value' => $data['coupon_restrictions']['max_discount_value'] ?? null,
-                'valid_categories' => json_encode(array_map('intval', $data['coupon_restrictions']['valid_categories'])),
+                // 'valid_categories' => json_encode(array_map('intval', $data['coupon_restrictions']['valid_categories'])),
                 'coupon_id' => $coupon->id
             ];
 
-            $data['is_apply_all'] = request('is_apply_all');
+            // $data['is_apply_all'] = request('is_apply_all');
 
-            // Kiểm tra nếu checkbox 'is_apply_all' được chọn
-            if (isset($data['is_apply_all']) && $data['is_apply_all'] == 'on') {
-                // Lấy tất cả sản phẩm từ bảng products
-                $products = $this->showProducts();
-                $restrictionsData['valid_products'] = json_encode($products->pluck('id')->toArray());
-            } else {
-                // Kiểm tra nếu có 'valid_products' trong request, nếu không thì gán giá trị mặc định là mảng rỗng
-                $restrictionsData['valid_products'] = isset($data['coupon_restrictions']['valid_products'])
-                    ? json_encode(array_map('intval', $data['coupon_restrictions']['valid_products']))
-                    : json_encode([]);  // Gán giá trị mặc định là mảng rỗng nếu không có valid_products
-            }
+            // // Kiểm tra nếu checkbox 'is_apply_all' được chọn
+            // if (isset($data['is_apply_all']) && $data['is_apply_all'] == 'on') {
+            //     // Lấy tất cả sản phẩm từ bảng products
+            //     $products = $this->showProducts();
+            //     $restrictionsData['valid_products'] = json_encode($products->pluck('id')->toArray());
+            // } else {
+            //     // Kiểm tra nếu có 'valid_products' trong request, nếu không thì gán giá trị mặc định là mảng rỗng
+            //     $restrictionsData['valid_products'] = isset($data['coupon_restrictions']['valid_products'])
+            //         ? json_encode(array_map('intval', $data['coupon_restrictions']['valid_products']))
+            //         : json_encode([]);  // Gán giá trị mặc định là mảng rỗng nếu không có valid_products
+            // }
 
             $restrictionId = $coupon->restriction->id;
 

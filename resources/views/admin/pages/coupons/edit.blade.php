@@ -133,8 +133,8 @@
                                                     @enderror
                                                 </div>
                                             </div>
-                                            {{-- PHẦN SELECT TYPE --}}
 
+                                            {{-- PHẦN DISCOUNT VALUE --}}
                                             <div class="align-items-center g-2 mb-4 row">
                                                 <label class="col-sm-3 form-label-title mb-0" for="discount_value">
                                                     {{ __('form.coupon.discount_value') }}
@@ -143,12 +143,10 @@
                                                 <div class="col-sm-9">
                                                     <div class="input-group">
                                                         <span class="input-group-text"> $ </span>
-                                                        <input type="number" name="discount_value"
+                                                        <input type="number" id="discount_value" name="discount_value"
                                                             formcontrolname="discount_value"
                                                             value="{{ old('discount_value', $coupon->discount_value) }}"
-                                                            class="form-control ng-untouched ng-pristine ng-valid @error('discount_value')
-                                                                is-invalid
-                                                            @enderror"
+                                                            class="form-control ng-untouched ng-pristine ng-valid @error('discount_value') is-invalid @enderror"
                                                             placeholder="Nhập {{ __('form.coupon.discount_value') }}">
                                                     </div>
                                                     @error('discount_value')
@@ -250,7 +248,7 @@
                                         <div class="tab-pane fade" id="restriction-panel" role="tabpanel"
                                             aria-labelledby="ngb-nav-1">
                                             <h3>Cài đặt Hợp Lệ</h3>
-                                            <div class="align-items-center g-2 mb-4 row">
+                                            {{-- <div class="align-items-center g-2 mb-4 row">
                                                 <label class="col-sm-3 form-label-title mb-0" for="is_apply_all">
                                                     Chấp Nhận Cho Tất Cả Sản Phẩm
                                                 </label>
@@ -267,10 +265,10 @@
                                                         </label>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
                                             {{-- PHẦN CHỌN NHIỀU DANH MỤC --}}
-                                            <div class="align-items-center g-2 mb-4 row">
+                                            {{-- <div class="align-items-center g-2 mb-4 row">
                                                 <label class="col-sm-3 form-label-title mb-0" for="include_category">
                                                     Bao Gồm Danh Mục
                                                     <span class="theme-color ms-2 required-dot">*</span>
@@ -297,12 +295,11 @@
                                                         <div class="alert alert-danger mt-3">{{ $message }}</div>
                                                     @enderror
                                                 </div>
-                                            </div>
-
+                                            </div> --}}
                                             {{-- PHẦN CHỌN NHIỀU DANH MỤC --}}
 
                                             {{-- PHẦN CHỌN NHIỀU SẢN PHẨM --}}
-                                            <div class="align-items-center g-2 mb-4 row">
+                                            {{-- <div class="align-items-center g-2 mb-4 row">
                                                 <label class="col-sm-3 form-label-title mb-0" for="include_product">
                                                     Bao Gồm Sản Phẩm
                                                     <span class="theme-color ms-2 required-dot">*</span>
@@ -323,7 +320,7 @@
                                                         <div class="alert alert-danger mt-3">{{ $message }}</div>
                                                     @enderror
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                             {{-- PHẦN CHỌN NHIỀU SẢN PHẨM --}}
 
                                             <div class="align-items-center g-2 mb-4 row">
@@ -351,21 +348,19 @@
                                                     @enderror
                                                 </div>
                                             </div>
+                                            {{-- PHẦN MAX DISCOUNT VALUE --}}
                                             <div class="align-items-center g-2 mb-4 row" id="usage-per-coupon">
-                                                <label class="col-sm-3 form-label-title mb-0"
-                                                    for="coupon_restrictions[max_discount_value]">
+                                                <label class="col-sm-3 form-label-title mb-0" for="max_discount_value">
                                                     Hạn Mức Tối Đa
                                                 </label>
                                                 <div class="col-sm-9">
-                                                    <input type="number" id="coupon_restrictions[max_discount_value]"
+                                                    <input type="number" id="max_discount_value"
                                                         name="coupon_restrictions[max_discount_value]"
-                                                        class="form-control @error('__(coupon_restrictions.max_discount_value)')
-                                                            is-invalid
-                                                        @enderror"
+                                                        class="form-control @error('__(coupon_restrictions.max_discount_value)') is-invalid @enderror"
                                                         value="{{ old('coupon_restrictions.max_discount_value', $coupon->restriction->max_discount_value) }}"
                                                         placeholder="Enter value">
-                                                    <p class="help-text">*Chỉ định
-                                                        số tiền tối đa có thể sử dụng trong một phiếu giảm giá.</p>
+                                                    <p class="help-text">*Chỉ định số tiền tối đa có thể sử dụng trong một
+                                                        phiếu giảm giá.</p>
                                                     @error('coupon_restrictions.max_discount_value')
                                                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                                                     @enderror
@@ -485,7 +480,8 @@
 
             @if ($errors->has('message'))
                 Swal.fire({
-                    icon: 'error',
+                    icon:
+                     'error',
                     title: 'Có lỗi xảy ra',
                     text: '{{ $errors->first('message') }}',
                     showConfirmButton: true
@@ -521,8 +517,41 @@
                     $errorDiv.fadeOut(200);
                 }
             });
+
+            // Lấy các phần tử cần thiết
+            var $discountType = $('#type');
+            var $discountValue = $('#discount_value');
+            var $maxDiscountValue = $('#max_discount_value');
+
+            // Hàm để cập nhật max_discount_value
+            function updateMaxDiscountValue() {
+                var discountType = $discountType.val();
+                var discountValue = $discountValue.val();
+
+                if (discountType == '0') { // Giá Cố Định
+                    $maxDiscountValue.val(discountValue); // Cập nhật giá trị max_discount_value
+                    $maxDiscountValue.prop('readonly', true); // Không cho phép chỉnh sửa
+                } else {
+                    $maxDiscountValue.prop('readonly', false); // Cho phép chỉnh sửa nếu là Phần Trăm
+                }
+            }
+
+            // Sự kiện khi thay đổi loại giảm giá
+            $discountType.change(function() {
+                updateMaxDiscountValue();
+            });
+
+            // Sự kiện khi thay đổi giá trị giảm giá
+            $discountValue.on('input', function() {
+                if ($discountType.val() == '0') { // Khi loại giảm giá là Giá Cố Định
+                    $maxDiscountValue.val($discountValue.val());
+                }
+            });
+
+            // Gọi hàm cập nhật ngay khi trang được tải
+            updateMaxDiscountValue();
         });
-        
+
         $(document).ready(function() {
             function checkPanelErrors() {
                 // Xóa hết indicator cũ

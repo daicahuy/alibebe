@@ -142,19 +142,19 @@ class CouponRepository extends BaseRepository
         $coupon = $this->model->with($relations)
             ->findOrFail($id); // Trả về coupon hoặc lỗi nếu không tìm thấy
 
-        // Chuyển valid_categories từ JSON thành mảng ID
-        $validCategoryIds = json_decode($coupon->restriction->valid_categories, true);
-        $validProductIds = json_decode($coupon->restriction->valid_products, true);
+        // // Chuyển valid_categories từ JSON thành mảng ID
+        // $validCategoryIds = json_decode($coupon->restriction->valid_categories, true);
+        // $validProductIds = json_decode($coupon->restriction->valid_products, true);
 
-        // Lấy danh sách các danh mục từ các ID
-        $categories = Category::whereIn('id', $validCategoryIds)->get(['id', 'name']);
+        // // Lấy danh sách các danh mục từ các ID
+        // $categories = Category::whereIn('id', $validCategoryIds)->get(['id', 'name']);
 
-        // Lấy danh sách các sản phẩm từ các ID
-        $products = Product::whereIn('id', $validProductIds)->get(['id', 'name']);
+        // // Lấy danh sách các sản phẩm từ các ID
+        // $products = Product::whereIn('id', $validProductIds)->get(['id', 'name']);
 
-        // Gán danh mục và sản phẩm vào coupon để dễ dàng truy cập trong view
-        $coupon->categories = $categories;
-        $coupon->products = $products;
+        // // Gán danh mục và sản phẩm vào coupon để dễ dàng truy cập trong view
+        // $coupon->categories = $categories;
+        // $coupon->products = $products;
         
         return $coupon;
     }

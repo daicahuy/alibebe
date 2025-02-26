@@ -117,23 +117,22 @@
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <select id="type" name="discount_type"
-                                                        class="form-control form-select @error('discount_type')
-                                                            is-invalid
-                                                        @enderror">
-                                                        <option value="" disabled selected>
-                                                            Lựa Chọn Loại Giảm Giá
+                                                        class="form-control form-select @error('discount_type') is-invalid @enderror">
+                                                        <option value="0"
+                                                            {{ old('discount_type') == 0 ? 'selected' : '' }}>Giá Cố Định
                                                         </option>
-                                                        <option value="0">Giá Cố Định</option>
-                                                        <option value="1">Phần Trăm</option>
+                                                        <option value="1"
+                                                            {{ old('discount_type') == 1 ? 'selected' : '' }}>Phần Trăm
+                                                        </option>
                                                     </select>
                                                     @error('discount_type')
                                                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
-
                                             {{-- PHẦN SELECT TYPE --}}
 
+                                            {{-- PHẦN NHẬP GIÁ TRỊ GIẢM GIÁ --}}
                                             <div class="align-items-center g-2 mb-4 row">
                                                 <label class="col-sm-3 form-label-title mb-0" for="discount_value">
                                                     {{ __('form.coupon.discount_value') }}
@@ -141,13 +140,10 @@
                                                 </label>
                                                 <div class="col-sm-9">
                                                     <div class="input-group">
-                                                        <span class="input-group-text"> $ </span>
+                                                        <span class="input-group-text">$</span>
                                                         <input type="number" id="discount_value" name="discount_value"
-                                                            formcontrolname="discount_value"
                                                             value="{{ old('discount_value') }}"
-                                                            class="form-control ng-untouched ng-pristine ng-valid @error('discount_value')
-                                                                is-invalid
-                                                            @enderror"
+                                                            class="form-control @error('discount_value') is-invalid @enderror"
                                                             placeholder="Nhập Mức Giảm Giá">
                                                     </div>
                                                     @error('discount_value')
@@ -176,6 +172,7 @@
                                                     @enderror
                                                 </div>
                                             </div>
+
                                             <div class="align-items-center g-2 mb-4 row" id="start-date-div"
                                                 style="display:none;">
                                                 <label class="col-sm-3 form-label-title mb-0" for="start_date">
@@ -250,79 +247,6 @@
                                             aria-labelledby="ngb-nav-1">
                                             <h3>Cài đặt Hợp Lệ</h3>
                                             <div class="align-items-center g-2 mb-4 row">
-                                                <label class="col-sm-3 form-label-title mb-0" for="is_apply_all">
-                                                    Chấp Nhận Cho Tất Cả Sản Phẩm
-                                                </label>
-                                                {{-- <input type="checkbox" name="is_apply_all"> --}}
-                                                <div class="col-sm-9">
-                                                    <div class="form-check form-switch ps-0">
-                                                        <label class="switch">
-                                                            <input type="checkbox" id="is_apply_all" name="is_apply_all"
-                                                                formcontrolname="is_apply_all"
-                                                                class="ng-untouched ng-pristine ng-valid">
-                                                            <span class="switch-state"></span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {{-- PHẦN CHỌN NHIỀU DANH MỤC --}}
-                                            <div class="align-items-center g-2 mb-4 row">
-                                                <label class="col-sm-3 form-label-title mb-0" for="include_category">
-                                                    Bao Gồm Danh Mục
-                                                    <span class="theme-color ms-2 required-dot">*</span>
-                                                </label>
-                                                <div class="col-sm-9">
-                                                    <select name="coupon_restrictions[valid_categories][]"
-                                                        id="include_category"
-                                                        class="form-control form-select @error('coupon_restrictions.valid_categories') is-invalid @enderror"
-                                                        multiple>
-                                                        @foreach ($categories as $category)
-                                                            <option value="{{ $category->id }}"
-                                                                {{ in_array($category->id, old('coupon_restrictions.valid_categories', [])) ? 'selected' : '' }}>
-                                                                {{ $category->name }}
-                                                            </option>
-                                                            @foreach ($category->categories as $child)
-                                                                <option value="{{ $child->id }}"
-                                                                    {{ in_array($child->id, old('coupon_restrictions.valid_categories', [])) ? 'selected' : '' }}>
-                                                                    --{{ $child->name }}
-                                                                </option>
-                                                            @endforeach
-                                                        @endforeach
-                                                    </select>
-                                                    @error('coupon_restrictions.valid_categories')
-                                                        <div class="alert alert-danger mt-3">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                            {{-- PHẦN CHỌN NHIỀU DANH MỤC --}}
-
-                                            {{-- PHẦN CHỌN NHIỀU SẢN PHẨM --}}
-                                            <div class="align-items-center g-2 mb-4 row">
-                                                <label class="col-sm-3 form-label-title mb-0" for="include_product">
-                                                    Bao Gồm Sản Phẩm
-                                                    <span class="theme-color ms-2 required-dot">*</span>
-                                                </label>
-                                                <div class="col-sm-9">
-                                                    <select name="coupon_restrictions[valid_products][]"
-                                                        id="include_product"
-                                                        class="form-control form-select @error('coupon_restrictions.valid_products') is-invalid @enderror"
-                                                        multiple>
-                                                        @foreach ($products as $product)
-                                                            <option value="{{ $product->id }}"
-                                                                {{ in_array($product->id, old('coupon_restrictions.valid_products', [])) ? 'selected' : '' }}>
-                                                                {{ $product->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    @error('coupon_restrictions.valid_products')
-                                                        <div class="alert alert-danger mt-3">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                            {{-- PHẦN CHỌN NHIỀU SẢN PHẨM --}}
-
-                                            <div class="align-items-center g-2 mb-4 row">
                                                 <label class="col-sm-3 form-label-title mb-0" for="min_order_value">
                                                     Giá Tối Thiểu
                                                     <span class="theme-color ms-2 required-dot">*</span>
@@ -347,21 +271,19 @@
                                                     @enderror
                                                 </div>
                                             </div>
+                                            {{-- PHẦN NHẬP HẠN MỨC TỐI ĐA --}}
                                             <div class="align-items-center g-2 mb-4 row" id="usage-per-coupon">
-                                                <label class="col-sm-3 form-label-title mb-0"
-                                                    for="coupon_restrictions[max_discount_value]">
+                                                <label class="col-sm-3 form-label-title mb-0" for="max_discount_value">
                                                     Hạn Mức Tối Đa
                                                 </label>
                                                 <div class="col-sm-9">
-                                                    <input type="number" id="coupon_restrictions[max_discount_value]"
+                                                    <input type="number" id="max_discount_value"
                                                         name="coupon_restrictions[max_discount_value]"
                                                         value="{{ old('coupon_restrictions.max_discount_value') }}"
-                                                        class="form-control @error('coupon_restrictions.max_discount_value')
-                                                            is-invalid
-                                                        @enderror"
+                                                        class="form-control @error('coupon_restrictions.max_discount_value') is-invalid @enderror"
                                                         placeholder="Enter value">
-                                                    <p class="help-text">*Chỉ định
-                                                        số tiền tối đa có thể sử dụng trong một phiếu giảm giá.</p>
+                                                    <p class="help-text">*Chỉ định số tiền tối đa có thể sử dụng trong một
+                                                        phiếu giảm giá.</p>
                                                     @error('coupon_restrictions.max_discount_value')
                                                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                                                     @enderror
@@ -414,7 +336,8 @@
                                                     <select name="user_group" id=""
                                                         class="form-control form-select">
                                                         @foreach ($userGroupTypes as $key => $value)
-                                                            <option value="{{ $key }}">
+                                                            <option value="{{ $key }}"
+                                                                {{ old('user_group') == $key ? 'selected' : '' }}>
                                                                 {{ $value }}
                                                             </option>
                                                         @endforeach
@@ -497,6 +420,40 @@
                     $errorDiv.fadeOut(200);
                 }
             });
+
+            // Lấy các phần tử cần thiết
+            var $discountType = $('#type');
+            var $discountValue = $('#discount_value');
+            var $maxDiscountValue = $('#max_discount_value');
+
+            // Hàm để cập nhật max_discount_value
+            function updateMaxDiscountValue() {
+                var discountType = $discountType.val();
+                var discountValue = $discountValue.val();
+
+                if (discountType == '0') { // Giá Cố Định
+                    $maxDiscountValue.val(discountValue); // Cập nhật giá trị max_discount_value
+                    $maxDiscountValue.prop('readonly', true); // Không cho phép chỉnh sửa
+                } else {
+                    $maxDiscountValue.val('');
+                    $maxDiscountValue.prop('readonly', false); // Cho phép chỉnh sửa nếu là Phần Trăm
+                }
+            }
+
+            // Sự kiện khi thay đổi loại giảm giá
+            $discountType.change(function() {
+                updateMaxDiscountValue();
+            });
+
+            // Sự kiện khi thay đổi giá trị giảm giá
+            $discountValue.on('input', function() {
+                if ($discountType.val() == '0') { // Khi loại giảm giá là Giá Cố Định
+                    $maxDiscountValue.val($discountValue.val());
+                }
+            });
+
+            // Gọi hàm cập nhật ngay khi trang được tải
+            updateMaxDiscountValue();
         });
 
         $(document).ready(function() {

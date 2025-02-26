@@ -142,7 +142,7 @@ class User extends Authenticatable
 
     public function coupons()
     {
-        return $this->belongsToMany(Coupon::class)->withPivot('created_at', 'updated_at');
+        return $this->belongsToMany(Coupon::class,'coupon_users', 'user_id', 'coupon_id')->withPivot('created_at', 'updated_at');
     }
 
     public function reviews()
