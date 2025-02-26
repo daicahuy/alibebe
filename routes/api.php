@@ -42,6 +42,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/productListCate/{id}', [ListCategoryController::class, 'detailModal']);
 Route::get('/products/{id}', [DetailProductController::class, 'getProductDetail']);
 
+// Route::post('/comments', [DetailProductController::class, 'storeComment']);
+// Route::post('/reply-comments', [DetailProductController::class, 'storeReply']);
 
 Route::prefix('/categories')
     ->name('api.categories.')

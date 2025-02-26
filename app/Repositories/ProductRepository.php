@@ -3,7 +3,11 @@
 namespace App\Repositories;
 
 use App\Models\Category;
+use App\Models\Comment;
+use App\Models\CommentReply;
+use App\Models\Order;
 use App\Models\Product;
+use App\Models\Review;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -392,17 +396,41 @@ class ProductRepository extends BaseRepository
                 'productGallery',
                 'productAccessories',
                 'reviews.user',
+                'reviews.ReviewMultimedia',
                 'attributeValues.attribute',
-                'productVariants',
+                'productVariants.productStock',
                 'productStock',
                 'productVariants.attributeValues.attribute',
+                'comments.commentReplies',
             ])
             ->with(['attributeValues' => function ($query) {
                 $query->whereHas('attribute', function ($q) {
                     $q->where('name', 'Bộ nhớ trong');
                 });
             }])
+            ->with(['productVariants' => function ($query) {
+                $query->with(['attributeValues' => function ($query) {
+                    $query->with('attribute');
+                }]);
+            }])
             ->findOrFail($id);
+    }
+
+    public function getProductAttributes(Product $product, array $attributeNames)
+    {
+        $attributes = [];
+        $displayedValues = [];
+
+        foreach ($product->productVariants as $variant) {
+            foreach ($variant->attributeValues as $attrValue) {
+                if (in_array($attrValue->attribute->name, $attributeNames) && !in_array($attrValue->value, $displayedValues[$attrValue->attribute->name] ?? [])) {
+                    $attributes[$attrValue->attribute->name][] = $attrValue;
+                    $displayedValues[$attrValue->attribute->name][] = $attrValue->value;
+                }
+            }
+        }
+
+        return $attributes;
     }
 
 
@@ -438,5 +466,42 @@ class ProductRepository extends BaseRepository
         $product = $this->model->with(['categories', 'brand', 'productVariants.attributeValues.attribute', 'reviews', 'productVariants.productStock'])->find($id);
         // dd($product);
         return $product;
+    }
+    public function createComment($data)
+    {
+        return Comment::create($data);
+    }
+
+    public function createReply($data)
+    {
+        return CommentReply::create($data);
+    }
+
+    public function createReview(array $data)
+    {
+        return Review::create($data);
+    }
+
+    public function userHasPurchasedProduct($userId, $productId)
+    {
+        return Order::where('user_id', $userId)
+            ->where('is_paid', 1) 
+            ->whereHas('orderItems', function ($query) use ($productId) {
+                $query->where('product_id', $productId);
+            })
+            ->exists();
+    }
+
+    public function getLatestReview($productId, $userId)
+    {
+        return Review::where('product_id', $productId)
+            ->where('user_id', $userId)
+            ->latest()
+            ->first();
+    }
+
+    public function getReviewsByProductId(int $id)
+    {
+        return Review::where('product_id', $id)->where('is_active', 1)->get();
     }
 }
