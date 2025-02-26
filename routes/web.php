@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CartItemController as ApiCartItemController;
 use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Admin\AttributeController;
 use App\Http\Controllers\Web\Admin\AttributeValueController;
@@ -44,8 +45,11 @@ Route::get('/categories/{category?}', [ListCategoriesController::class, 'index']
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
 Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middleware('auth');
-Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add');
+Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add')->middleware('auth');;
 Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
+Route::post('/cart/update', [ApiCartItemController::class, 'update'])->name('cart.update');
+Route::post('/cart/save-session', [ApiCartItemController::class, 'saveSession'])->name('cart.saveSession');
+
 
 
 
