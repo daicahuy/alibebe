@@ -36,7 +36,7 @@ class ListCategoriesController extends Controller
         $listStar = $this->listCategoriesService->getAllReviews();
         $listVariantAttributes = $this->listCategoriesService->listVariantAttributes($category);
 
-        // dd($listProductCate); // **THÊM DÒNG NÀY ĐỂ DEBUG**
+        // dd($listProductCate); 
 
         return view('client.pages.list-categories', compact(
             'listParentCategories',

@@ -211,11 +211,21 @@ Route::prefix('/admin')
 
                 Route::put('/{product}', 'update')->name('update');
 
-                Route::put('/restore', 'restore')->name('restore');
+                Route::put('/restore/{product}', 'restore')->name('restore');
 
-                Route::delete('{product}/delete', 'delete')->name('delete');
+                Route::delete('/delete{product}', 'delete')->name('delete');
 
-                Route::delete('/destroy', 'destroy')->name('destroy');
+                Route::delete('/destroy{product}', 'destroy')->name('destroy');
+
+                //Bulk
+                Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
+
+                Route::post('/bulk-restore', 'bulkRestore')->name('bulkRestore');
+
+                Route::post('/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
+
+
+
             });
 
         // ATTRIBUTES

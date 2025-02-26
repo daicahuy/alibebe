@@ -18,41 +18,66 @@ class CategoryController extends Controller
     {
         $this->categoryService = $categoryService;
     }
-
-
+    // làm lại 
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 5);
 
-        $sortBy = $request->input('sort', 'updated_at'); // Cột mặc định để sắp xếp
-        $order = $request->input('order', 'DESC'); // Hướng sắp xếp mặc định
+        $perPage = $request->get('per_page', 15);
+        $categoryId = $request->get('category_id');
+        $stockStatus = $request->get('stock_status');
+        $keyword = $request->get('_keyword');
+        // dd($categoryId);
+        $categoryData = $this->categoryService->getCategories($perPage, $keyword);
+        $categories = $categoryData['categories'];
+        $countTrash = $categoryData['countTrash'];
+        $countHidden = $categoryData['countHidden'];
+        // $categories = $this->categoryService->getCategories();
 
-        $listCategory = $this->categoryService->index($perPage,$sortBy,$order);
-        // dd($listCategory);
+        return view('admin.pages.categories.list', compact(
 
-        
-
-        return view('admin.pages.categories.list', $listCategory);
+            'categories',
+            'perPage',
+            'categoryId',
+            'stockStatus',
+            'keyword',
+            'countTrash',
+            'countHidden',
+        ));
     }
 
-    public function trash()
+
+
+    public function trash(Request $request)
     {
-        $listTrash = $this->categoryService->trash();
+        $perPage = $request->input('per_page', 15);
+        $keyword = $request->get('_keyword');
+
+        $listTrash = $this->categoryService->trash($perPage, $keyword);
 
         // dd($listTrash); // Kiểm tra dữ liệu NHẬN ĐƯỢC từ service
 
         // dd($listTrash);
 
-        return view('admin.pages.categories.trash', compact('listTrash'));
+        return view('admin.pages.categories.trash', compact(
+            'listTrash',
+            'perPage',
+            'keyword'
+        ));
     }
 
     public function hidden(Request $request)
     {
-        $perPage = $request->input('per_page', 5);
-       
-        $listHidden = $this->categoryService->hidden($perPage);
+        $perPage = $request->input('per_page', 15);
+        $keyword = $request->get('_keyword');
+
+
+        $listHidden = $this->categoryService->hidden($perPage, $keyword);
         // dd($listHidden);
-        return view('admin.pages.categories.hidden', $listHidden);
+        return view('admin.pages.categories.hidden', compact(
+            'listHidden',
+            'perPage',
+            'keyword'
+        ));
     }
 
     public function show(Category $category)
@@ -85,7 +110,7 @@ class CategoryController extends Controller
         $order = $request->input('order', 'DESC'); // Hướng sắp xếp mặc định
         if ($response['success']) {
 
-            $listCategory = $this->categoryService->index(5,$sortBy,$order);
+            $listCategory = $this->categoryService->getCategories(15, null);
 
             return redirect() // chuyển hướng url
 
@@ -127,11 +152,13 @@ class CategoryController extends Controller
                 'type' => 'alert'
             ]);
         }
-       
+
     }
 
     public function update(UpdateCategoryRequest $request, Category $category)
     {
+        $perPage = $request->get('per_page', 15);
+
         $data = $request->validated();
         $response = $this->categoryService->update($category->id, $data);
 
@@ -139,7 +166,7 @@ class CategoryController extends Controller
         $order = $request->input('order', 'DESC'); // Hướng sắp xếp mặc định
         if ($response['success']) {
 
-            $listCategory = $this->categoryService->index(5,$sortBy,$order);
+            $listCategory = $this->categoryService->getCategories(15, null);
 
             return redirect() // chuyển hướng url
 
@@ -166,7 +193,7 @@ class CategoryController extends Controller
 
         if ($response['success']) {
 
-            $listTrash = $this->categoryService->trash();
+            $listTrash = $this->categoryService->trash(15, null);
 
             return redirect() // chuyển hướng url
 
@@ -190,10 +217,10 @@ class CategoryController extends Controller
     {
         $response = $this->categoryService->delete($id);
         // dd($response);
-       
+
         if ($response['success']) {
 
-            $listCategory = $this->categoryService->index(5,'updated_at','DESC');
+            $listCategory = $this->categoryService->getCategories(15, null);
 
             return redirect() // chuyển hướng url
 
@@ -224,7 +251,7 @@ class CategoryController extends Controller
 
         if ($destroy['success']) {
 
-            $listTrash = $this->categoryService->trash();
+            $listTrash = $this->categoryService->trash(15, null);
             // dd($listTrash);
             // return view('admin.pages.categories.trash', $listTrash);
 
@@ -264,7 +291,7 @@ class CategoryController extends Controller
         return response()->json($response);
     }
 
-    
+
 
     public function bulkTrash(Request $request)
     {
@@ -278,23 +305,5 @@ class CategoryController extends Controller
     //
 
 
-    // search
-    public function search(Request $request)
-    {
-        $keyword = $request->get('_keyword');
-        $keyword = trim($keyword);
-        $perPage = $request->input('per_page', 5);
-        $sortBy = $request->input('sort', 'updated_at');
-        $order = $request->input('order', 'DESC');
-        
-        $listCategory = $this->categoryService->search($keyword, $perPage,$sortBy,$order);
-
-
-
-        return view('admin.pages.categories.list', $listCategory);
-
-        // return view('admin.pages.categories.list', compact('listCategory', 'keyword'));
-
-
-    }
+  
 }

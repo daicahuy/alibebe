@@ -16,44 +16,52 @@ class CategoryRepository extends BaseRepository
     }
 
     // Tự viết hàm truy vấn mới
-    // list category gốc, (parent_id = NULL) và con nếu có, dành cho list có phân trang
-    public function paginationM(
-        array $columns = ['*'],
-        $parentId = 'parent_id',
-        int $isActive = 1,
-        int $perPage = 5,
-        array $orderBy = ['updated_at', 'DESC'],
-        array $relations = ['categories'],
-    ) {
-        return $this->model->select($columns)
-            ->whereNull($parentId)
-            ->where('is_active', $isActive)
-            ->with($relations)
-            ->orderBy($orderBy[0], $orderBy[1])
-            ->paginate($perPage)
-            ->withQueryString();
-    }
-
-    // search
-    public function serach($keyword, $parentId = null)
+    public function getCategories($perPage = 15, $keyword = null, )
     {
         $query = $this->model->query();
 
-        // if ($parentId !== null) {
-        //     $query->whereNull($parentId);
-        // }
+        $query->select(
+            'id',
+            'icon',
+            'name',
+            'is_active',
+            'created_at',
+            'updated_at',
+        )
+            ->with(['categories'])
+            ->where(['deleted_at' => null, 'is_active' => 1])
+            ->whereNull('parent_id')
+            ->orderBy('updated_at', 'DESC');
 
-        if (trim($keyword) !== '') {
-            $query->where(function ($query) use ($keyword) {
-                $query->where('name', 'like', "%{$keyword}%");
+
+
+
+
+
+        // search
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%') // Tìm kiếm trong danh mục cha
+                    ->orWhereHas('categories', function ($childCategoryQuery) use ($keyword) { // Tìm kiếm trong danh mục con
+                        $childCategoryQuery->where('name', 'LIKE', '%' . $keyword . '%');
+                    });
             });
-        } else {
-            $query->whereNull('parent_id');
         }
-        $query->where('is_active', 1);
-        $query->orderBy('updated_at', 'DESC');
-        return $query;
+
+
+
+        $categories = $query->paginate($perPage)->appends([
+            'per_page' => $perPage,
+            '_keyword' => $keyword,
+        ]);
+
+
+
+        // dd($categories);
+
+        return $categories;
     }
+   
 
     public function getAllCate()
     {
@@ -81,15 +89,33 @@ class CategoryRepository extends BaseRepository
 
 
     // Lấy danh sách xóa mềm
-    public function getTrash()
+    public function getTrash($perPage = 15, $keyword = null)
     {
-        return $this->model->onlyTrashed()->orderBy('updated_at', 'desc')->paginate(5);
+        $query = $this->model->onlyTrashed()->orderBy('updated_at', 'desc');
+        if ($keyword) {
+            $query->withTrashed()->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%')
+                    ->orWhereHas('categories', function ($childCategoryQuery) use ($keyword) {
+                        $childCategoryQuery->withTrashed()->where('name', 'LIKE', '%' . $keyword . '%');
+                    });
+            });
+        }
+        return $query->paginate($perPage);
     }
 
     // Lấy danh sách hidden
-    public function getHidden()
+    public function getHidden($perPage = 15, $keyword = null)
     {
-        return $this->model->where('is_active', 0)->orderBy('updated_at', 'desc')->paginate(5);
+        $query = $this->model->where('is_active', 0)->orderBy('updated_at', 'desc');
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', '%' . $keyword . '%')
+                    ->orWhereHas('categories', function ($childCategoryQuery) use ($keyword) {
+                        $childCategoryQuery->where('name', 'LIKE', '%' . $keyword . '%');
+                    });
+            });
+        }
+        return $query->paginate($perPage);
     }
 
 
@@ -212,7 +238,7 @@ class CategoryRepository extends BaseRepository
             )
             ->groupBy('categories.id', 'categories.name', 'categories.icon')
             ->orderByDesc('total_sales')
-            ->get();            
+            ->get();
     }
 
 }

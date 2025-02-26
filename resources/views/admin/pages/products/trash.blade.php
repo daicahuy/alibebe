@@ -33,38 +33,46 @@
                         </div>
 
                         <!-- HEADER TABLE -->
-                        <div class="show-box">
-                            <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                <select class="form-control">
-                                    <option value="15">15
-                                    </option>
-                                    <option value="30">30
-                                    </option>
-                                    <option value="45">45
-                                    </option>
-                                </select>
-                                <label>{{ __('message.items_per_page') }}</label>
-                                <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
-                                    id="btn-restore-all">
-                                    {{ __('message.restore_all') }}
-                                </button>
-                                <button class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
-                                    id="btn-delete-all">
-                                    {{ __('message.delete_all') }}
-                                </button>
-                            </div>
-                            <div class="datepicker-wrap">
+                        <form action="{{ route('admin.products.trash') }}" method="GET" id="filterForm">
 
-                            </div>
+                            <div class="show-box">
+                                <div class="selection-box"><label>{{ __('message.show') }} :</label>
+                                    <label for="perPageSelect">{{ __('message.show') }} :</label>
+                                    <select id="perPageSelect" class="form-control" name="per_page"
+                                        onchange="document.getElementById('filterForm').submit();">
+                                        <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15
+                                        </option>
+                                        <option value="30" {{ $perPage == 30 ? 'selected' : '' }}>30
+                                        </option>
+                                        <option value="45" {{ $perPage == 45 ? 'selected' : '' }}>45
+                                        </option>
+                                    </select>
+                                    <label>{{ __('message.items_per_page') }}</label>
+                                    <button type="button"
+                                        class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
+                                        id="btn-restore-all">
+                                        {{ __('message.restore_all') }}
+                                    </button>
+                                    <button type="button"
+                                        class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
+                                        id="btn-delete-all">
+                                        {{ __('message.delete_all') }}
+                                    </button>
+                                </div>
+                                <div class="datepicker-wrap">
 
-                            <form action="" method="GET">
+                                </div>
+
                                 <div class="table-search">
                                     <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword">
+                                    <input type="search" class="form-control" name="_keyword" id="role-search"
+                                        value="{{ $keyword ?? '' }}">
+                                    <button type="submit" class="btn btn-primary">{{ __('message.search') }}</button>
                                 </div>
-                            </form>
 
-                        </div>
+                            </div>
+                        </form>
+
                         <!-- END HEADER TABLE -->
 
 
@@ -77,92 +85,118 @@
                                         <tr>
                                             <th class="sm-width">
                                                 <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" id="checkbox-table"
+                                                    <input type="checkbox" id="select-all"
                                                         class="custom-control-input checkbox_animated">
                                                 </div>
                                             </th>
-                                            <th class="sm-width">{{ __('form.category.id') }}</th>
-                                            <th>{{ __('form.category.icon') }}</th>
+                                            <th class="sm-width">
+                                                {{ __('form.product.id') }}
+                                                <div class="filter-arrow">
+                                                    <div><i class="ri-arrow-up-s-fill"></i></div>
+                                                </div>
+                                            </th>
+                                            <th>{{ __('form.product.sku') }}</th>
+                                            <th class="cursor-pointer sm-width">{{ __('form.images') }}</th>
                                             <th class="cursor-pointer">
-                                                {{ __('form.category.name') }}
+                                                {{ __('form.product.name') }}
                                                 <div class="filter-arrow">
                                                     <div><i class="ri-arrow-up-s-fill"></i></div>
                                                 </div>
                                             </th>
-                                            <th>
-                                                {{ __('form.category.is_active') }}
+                                            <th class="cursor-pointer">{{ __('form.categories') }}</th>
+                                            <th class="cursor-pointer">
+                                                {{ __('form.product.price') }}
                                                 <div class="filter-arrow">
                                                     <div><i class="ri-arrow-up-s-fill"></i></div>
                                                 </div>
                                             </th>
-                                            <th>{{ __('form.category.created_at') }}</th>
-                                            <th>{{ __('form.category.updated_at') }}</th>
+                                            <th class="cursor-pointer">
+                                                {{ __('form.product_stocks') }}
+                                                <div class="filter-arrow">
+                                                    <div><i class="ri-arrow-up-s-fill"></i></div>
+                                                </div>
+                                            </th>
+                                            <th class="cursor-pointer">{{ __('form.product_stock_status') }}</th>
+                                            <th class="cursor-pointer">{{ __('form.product.is_active') }}</th>
                                             <th>{{ __('form.action') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" id="checkbox-table"
-                                                        class="custom-control-input checkbox_animated checkbox-input">
-                                                </div>
-                                            </td>
-                                            <td class="cursor-pointer sm-width"> 1
+                                        @foreach ($listTrashs as $trash)
+                                            <tr>
+                                                <td class="sm-width">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" id="ids[]" value="{{ $trash->id }}"
+                                                            class="custom-control-input checkbox_animated checkbox-input">
+                                                    </div>
+                                                </td>
+                                                <td class="cursor-pointer sm-width">{{ $trash->id }}</td>
+                                                <td class="cursor-pointer">{{ $trash->sku }}</td>
+                                                <td class="cursor-pointer sm-width"><img alt="image" class="tbl-image"
+                                                        src="{{ Storage::url($trash->thumbnail) }}">
+                                                </td>
+                                                <td class="cursor-pointer">{{ $trash->name }}</td>
+                                                <td class="cursor-pointer">
+                                                    @if ($trash->categories->isNotEmpty())
+                                                        {{ $trash->categories->pluck('name')->implode(', ') }}
+                                                    @else
+                                                        <span class="text-muted">Không có danh mục</span>
+                                                    @endif
+                                                </td>
+                                                <td class="cursor-pointer">{{ $trash->price_range }} </td>
+                                                <td class="cursor-pointer">{{ $trash->stock_quantity }}</td>
+                                                <td class="cursor-pointer">
+                                                    @if ($trash->stock_quantity > 10)
+                                                        <div class="status-in_stock">
+                                                            <span>{{ __('form.product_stock_in_stock') }}</span>{{-- còn  --}}
+                                                        </div>
+                                                    @elseif($trash->stock_quantity > 0)
+                                                        <div class="status-low_stock">
+                                                            <span>{{ __('form.product_stock_low_stock') }}</span>{{-- hết  --}}
+                                                        </div>
+                                                    @else
+                                                        <div class="status-out_of_stock">
+                                                            <span>{{ __('form.product_stock_out_of_stock') }}</span>{{-- sắp hết  --}}
+                                                        </div>
+                                                    @endif
+                                                </td>
+                                                <td class="cursor-pointer">
+                                                    <div class="form-check form-switch ps-0">
+                                                        <label class="switch switch-sm">
+                                                            <input type="checkbox" id="status-0"value="0"
+                                                                {{ $trash->is_active == 1 ? 'checked' : '' }} disabled>
+                                                            <span class="switch-state"></span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <ul id="actions">
+                                                        <li>
+                                                            <form action="{{ route('admin.products.restore', $trash) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <button type="submit" class="btn-restore">
+                                                                    <i class="ri-refresh-line"></i>
+                                                                </button>
+                                                            </form>
+                                                        </li>
 
-                                            </td>
-                                            <td class="cursor-pointer sm-width">
-                                                <img alt="image" class="tbl-image icon-image"
-                                                    src="{{ asset('/theme/admin/assets/images/products/mobile_phone.svg') }}">
-                                            </td>
-                                            <td class="cursor-pointer">
-
-                                                    <a href="" class="fs-6 fw-bold w-100">Âm thanh </a>
-
-                                            </td>
-
-                                            <td class="cursor-pointer">
-                                                <div class="form-check form-switch ps-0">
-                                                    <label class="switch switch-sm"><input type="checkbox" id="status-0"
-                                                            value="1"><span class="switch-state"></span></label>
-                                                </div>
-                                            </td>
-                                            <td class="cursor-pointer">
-
-                                                22/12/2024
-
-                                            </td>
-                                            <td class="cursor-pointer">
-
-                                                22/12/2024
-
-                                            </td>
-
-
-                                            <td>
-                                                <ul id="actions">
-                                                    <li>
-                                                        <form action="#!" method="POST">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <button type="submit" class="btn-restore">
-                                                                <i class="ri-refresh-line"></i>
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    <li>
-                                                        <form action="#!" method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn-delete"
-                                                                onclick="return confirm('{{ __('message.confirm_delete_item') }}')">
-                                                                <i class="ri-delete-bin-line"></i>
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
+                                                        <li>
+                                                            <form action="{{ route('admin.products.destroy', $trash) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn-delete"
+                                                                    onclick="return confirm('{{ __('message.confirm_delete_item') }}')">
+                                                                    <i class="ri-delete-bin-line"></i>
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
@@ -172,7 +206,7 @@
 
                         <!-- START PAGINATION -->
                         <div class="custom-pagination">
-
+                            {{ $listTrashs->links() }}
                         </div>
                         <!-- END PAGINATIOn -->
 
@@ -198,56 +232,174 @@
         $(document).ready(function() {
 
             // --- Logic Checkbox ---
-            $('#checkbox-table').on('click', function() {
-
-                if ($(this).prop('checked')) {
-                    $('#btn-delete-all').removeClass('visually-hidden');
-                    $('#btn-restore-all').removeClass('visually-hidden');
-                } else {
-                    $('#btn-delete-all').addClass('visually-hidden');
-                    $('#btn-restore-all').addClass('visually-hidden');
-                }
+            $('#select-all').on('click', function() {
 
                 $('.checkbox-input').prop('checked', $(this).prop('checked'));
+                toggleBulkActionButtons();
+
             });
+            // toggleBulkActionButtons();
 
             $('.checkbox-input').on('click', function() {
 
                 const total = $('.checkbox-input').length;
                 const checked = $('.checkbox-input:checked').length;
 
-                $('#checkbox-table').prop('checked', total === checked);
+                $('#select-all').prop('checked', total === checked);
+                toggleBulkActionButtons();
 
-                if ($(this).prop('checked')) {
-                    $('#btn-delete-all').removeClass('visually-hidden');
-                    $('#btn-restore-all').removeClass('visually-hidden');
-                } else {
-                    let isAnotherInputChecked = false;
-                    $('.checkbox-input').not($(this)).each((index, checkboxInput) => {
-                        if ($(checkboxInput).prop('checked')) {
-                            isAnotherInputChecked = true;
-                            return;
-                        }
-                    })
-
-                    if (!isAnotherInputChecked) {
-                        $('#btn-delete-all').addClass('visually-hidden');
-                        $('#btn-restore-all').addClass('visually-hidden');
-                        $('#checkbox-table').prop('checked', false);
-                    }
-                }
             });
-            // --- End Logic Checkbox ---
+
+            // chạy hàm khi load trang
+            toggleBulkActionButtons();
 
 
-            $('#btn-delete-all').on('click', function(e) {
+            // click  button
+            $('#btn-restore-all').on('click', function() {
+                handleBulkAction('restore');
+            });
 
+            $('#btn-delete-all').on('click', function() {
                 let confirmMessage = confirm("{{ __('message.confirm_delete_all_item') }}");
 
                 if (confirmMessage) {
-                    console.log('Move to trash');
+                    handleBulkAction('destroy');
                 }
-            })
+
+            });
+
+
+            // Hàm ẩn/hiên button 
+            function toggleBulkActionButtons() {
+                if ($('.checkbox-input:checked').length > 0) {
+                    $('#btn-restore-all').removeClass('visually-hidden');
+                    $('#btn-delete-all').removeClass('visually-hidden');
+                } else {
+                    $('#btn-restore-all').addClass('visually-hidden');
+                    $('#btn-delete-all').addClass('visually-hidden');
+                }
+            }
+
+
+
+            // --- Xử lý submit bằng AJAX ---
+            function handleBulkAction(action) {
+
+                // Truyền ids vào mảng
+                let checkedIds = [];
+                $('.checkbox-input:checked').each(function() {
+                    checkedIds.push($(this).val());
+                });
+
+                if (checkedIds.length === 0) {
+                    alert("Vui lòng chọn ít nhất một mục.");
+                    return;
+                }
+
+                let url = '';
+                if (action === 'restore') {
+                    url = "{{ route('admin.products.bulkRestore') }}";
+                } else if (action === 'destroy') {
+                    url = "{{ route('admin.products.bulkDestroy') }}";
+                }
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        bulk_ids: checkedIds,
+                        // _method: action === 'restore' ? 'PUT' : 'DELETE'
+                    },
+                    success: function(response) {
+                        console.log("Response từ server:", response);
+
+                        if (response && typeof response === 'object') { // Kiểm tra response là object
+                            if (response.success === true) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Thành công!',
+                                    text: response.message,
+                                    timer: 1500, // Tự động đóng sau 1.5 giây
+                                    showConfirmButton: false,
+                                }).then(() => {
+                                    location.reload();
+                                });
+
+                            } else {
+
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi!',
+                                    html: response.message,
+                                });
+                            }
+                        } else {
+                            console.error("Response không đúng định dạng:", response);
+                            alert("Đã có lỗi xảy ra khi xử lý yêu cầu.");
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi AJAX:", error);
+                        alert("Đã xảy ra lỗi. Vui lòng thử lại.");
+                    }
+                });
+            }
+            // --- End Logic Checkbox ---
+
+
+            // update Is_active Api
+            $('.toggle-active').change(function() {
+                let $this = $(this);
+                let categoryId = $this.data('category-id');
+                let isActive = $this.is(':checked') ? 1 : 0;
+                let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                $.ajax({
+                    url: '/api/categories/' + categoryId + '/active',
+                    type: 'PATCH',
+                    data: {
+                        is_active: isActive,
+                        _token: csrfToken
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            console.log(response.message);
+                            window.location.reload(); // Load lại trang
+                        } else {
+                            console.error(response.message);
+                            $this.prop('checked', !
+                                isActive); // Sửa ở đây: isActive (không có $)
+                            alert(response.message);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error("Lỗi AJAX: " + textStatus + ", " + errorThrown);
+                        $this.prop('checked', !isActive); // Sửa ở đây: isActive (không có $)
+                        if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                            alert(jqXHR.responseJSON.message);
+                        } else {
+                            alert("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+                        }
+                    }
+                });
+            });
+
+            // alert
+            // Kiểm tra session flash message
+            let message = "{{ session('msg') }}";
+            let type = "{{ session('type') }}";
+
+            if (message && type) {
+                Swal.fire({
+                    icon: type,
+                    title: type === 'success' ? 'Thành công!' : 'Lỗi!',
+                    text: message,
+                });
+            }
 
         });
     </script>

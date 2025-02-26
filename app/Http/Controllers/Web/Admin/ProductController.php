@@ -23,7 +23,9 @@ class ProductController extends Controller
         $stockStatus = $request->get('stock_status');
         $keyword = $request->get('_keyword');
         // dd($categoryId);
-        $products = $this->productService->getProducts($perPage, $categoryId, $stockStatus, $keyword);
+        $productData = $this->productService->getProducts($perPage, $categoryId, $stockStatus, $keyword);
+        $products = $productData['products'];
+        $countTrash = $productData['countTrash'];
         $categories = $this->productService->getCategories();
 
         return view('admin.pages.products.list', compact(
@@ -33,12 +35,18 @@ class ProductController extends Controller
             'categoryId',
             'stockStatus',
             'keyword',
+            'countTrash',
         ));
     }
 
-    public function trash()
+    public function trash(Request $request)
     {
-        return view('admin.pages.products.trash');
+        $perPage = $request->get('per_page');
+        $keyword = $request->get('_keyword');
+
+        $listTrashs = $this->productService->getTrash($perPage, $keyword);
+        // dd($listTrashs);
+        return view('admin.pages.products.trash', compact('listTrashs', 'perPage', 'keyword'));
     }
 
     public function show(Product $product)
@@ -66,8 +74,24 @@ class ProductController extends Controller
 
     }
 
-    public function restore(Request $request)
+    public function restore(Request $request, $product)
     {
+        $restoreResult = $this->productService->restore($product);
+        if ($restoreResult['success']) {
+            return redirect()
+                ->route('admin.products.trash')
+                ->with([
+                    'msg' => $restoreResult['message'],
+                    'type' => 'success'
+                ]);
+        } else {
+            return redirect()
+                ->route('admin.products.trash')
+                ->with([
+                    'msg' => $restoreResult['message'],
+                    'type' => 'error'
+                ]);
+        }
 
     }
 
@@ -91,8 +115,50 @@ class ProductController extends Controller
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, $product)
     {
-
+        $response = $this->productService->forceDeleteProduct($product);
+        if ($response['success']) {
+            return
+                redirect()
+                    ->route('admin.products.trash')
+                    ->with([
+                        'msg' => $response['message'],
+                        'type' => 'success'
+                    ]);
+        } else {
+            return redirect()->route('admin.products.trash')->with([
+                'msg' => $response['message'],
+                'type' => 'error'
+            ]);
+        }
     }
+
+    // xóa mềm nhiều 
+    public function bulkTrash(Request $request)
+    {
+        $productIds = $request->input('product_ids');
+        $response = $this->productService->bulkTrash($productIds);
+        return response()->json($response);
+    }
+
+    // Khôi phục nhiều
+    public function bulkRestore(Request $request)
+    {
+        $productIds = $request->input('bulk_ids');
+        $response = $this->productService->bulkRestoreTrash($productIds);
+
+        return response()->json($response);
+    }
+
+    // Xóa cứng nhiều 
+    public function bulkDestroy(Request $request)
+    {
+        $productIds = $request->input('bulk_ids');
+        $response = $this->productService->bulkFoceDeleteTrash($productIds);
+
+        return response()->json($response);
+    }
+
+
 }

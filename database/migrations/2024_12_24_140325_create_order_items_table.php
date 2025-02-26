@@ -26,6 +26,7 @@ return new class extends Migration
             $table->jsonb('attributes_variant');
             $table->decimal('price_variant', 11, 2)->nullable();
             $table->unsignedSmallInteger('quantity_variant')->nullable();
+            $table->softDeletes();
         });
     }
 

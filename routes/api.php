@@ -42,7 +42,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // routes/api.php
 Route::get('/productListCate/{id}', [ListCategoryController::class, 'detailModal']);
 Route::get('/products/{id}', [DetailProductController::class, 'getProductDetail']);
-
+Route::patch('/products/{product}/active', [ProductController::class, 'toggleActive']);
 
 Route::prefix('/categories')
     ->name('api.categories.')
@@ -107,8 +107,8 @@ Route::prefix('/coupons')
     ->group(function () {
         Route::post('/update-coupon-status/{id}', 'apiUpdateStatus');
     });
-    
-Route::put('/brands/{brand}/status',[BrandController::class,'update'])->name('updateStatus');
+
+Route::put('/brands/{brand}/status', [BrandController::class, 'update'])->name('updateStatus');
 
 
 

@@ -24,9 +24,16 @@ class OrderItemRepository extends BaseRepository
 
     }
 
+    //Dùng cho Kiểm tra xóa mềm
     public function isProductInOrderItems($productId)
     {
         return $this->model->where('product_id', $productId)->exists();
+    }
+
+    //Kiếm tra xóa cứng 
+    public function hasOrderItems($productId)
+    {
+        return $this->model->withTrashed()->where('product_id', $productId)->exists();
     }
 
 

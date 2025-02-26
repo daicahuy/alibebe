@@ -22,40 +22,31 @@ class CategoryService
         $this->categoryRepo = $categoryRepo;
 
     }
-
-
-
-    // List
-    public function index($perPage, $sortBy, $order)
+    // làm lại
+    public function getCategories($perPage, $keyword)
     {
-        // dd($perPage);
-        try {
-            $perPage ?? 5;
-            $listCategory = $this->categoryRepo->paginationM(
-                ['*'],
-                'parent_id',
-                1,
-                $perPage,
-                [$sortBy, $order],
-                ['categories']
-            );
-            // Đếm
-            $countTrash = $this->categoryRepo->countTrash();
-            $countHidden = $this->categoryRepo->countHidden();
-            // return $listCategory;
-            return compact('listCategory', 'countTrash', 'countHidden');
 
 
-        } catch (\Throwable $th) {
+        $categories = $this->categoryRepo->getCategories($perPage, $keyword);
 
-            Log::error(
-                __CLASS__ . '--@--' . __FUNCTION__,
-                ['error' => $th->getMessage()]
-            );
 
-            return ['success' => false, 'message' => 'Đã xảy ra lỗi, vui lòng thử lại sau'];
-        }
+
+
+
+        $countTrash = $this->categoryRepo->countTrash();
+        $countHidden = $this->categoryRepo->countHidden();
+
+
+        // dd($categories);
+        return [
+            'categories' => $categories,
+            'countTrash' => $countTrash,
+            'countHidden' => $countHidden,
+        ];
     }
+
+
+    
 
 
 
@@ -169,11 +160,11 @@ class CategoryService
 
 
     // Trash 
-    public function trash()
+    public function trash($perPage, $keyword)
     {
         try {
 
-            $listTrash = $this->categoryRepo->getTrash();
+            $listTrash = $this->categoryRepo->getTrash($perPage, $keyword);
             // dd($listTrash);
             // return compact('listTrash');
             return $listTrash;
@@ -191,25 +182,17 @@ class CategoryService
     }
 
     // Hiddent
-    public function hidden($perPage)
+    public function hidden($perPage, $keyword)
     {
         // dd($perPage);
         try {
-            $perPage ?? 5;
-            // $listHidden = $this->categoryRepo->getHidden();
-            // $listHidden = $this->categoryRepo->getHidden();
+
+            
             // dd($listHidden);
 
-            $listHidden = $this->categoryRepo->paginationM(
-                ['*'],
-                NULL,
-                0,
-                $perPage,
-                ['updated_at', 'DESC'],
-                ['categories']
-            );
+            $listHidden = $this->categoryRepo->getHidden($perPage, $keyword);
             // dd($listHidden);
-            return compact('listHidden');
+            return $listHidden;
 
         } catch (\Throwable $th) {
 
@@ -636,24 +619,12 @@ class CategoryService
 
 
     }
-    // search
-    public function search($keyword, $perPage = null, $sortBy, $order)
-    {
-
-        $perPageUse = $perPage ?? 5;
-        $query = $this->categoryRepo->serach($keyword);
-        $listCategory = $query->orderBy($sortBy, $order)->paginate($perPageUse)->withQueryString();
-
-        $countTrash = $this->categoryRepo->countTrash();
-        $countHidden = $this->categoryRepo->countHidden();
-        return compact('listCategory', 'keyword', 'countTrash', 'countHidden');
-
-        // return $result;
+   
 
 
 
 
-    }
+    // }
 
-    
+
 }
