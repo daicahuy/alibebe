@@ -114,13 +114,13 @@
             </div>
             <form method="GET" action="{{ route('admin.reviews.show', $product->id) }}" id="reviewFilterForm">
                 <div class="mb-3">
-                    <label for="searchReviews" class="form-label">Search reviews</label>
+                    <label for="searchReviews" class="form-label">Tìm kiếm đáng giá</label>
                     <input type="text" name="search" class="form-control" id="searchReviews"
-                        placeholder="Enter keywords" value="{{ request('search') }}">
+                        placeholder="Nhập từ khóa" value="{{ request('search') }}">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Rating</label>
+                    <label class="form-label">Đánh giá</label>
                     <div id="ratingStars" style="color: yellow">
                         <input type="hidden" name="rating" id="ratingInput" value="{{ request('rating') }}">
                         @for ($i = 5; $i >= 1; $i--)
@@ -133,7 +133,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="dateRange" class="form-label">Date range</label>
+                    <label for="dateRange" class="form-label">Khoảng thời gian</label>
                     <input type="date" name="date_from" class="form-control mb-2" id="dateRangeFrom"
                         value="{{ request('date_from') }}">
                     <input type="date" name="date_to" class="form-control" id="dateRangeTo"
@@ -142,7 +142,7 @@
 
                 <div class="d-flex justify-content-between">
                     <div>
-                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        <button type="submit" class="btn btn-primary">Áp dụng bộ lọc</button>
                     </div>
                 </div>
             </form>
@@ -159,18 +159,12 @@
                 <div class="d-flex justify-content-between">
                     <div class="me-3">
                         <select class="form-select" name="sort" id="sortSelect" onchange="applySort()">
-                            <option value="">Sort by date</option>
-                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest first</option>
-                            <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest first</option>
+                            <option value="">Sắp xếp theo ngày</option>
+                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Mới nhất</option>
+                            <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Cũ nhất</option>
                         </select>
                     </div>
-                    <div>
-                        <select class="form-select">
-                            <option>Export</option>
-                            <option>CSV</option>
-                            <option>PDF</option>
-                        </select>
-                    </div>
+                    
                 </div>
             </div>
             @foreach ($reviews as $review)
@@ -196,7 +190,7 @@
                     </h6>
 
                     <a href="#" class="text-primary flex justify-content-end"
-                        onclick="showReview(event, 'review{{ $review->id }}')">Detail</a>
+                        onclick="showReview(event, 'review{{ $review->id }}')">Chi Tiết</a>
                 </div>
 
                 <div id="review{{ $review->id }}" class="review-card hidden border border-primary p-3">
@@ -205,7 +199,7 @@
                     </div>
 
                     <div class="mt-2">
-                        <h5 class="fw-bold">Image & Video :</h5>
+                        <h5 class="fw-bold">Ảnh & Video :</h5>
                     </div>
 
                     <div class="flex items-center gap-2 mb-4 mt-3 ">
@@ -224,7 +218,7 @@
                     </div>
 
                     <div class="mt-3">
-                        <h5 class="fw-bold">Review Comment:</h5>
+                        <h5 class="fw-bold">Nhận xét đánh giá:</h5>
                         <span class="mt-3 fst-italic">" {{ $review->review_text }} "</span>
                     </div>
                 </div>

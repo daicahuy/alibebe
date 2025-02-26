@@ -50,25 +50,25 @@
                     <form method="GET" action="{{ route('admin.reviews.index') }}" class="d-flex justify-content-evenly align-items-end flex-wrap gap-3 w-100">
                         <!-- Search Field -->
                         <div class="flex-grow-1">
-                            <label for="search" class="form-label fw-bold mb-0">Search</label>
-                            <input type="text" id="search" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search Product">
+                            <label for="search" class="form-label fw-bold mb-0">Tìm Kiếm </label>
+                            <input type="text" id="search" name="search" value="{{ request('search') }}" class="form-control" placeholder="Tìm kiếm sản phẩm">
                         </div>
                 
                         <!-- Start Date -->
                         <div class="flex-grow-1">
-                            <label for="startDate" class="form-label fw-bold mb-0">Start Date</label>
+                            <label for="startDate" class="form-label fw-bold mb-0">Ngày bắt đầu</label>
                             <input type="date" id="startDate" name="startDate" value="{{ request('startDate') }}" class="form-control">
                         </div>
                 
                         <!-- End Date -->
                         <div class="flex-grow-1">
-                            <label for="endDate" class="form-label fw-bold mb-0">End Date</label>
+                            <label for="endDate" class="form-label fw-bold mb-0">Ngày kết thúc</label>
                             <input type="date" id="endDate" name="endDate" value="{{ request('endDate') }}" class="form-control">
                         </div>
                 
                         <!-- Filter & Reset Buttons -->
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-theme">Filter</button>
+                            <button type="submit" class="btn btn-theme">Lọc</button>
                             <a href="{{ route('admin.reviews.index') }}" class="btn btn-secondary">Reset</a>
                         </div>
                     </form>
@@ -79,12 +79,12 @@
                         <table class="user-table ticket-table review-table theme-table table" id="table_id">
                             <thead>
                                 <tr>
-                                    <th>No.</th>
-                                    <th>Product Name</th>
-                                    <th>Customer Name</th>
-                                    <th>Rating</th>
-                                    <th>Total Review</th>
-                                    <th>Action</th>
+                                    <th>STT</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Tên Khách Hàng</th>
+                                    <th>Đánh giá</th>
+                                    <th>Tổng số đánh giá</th>
+                                    <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
