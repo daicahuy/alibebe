@@ -16,9 +16,8 @@ class HomeController extends Controller
 
     public function detailModal(Request $request, $id)
     {
-        // dd($id);
         $product = $this->HomeService->detailModal($id);
-        // dd($product);
+        
         if (!$product) {
             return response()->json(['error' => 'Không tìm thấy sản phẩm'], 404);
         }

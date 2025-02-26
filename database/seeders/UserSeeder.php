@@ -166,6 +166,9 @@ class UserSeeder extends Seeder
             ];
             $userAddresses[] = [
                 "user_id" => $i,
+                "fullname" => fake()->randomElement($firstNames)
+                . ' ' . fake()->randomElement($middleNames)
+                . ' ' . fake()->randomElement($lastNames),
                 "address" => fake()->randomElement($homeNumbers)
                     . ' ' . fake()->randomElement($streets)
                     . ', ' . fake()->randomElement($wards)
@@ -178,6 +181,9 @@ class UserSeeder extends Seeder
 
             $userAddresses[] = [
                 "user_id" => $i,
+                "fullname" => fake()->randomElement($firstNames)
+                . ' ' . fake()->randomElement($middleNames)
+                . ' ' . fake()->randomElement($lastNames),
                 "address" => fake()->randomElement($homeNumbers)
                     . ' ' . fake()->randomElement($streets)
                     . ', ' . fake()->randomElement($wards)

@@ -30,17 +30,24 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        return view('admin.pages.products.show');
+        // dd($product);
+        $product->load(['brand', 'tags', 'productAccessories', 'productGallery', 'attributeValues', 'attributeValues.attribute', 'productStock']);
+
+        if ($product->type === 1) {
+            $product->load(['productVariants', 'productVariants.attributeValues', 'productVariants.attributeValues.attribute', 'productVariants.productStock']);
+        }
+
+        return view('admin.pages.products.show', ['product' => $product ,...$this->productService->getData()]);
     }
 
     public function create()
     {
-        // dd($this->productService->getData());
         return view('admin.pages.products.create', $this->productService->getData());
     }
 
     public function store(Request $request)
     {
+        dd($request->all());
     }
 
     public function edit(Product $product)

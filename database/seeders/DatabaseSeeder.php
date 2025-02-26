@@ -55,8 +55,8 @@ class DatabaseSeeder extends Seeder
         $dbName = env('DB_DATABASE');
         $tables = DB::table('information_schema.tables')
             ->where('table_schema', $dbName)
-            ->pluck('table_name');
-
+            ->pluck('TABLE_NAME');
+        
         foreach ($tables as $tableName) {
             if ($tableName !== 'migrations') {
                 DB::table($tableName)->truncate();

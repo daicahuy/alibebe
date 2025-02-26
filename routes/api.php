@@ -37,9 +37,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// client
-// show modal
-// routes/api.php
+
 Route::get('/productListCate/{id}', [ListCategoryController::class, 'detailModal']);
 Route::get('/products/{id}', [DetailProductController::class, 'getProductDetail']);
 
@@ -142,19 +140,12 @@ Route::prefix('/auth')
     });
 
 
-// Route::middleware(['ApiSession'])->group(function () {
-
-//     Route::prefix('/auth')
-//         ->name('api.auth.')
-//         ->group(function () {
-//         });
-// });
-
 Route::get('/product/{id}', action: [HomeController::class, 'detailModal']);
 
 Route::prefix('/products')
     ->name('api.products.')
     ->group(function () {
         Route::post('/single', [ProductController::class, 'storeSingle'])->name('storeSingle');
+        Route::post('/variant', [ProductController::class, 'storeVariant'])->name('storeVariant');
     });
 

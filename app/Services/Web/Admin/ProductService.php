@@ -32,14 +32,23 @@ class ProductService
 
     public function getData()
     {
-        $attributes = $this->attributeRepository->getAllActive(['*'], ['attributeValues'])->toArray();
-        $newAttributes = [];
+        $attributeSpecifications = $this->attributeRepository->getAllActive(['*'], ['attributeValues'], 0)->toArray();
+        $attributeVariants = $this->attributeRepository->getAllActive(['*'], ['attributeValues'])->toArray();
+        $newAttributeSpecifications = [];
+        $newAttributeVariants = [];
 
-        foreach ($attributes as $attribute) {  
+        foreach ($attributeSpecifications as $attribute) {  
             $attributeName = $attribute['name'];
-            $attributeValues = array_column($attribute['attribute_values'], 'value');
+            $attributeValues = array_column($attribute['attribute_values'], 'value', 'id');
             
-            $newAttributes[$attributeName] = $attributeValues;
+            $newAttributeSpecifications[$attributeName] = $attributeValues;
+        }
+
+        foreach ($attributeVariants as $attribute) {  
+            $attributeName = $attribute['name'];
+            $attributeValues = array_column($attribute['attribute_values'], 'value', 'id');
+            
+            $newAttributeVariants[$attributeName] = $attributeValues;
         }
 
         return [
@@ -47,7 +56,8 @@ class ProductService
             'brands' => $this->brandRepository->getAllActive(),
             'categories' => $this->categoryRepository->getParentActive(),
             'productAccessories' => $this->productRepository->getAllActive(),
-            'attributes' => json_encode($newAttributes)
+            'attributeSpecifications' => json_encode($newAttributeSpecifications),
+            'attributeVariants' => json_encode($newAttributeVariants),
         ];
     }
 

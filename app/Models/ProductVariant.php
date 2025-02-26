@@ -17,6 +17,10 @@ class ProductVariant extends Model
         'is_active',
     ];
 
+    protected $attributes = [
+        'is_active' => 0,
+    ];
+
 
 
     /////////////////////////////////////////////////////

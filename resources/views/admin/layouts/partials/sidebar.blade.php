@@ -2,7 +2,7 @@
     <div>
         <!-- START LOGO -->
         <div class="logo-wrapper logo-wrapper-center">
-            <a href="/fastkart-admin/dashboard">
+            <a href="{{ route('admin.index') }}">
                 <img alt="logo" class="img-fluid for-white"
                     src="https://laravel.pixelstrap.net/fastkart/storage/3/logo-white.png">
             </a>

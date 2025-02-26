@@ -5,7 +5,7 @@ return [
     'attributes' => 'Thuộc tính',
     'attribute_all' => 'Tất cả thuộc tính',
     'attribute_variants' => 'Thuộc tính biến thể',
-    'attribute_specifications' => 'Thuộc tính sản phẩm',
+    'attribute_specifications' => 'Thông số kĩ thuật',
 
     'auth' => [
         'login' => 'Đăng nhập',
