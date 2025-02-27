@@ -485,7 +485,7 @@
                         dataDetailOrder = data.listItemOrder
                         data.listItemOrder.forEach(dataProduct => {
 
-                            if (!dataProduct.name_variant) {
+                            if (!dataProduct.product_variant_id) {
                                 console.log("dataProduct.name_variant", dataProduct.name_variant)
                                 console.log("amountAllItems", amountAllItems)
                                 amountAllItems += dataProduct.price * dataProduct.quantity;
@@ -504,10 +504,10 @@
                     <tr class="ng-star-inserted">
                         <td class="product-image"><img  class="img-fluid" src="${jsImageUrl}" width="30px" height="30px" style="object-fit: cover"></td>
                         <td><h6>${dataProduct.name}</h6></td>
-                        <td><h6>${dataProduct.name_variant?dataProduct.name_variant:"Không"}</h6></td>
-                        <td><h6>${dataProduct.price_variant?formatCurrency(dataProduct.price_variant):formatCurrency(dataProduct.price)}</h6></td>
-                        <td><h6>${dataProduct.quantity_variant?dataProduct.quantity_variant:dataProduct.quantity}</h6></td>
-                        <td><h6>${dataProduct.name_variant?formatCurrency(dataProduct.price_variant * dataProduct.quantity_variant):formatCurrency(dataProduct.price*dataProduct.quantity)}</h6></td>
+                        <td><h6>${dataProduct.product_variant_id?dataProduct.name_variant:"Không"}</h6></td>
+                        <td><h6>${dataProduct.product_variant_id?formatCurrency(parseFloat(dataProduct.price_variant)):formatCurrency(parseFloat(dataProduct.price))}</h6></td>
+                        <td><h6>${dataProduct.product_variant_id?dataProduct.quantity_variant:dataProduct.quantity}</h6></td>
+                        <td><h6>${dataProduct.product_variant_id?formatCurrency(parseFloat(dataProduct.price_variant) * parseFloat(dataProduct.quantity_variant)):formatCurrency(parseFloat(dataProduct.price)*parseFloat(dataProduct.quantity))}</h6></td>
                     </tr>`;
                             tbody.append(row);
                         });
