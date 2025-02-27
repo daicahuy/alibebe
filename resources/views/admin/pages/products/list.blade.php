@@ -210,7 +210,7 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="" class="btn-detail"><i
+                                                            <a href="{{ route('admin.products.show', $product->id) }}" class="btn-detail"><i
                                                                     class="ri-eye-line"></i></a>
                                                         </li>
                                                         <li>

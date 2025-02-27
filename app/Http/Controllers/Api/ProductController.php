@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\StoreProductSingleRequest;
 use App\Http\Requests\Api\StoreProductVariantRequest;
+use App\Http\Requests\Api\UpdateProductSingleRequest;
+use App\Http\Requests\Api\UpdateProductVariantRequest;
+use App\Models\Product;
 use App\Services\Api\Admin\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -37,6 +40,58 @@ class ProductController extends ApiBaseController
     public function storeVariant(StoreProductVariantRequest $request)
     {
         $response = $this->productService->storeVariant($request->validated());
+        
+        if ($response['success']) {
+            return $this->sendSuccess(
+                statusCode: Response::HTTP_CREATED,
+                message: $response['message'],
+            );
+        }
+
+        return $this->sendError(
+            statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
+            message: $response['message']
+        );
+    }
+
+    public function updateSingle(UpdateProductSingleRequest $request, int $id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return $this->sendError(
+                statusCode: Response::HTTP_NOT_FOUND,
+                message: 'Không tìm thấy sản phẩm có id là ' . $id
+            );
+        }
+
+        $response = $this->productService->updateSingle($product, $request->validated());
+        
+        if ($response['success']) {
+            return $this->sendSuccess(
+                statusCode: Response::HTTP_OK,
+                message: $response['message'],
+            );
+        }
+
+        return $this->sendError(
+            statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
+            message: $response['message']
+        );
+    }
+
+    public function updateVariant(UpdateProductVariantRequest $request, int $id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return $this->sendError(
+                statusCode: Response::HTTP_NOT_FOUND,
+                message: 'Không tìm thấy sản phẩm có id là ' . $id
+            );
+        }
+
+        $response = $this->productService->updateVariant($product, $request->validated());
         
         if ($response['success']) {
             return $this->sendSuccess(

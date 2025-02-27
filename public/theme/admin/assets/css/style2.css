@@ -27892,7 +27892,7 @@ strong ~ p {
     border-color: #8645af;
 }
 
-.btn-success {
+/* .btn-success {
     background-color: #9e65c2;
     border: 1px solid #9e65c2;
     color: #fff;
@@ -27902,7 +27902,7 @@ strong ~ p {
     background-color: #fff;
     border: 1px solid #9e65c2;
     color: #9e65c2;
-}
+} */
 
 .input-air-success {
     box-shadow: 0 3px 5px 1px #9e65c21a !important;
@@ -28047,7 +28047,7 @@ strong ~ p {
     border-color: #505bb7;
 }
 
-.btn-warning {
+/* .btn-warning {
     background-color: #747dc6;
     border: 1px solid #747dc6;
     color: #fff;
@@ -28057,7 +28057,7 @@ strong ~ p {
     background-color: #fff;
     border: 1px solid #747dc6;
     color: #747dc6 !important;
-}
+} */
 
 .input-air-warning {
     box-shadow: 0 3px 5px 1px #747dc61a !important;
@@ -28399,10 +28399,12 @@ strong ~ p {
     padding: 25px;
 }
 
-.card .form-control.disabled {
+.card .form-control.disabled,
+.card .form-select.disabled {
     cursor: not-allowed;
     overflow: hidden;
     position: relative;
+    background-color: #ded9d9ab !important;
 }
 
 .card .form-control.disabled:after {

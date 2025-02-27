@@ -44,7 +44,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         // dd($product);
-        $product->load(['brand', 'tags', 'productAccessories', 'productGallery', 'attributeValues', 'attributeValues.attribute', 'productStock']);
+        $product->load(['categories', 'tags', 'productAccessories', 'productGallery', 'attributeValues', 'attributeValues.attribute', 'productStock']);
 
         if ($product->type === 1) {
             $product->load(['productVariants', 'productVariants.attributeValues', 'productVariants.attributeValues.attribute', 'productVariants.productStock']);
@@ -65,12 +65,18 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        return view('admin.pages.products.edit');
+        $product->load(['categories', 'tags', 'productAccessories', 'productGallery', 'attributeValues', 'attributeValues.attribute', 'productStock']);
+
+        if ($product->type === 1) {
+            $product->load(['productVariants', 'productVariants.attributeValues', 'productVariants.attributeValues.attribute', 'productVariants.productStock']);
+        }
+
+        return view('admin.pages.products.edit', ['product' => $product ,...$this->productService->getData()]);
     }
 
     public function update(Request $request, Product $product)
     {
-
+        dd($request->all());
     }
 
     public function restore(Request $request)

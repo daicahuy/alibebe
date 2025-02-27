@@ -41,12 +41,12 @@ class Product extends Model
 
     public function isSingle()
     {
-        return $this->type = ProductType::SINGLE;
+        return $this->type === ProductType::SINGLE;
     }
 
-    public function isVatiant()
+    public function isVariant()
     {
-        return $this->type = ProductType::VARIANT;
+        return $this->type === ProductType::VARIANT;
     }
 
 

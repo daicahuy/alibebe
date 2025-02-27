@@ -154,5 +154,7 @@ Route::prefix('/products')
     ->group(function () {
         Route::post('/single', [ProductController::class, 'storeSingle'])->name('storeSingle');
         Route::post('/variant', [ProductController::class, 'storeVariant'])->name('storeVariant');
+        Route::put('/single/{id}', [ProductController::class, 'updateSingle'])->name('updateSingle')->where(['id' => '[0-9]+']);
+        Route::put('/variant/{id}', [ProductController::class, 'updateVariant'])->name('updateVariant')->where(['id' => '[0-9]+']);
     });
 

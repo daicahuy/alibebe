@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\ProductStockRepository;
+use App\Repositories\ProductVariantRepository;
 use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -15,16 +16,19 @@ use PhpParser\Node\Expr\Throw_;
 
 class ProductService
 {
-    protected ProductRepository $productRepository;
     protected CategoryRepository $categoryRepository;
+    protected ProductRepository $productRepository;
+    protected ProductVariantRepository $productVariantRepository;
 
     public function __construct(
         ProductRepository $productRepository,
         CategoryRepository $categoryRepository,
+        ProductVariantRepository $productVariantRepository,
     )
     {
-        $this->productRepository = $productRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->productRepository = $productRepository;
+        $this->productVariantRepository = $productVariantRepository;
     }
 
     public function storeSingle($data)
@@ -114,6 +118,165 @@ class ProductService
             DB::commit();
 
             return ['success' => true, 'message' => 'Thêm sản phẩm mới thành công !'];
+        }
+        catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error(
+                __CLASS__ . '@' . __FUNCTION__,
+                ['error' => $e->getMessage()]
+            );
+
+            return ['success' => false, 'message' => 'Lỗi hệ thống! Vui lòng thử lại sau ít phút.'];
+        }
+    }
+
+    public function updateSingle($product, $data)
+    {
+        try {
+            $oldThumbnail = $product->thumbnail;
+            $oldGalleries = $product->productGallery;
+
+            // Upload image
+            if (isset($data['product']['thumbnail'])) {
+                $data['product']['thumbnail'] = Storage::put('products', $data['product']['thumbnail']);
+            }
+
+            // Upload galleries
+            if (isset($data['product_galleries'])) {
+                $productGalleries = [];
+
+                foreach ($data['product_galleries'] as $productGallery) {
+                    $productGalleries[] = Storage::put('product_galleries', $productGallery);
+                }
+
+                $data['product_galleries'] = $productGalleries;
+            }
+
+            DB::beginTransaction();
+
+            $product->update($data['product']);
+            $product->categories()->sync($this->attachCategory($data['category_id']));
+            $product->attributeValues()->sync($data['product_specifications']);
+            $product->tags()->sync($data['tags'] ?? []);
+            $product->productAccessories()->sync($data['product_accessories'] ?? []);
+
+            if (isset($data['product_galleries'])) {
+                $data['product_galleries'] = array_map(function ($image) use ($product) {
+                    return [
+                        'product_id' => $product->id,
+                        'image' => $image
+                    ];
+                }, $data['product_galleries']);
+                $product->productGallery()->delete();
+                $product->productGallery()->insert($data['product_galleries']);
+            }
+            
+            DB::commit();
+
+            if (isset($data['product']['thumbnail']) && $oldThumbnail && Storage::exists($oldThumbnail)) {
+                Storage::delete($oldThumbnail);
+            }
+
+            if (isset($data['product_galleries'])) {
+                foreach ($oldGalleries as $gallery) {
+                    if ($gallery->image && Storage::exists($gallery->image)) {
+                        Storage::delete($gallery->image);
+                    }
+                }
+            }
+
+            return ['success' => true, 'message' => 'Cập nhật sản phẩm thành công !'];
+        }
+        catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error(
+                __CLASS__ . '@' . __FUNCTION__,
+                ['error' => $e->getMessage()]
+            );
+
+            return ['success' => false, 'message' => 'Lỗi hệ thống! Vui lòng thử lại sau ít phút.'];
+            
+        }
+    }
+
+    public function updateVariant($product, $data)
+    {
+        try {
+            $oldThumbnail = $product->thumbnail;
+            $oldGalleries = $product->productGallery;
+            $oldVariantThumbnails = $product->productVariants()->pluck('thumbnail', 'id');
+
+            $dataVariantThumnailsUpdate = [];
+
+            // Upload image
+            if (isset($data['product']['thumbnail'])) {
+                $data['product']['thumbnail'] = Storage::put('products', $data['product']['thumbnail']);
+            }
+
+            // Upload galleries
+            if (isset($data['product_galleries'])) {
+                $productGalleries = [];
+
+                foreach ($data['product_galleries'] as $productGallery) {
+                    $productGalleries[] = Storage::put('product_galleries', $productGallery);
+                }
+
+                $data['product_galleries'] = $productGalleries;
+            }
+
+            // Upload product variants image
+            foreach ($data['product_variants'] as $index => $productVariant) {
+                if (isset($productVariant['info']['thumbnail'])) {
+                    $dataVariantThumnailsUpdate[] = $productVariant['id'];
+                    $data['product_variants'][$index]['info']['thumbnail'] = Storage::put('product_variants', $productVariant['info']['thumbnail']);
+                }
+            }
+
+            DB::beginTransaction();
+
+            $product->update($data['product']);
+            $product->categories()->sync($this->attachCategory($data['category_id']));
+            $product->attributeValues()->sync($data['product_specifications']);
+            $product->tags()->sync($data['tags'] ?? []);
+            $product->productAccessories()->sync($data['product_accessories'] ?? []);
+            foreach ($data['product_variants'] as $variant) {
+                $this->productVariantRepository->findById($variant['id'])->update($variant['info']);
+            }
+
+            if (isset($data['product_galleries'])) {
+                $data['product_galleries'] = array_map(function ($image) use ($product) {
+                    return [
+                        'product_id' => $product->id,
+                        'image' => $image
+                    ];
+                }, $data['product_galleries']);
+                $product->productGallery()->delete();
+                $product->productGallery()->insert($data['product_galleries']);
+            }
+
+            DB::commit();
+
+            if (isset($data['product']['thumbnail']) && $oldThumbnail && Storage::exists($oldThumbnail)) {
+                Storage::delete($oldThumbnail);
+            }
+
+            if (isset($data['product_galleries'])) {
+                foreach ($oldGalleries as $gallery) {
+                    if ($gallery->image && Storage::exists($gallery->image)) {
+                        Storage::delete($gallery->image);
+                    }
+                }
+            }
+
+            if (!empty($dataVariantThumnailsUpdate)) {
+                foreach ($oldVariantThumbnails as $variantId => $thumbnail) {
+                    if (in_array($variantId, $dataVariantThumnailsUpdate) && $thumbnail && Storage::exists($thumbnail)) {
+                        Storage::delete($thumbnail);
+                    }
+                }
+            }
+
+            return ['success' => true, 'message' => 'Cập nhật sản phẩm thành công !'];
         }
         catch (\Throwable $e) {
             DB::rollBack();

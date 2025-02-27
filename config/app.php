@@ -186,6 +186,7 @@ return [
         // 'Example' => App\Facades\Example::class,
         'PDF' => Elibyy\TCPDF\Facades\TCPDF::class,
         'ProductType' => App\Enums\ProductType::class,
+        'Storage' => Illuminate\Support\Facades\Storage::class,
     ])->toArray(),
 
 ];

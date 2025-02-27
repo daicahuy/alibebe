@@ -13,6 +13,12 @@
 @endpush
 
 @push('css')
+    <style>
+        .ck-editor__editable {
+            resize: vertical;
+            overflow: auto;
+        }
+    </style>
 @endpush
 
 
@@ -563,7 +569,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button class="btn btn-theme ms-auto mt-4" type="submit">
+                                            <button class="btn btn-success ms-auto mt-4" type="submit">
                                                 <div>{{ __('message.add_new') }}</div>
                                             </button>
                                         </div>
