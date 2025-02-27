@@ -28,9 +28,11 @@ class StoreReviewRequest extends FormRequest
             'product_id' => 'required|exists:products,id',
             'rating' => 'required|integer|min:1|max:5',
             'review_text' => 'required|string|min:10',
+            'images' => 'array|max:5', 
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'videos.*' => 'mimes:mp4,mov,avi|max:10240',
         ];
+        
     }
 
     /**
@@ -42,6 +44,7 @@ class StoreReviewRequest extends FormRequest
     {
         return [
             'review_text.min' => 'Nội dung đánh giá phải có ít nhất 10 ký tự.', 
+            'images.max' => 'Bạn chỉ được phép tải lên tối đa 5 hình ảnh.',
             'product_id.required' => 'Sản phẩm là bắt buộc.',
             'product_id.exists' => 'Sản phẩm không tồn tại.',
             'rating.required' => 'Đánh giá là bắt buộc.',
