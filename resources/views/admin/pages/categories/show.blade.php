@@ -53,9 +53,9 @@
                                 </select>
                                 <label>{{ __('message.items_per_page') }}</label>
                                 <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
-                                    id="btn-delete-all">
-                                    {{ __('message.move_to_trash') }}
-                                </button>
+                                        id="btn-move-to-trash-all" type="button">
+                                        {{ __('message.move_to_trash') }}
+                                    </button>
 
                             </div>
                             <div class="datepicker-wrap">
@@ -71,7 +71,7 @@
 
                         </div>
                         <!-- END HEADER TABLE -->
-                        
+
                         @if (session('msg'))
                             <div class="alert alert-{{ session('type') }} alert-dismissible fade show" role="alert">
                                 <strong>{{ session('msg') }}</strong>
@@ -117,8 +117,9 @@
                                             <tr>
                                                 <td>
                                                     <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" id="checkbox-table"
+                                                        <input type="checkbox" id="" value="{{ $item->id }}"
                                                             class="custom-control-input checkbox_animated checkbox-input">
+                                                       
                                                     </div>
                                                 </td>
                                                 <td class="cursor-pointer sm-width"> {{ $item->id }}
@@ -144,8 +145,10 @@
                                                 <td class="cursor-pointer">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch switch-sm">
-                                                            <input type="checkbox" class="toggle-active" {{-- Class để bắt sự kiện jQuery --}}
-                                                                data-category-id="{{ $item->id }}" {{-- Data attribute chứa ID --}}
+                                                            <input type="checkbox" class="toggle-active-show"
+                                                                {{-- Class để bắt sự kiện jQuery --}}
+                                                                data-category-id="{{ $item->id }}"
+                                                                {{-- Data attribute chứa ID --}}
                                                                 {{ $item->is_active == 1 ? 'checked' : '' }}>
                                                             <span class="switch-state"></span>
                                                         </label>
@@ -221,47 +224,119 @@
     <script>
         $(document).ready(function() {
 
-            // --- Logic Checkbox ---
-            $('#checkbox-table').on('click', function() {
+       
 
-                if ($(this).prop('checked')) {
-                    $('#btn-delete-all').removeClass('visually-hidden');
-                } else {
-                    $('#btn-delete-all').addClass('visually-hidden');
-                }
 
-                $('.checkbox-input').prop('checked', $(this).prop('checked'));
-            });
+// --- Logic Checkbox ---
+$('#checkbox-table').on('click', function() {
 
-            $('.checkbox-input').on('click', function() {
+    $('.checkbox-input').prop('checked', $(this).prop('checked'));
+    toggleBulkActionButton();
 
-                const total = $('.checkbox-input').length;
-                const checked = $('.checkbox-input:checked').length;
+});
 
-                $('#checkbox-table').prop('checked', total === checked);
+$('.checkbox-input').on('click', function() {
 
-                if ($(this).prop('checked')) {
-                    $('#btn-delete-all').removeClass('visually-hidden');
-                } else {
-                    let isAnotherInputChecked = false;
-                    $('.checkbox-input').not($(this)).each((index, checkboxInput) => {
-                        if ($(checkboxInput).prop('checked')) {
-                            isAnotherInputChecked = true;
-                            return;
-                        }
-                    })
+    const total = $('.checkbox-input').length;
+    const checked = $('.checkbox-input:checked').length;
 
-                    if (!isAnotherInputChecked) {
-                        $('#btn-delete-all').addClass('visually-hidden');
-                        $('#checkbox-table').prop('checked', false);
+    $('#checkbox-table').prop('checked', total === checked);
+    toggleBulkActionButton();
+
+});
+
+
+// --- Xử lý sự kiện click nút "Xóa tất cả" ---
+$('#btn-move-to-trash-all').on('click', function() {
+    handleBulkAction(); // 6.1 Gọi hàm xử lý
+});
+
+//  Hàm ẩn/hiện nút "Xóa tất cả"
+function toggleBulkActionButton() {
+    if ($('.checkbox-input:checked').length > 0) {
+        $('#btn-move-to-trash-all').removeClass('visually-hidden'); // checkbox => hiện
+    } else {
+        $('#btn-move-to-trash-all').addClass('visually-hidden'); //  ẩn
+    }
+}
+
+toggleBulkActionButton(); // 5. Gọi hàm lần đầu khi trang tải
+
+// Lấy ids và gửi AJAX request
+function handleBulkAction() {
+
+    const selectedIds = [];
+    $('.checkbox-input:checked').each(function() {
+        selectedIds.push($(this).val());
+    });
+
+    if (selectedIds.length == 0) { // 6.2 Kiểm tra nếu không có ID nào được chọn
+        alert('Vui lòng chọn ít nhất một danh mục.');
+        return; // Dừng thực thi nếu không có ID
+    }
+
+    if (confirm(
+            "{{ __('message.confirm_move_to_trash_all_item') }}"
+        )) {
+        $.ajax({ // Gửi AJAX request
+            url: '{{ route('admin.categories.bulkTrash') }}', //  URL của route xử lý
+            method: 'POST', //  Phương thức POST
+            data: {
+                _token: '{{ csrf_token() }}',
+                category_ids: selectedIds,
+            },
+
+            success: function(response) {
+                console.log("data:", selectedIds);
+
+                console.log("Response:", response);
+
+                if (response && typeof response === 'object') {
+
+                    if (response.success === true) {
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công!',
+                            html: response.message,
+                            timer: 1500, // Tự động đóng sau 1.5 giây
+                            showConfirmButton: false,
+                        }).then(() => {
+                            location.reload();
+                        });
+
+                    } else {
+
+                        // let errorMessage = "Đã có lỗi xảy ra.";
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            html: response.message,
+                        }).then(() => {
+                            location.reload();
+                        });
                     }
+
+                } else {
+                    console.error("Response không đúng định dạng:", response);
+                    alert("Đã có lỗi xảy ra trong quá trình xử lý.");
                 }
-            });
-            // --- End Logic Checkbox ---
+            },
+            error: function(error) {
+                console.error("Lỗi AJAX:", error);
+                alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+            }
+        });
+    }
+
+}
+
+// --- End Logic Checkbox ---
 
 
-             // update Is_active Api
-             $('.toggle-active').change(function() {
+            // update Is_active Api
+            $('.toggle-active-show').change(function() {
                 let $this = $(this);
                 let categoryId = $this.data('category-id');
                 let isActive = $this.is(':checked') ? 1 : 0;
@@ -280,14 +355,14 @@
                     success: function(response) {
                         if (response.success) {
                             Swal.fire({
-                                        icon: 'success',
-                                        title: 'Thành công!',
-                                        html: response.message,
-                                        // timer: 1500, // Tự động đóng sau 1.5 giây
-                                        // showConfirmButton: false,
-                                    }).then(() => {
-                                        location.reload();
-                                    });
+                                icon: 'success',
+                                title: 'Thành công!',
+                                html: response.message,
+                                // timer: 1500, // Tự động đóng sau 1.5 giây
+                                // showConfirmButton: false,
+                            }).then(() => {
+                                location.reload();
+                            });
                             // window.location.reload(); // Load lại trang
                         } else {
                             console.error(response.message);
@@ -310,6 +385,5 @@
 
 
         });
-        
     </script>
 @endpush

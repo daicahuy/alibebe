@@ -22,15 +22,31 @@ class CategoryController extends Controller
     {
         $isActive = $request->input('is_active'); // Nhận giá trị is_active từ request
 
-    $category->is_active = $isActive; // Gán giá trị cho thuộc tính is_active
-    $category->save(); // Lưu thay đổi
+        $category->is_active = $isActive; // Gán giá trị cho thuộc tính is_active
+        $category->save(); // Lưu thay đổi
+
+        $this->childIsActive($category, $isActive);
 
         return response()->json([
             'success' => true,
             'message' => 'Cập nhật trạng thái thành công',
-            'is_active' => $category->is_active,
-            'category_id' => $category->id
+            // 'is_active' => $category->is_active,
+            // 'category_id' => $category->id
         ]);
+    }
+
+    public function childIsActive(Category $category, $isActive)
+    {
+        $childCategories = $category->categories;
+
+        if ($childCategories->count() > 0) {
+            foreach ($childCategories as $chidCategory) {
+                $chidCategory->is_active = $isActive;
+                $chidCategory->save();
+
+                $this->childIsActive($chidCategory, $isActive);
+            }
+        }
     }
     public function index()
     {

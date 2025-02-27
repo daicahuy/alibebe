@@ -35,23 +35,23 @@
                         </div>
 
                         <!-- HEADER TABLE -->
-                        <form action="{{ route('admin.categories.search') }}" method="GET">
+                        <form action="{{ route('admin.categories.hidden') }}" method="GET" id="filter-form">
                             <div class="show-box">
                                 <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                    <form action="{{ route('admin.categories.index') }}" method="GET">
-                                        <select class="form-control" name="per_page" onchange="this.form.submit()">
-                                            {{-- Thêm name và onchange --}}
-                                            <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5
-                                            </option>
-                                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10
-                                            </option>
-                                            <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15
-                                            </option>
-                                            {{-- <option value="all" {{ request('per_page')=='all' ? 'selected' : '' }}>Tất
-                                            cả --}}
-                                            </option>
-                                        </select>
-                                    </form>
+
+                                    <select class="form-control" name="per_page"
+                                        onchange="document.getElementById('filter-form').submit();">
+                                        {{-- Thêm name và onchange --}}
+                                        <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15
+                                        </option>
+                                        <option value="30" {{ $perPage == 30 ? 'selected' : '' }}>30
+                                        </option>
+                                        <option value="45" {{ $perPage == 45 ? 'selected' : '' }}>45
+                                        </option>
+                                        {{-- <option value="all" {{ request('per_page')=='all' ? 'selected' : '' }}>Tất
+                                                cả --}}
+                                        </option>
+                                    </select>
 
                                     <label>{{ __('message.items_per_page') }}</label>
                                     <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
@@ -65,9 +65,14 @@
                                 <div class="datepicker-wrap">
 
                                 </div>
+                                <div class="table-search">
+                                    <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
+                                    <input type="search" class="form-control" name="_keyword" id="role-search"
+                                        value="{{ $keyword ?? '' }}">
+                                    <button type="submit" class="btn btn-primary">{{ __('message.search') }}</button>
+                                </div>
 
-
-                               
+                            </div>
                         </form>
 
 
@@ -159,8 +164,9 @@
                                             <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch switch-sm">
-                                                        <input type="checkbox" class="toggle-active" {{-- Class để bắt sự kiện jQuery --}}
-                                                            data-category-id="{{ $cate->id }}" {{-- Data attribute chứa ID --}}
+                                                        <input type="checkbox" class="toggle-active-hidden"
+                                                            {{-- Class để bắt sự kiện jQuery --}} data-category-id="{{ $cate->id }}"
+                                                            {{-- Data attribute chứa ID --}}
                                                             {{ $cate->is_active == 1 ? 'checked' : '' }}>
                                                         <span class="switch-state"></span>
                                                     </label>
@@ -216,7 +222,7 @@
 
                     <!-- START PAGINATION -->
                     <div class="custom-pagination">
-                        {{ $listHidden->appends(request()->query())->links() }}
+                        {{ $listHidden->links() }}
                     </div>
                     <!-- END PAGINATIOn -->
 
@@ -366,8 +372,8 @@
             // })
             // --- End Logic Hide, Show Sub Category ---
 
-             // update Is_active Api
-             $('.toggle-active').change(function() {
+            // update Is_active Api
+            $('.toggle-active-hidden').change(function() {
                 let $this = $(this);
                 let categoryId = $this.data('category-id');
                 let isActive = $this.is(':checked') ? 1 : 0;
@@ -386,14 +392,14 @@
                     success: function(response) {
                         if (response.success) {
                             Swal.fire({
-                                        icon: 'success',
-                                        title: 'Thành công!',
-                                        html: response.message,
-                                        // timer: 1500, // Tự động đóng sau 1.5 giây
-                                        // showConfirmButton: false,
-                                    }).then(() => {
-                                        location.reload();
-                                    });
+                                icon: 'success',
+                                title: 'Thành công!',
+                                html: response.message,
+                                // timer: 1500, // Tự động đóng sau 1.5 giây
+                                // showConfirmButton: false,
+                            }).then(() => {
+                                location.reload();
+                            });
                             // window.location.reload(); // Load lại trang
                         } else {
                             console.error(response.message);

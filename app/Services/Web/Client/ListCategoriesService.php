@@ -113,12 +113,12 @@ class ListCategoriesService
                         ];
                     }),
                     'product_stock' => $variant->productStock ? //hAS ONE :))))
-                         [
+                        [
                             "product_id" => $variant->productStock->product_id,
-                            'product_variant_id' => $variant->productStock->product_variant_id,            
-                            'stock' => $variant->productStock->stock, 
+                            'product_variant_id' => $variant->productStock->product_variant_id,
+                            'stock' => $variant->productStock->stock,
                         ] : [],
-                    
+
 
 
                 ];
@@ -136,6 +136,7 @@ class ListCategoriesService
                 // 'reviews' => $product->reviews ? $product->reviews : null,
                 'avgRating' => $avgRating,
                 'productVariants' => $productVariants,
+                'sold_count' => $product->sold_count,
             ];
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()], 500);

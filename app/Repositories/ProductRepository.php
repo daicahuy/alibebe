@@ -12,6 +12,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ProductRepository extends BaseRepository
 {
@@ -38,6 +39,15 @@ class ProductRepository extends BaseRepository
             ELSE products.price 
          END ');
 
+        $soldCountSubQuery = DB::raw('(SELECT COALESCE(SUM(order_items.quantity),0)
+         FROM order_items
+         JOIN orders ON order_items.order_id = orders.id
+         JOIN order_order_status ON orders.id = order_order_status.order_id
+         JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
+         WHERE order_items.product_id = products.id
+         AND order_statuses.name = "Hoàn thành") as sold_count');
+
+
         $query->select(
             'id',
             'name',
@@ -47,7 +57,8 @@ class ProductRepository extends BaseRepository
             'price',
             'short_description',
             'views',
-            'type'
+            'type',
+            $soldCountSubQuery
         );
 
         // filters
@@ -158,10 +169,13 @@ class ProductRepository extends BaseRepository
 
 
 
-        } else { // không có điều kiện lọc
+        }
+        // else { // không có category 
+        if (!isset($filters['category'])) {
             $query->whereHas('categories', function ($q) {
                 $q->where('is_active', 1);
             });
+            // }
         }
 
         // sort by
@@ -433,6 +447,61 @@ class ProductRepository extends BaseRepository
         return $products;
     }
 
+    public function countTrash()
+    {
+        return $this->model->onlyTrashed()->count();
+    }
+
+
+    // get trash
+    public function getTrash($perPage = 15, $keyword = null)
+    {
+
+        $query = $this->model->onlyTrashed();
+
+        $query
+            ->select(
+                'id',
+                'sku',
+                'thumbnail',
+                'name',
+                'price',
+                'is_active',
+                'type',
+            )
+            ->with([
+                'categories' => function ($query) {
+                    $query->withTrashed();
+                },
+                'productStock', //   (HasOne) không dùng withTrashed()
+                'productVariants' => function ($query) {
+                    $query->with('productStock');
+                },
+            ])
+            ->orderBy('updated_at', 'DESC');
+
+
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('products.name', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('products.sku', 'LIKE', '%' . $keyword . '%')
+                    ->orWhereHas('productVariants', function ($variantQuery) use ($keyword) {
+                        $variantQuery->where(function ($variant) use ($keyword) {
+                            $variant->where('name', 'LIKE', '%' . $keyword . '%')
+                                ->orWhere('sku', 'LIKE', '%' . $keyword . '%');
+                        });
+                    });
+            });
+        }
+
+        $listTrashs = $query->paginate($perPage)->appends([
+            'per_page' => $perPage,
+            '_keyword' => $keyword,
+        ]);
+        return $listTrashs;
+
+    }
+
     // Xóa mềm sản phẩm
     public function delete($productId)
     {
@@ -441,9 +510,14 @@ class ProductRepository extends BaseRepository
             return false;
         }
 
-        if ($product->type == 1) {
-            $product->productVariants()->delete();
-        }
+        $product->is_active = 0;
+        $product->save();
+        // if ($product->type == 1) {
+        //     // $product->productVariants()->update(['is_active' => 0]);
+        //     $product->productVariants()->delete();
+        // }
+
+
 
         return $product->delete();
     }
@@ -451,6 +525,174 @@ class ProductRepository extends BaseRepository
     {
         return $this->model->find($productId);
     }
+
+    // Xóa cứng sản phẩm
+    public function forceDeleteProduct($productId)
+    {
+        $product = $this->model->withTrashed()->find($productId);
+        if (!$product) {
+            return false;
+        }
+
+        try {
+            $product->categories()->detach();// xóa reation liên quan
+            $product->productStock()->delete();
+            $product->attributeValues()->detach();
+            $product->cartItems()->delete();
+            $product->comments()->delete();
+            $product->reviews()->delete();
+            $product->wishlists()->delete();
+            $product->productGallery()->delete();
+            $product->productMovement()->delete();
+            $product->tags()->detach();
+            $product->productAccessories()->detach();
+
+            if ($product->type == 1) {
+                foreach ($product->productVariants()->get() as $variant) {
+                    $variant->attributeValues()->detach();
+                    $variant->productStock()->delete();
+                    $variant->cartItems()->delete();
+                    $variant->productMovement()->delete();
+                    if ($variant->thumbnail && Storage::exists($variant->thumbnail)) {
+                        Storage::delete($variant->thumbnail);
+                    }
+                    $variant->delete();
+                }
+            }
+            if ($product->thumbnail && Storage::exists($product->thumbnail)) {
+                Storage::delete($product->thumbnail);
+            }
+            $product->forceDelete();
+            return true;
+        } catch (\Throwable $th) {
+            Log::error(__METHOD__ . ' - Error force deleting product ID: ' . $productId, ['error' => $th->getMessage()]);
+            return false; // Xóa cứng thất bại
+        }
+
+
+    }
+
+
+    // restore 
+    public function restore($id)
+    {
+        $product = $this->findTrash($id);
+        if (!$product) {
+            return false;
+        }
+
+
+        // Khôi phục sản phẩm chính
+
+        $product->is_active = 1;
+        $product->save();
+
+
+        // if ($product->type == 1) {
+
+        //     $variantQueryBuilder = $product->productVariants()->withTrashed(); // bỏ đk deleted_at null
+
+        //     // $variantQueryBuilder->update(['is_active' => 1]);
+
+        //     $product->productVariants()->restore();
+        // }
+
+        return $product->restore();
+
+    }
+
+    public function findTrash($id)
+    {
+        return $this->model->onlyTrashed()->find($id);
+    }
+
+    // xóa mềm nhiều 
+    public function getBulkTrash($ids)
+    {
+        return $this->model->whereIn('id', $ids)->with(['productVariants', 'orderItems'])->get();
+    }
+    // lấy mảng ids sản phẩm đã xóa mềm 
+    public function getwithTrashIds($ids)
+    {
+        return $this->model->withTrashed()->whereIn('id', $ids);
+    }
+
+
+    // khôi phục nhiều
+    public function bulkRestoreTrash($productIds)
+    {
+        $count = 0;
+
+        // lấy sản phẩm xóa mềm và biến thể
+        $products = $this->model->withTrashed()
+            ->whereIn('id', $productIds)
+            // ->with(['productVariants'])
+            ->get();
+        foreach ($products as $product) {
+            if ($product->restore()) {
+                $count++;
+                // if ($product->type == 1) {
+                //     $product->productVariants()->withTrashed()->restore();
+                //     // $product->productVariants->update(['is_active' => 1]);
+                // }
+                $product->update(['is_active' => 1]);
+            }
+        }
+        return $count;
+    }
+
+
+    // Xóa cứng nhiều 
+    public function bulkForceDeleteTrash($productIds)
+    {
+        $deleteCount = 0;
+        $products = $this->model->withTrashed()
+            ->whereIn('id', $productIds)
+            ->with('productVariants')
+            ->get();
+
+        foreach ($products as $product) {
+            try {
+                $product->categories()->detach();// chỉ dùng cho belongtomany
+                $product->productStock()->delete();
+                $product->attributeValues()->detach();
+                $product->cartItems()->delete();
+                $product->comments()->delete();
+                $product->reviews()->delete();
+                $product->wishlists()->delete();
+                $product->productGallery()->delete();
+                $product->productMovement()->delete();
+                $product->tags()->detach();
+                $product->productAccessories()->detach();
+
+                if ($product->type == 1) {
+                    foreach ($product->productVariants()->get() as $variant) {
+                        $variant->attributeValues()->detach();
+                        $variant->productStock()->delete();
+                        $variant->cartItems()->delete();
+                        $variant->productMovement()->delete();
+
+                        if ($variant->thumbnail && Storage::exists($variant->thumbnail)) {
+                            Storage::delete($variant->thumbnail);
+                        }
+                        $variant->delete();
+                    }
+                }
+
+                if ($product->thumbnail && Storage::exists($product->thumbnail)) {
+                    Storage::delete($product->thumbnail);
+                }
+                $product->forceDelete();
+                $deleteCount++;
+            } catch (\Throwable $th) {
+                Log::error(__METHOD__ . ' - Error  product ID: ' . $product->id, ['error' => $th->getMessage()]);
+
+            }
+
+        }
+        return $deleteCount;
+    }
+
 
 
     public function detailProduct(int $id, array $columns = ['*'])
@@ -550,9 +792,32 @@ class ProductRepository extends BaseRepository
 
     public function detailModal($id)
     {
-        $product = $this->model->with(['categories', 'brand', 'productVariants.attributeValues.attribute', 'reviews', 'productVariants.productStock'])->find($id);
-        // dd($product);
-        return $product;
+        $soldCountSubQuerySql = '(SELECT COALESCE(SUM(order_items.quantity),0)
+            FROM order_items
+            JOIN orders ON order_items.order_id = orders.id
+            JOIN order_order_status ON orders.id = order_order_status.order_id
+            JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
+            WHERE order_items.product_id = products.id
+            AND order_statuses.name = "Hoàn thành")';
+
+        return $this->model->selectRaw("products.*, {$soldCountSubQuerySql} as sold_count")
+            ->with([
+                'categories',
+                'brand',
+                'reviews',
+                'productVariants' => function ($q) {
+                    $q->orderBy('price', 'ASC')->select(
+                        'product_id',
+                        'price',
+                        'sale_price',
+                        'thumbnail',
+                        'id',
+                    );
+                },
+                'productVariants.attributeValues.attribute',
+                'productVariants.productStock'
+            ])
+            ->find($id);
     }
    
 

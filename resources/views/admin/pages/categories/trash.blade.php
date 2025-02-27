@@ -18,54 +18,63 @@
 {{-- ================================== --}}
 
 @section('content')
-<div class="container-fuild">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="title-header">
-                        <div class="d-flex align-items-center">
-                            <h5>
-                                <a class="link"
-                                    href="{{ route('admin.categories.index') }}">{{ __('form.categories') }}</a>
-                                <span class="fs-6 fw-light">></span> {{ __('message.trash') }}
-                            </h5>
-                        </div>
-                    </div>
-
-                    <!-- HEADER TABLE -->
-                    <div class="show-box">
-                        <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                            <select class="form-control">
-                                <option value="15">15
-                                </option>
-                                <option value="30">30
-                                </option>
-                                <option value="45">45
-                                </option>
-                            </select>
-                            <label>{{ __('message.items_per_page') }}</label>
-                            <button type="button"
-                                class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
-                                id="btn-restore-all">
-                                {{ __('message.restore_all') }}
-                            </button>
-                            <button type="button"
-                                class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
-                                id="btn-delete-all">
-                                {{ __('message.delete_all') }}
-                            </button>
-                        </div>
-                        <div class="datepicker-wrap">
-
-                        </div>
-
-                        {{-- <form action="" method="GET">
-                            <div class="table-search">
-                                <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                <input type="search" class="form-control" name="_keyword">
+    <div class="container-fuild">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="title-header">
+                            <div class="d-flex align-items-center">
+                                <h5>
+                                    <a class="link"
+                                        href="{{ route('admin.categories.index') }}">{{ __('form.categories') }}</a>
+                                    <span class="fs-6 fw-light">></span> {{ __('message.trash') }}
+                                </h5>
                             </div>
-                        </form> --}}
+                        </div>
+
+                        <!-- HEADER TABLE -->
+                        <form action="{{ route('admin.categories.trash') }}" method="GET" id="filter-form">
+                            <div class="show-box">
+                                <div class="selection-box"><label>{{ __('message.show') }} :</label>
+                                    <select class="form-control" name="per_page"
+                                        onchange="document.getElementById('filter-form').submit();">
+                                        {{-- Thêm name và onchange --}}
+                                        <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15
+                                        </option>
+                                        <option value="30" {{ $perPage == 30 ? 'selected' : '' }}>30
+                                        </option>
+                                        <option value="45" {{ $perPage == 45 ? 'selected' : '' }}>45
+                                        </option>
+                                        {{-- <option value="all" {{ request('per_page')=='all' ? 'selected' : '' }}>Tất
+                                        cả --}}
+                                        </option>
+                                    </select>
+                                    <label>{{ __('message.items_per_page') }}</label>
+
+                                    <button type="button"
+                                        class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
+                                        id="btn-restore-all">
+                                        {{ __('message.restore_all') }}
+                                    </button>
+                                    <button type="button"
+                                        class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
+                                        id="btn-delete-all">
+                                        {{ __('message.delete_all') }}
+                                    </button>
+
+                                </div>
+                                <div class="datepicker-wrap">
+
+                                </div>
+
+                                <div class="table-search">
+                                    <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
+                                    <input type="search" class="form-control" name="_keyword" id="role-search"
+                                        value="{{ $keyword ?? '' }}">
+                                    <button type="submit" class="btn btn-primary">{{ __('message.search') }}</button>
+                                </div>
+                        </form>
 
                     </div>
                     <!-- END HEADER TABLE -->
@@ -153,7 +162,8 @@
                                             <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch switch-sm"><input type="checkbox" id="is_active"
-                                                            value="1" {{ $trash->is_active == 1 ? 'checked' : '' }} disabled>
+                                                            value="1" {{ $trash->is_active == 1 ? 'checked' : '' }}
+                                                            disabled>
                                                         <span class="switch-state"></span></label>
                                                 </div>
                                             </td>
@@ -225,7 +235,7 @@
             </div>
         </div>
     </div>
-</div>
+    </div>
 @endsection
 
 
@@ -239,10 +249,10 @@
 
 @push('js')
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
 
             // --- Logic Checkbox ---
-            $('#select-all').on('click', function () {
+            $('#select-all').on('click', function() {
 
                 $('.checkbox-input').prop('checked', $(this).prop('checked'));
                 toggleBulkActionButtons();
@@ -250,7 +260,7 @@
             });
             // toggleBulkActionButtons();
 
-            $('.checkbox-input').on('click', function () {
+            $('.checkbox-input').on('click', function() {
 
                 const total = $('.checkbox-input').length;
                 const checked = $('.checkbox-input:checked').length;
@@ -265,11 +275,11 @@
 
 
             // click  button
-            $('#btn-restore-all').on('click', function () {
+            $('#btn-restore-all').on('click', function() {
                 handleBulkAction('restore');
             });
 
-            $('#btn-delete-all').on('click', function () {
+            $('#btn-delete-all').on('click', function() {
                 let confirmMessage = confirm("{{ __('message.confirm_delete_all_item') }}");
 
                 if (confirmMessage) {
@@ -308,7 +318,7 @@
 
                 // Truyền ids vào mảng
                 let checkedIds = [];
-                $('.checkbox-input:checked').each(function () {
+                $('.checkbox-input:checked').each(function() {
                     checkedIds.push($(this).val());
                 });
 
@@ -332,7 +342,7 @@
                         bulk_ids: checkedIds,
                         // _method: action === 'restore' ? 'PUT' : 'DELETE'
                     },
-                    success: function (response) {
+                    success: function(response) {
                         console.log("Response từ server:", response);
 
                         if (response && typeof response === 'object') { // Kiểm tra response là object
@@ -362,7 +372,7 @@
                             alert("Đã có lỗi xảy ra khi xử lý yêu cầu.");
                         }
                     },
-                    error: function (error) {
+                    error: function(error) {
                         console.error("Lỗi AJAX:", error);
                         alert("Đã xảy ra lỗi. Vui lòng thử lại.");
                     }
@@ -372,53 +382,20 @@
 
 
             // update Is_active Api
-            $('.toggle-active').change(function() {
-        let $this = $(this);
-        let categoryId = $this.data('category-id');
-        let isActive = $this.is(':checked') ? 1 : 0;
-        let csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-        $.ajax({
-            url: '/api/categories/' + categoryId + '/active',
-            type: 'PATCH',
-            data: { is_active: isActive, _token: csrfToken },
-            headers: {
-                'X-CSRF-TOKEN': csrfToken
-            },
-            success: function(response) {
-                if (response.success) {
-                    console.log(response.message);
-                    window.location.reload(); // Load lại trang
-                } else {
-                    console.error(response.message);
-                    $this.prop('checked', !isActive); // Sửa ở đây: isActive (không có $)
-                    alert(response.message);
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error("Lỗi AJAX: " + textStatus + ", " + errorThrown);
-                $this.prop('checked', !isActive); // Sửa ở đây: isActive (không có $)
-                if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-                    alert(jqXHR.responseJSON.message);
-                } else {
-                    alert("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
-                }
-            }
-        });
-    });
 
             // alert
             // Kiểm tra session flash message
             let message = "{{ session('msg') }}";
-    let type = "{{ session('type') }}";
+            let type = "{{ session('type') }}";
 
-    if (message && type) {
-        Swal.fire({
-            icon: type,
-            title: type === 'success' ? 'Thành công!' : 'Lỗi!',
-            text: message,
-        });
-    }
+            if (message && type) {
+                Swal.fire({
+                    icon: type,
+                    title: type === 'success' ? 'Thành công!' : 'Lỗi!',
+                    text: message,
+                });
+            }
 
         });
     </script>

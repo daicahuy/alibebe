@@ -105,4 +105,35 @@ class ProductController extends ApiBaseController
             message: $response['message']
         );
     }
+
+    public function toggleActive(Request $request, Product $product)
+    {
+        $isActive = $request->input('is_active'); // Nhận giá trị is_active từ request
+
+        $product->is_active = $isActive; // Gán giá trị cho thuộc tính is_active
+        $product->save(); // Lưu thay đổi
+
+        $this->childIsActive($product, $isActive);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cập nhật trạng thái thành công',
+            // 'is_active' => $category->is_active,
+            // 'category_id' => $category->id
+        ]);
+    }
+
+    public function childIsActive(Product $product, $isActive)
+    {
+        $childProducts = $product->productVariants;
+
+        if ($childProducts->count() > 0) {
+            foreach ($childProducts as $chidProduct) {
+                $chidProduct->is_active = $isActive;
+                $chidProduct->save();
+
+                // $this->childIsActive($chidProduct, $isActive);
+            }
+        }
+    }
 }

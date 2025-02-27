@@ -56,7 +56,7 @@
 
                                     <label>{{ __('message.items_per_page') }}</label>
                                     <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
-                                        id="btn-move-to-trash">
+                                        type="button" id="btn-move-to-trash-all">
                                         {{ __('message.move_to_trash') }}
                                     </button>
                                     <a href="{{ route('admin.products.trash') }}"
@@ -64,7 +64,7 @@
                                         <i class="ri-delete-bin-line"></i>
                                         {{ __('message.trash') }}
                                         <span
-                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">10</span>
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $countTrash ?? 0 }}</span>
                                     </a>
 
                                 </div>
@@ -170,7 +170,7 @@
                                             <tr>
                                                 <td class="sm-width">
                                                     <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" id="checkbox-table"
+                                                        <input type="checkbox" id="" value="{{ $product->id }}"
                                                             class="custom-control-input checkbox_animated checkbox-input">
                                                     </div>
                                                 </td>
@@ -180,8 +180,14 @@
                                                         src="{{ Storage::url($product->thumbnail) }}">
                                                 </td>
                                                 <td class="cursor-pointer">{{ $product->name }}</td>
-                                                <td class="cursor-pointer">{{ $product->categories[0]->name }}</td>
-                                                <td class="cursor-pointer">{{ number_format($product->price) }} VND</td>
+                                                <td class="cursor-pointer">
+                                                    @if ($product->categories->isNotEmpty())
+                                                        {{ $product->categories->pluck('name')->implode(', ') }}
+                                                    @else
+                                                        <span class="text-muted">Không có danh mục</span>
+                                                    @endif
+                                                </td>
+                                                <td class="cursor-pointer">{{  $product->price_range}} </td>
                                                 <td class="cursor-pointer">{{ $product->stock_quantity }}</td>
                                                 <td class="cursor-pointer">
                                                     @if ($product->stock_quantity > 10)
@@ -201,7 +207,8 @@
                                                 <td class="cursor-pointer">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch switch-sm">
-                                                            <input type="checkbox" id="status-0"value="0"
+                                                            <input type="checkbox" class="toggle-active-products"
+                                                                data-product-id="{{ $product->id }}"{{-- Data attribute chứa ID --}}
                                                                 {{ $product->is_active == 1 ? 'checked' : '' }}>
                                                             <span class="switch-state"></span>
                                                         </label>
@@ -271,13 +278,9 @@
             // --- Logic Checkbox ---
             $('#checkbox-table').on('click', function() {
 
-                if ($(this).prop('checked')) {
-                    $('#btn-move-to-trash').removeClass('visually-hidden');
-                } else {
-                    $('#btn-move-to-trash').addClass('visually-hidden');
-                }
-
                 $('.checkbox-input').prop('checked', $(this).prop('checked'));
+                toggleBulkActionButton();
+
             });
 
             $('.checkbox-input').on('click', function() {
@@ -286,35 +289,159 @@
                 const checked = $('.checkbox-input:checked').length;
 
                 $('#checkbox-table').prop('checked', total === checked);
+                toggleBulkActionButton();
 
-                if ($(this).prop('checked')) {
-                    $('#btn-move-to-trash').removeClass('visually-hidden');
-                } else {
-                    let isAnotherInputChecked = false;
-                    $('.checkbox-input').not($(this)).each((index, checkboxInput) => {
-                        if ($(checkboxInput).prop('checked')) {
-                            isAnotherInputChecked = true;
-                            return;
-                        }
-                    })
-
-                    if (!isAnotherInputChecked) {
-                        $('#btn-move-to-trash').addClass('visually-hidden');
-                        $('#checkbox-table').prop('checked', false);
-                    }
-                }
             });
-            // --- End Logic Checkbox --
 
 
-            $('#btn-move-to-trash').on('click', function(e) {
+            // --- Xử lý sự kiện click nút "Xóa tất cả" ---
+            $('#btn-move-to-trash-all').on('click', function() {
+                handleBulkAction(); // 6.1 Gọi hàm xử lý
+            });
 
-                let confirmMessage = confirm("{{ __('message.confirm_move_to_trash_all_item') }}");
-
-                if (confirmMessage) {
-                    console.log('Move to trash');
+            //  Hàm ẩn/hiện nút "Xóa tất cả"
+            function toggleBulkActionButton() {
+                if ($('.checkbox-input:checked').length > 0) {
+                    $('#btn-move-to-trash-all').removeClass('visually-hidden'); // checkbox => hiện
+                } else {
+                    $('#btn-move-to-trash-all').addClass('visually-hidden'); //  ẩn
                 }
-            })
+            }
+
+            toggleBulkActionButton(); // 5. Gọi hàm lần đầu khi trang tải
+
+            // Lấy ids và gửi AJAX request
+            function handleBulkAction() {
+
+                const selectedIds = [];
+                $('.checkbox-input:checked').each(function() {
+                    selectedIds.push($(this).val());
+                });
+
+                if (selectedIds.length == 0) { // 6.2 Kiểm tra nếu không có ID nào được chọn
+                    alert('Vui lòng chọn ít nhất một danh mục.');
+                    return; // Dừng thực thi nếu không có ID
+                }
+
+                if (confirm(
+                        "{{ __('message.confirm_move_to_trash_all_item') }}"
+                    )) {
+                    $.ajax({ // Gửi AJAX request
+                        url: '{{ route('admin.products.bulkTrash') }}', //  URL của route xử lý
+                        method: 'POST', //  Phương thức POST
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            product_ids: selectedIds,
+                        },
+
+                        success: function(response) {
+                            console.log("data:", selectedIds);
+
+                            console.log("Response:", response);
+
+                            if (response && typeof response === 'object') {
+
+                                if (response.success === true) {
+
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Thành công!',
+                                        html: response.message,
+                                        timer: 1500, // Tự động đóng sau 1.5 giây
+                                        showConfirmButton: false,
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+
+                                } else {
+
+                                    // let errorMessage = "Đã có lỗi xảy ra.";
+
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Lỗi!',
+                                        html: response.message,
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                }
+
+                            } else {
+                                console.error("Response không đúng định dạng:", response);
+                                alert("Đã có lỗi xảy ra trong quá trình xử lý.");
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Lỗi AJAX:", error);
+                            alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+                        }
+                    });
+                }
+
+            }
+
+            // --- End Logic Checkbox ---
+
+
+            // $('#btn-move-to-trash').on('click', function(e) {
+
+            //     let confirmMessage = confirm("{{ __('message.confirm_move_to_trash_all_item') }}");
+
+            //     if (confirmMessage) {
+            //         console.log('Move to trash');
+            //     }
+            // })
+
+            // update Is_active Api
+            $('.toggle-active-products').change(function() {
+                // console.log("Checkbox toggle-active changed!", $(this).data('category-id'), $(this).is(
+                //     ':checked'));
+                let $this = $(this);
+                let productId = $this.data('product-id');
+                let isActive = $this.is(':checked') ? 1 : 0;
+                let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                $.ajax({
+                    url: '/api/products/' + productId + '/active',
+                    type: 'PATCH',
+                    data: {
+                        is_active: isActive,
+                        _token: csrfToken
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                html: response.message,
+                                // timer: 1500, // Tự động đóng sau 1.5 giây
+                                // showConfirmButton: false,
+                            }).then(() => {
+                                location.reload();
+                            });
+
+                        } else {
+                            console.error(response.message);
+                            $this.prop('checked', !
+                                isActive); // 
+                            alert(response.message);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error("Lỗi AJAX: " + textStatus + ", " + errorThrown);
+                        $this.prop('checked', !isActive); // 
+                        if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                            alert(jqXHR.responseJSON.message);
+                        } else {
+                            alert("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+                        }
+                    }
+                });
+            });
+
 
             // thông báo sw2
 

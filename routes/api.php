@@ -44,6 +44,7 @@ Route::get('/products/{id}', [DetailProductController::class, 'getProductDetail'
 
 // Route::post('/comments', [DetailProductController::class, 'storeComment']);
 // Route::post('/reply-comments', [DetailProductController::class, 'storeReply']);
+Route::patch('/products/{product}/active', [ProductController::class, 'toggleActive']);
 
 Route::prefix('/categories')
     ->name('api.categories.')
@@ -112,8 +113,8 @@ Route::prefix('/coupons')
     ->group(function () {
         Route::post('/update-coupon-status/{id}', 'apiUpdateStatus');
     });
-    
-Route::put('/brands/{brand}/status',[BrandController::class,'update'])->name('updateStatus');
+
+Route::put('/brands/{brand}/status', [BrandController::class, 'update'])->name('updateStatus');
 
 
 

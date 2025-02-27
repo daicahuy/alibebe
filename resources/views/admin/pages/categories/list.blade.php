@@ -37,7 +37,7 @@
                         </div>
 
                         <!-- HEADER TABLE -->
-                        <form action="{{ route('admin.categories.search') }}" method="GET" id="filter-form">
+                        <form action="{{ route('admin.categories.index') }}" method="GET" id="filter-form">
                             <div class="show-box">
                                 <div class="selection-box"><label>{{ __('message.show') }} :</label>
                                     {{-- <form action="{{ route('admin.categories.index') }}" method="GET"  id="filter-form"> --}}
@@ -49,13 +49,13 @@
                                     <input type="hidden" name="_keyword" value="{{ request('_keyword') }}">
                                     {{-- Giữ lại _keyword --}}
 
-                                    <select class="form-control" name="per_page" onchange="this.form.submit()">
+                                    <select class="form-control" name="per_page" onchange="document.getElementById('filter-form').submit();">
                                         {{-- Thêm name và onchange --}}
-                                        <option value="5" {{ request('per_page') == 15 ? 'selected' : '' }}>15
+                                        <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15
                                         </option>
-                                        <option value="10" {{ request('per_page') == 30 ? 'selected' : '' }}>30
+                                        <option value="30" {{ $perPage == 30 ? 'selected' : '' }}>30
                                         </option>
-                                        <option value="15" {{ request('per_page') == 45 ? 'selected' : '' }}>45
+                                        <option value="45" {{ $perPage == 45 ? 'selected' : '' }}>45
                                         </option>
                                         {{-- <option value="all" {{ request('per_page')=='all' ? 'selected' : '' }}>Tất
                                             cả --}}
@@ -74,7 +74,7 @@
                                         <i class="ri-folder-forbid-fill"></i>
                                         {{ __('message.hidden') }}
                                         <span
-                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $countHidden }}</span>
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $countHidden ?? 0 }}</span>
                                     </a>
 
                                     <a href="{{ route('admin.categories.trash') }}"
@@ -82,7 +82,7 @@
                                         <i class="ri-delete-bin-line"></i>
                                         {{ __('message.trash') }}
                                         <span
-                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $countTrash }}</span>
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $countTrash ?? 0 }}</span>
                                     </a>
 
                                 </div>
@@ -157,7 +157,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($listCategory as $key => $cate)
+                                    @foreach ($categories as $key => $cate)
                                         <tr>
                                             <td>
                                                 <div class="custom-control custom-checkbox">
@@ -202,8 +202,8 @@
                                             <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch switch-sm">
-                                                        <input type="checkbox" class="toggle-active" {{-- Class để bắt sự kiện jQuery --}}
-                                                            data-category-id="{{ $cate->id }}" {{-- Data attribute chứa ID --}}
+                                                        <input type="checkbox" class="toggle-active-index"{{-- Class để bắt sự kiện jQuery --}}
+                                                            data-category-id="{{ $cate->id }}"{{-- Data attribute chứa ID --}}
                                                             {{ $cate->is_active == 1 ? 'checked' : '' }}>
                                                         <span class="switch-state"></span>
                                                     </label>
@@ -259,7 +259,7 @@
 
                     <!-- START PAGINATION -->
                     <div class="custom-pagination">
-                        {{ $listCategory->appends(request()->query())->links() }}
+                        {{ $categories->links() }}
                     </div>
                     <!-- END PAGINATIOn -->
 
@@ -425,7 +425,9 @@
             // --- End Logic Hide, Show Sub Category ---
 
             // update Is_active Api
-            $('.toggle-active').change(function() {
+            $('.toggle-active-index').change(function() {
+                console.log("Checkbox toggle-active changed!", $(this).data('category-id'), $(this).is(
+                    ':checked'));
                 let $this = $(this);
                 let categoryId = $this.data('category-id');
                 let isActive = $this.is(':checked') ? 1 : 0;
@@ -452,17 +454,17 @@
                             }).then(() => {
                                 location.reload();
                             });
-                            // window.location.reload(); // Load lại trang
+
                         } else {
                             console.error(response.message);
                             $this.prop('checked', !
-                                isActive); // Sửa ở đây: isActive (không có $)
+                                isActive); // 
                             alert(response.message);
                         }
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error("Lỗi AJAX: " + textStatus + ", " + errorThrown);
-                        $this.prop('checked', !isActive); // Sửa ở đây: isActive (không có $)
+                        $this.prop('checked', !isActive); // 
                         if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
                             alert(jqXHR.responseJSON.message);
                         } else {
@@ -471,6 +473,8 @@
                     }
                 });
             });
+
+
 
 
             // alert
