@@ -123,7 +123,7 @@
                     <label class="form-label">Đánh giá</label>
                     <div id="ratingStars" style="color: yellow">
                         <input type="hidden" name="rating" id="ratingInput" value="{{ request('rating') }}">
-                        @for ($i = 5; $i >= 1; $i--)
+                        @for ($i = 1; $i <= 5; $i++)
                             <a href="#" onclick="setRating({{ $i }}, event)">
                                 <i class="ri-star-line star" data-value="{{ $i }}"></i>
                             </a>

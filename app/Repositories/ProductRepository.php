@@ -269,33 +269,32 @@ class ProductRepository extends BaseRepository
     public function getBestSellingProducts()
     {
         return DB::table('order_items')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('order_order_status', function ($join) {
+                $join->on('orders.id', '=', 'order_order_status.order_id')
+                    ->where('order_order_status.order_status_id', '=', 6);
+            })
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->leftJoin('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
+            ->leftJoin('attribute_value_product_variant', 'product_variants.id', '=', 'attribute_value_product_variant.product_variant_id')
+            ->leftJoin('attribute_values', 'attribute_value_product_variant.attribute_value_id', '=', 'attribute_values.id')
             ->select(
-                DB::raw('products.name as product_name'),
-                DB::raw('COALESCE(
-                CASE 
-                    WHEN product_variants.thumbnail LIKE "http%" THEN product_variants.thumbnail
-                    ELSE CONCAT("/storage/", product_variants.thumbnail) 
-                END,
-                CASE 
-                    WHEN products.thumbnail LIKE "http%" THEN products.thumbnail
-                    ELSE CONCAT("/storage/", products.thumbnail) 
-                END
-            ) as thumbnail'),
-                DB::raw('COALESCE(product_variants.price, products.price) as price'),
-                DB::raw('COALESCE(product_variants.id, products.id) as product_id'),
+                DB::raw('IFNULL(product_variants.id, products.id) as product_id'),
+                DB::raw('IFNULL(CONCAT(products.name, " - ", GROUP_CONCAT(attribute_values.value SEPARATOR ", ")), products.name) as product_name'),
+                DB::raw('IFNULL(product_variants.price, products.price) as price'),
+                DB::raw('IFNULL(
+                    CASE 
+                        WHEN product_variants.thumbnail LIKE "http%" THEN product_variants.thumbnail
+                        ELSE CONCAT("/storage/", product_variants.thumbnail) 
+                    END,
+                    CASE 
+                        WHEN products.thumbnail LIKE "http%" THEN products.thumbnail
+                        ELSE CONCAT("/storage/", products.thumbnail) 
+                    END
+                ) as thumbnail'),
                 DB::raw('SUM(order_items.quantity) as total_sold')
             )
-            ->groupBy(
-                'products.id',
-                'products.name',
-                'product_variants.thumbnail',
-                'products.thumbnail',
-                'product_variants.price',
-                'products.price',
-                'product_variants.id'
-            )
+            ->groupBy('product_id', 'products.name', 'price', 'thumbnail')
             ->orderByDesc('total_sold')
             ->limit(24)
             ->get();
@@ -468,11 +467,20 @@ class ProductRepository extends BaseRepository
                 'productVariants.attributeValues.attribute',
                 'comments.commentReplies',
             ])
-            ->with(['productVariants' => function ($query) {
-                $query->with(['attributeValues' => function ($query) {
-                    $query->with('attribute');
-                }]);
-            }])
+            ->with(
+                [
+                    'productVariants' => function ($query) {
+                        $query->with(['attributeValues' => function ($query) {
+                            $query->with('attribute');
+                        }]);
+                    },
+                    'attributeValues' => function ($query) {
+                        $query->whereHas('attribute', function ($q) {
+                            $q->where('name', 'Bộ nhớ trong');
+                        });
+                    },
+                ]
+            )
             ->where('is_active', 1)
             ->findOrFail($id);
     }
@@ -506,39 +514,39 @@ class ProductRepository extends BaseRepository
 
 
     public function getRelatedProducts(Product $product, int $limit = 6)
-{
-    $relatedProducts = Product::with('reviews') 
-        ->where('id', '!=', $product->id)
-        ->where('is_active', 1)
-        ->whereBetween('sale_price', [$product->sale_price * 0.8, $product->sale_price * 1.2])
-        ->whereHas('categories', function ($query) use ($product) {
-            $query->whereIn('category_id', $product->categories->pluck('id')); // Lấy tất cả danh mục của sản phẩm
-        })
-        ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price]) // Ưu tiên cùng brand
-        ->limit($limit)
-        ->get();
-
-    // Nếu không tìm thấy sản phẩm tương tự, lấy sản phẩm trong cùng danh mục
-    if ($relatedProducts->isEmpty()) {
-        $relatedProducts = Product::with('reviews') // Eager load reviews relationship
+    {
+        $relatedProducts = Product::with('reviews') 
             ->where('id', '!=', $product->id)
             ->where('is_active', 1)
+            ->whereBetween('sale_price', [$product->sale_price * 0.8, $product->sale_price * 1.2])
             ->whereHas('categories', function ($query) use ($product) {
-                $query->whereIn('category_id', $product->categories->pluck('id'));
+                $query->whereIn('category_id', $product->categories->pluck('id')); // Lấy tất cả danh mục của sản phẩm
             })
-            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price])
+            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price]) // Ưu tiên cùng brand
             ->limit($limit)
             ->get();
+
+        // Nếu không tìm thấy sản phẩm tương tự, lấy sản phẩm trong cùng danh mục
+        if ($relatedProducts->isEmpty()) {
+            $relatedProducts = Product::with('reviews') // Eager load reviews relationship
+                ->where('id', '!=', $product->id)
+                ->where('is_active', 1)
+                ->whereHas('categories', function ($query) use ($product) {
+                    $query->whereIn('category_id', $product->categories->pluck('id'));
+                })
+                ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price])
+                ->limit($limit)
+                ->get();
+        }
+
+        // Tính số sao
+        $relatedProducts->each(function ($relatedProduct) {
+            $averageRating = $relatedProduct->reviews->avg('rating') ?? 0; 
+            $relatedProduct->average_rating = number_format($averageRating, 1); 
+        });
+
+        return $relatedProducts;
     }
-
-    // Tính số sao
-    $relatedProducts->each(function ($relatedProduct) {
-        $averageRating = $relatedProduct->reviews->avg('rating') ?? 0; 
-        $relatedProduct->average_rating = number_format($averageRating, 1); 
-    });
-
-    return $relatedProducts;
-}
 
     public function detailModal($id)
     {

@@ -11,6 +11,10 @@ class ReviewRepository extends BaseRepository {
     {
         return Review::class;
     }
+    public function getAllReviews(){
+        $start = $this->model->select('id','rating')->get();
+        return $start;
+     }
     public function getReviewProducts($search = null, $startDate = null, $endDate = null)
     {
         $query = Review::selectRaw('
