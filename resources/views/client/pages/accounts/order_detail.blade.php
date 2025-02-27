@@ -5,118 +5,56 @@
     <section class="order-detail">
         <div class="container-fluid-lg">
             <div class="row g-sm-4 g-3">
-                <div class="col-xxl-3 col-xl-4 col-lg-6">
-                    <div class="order-image">
-                        <img src="/theme/client/assets/images/vegetable/product/6.png" class="img-fluid blur-up lazyload" alt="">
-                    </div>
-                </div>
-
-                <div class="col-xxl-9 col-xl-8 col-lg-6">
-                    <div class="row g-sm-4 g-3">
-                        <div class="col-xl-4 col-sm-6">
-                            <div class="order-details-contain">
-                                <div class="order-tracking-icon">
-                                    <i data-feather="package" class="text-content"></i>
-                                </div>
-
-                                <div class="order-details-name">
-                                    <h5 class="text-content">Tracking Code</h5>
-                                    <h2 class="theme-color">MH4285UY</h2>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-4 col-sm-6">
-                            <div class="order-details-contain">
-                                <div class="order-tracking-icon">
-                                    <i data-feather="truck" class="text-content"></i>
-                                </div>
-
-                                <div class="order-details-name">
-                                    <h5 class="text-content">Service</h5>
-                                    <img src="https://themes.pixelstrap.com/fastkart/assets/images/inner-page/brand-name.svg"
-                                        class="img-fluid blur-up lazyload" alt="">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-4 col-sm-6">
-                            <div class="order-details-contain">
-                                <div class="order-tracking-icon">
-                                    <i class="text-content" data-feather="info"></i>
-                                </div>
-
-                                <div class="order-details-name">
-                                    <h5 class="text-content">Package Info</h5>
-                                    <h4>Letter</h4>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-4 col-sm-6">
-                            <div class="order-details-contain">
-                                <div class="order-tracking-icon">
-                                    <i class="text-content" data-feather="crosshair"></i>
-                                </div>
-
-                                <div class="order-details-name">
-                                    <h5 class="text-content">From</h5>
-                                    <h4>STR. Smardan 9, Bucuresti, romania.</h4>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-4 col-sm-6">
-                            <div class="order-details-contain">
-                                <div class="order-tracking-icon">
-                                    <i class="text-content" data-feather="map-pin"></i>
-                                </div>
-
-                                <div class="order-details-name">
-                                    <h5 class="text-content">Destination</h5>
-                                    <h4>Flokagata 24, 105 Reykjavik, Iceland</h4>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-4 col-sm-6">
-                            <div class="order-details-contain">
-                                <div class="order-tracking-icon">
-                                    <i class="text-content" data-feather="calendar"></i>
-                                </div>
-
-                                <div class="order-details-name">
-                                    <h5 class="text-content">Estimated Time</h5>
-                                    <h4>7 Frb, 05:05pm</h4>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 overflow-hidden">
-                            <ol class="progtrckr">
-                                <li class="progtrckr-done">
-                                    <h5>Order Processing</h5>
-                                    <h6>05:43 AM</h6>
-                                </li>
-                                <li class="progtrckr-done">
-                                    <h5>Pre-Production</h5>
-                                    <h6>01:21 PM</h6>
-                                </li>
-                                <li class="progtrckr-done">
-                                    <h5>In Production</h5>
-                                    <h6>Processing</h6>
-                                </li>
-                                <li class="progtrckr-todo">
-                                    <h5>Shipped</h5>
-                                    <h6>Pending</h6>
-                                </li>
-                                <li class="progtrckr-todo">
-                                    <h5>Delivered</h5>
-                                    <h6>Pending</h6>
-                                </li>
-                            </ol>
+                @foreach ($orderDetail as $detail)
+                    <div class="col-xxl-3 col-xl-4 col-lg-6">
+                        <div class="order-image">
+                            <img src="{{ Storage::url($detail->product->thumbnail) }}" class="img-fluid blur-up lazyload"
+                                alt="">
                         </div>
                     </div>
+
+                    <div class="col-xxl-9 col-xl-8 col-lg-6">
+                        <div class="row g-sm-4 g-3">
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="order-details-contain p-3">
+                                    <div class="order-tracking-icon mb-3">
+                                        <i data-feather="package" class="text-content"></i>
+                                    </div>
+
+                                    <div class="order-details-name">
+                                        <h5 class="text-content">{{ __('form.order.code') }}</h5>
+                                        <h5 class="theme-color">{{ $detail->order->code }}</h5>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="order-details-contain p-3">
+                                    <div class="order-tracking-icon mb-3">
+                                        <i class="text-content" data-feather="crosshair"></i>
+                                    </div>
+
+                                    <div class="order-details-name">
+                                        <h5 class="text-content">{{ __('form.product.name') }}</h5>
+                                        <h4 class="theme-color" data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="{{ $detail->product->name }}">
+                                            {{ $detail->product->name }}
+                                        </h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+
+                <div class="col-12 overflow-hidden">
+                    <ol class="progtrckr">
+                        @foreach ($orderStatuses as $status)
+                            <li class="progtrckr-done">
+                                <h5>{{ __('form.order_status.' . $status) }}</h5>
+                            </li>
+                        @endforeach
+                    </ol>
                 </div>
             </div>
         </div>

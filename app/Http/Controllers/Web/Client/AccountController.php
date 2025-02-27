@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Web\Client;
 
+use App\Enums\OrderStatusType;
 use App\Enums\UserGenderType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateAccountPasswordRequest;
+use App\Services\Web\Client\Account\CouponService;
 use App\Services\Web\Client\Account\AddressService;
+use App\Services\Web\Client\Account\DashboardService;
 use App\Services\Web\Client\Account\OrderService;
 use App\Services\Web\Client\Account\ProfileService;
 use App\Services\Web\Client\Account\WishlistService;
@@ -17,22 +20,29 @@ class AccountController extends Controller
     protected $profileService;
     protected $addressService;
     protected $wishlistService;
+    protected $dashboardService;
+    protected $couponService;
     public function __construct(
         OrderService $orderService,
         ProfileService $profileService,
         AddressService $addressService,
-        WishlistService $wishlistService
+        WishlistService $wishlistService,
+        DashboardService $dashboardService,
+        CouponService $couponService,
     ) {
         $this->orderService = $orderService;
         $this->profileService = $profileService;
         $this->addressService = $addressService;
         $this->wishlistService = $wishlistService;
+        $this->dashboardService = $dashboardService;
+        $this->couponService = $couponService;
     }
 
     // ============== dashboard ===============
     public function dashboard()
     {
-        return view('client.pages.accounts.dashboard');
+        $data = $this->dashboardService->index();
+        return view('client.pages.accounts.dashboard',compact('data'));
     }
 
     // ============== address ===============
@@ -74,18 +84,6 @@ class AccountController extends Controller
             return back()->withErrors(['message' => $result['message']]);
         }
     }
-    // ============== orders ==================
-    public function order()
-    {
-        $orders = $this->orderService->index();
-        return view('client.pages.accounts.order', compact('orders'));
-    }
-
-    public function orderDetail()
-    {
-        return view('client.pages.accounts.order_detail');
-    }
-
     // ========= Profile ===========
 
     public function profile()
@@ -151,6 +149,7 @@ class AccountController extends Controller
 
     // ============= coupon ================
     public function coupon() {
-        return view('client.pages.accounts.coupons');
+        $coupons = $this->couponService->getCoupons();
+        return view('client.pages.accounts.coupons',compact('coupons'));
     }
 }

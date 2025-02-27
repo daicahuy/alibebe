@@ -5,7 +5,9 @@ namespace App\Repositories;
 use App\Enums\UserGroupType;
 use App\Models\Category;
 use App\Models\Coupon;
+use App\Models\CouponUser;
 use App\Models\Product;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class CouponRepository extends BaseRepository
@@ -20,11 +22,10 @@ class CouponRepository extends BaseRepository
         int $perPage = 15,
         array $orderBy = ['id', 'DESC'],
         array $relations = [],
-    )
-    {
+    ) {
         return $this->model->select($columns)
             ->with($relations)
-            ->where('is_active',1)
+            ->where('is_active', 1)
             ->orderBy($orderBy[0], $orderBy[1])
             ->paginate($perPage)
             ->withQueryString();
@@ -35,11 +36,10 @@ class CouponRepository extends BaseRepository
         int $perPage = 15,
         array $orderBy = ['id', 'DESC'],
         array $relations = [],
-    )
-    {
+    ) {
         return $this->model->select($columns)
             ->with($relations)
-            ->where('is_active',0)
+            ->where('is_active', 0)
             ->orderBy($orderBy[0], $orderBy[1])
             ->paginate($perPage)
             ->withQueryString();
@@ -88,8 +88,9 @@ class CouponRepository extends BaseRepository
         return $this->model->onlyTrashed()->count();
     }
     // đếm số lượng mã giảm giá ẩn
-    public function countCouponHidden() {
-        return $this->model->where('is_active',0)->count();
+    public function countCouponHidden()
+    {
+        return $this->model->where('is_active', 0)->count();
     }
     // tìm mã giảm giá đã xóa cùng với mối quan hệ
     public function findCouponDestroyedWithRelation(string $id, array $relations)
@@ -137,7 +138,8 @@ class CouponRepository extends BaseRepository
     }
 
     // Xem Chi Tiết Của Coupon
-    public function findCounPonWithRelations($id, array $relations) {
+    public function findCounPonWithRelations($id, array $relations)
+    {
         // Tìm coupon theo ID và eager load các quan hệ được truyền vào
         $coupon = $this->model->with($relations)
             ->findOrFail($id); // Trả về coupon hoặc lỗi nếu không tìm thấy
@@ -155,16 +157,32 @@ class CouponRepository extends BaseRepository
         // // Gán danh mục và sản phẩm vào coupon để dễ dàng truy cập trong view
         // $coupon->categories = $categories;
         // $coupon->products = $products;
-        
+
         return $coupon;
     }
-    
+
     // xóa các coupon trong thùng rác > 7 ngày
-    public function forceDeleteOlderThanDays($days) {
+    public function forceDeleteOlderThanDays($days)
+    {
         $coupons = $this->getCouponTrashedOlderThanDays($days);
         Log::info("Coupons : " . $coupons);
-        $coupons->each(function  ($coupon) {
+        $coupons->each(function ($coupon) {
             $coupon->forceDelete();
         });
+    }
+
+    public function getAllCouponForUserLogin($user_id)
+    {
+        return CouponUser::with('coupon')
+            ->where('user_id', $user_id)
+            ->whereHas('coupon', function ($query) {
+                $query->where('is_active', 1)
+                    ->where(function ($q) {
+                        $q->where('end_date', '>=', Carbon::now()) // Coupon chưa hết hạn
+                            ->orWhere('is_expired', 0); // Hoặc chưa bị đánh dấu hết hạn
+                    });
+            })
+            ->get()
+            ->pluck('coupon'); // Lấy danh sách coupon từ bảng `coupons`
     }
 }

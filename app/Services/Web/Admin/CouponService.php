@@ -97,51 +97,51 @@ class CouponService
             // Lưu thông tin mã giảm giá vào bảng coupons
             $coupon = $this->couponRepository->create($couponData);
 
-            $user_group = request('user_group');
+            // $user_group = request('user_group');
 
-            if ($user_group == UserGroupType::ALL) {
-                $allUsers = $this->userRepository->getAll();
+            // if ($user_group == UserGroupType::ALL) {
+            //     $allUsers = $this->userRepository->getAll();
 
-                if ($allUsers->isEmpty()) {
-                    return [
-                        'status' => false,
-                        'message' => 'Không tìm thấy người dùng nào .'
-                    ];
-                }
+            //     if ($allUsers->isEmpty()) {
+            //         return [
+            //             'status' => false,
+            //             'message' => 'Không tìm thấy người dùng nào .'
+            //         ];
+            //     }
 
-                $userIds = $allUsers->pluck('id')->toArray();
+            //     $userIds = $allUsers->pluck('id')->toArray();
 
                 
-            } else if ($user_group == UserGroupType::NEWBIE) {
-                $curentDate = now();
-                // giới hạn thời gian
-                $newUserThreshold = $curentDate->subDays(10);
+            // } else if ($user_group == UserGroupType::NEWBIE) {
+            //     $curentDate = now();
+            //     // giới hạn thời gian
+            //     $newUserThreshold = $curentDate->subDays(10);
 
-                // lấy người dùng mới
-                $newUsers = $this->userRepository->getUsersByCreatedDate($newUserThreshold);
+            //     // lấy người dùng mới
+            //     $newUsers = $this->userRepository->getUsersByCreatedDate($newUserThreshold);
 
-                if ($newUsers->isEmpty()) {
-                    return [
-                        'status' => false,
-                        'message' => 'Không tìm thấy người dùng mới trong 10 ngày qua.'
-                    ];
-                }
+            //     if ($newUsers->isEmpty()) {
+            //         return [
+            //             'status' => false,
+            //             'message' => 'Không tìm thấy người dùng mới trong 10 ngày qua.'
+            //         ];
+            //     }
 
-                $serIds = $newUsers->pluck('id')->toArray();
+            //     $serIds = $newUsers->pluck('id')->toArray();
 
-            } else {
-                $users = $this->userRepository->getUsersByGroupAndLoyaltyPoints($user_group);
-                if ($users->isEmpty()) {
-                    return [
-                        'status' => false,
-                        'message' => 'Không tìm thấy người dùng nào .'
-                    ];
-                }
-                $userIds = $users->pluck('id')->toArray();
+            // } else {
+            //     $users = $this->userRepository->getUsersByGroupAndLoyaltyPoints($user_group);
+            //     if ($users->isEmpty()) {
+            //         return [
+            //             'status' => false,
+            //             'message' => 'Không tìm thấy người dùng nào .'
+            //         ];
+            //     }
+            //     $userIds = $users->pluck('id')->toArray();
 
-            }
+            // }
             
-            $coupon->users()->attach($userIds);
+            // $coupon->users()->attach($userIds);
 
             // Lấy dữ liệu ràng buộc
             $restrictionsData = [
@@ -225,48 +225,48 @@ class CouponService
 
             $coupon->update($couponData);
 
-            $user_group = request('user_group');
+            // $user_group = request('user_group');
 
-            if ($user_group == UserGroupType::ALL) {
-                $allUsers = $this->userRepository->getAll();
+            // if ($user_group == UserGroupType::ALL) {
+            //     $allUsers = $this->userRepository->getAll();
 
-                if ($allUsers->isEmpty()) {
-                    return [
-                        'status' => false,
-                        'message' => 'Không tìm thấy người dùng nào .'
-                    ];
-                }
+            //     if ($allUsers->isEmpty()) {
+            //         return [
+            //             'status' => false,
+            //             'message' => 'Không tìm thấy người dùng nào .'
+            //         ];
+            //     }
 
-                $userIds = $allUsers->pluck('id')->toArray();
+            //     $userIds = $allUsers->pluck('id')->toArray();
                 
-            } else if ($user_group == UserGroupType::NEWBIE) {
-                $curentDate = now();
-                // giới hạn thời gian
-                $newUserThreshold = $curentDate->subDays(10);
+            // } else if ($user_group == UserGroupType::NEWBIE) {
+            //     $curentDate = now();
+            //     // giới hạn thời gian
+            //     $newUserThreshold = $curentDate->subDays(10);
 
-                // lấy người dùng mới
-                $newUsers = $this->userRepository->getUsersByCreatedDate($newUserThreshold);
+            //     // lấy người dùng mới
+            //     $newUsers = $this->userRepository->getUsersByCreatedDate($newUserThreshold);
 
-                if ($newUsers->isEmpty()) {
-                    return [
-                        'status' => false,
-                        'message' => 'Không tìm thấy người dùng mới trong 10 ngày qua.'
-                    ];
-                }
+            //     if ($newUsers->isEmpty()) {
+            //         return [
+            //             'status' => false,
+            //             'message' => 'Không tìm thấy người dùng mới trong 10 ngày qua.'
+            //         ];
+            //     }
 
-                $userIds = $newUsers->pluck('id')->toArray();
-            } else {
-                $users = $this->userRepository->getUsersByGroupAndLoyaltyPoints($user_group);
-                if ($users->isEmpty()) {
-                    return [
-                        'status' => false,
-                        'message' => 'Không tìm thấy người dùng nào .'
-                    ];
-                }
-                $userIds = $users->pluck('id')->toArray();
-            }
+            //     $userIds = $newUsers->pluck('id')->toArray();
+            // } else {
+            //     $users = $this->userRepository->getUsersByGroupAndLoyaltyPoints($user_group);
+            //     if ($users->isEmpty()) {
+            //         return [
+            //             'status' => false,
+            //             'message' => 'Không tìm thấy người dùng nào .'
+            //         ];
+            //     }
+            //     $userIds = $users->pluck('id')->toArray();
+            // }
 
-            $coupon->users()->sync($userIds);
+            // $coupon->users()->sync($userIds);
 
             // Lấy dữ liệu ràng buộc
             $restrictionsData = [
@@ -374,9 +374,9 @@ class CouponService
                 $coupon->restriction->forceDelete();
             }
 
-            if ($coupon->users()->exists()) {
-                $coupon->users()->sync([]);
-            }
+            // if ($coupon->users()->exists()) {
+            //     $coupon->users()->sync([]);
+            // }
 
             $coupon->forceDelete();
             DB::commit();
@@ -470,7 +470,7 @@ class CouponService
 
             foreach ($coupons as $coupon) {
 
-                $coupon->users()->sync([]);
+                // $coupon->users()->sync([]);
 
                 if ($coupon->restriction) {
                     $coupon->restriction->forceDelete();

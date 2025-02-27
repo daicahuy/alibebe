@@ -217,6 +217,14 @@ class AddressService
 
             // Chuẩn bị dữ liệu cập nhật
             $id_default = request('id_default');
+
+            if ($id_default == 0 && $addressDefault->id_default) {
+                return [
+                    'status' => false,
+                    'message' => 'Bạn Không Thể Tắt đi địa chỉ mặc định !'
+                ];
+            }
+
             $data = [
                 'user_id' => $userId,
                 'address' => request('address'),

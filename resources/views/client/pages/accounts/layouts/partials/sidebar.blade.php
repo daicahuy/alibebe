@@ -46,13 +46,13 @@
                     Trang Chủ
                 </a>
             </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link  {{ Request::is('account/order-history') ? 'active' : '' }}" id="pills-order-tab"
+            {{-- <li class="nav-item" role="presentation">
+                <a class="nav-link {{ Request::is('account/order-history*') ? 'active' : '' }}" id="pills-order-tab"
                     data-bs-target="#pills-order" href="{{ route('account.order-history') }}">
                     <i data-feather="shopping-bag"></i>
                     Đơn Hàng
                 </a>
-            </li>
+            </li> --}}
             <li class="nav-item" role="presentation">
                 <a class="nav-link {{ Request::is('account/wishlist') ? 'active' : '' }}" id="pills-wishlist-tab"
                     data-bs-target="#pills-wishlist" href="{{ route('account.wishlist') }}">
@@ -83,7 +83,7 @@
             </li>
         </ul>
         <div class="d-flex justify-content-center mt-3 mb-3">
-            <form action="{{route('api.auth.logout')}}" method="get">
+            <form action="{{ route('api.auth.logout') }}" method="get">
                 @csrf
                 <button class="btn theme-bg-color text-white fw-bold">
                     Đăng Xuất

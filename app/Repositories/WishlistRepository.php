@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\User;
 use App\Models\Wishlist;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,5 +22,11 @@ class WishlistRepository extends BaseRepository
             ->with('product.brand')
             ->latest('id')
             ->paginate(10);
+    }
+    public function countWishlists() {
+        $authLogin = Auth::id();
+        $user = User::with('wishlists')->findOrFail($authLogin);
+
+        return $user->wishlists->count();
     }
 }

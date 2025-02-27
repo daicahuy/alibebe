@@ -95,10 +95,6 @@ Route::name('account.')
 
         //dashboard
         Route::get('/', 'dashboard')->name('dashboard');
-
-        //order
-        Route::get('/order-history', 'order')->name('order-history');
-        Route::get('/order-history/{id}', 'orderHistoryDetail')->name('order-history-detail');
         
         //wishlist
         Route::get('/wishlist', 'wishlist')->name('wishlist');
