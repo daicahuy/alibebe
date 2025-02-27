@@ -206,7 +206,7 @@
                                         <span id="productStock"></span>
                                     @else
                                         <span id="productStock">Số lượng tồn kho :
-                                            {{ $detail->productStock->stock }}</span>
+                                            {{ $detail->productStock->stock ?? 0}}</span>
                                     @endif
                                 </div>
 
@@ -383,10 +383,16 @@
                                                         </a>
 
                                                         <h5 class="sold text-content">
-                                                            <span
+                                                            @if ($dk->sale_price == null)
+                                                                 <del>{{ number_format($dk->price, 0, ',', '.') }} ₫</del>
+                                                            @else
+                                                                 <span
                                                                 class="theme-color price">{{ number_format($dk->sale_price, 0, ',', '.') }}
                                                                 ₫</span>
-                                                            <del>{{ number_format($dk->price, 0, ',', '.') }} ₫</del>
+                                                                <br>
+                                                                <del>{{ number_format($dk->price, 0, ',', '.') }} ₫</del>
+                                                            @endif
+                                                           
                                                         </h5>
                                                     </div>
                                                 </div>
@@ -450,7 +456,7 @@
                             <div class="tab-pane fade show active" id="description" role="tabpanel">
                                 <div class="product-description">
                                     <div class="nav-desh">
-                                        <p>{{ $detail->description }}</p>
+                                        <p>{!! $detail->description !!}</p>
                                     </div>
                                 </div>
                             </div>
@@ -923,7 +929,8 @@
                                     <ul class="rating">
 
                                     </ul>
-
+                                    {{-- <span class="ms-2">8 Reviews</span> --}}
+                                    <span class="ms-2 text-danger" id="prdSoldCount"></span>
                                 </div>
 
                                 <div class="product-stock">
@@ -942,6 +949,13 @@
                                             <h6 id = 'prdBrand'></h6>
                                         </div>
                                     </li>
+
+                                    {{-- <li>
+                                        <div class="brand-box">
+                                            <h5>Product Code:</h5>
+                                            <h6>W0690034</h6>
+                                        </div>
+                                    </li> --}}
 
                                     <li>
                                         <div class="brand-box">
@@ -1039,7 +1053,7 @@
 
 
                 $.ajax({
-                    url: '/api/products/' +
+                    url: '/api/productListCate/' +
                         productId,
                     method: 'GET',
                     dataType: 'json',
@@ -1064,6 +1078,10 @@
                         )
                         feather
                             .replace() // loai lại idcon start
+
+                        // đã bán 
+                        var soldCountText = "Đã bán (" + response.sold_count + ")"; 
+                        $('#prdSoldCount').text(soldCountText); 
 
 
                         // Xử lý biến thể sản phẩm (Product Variants)
@@ -1104,7 +1122,7 @@
 
                                         if (!attributes[
                                                 attrSlug
-                                            ]) { // Nếu thuộc tính này chưa có trong object `attributes`
+                                                ]) { // Nếu thuộc tính này chưa có trong object `attributes`
                                             attributes[attrSlug] =
                                                 new Map() // Tạo Map mới để lưu trữ giá trị thuộc tính (sử dụng Map để loại bỏ giá trị trùng lặp)
                                         }
@@ -1162,16 +1180,16 @@
                                         .id) // Lấy mảng ID giá trị thuộc tính
                                     .sort((a, b) => a -
                                         b
-                                    ) // Sắp xếp ID để đảm bảo key nhất quán (ví dụ: luôn theo thứ tự tăng dần)
+                                        ) // Sắp xếp ID để đảm bảo key nhất quán (ví dụ: luôn theo thứ tự tăng dần)
                                     .join(
                                         '-'
-                                    ); // Nối các ID bằng dấu '-' để tạo key duy nhất (ví dụ: "1-35")
+                                        ); // Nối các ID bằng dấu '-' để tạo key duy nhất (ví dụ: "1-35")
                                 console.log("Variant Key:", key, " - Variant:",
                                     variant); // Log key và variant
 
                                 variantMap[
                                     key
-                                ] = { // Lưu thông tin biến thể vào variantMap, key là chuỗi ID thuộc tính
+                                    ] = { // Lưu thông tin biến thể vào variantMap, key là chuỗi ID thuộc tính
                                     price: variant.price, // Giá biến thể
                                     thumbnail: variant
                                         .thumbnail, // Thumbnail biến thể
@@ -1186,7 +1204,7 @@
                             // Tìm và hiển thị biến thể có giá thấp nhất làm mặc định
                             const lowestVariant = variants.reduce((prev,
                                     curr
-                                ) => // Sử dụng reduce để tìm biến thể có giá thấp nhất
+                                    ) => // Sử dụng reduce để tìm biến thể có giá thấp nhất
                                 parseFloat(prev.price) < parseFloat(curr.price) ? prev :
                                 curr // So sánh giá và trả về biến thể có giá thấp hơn
                             )
@@ -1204,18 +1222,18 @@
                                     const variantKey = selectedValues.sort((a, b) => a - b)
                                         .join(
                                             '-'
-                                        ) // Tạo key tương ứng với combination thuộc tính đã chọn
+                                            ) // Tạo key tương ứng với combination thuộc tính đã chọn
 
                                     const variant = variantMap[
-                                        variantKey
-                                    ] // Tìm biến thể tương ứng trong variantMap
+                                            variantKey
+                                            ] // Tìm biến thể tương ứng trong variantMap
 
                                     // console.log("Variant object khi thay đổi thuộc tính:",variant); // Log object variant vào console để debug
                                     console.log("Selected Values:",
                                         selectedValues); // Log mảng ID thuộc tính đã chọn
                                     console.log("Variant Key (change event):",
                                         variantKey
-                                    ); // Log variantKey tạo trong sự kiện change
+                                        ); // Log variantKey tạo trong sự kiện change
                                     console.log("Variant object khi thay đổi thuộc tính:",
                                         variant); // Log variant tìm được từ variantMap
 
@@ -1229,7 +1247,7 @@
                                         $('#prdThumbnail').attr('src', response.thumbnail)
                                         $('.product-stock span').text(
                                             `Kho: 0`
-                                        ); // Cập nhật stock thành "Kho: 0" (hoặc giá trị mặc định khác)
+                                            ); // Cập nhật stock thành "Kho: 0" (hoặc giá trị mặc định khác)
                                     }
                                 })
 
@@ -1245,6 +1263,14 @@
                     )
                 })
             })
+
+            // Hàm định dạng tên thuộc tính (ví dụ: "Kích thước màn hình" -> "kich_thuoc_man_hinh")
+            // function formatAttributeName(name) {
+            //     return name.trim()
+            //         .toLowerCase() // Chuyển về chữ thường
+            //         .replace(/[^a-z0-9à-ỹ]/g,'_') // Thay thế các ký tự không phải chữ cái, số và tiếng Việt có dấu thành '_'
+            //         .replace(/_+/g, '_') // Thay thế nhiều dấu '_' liên tiếp thành một dấu '_'
+            // }
 
             // Hàm cập nhật giá và thumbnail sản phẩm trong modal
 
@@ -1273,6 +1299,7 @@
                 })
                 return selected // Trả về mảng ID giá trị thuộc tính đã chọn
             }
+
             // Hàm cập nhật thông tin stock sản phẩm trong modal
             function updateStockInfo(variant) { //  HÀM  ĐỂ CẬP NHẬT STOCK
                 const stock = variant.product_stock ? variant.product_stock.stock :
@@ -1280,6 +1307,8 @@
                 $('.product-stock span').text(
                     `Kho: ${stock}`);
             }
+
+
 
             // add to cart
 
@@ -1339,13 +1368,24 @@
                         }
                     };
                 }
+
                 // Log dữ liệu để kiểm tra
                 console.log('Cart Data:', cartData);
 
-
+                // Sau khi có cartData, thêm AJAX request để gửi dữ liệu đến server
+                // $.ajax({
+                //     url: '/api/cart/add',
+                //     method: 'POST',
+                //     data: cartData,
+                //     success: function(response) {
+                //         alert('Thêm vào giỏ hàng thành công!');
+                //     },
+                //     error: function(error) {
+                //         alert('Có lỗi xảy ra khi thêm vào giỏ hàng');
+                //     }
+                // });
             });
         })
-
         //////
         // console.log(productVariants);
 

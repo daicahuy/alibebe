@@ -718,7 +718,7 @@ class ProductRepository extends BaseRepository
                     },
                     'attributeValues' => function ($query) {
                         $query->whereHas('attribute', function ($q) {
-                            $q->where('name', 'Bộ nhớ trong');
+                            $q->where('is_variant', '0');
                         });
                     },
                 ]
