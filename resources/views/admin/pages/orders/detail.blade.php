@@ -519,23 +519,24 @@
                         console.log("data:", data)
                         if (data.listItemOrder[0].order.coupon_discount_type == CouponDiscountType_PERCENT) {
                             totalList.find("li:nth-child(4) p").text(
-                                `${data.listItemOrder[0].order.coupon_code}:  -${data.listItemOrder[0].order.coupon_discount_value}%`
+                                `${data.listItemOrder[0].order.coupon_code}:  -${parseFloat(data.listItemOrder[0].order.coupon_discount_value)}%`
                             );
-                            if (amountAllItems * data.listItemOrder[0].order.coupon_discount_value / 100 > data
-                                .listItemOrder[0].order.coupon.restriction.max_discount_value) {
+                            if (parseFloat(amountAllItems * data.listItemOrder[0].order.coupon_discount_value) /
+                                100 > parseFloat(data
+                                    .listItemOrder[0].order.coupon.restriction.max_discount_value)) {
                                 totalList.find("li:nth-child(5) span").text(
-                                    `-${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(data.listItemOrder[0].order.coupon.restriction.max_discount_value):0}(VND)`
+                                    `-${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(parseFloat(data.listItemOrder[0].order.coupon.restriction.max_discount_value)):0}(VND)`
                                 );
                                 totalList.find("li:nth-child(6) span").text(
-                                    `${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(amountAllItems - data.listItemOrder[0].order.coupon.restriction.max_discount_value):formatCurrency(amountAllItems)}(VND)`
+                                    `${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems) - parseFloat(data.listItemOrder[0].order.coupon.restriction.max_discount_value)):formatCurrency(parseFloat(amountAllItems))}(VND)`
                                 );
 
                             } else {
                                 totalList.find("li:nth-child(5) span").text(
-                                    `-${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(amountAllItems*data.listItemOrder[0].order.coupon_discount_value/100):0}(VND)`
+                                    `-${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems*data.listItemOrder[0].order.coupon_discount_value)/100):0}(VND)`
                                 );
                                 totalList.find("li:nth-child(6) span").text(
-                                    `${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(amountAllItems - amountAllItems*data.listItemOrder[0].order.coupon_discount_value/100):formatCurrency(amountAllItems)}(VND)`
+                                    `${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems) - parseFloat(amountAllItems*data.listItemOrder[0].order.coupon_discount_value)/100):formatCurrency(parseFloat(amountAllItems))}(VND)`
                                 );
 
                             }
@@ -547,10 +548,10 @@
                             totalList.find("li:nth-child(4) p").text(
                                 `${data.listItemOrder[0].order.coupon_code}:  `);
                             totalList.find("li:nth-child(5) span").text(
-                                `-${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(data.listItemOrder[0].order.coupon_discount_value):0}(VND)`
+                                `-${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(parseFloat(data.listItemOrder[0].order.coupon_discount_value)):0}(VND)`
                             );
                             totalList.find("li:nth-child(6) span").text(
-                                `${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(amountAllItems - data.listItemOrder[0].order.coupon_discount_value):formatCurrency(amountAllItems)}(VND)`
+                                `${data.listItemOrder[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems) - parseFloat(data.listItemOrder[0].order.coupon_discount_value)):formatCurrency(parseFloat(amountAllItems))}(VND)`
                             );
 
                         } else {

@@ -13,6 +13,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('coupon_users', function (Blueprint $table) {
+            $table->id();
             $table->foreignIdFor(Coupon::class)->constrained();
             $table->foreignIdFor(User::class)->constrained();
             $table->primary(['coupon_id', 'user_id']);

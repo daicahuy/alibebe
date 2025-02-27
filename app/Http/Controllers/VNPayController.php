@@ -275,7 +275,8 @@ class VNPayController extends Controller
                     ]);
 
                     DB::commit();
-
+                    session()->forget('selectedProducts');
+                    session()->forget('totalPrice');
                     $request->session()->forget('order_data_customer');
                     $request->session()->forget('order_item_data_customer');
 

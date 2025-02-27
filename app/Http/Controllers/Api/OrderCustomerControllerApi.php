@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\CreateOrder;
 use App\Models\CartItem;
 use App\Models\Coupon;
+use App\Models\CouponUser;
 use App\Models\HistoryOrderStatus;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -34,14 +35,43 @@ class OrderCustomerControllerApi extends Controller
 
             if ($couponCode) {
                 $coupon = Coupon::where('code', $couponCode)->lockForUpdate()->first();
-                if (!$coupon || (INT) $coupon->usage_limit - (INT) $coupon->usage_count == 0) {
-                    return response()->json(["status" => "error", "message" => "Mã giảm giá không hợp lệ hoặc đã hết."]);
+
+                if (!$coupon) {
+                    return response()->json(["status" => "error", "message" => "Mã giảm giá không hợp lệ."]);
                 }
-                if ($coupon->is_expired == 1 && (now()->lt($coupon->start_date) || now()->gt($coupon->end_date))) {
-                    return response()->json(["status" => "error", "message" => "Mã giảm giá hết hạn."]);
+
+                if ((INT) ($coupon->usage_limit ?? 0) - (INT) ($coupon->usage_count ?? 0) == 0) {
+                    return response()->json(["status" => "error", "message" => "Mã giảm giá đã hết lượt sử dụng."]);
                 }
-                $coupon->usage_count += 1;
+
+                if (
+                    $coupon->is_expired == 1 &&
+                    (($coupon->start_date && now()->lt($coupon->start_date)) ||
+                        ($coupon->end_date && now()->gt($coupon->end_date)))
+                ) {
+                    return response()->json(["status" => "error", "message" => "Mã giảm giá đã hết hạn."]);
+                }
+
+                $couponUser = CouponUser::where('coupon_id', $coupon->id)->first();
+
+                if (!$couponUser) {
+                    return response()->json(["status" => "error", "message" => "Không tìm thấy người dùng mã giảm giá."]);
+                }
+
+                if ($couponUser->amount <= 0) {
+                    return response()->json(["status" => "error", "message" => "Số lượng mã giảm giá không đủ."]);
+                }
+
+                $coupon->usage_count = (INT) $coupon->usage_count + 1;
                 $coupon->save();
+
+                // Cập nhật amount của couponUser
+                $dataNewAmount = (INT) $couponUser->amount - 1;
+
+                // Cách 1: Sử dụng instance
+                $couponUser->amount = $dataNewAmount;
+                $couponUser->save();
+
             }
 
             $currentTime = now();
@@ -110,24 +140,29 @@ class OrderCustomerControllerApi extends Controller
                 if ($item["product_variant_id"]) {
                     $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
                         ->where('product_variant_id', $item['product_variant_id'])->first();
-                    if ((INT) $cartItem["quantity"] - (INT) $item['quantity_variant'] == 0) {
+
+
+                    if ($cartItem->quantity == $item['quantity_variant']) {
                         $cartItem->delete();
-                        $cartItem->save();
                     } else {
-                        $quantityCartItems = $cartItem["quantity"];
-                        $cartItem->update(["quantity" => (INT) $quantityCartItems - (INT) $item['quantity_variant']]);
+
+
+                        $quantityCartItems = $cartItem->quantity;
+                        $coupon->quantity = (INT) $quantityCartItems - (INT) $item['quantity_variant'];
+
                         $cartItem->save();
 
                     }
                 } else {
                     $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
                         ->where('product_id', $item['product_id'])->first();
-                    if ((INT) $cartItem["quantity"] - (INT) $item['quantity'] == 0) {
+
+                    if ($cartItem->quantity == $item['quantity']) {
                         $cartItem->delete();
-                        $cartItem->save();
                     } else {
-                        $quantityCartItems = $cartItem["quantity"];
-                        $cartItem->update(["quantity" => (INT) $quantityCartItems - (INT) $item['quantity']]);
+                        $quantityCartItems = $cartItem->quantity;
+                        $coupon->quantity = (INT) $quantityCartItems - (INT) $item['quantity'];
+
                         $cartItem->save();
 
                     }
@@ -146,6 +181,9 @@ class OrderCustomerControllerApi extends Controller
             ]);
 
             DB::commit();
+
+            session()->forget('selectedProducts');
+            session()->forget('totalPrice');
 
             return response()->json(["status" => Response::HTTP_OK, "Messager" => "Đơn hàng đã thành công"]);
 

@@ -45,7 +45,7 @@ class OrderRepository extends BaseRepository
         return $query->paginate($limit, ['*'], 'page', $page);
     }
 
-    public function filterOrdersByUser(array $filters, int $page, int $limit, $user_id): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function filterOrdersByUser(array $filters, int $page, int $limit, $user_id, $search): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $query = Order::query()->where("user_id", $user_id)->with([
 
@@ -69,15 +69,10 @@ class OrderRepository extends BaseRepository
                     $q->where('order_status_id', $value);
                 });
             } elseif ($key == 'search' && isset($value)) {
-                $query->where(function ($query1) use ($value) {
-                    $query1->where('orders.fullname', 'LIKE', "%{$value}%")
-                        ->orWhere('orders.code', 'LIKE', "%{$value}%")
-                        ->orWhere('orders.phone_number', 'LIKE', "%{$value}%");
-                });
-            } elseif ($key == 'startDate' && isset($value)) {
-                $query->whereDate('created_at', '>=', $value);
-            } elseif ($key == 'endDate' && isset($value)) {
-                $query->whereDate('created_at', '<=', $value);
+                $query->where('code', 'LIKE', "%{$value}%")
+                    ->orWhereHas('orderItems', function ($query) use ($value) {
+                        $query->where("name", "LIKE", "%{$value}%");
+                    });
             }
         }
 
