@@ -37,7 +37,14 @@ class Product extends Model
         'is_trending' => 0,
         'is_active' => 0,
     ];
-
+    protected $casts = [
+        'is_sale' => 'boolean',
+        'is_featured' => 'boolean',
+        'is_trending' => 'boolean',
+        'is_active' => 'boolean',
+        'sale_price_start_at' => 'datetime',
+        'sale_price_end_at' => 'datetime',
+    ];
     public function isSingle()
     {
         return $this->type = ProductType::SINGLE;

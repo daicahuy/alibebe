@@ -100,9 +100,7 @@ class ProductRepository extends BaseRepository
                                     $variantQuery->whereBetween('price', [$minPrice, $maxPrice]);
                                 });
                         });
-
                 });
-
             } //end search price
 
 
@@ -139,8 +137,7 @@ class ProductRepository extends BaseRepository
                     if (is_array($filterValues)) { // check mảng 
                         $variantAttributeFilters[$filterName] = $filterValues; // gán giá trị vào mảng
                     }
-                }
-                ;
+                };
             }
 
             if (!empty($variantAttributeFilters)) {
@@ -205,8 +202,6 @@ class ProductRepository extends BaseRepository
                 break;
             default:
                 $query->orderBy('updated_at', 'DESC');
-
-
         }
 
 
@@ -306,7 +301,7 @@ class ProductRepository extends BaseRepository
             ->get();
     }
 
-    
+
     public function getPopularProducts()
     {
         return DB::table('order_items')
@@ -384,7 +379,7 @@ class ProductRepository extends BaseRepository
         )->with(['categories', 'productStock']);
         $products = $query->paginate(5);
         // dd($products);
-       
+
         return $products;
     }
 
@@ -403,31 +398,37 @@ class ProductRepository extends BaseRepository
                 'productVariants.attributeValues.attribute',
                 'comments.commentReplies',
             ])
-            ->with(['attributeValues' => function ($query) {
-                $query->whereHas('attribute', function ($q) {
-                    $q->where('name', 'Bộ nhớ trong');
-                });
-            }])
             ->with(['productVariants' => function ($query) {
                 $query->with(['attributeValues' => function ($query) {
                     $query->with('attribute');
                 }]);
             }])
+            ->where('is_active', 1)
             ->findOrFail($id);
     }
 
-    public function getProductAttributes(Product $product, array $attributeNames)
+    public function getProductAttributes(Product $product)
     {
         $attributes = [];
-        $displayedValues = [];
-
         foreach ($product->productVariants as $variant) {
             foreach ($variant->attributeValues as $attrValue) {
-                if (in_array($attrValue->attribute->name, $attributeNames) && !in_array($attrValue->value, $displayedValues[$attrValue->attribute->name] ?? [])) {
-                    $attributes[$attrValue->attribute->name][] = $attrValue;
-                    $displayedValues[$attrValue->attribute->name][] = $attrValue->value;
+                $attributeName = $attrValue->attribute->name;
+                $attributeValueId = $attrValue->id; // Lấy ID của giá trị thuộc tính
+
+                if (!isset($attributes[$attributeName])) {
+                    $attributes[$attributeName] = [];
+                }
+
+                // Kiểm tra xem giá trị thuộc tính đã tồn tại chưa bằng cách sử dụng ID
+                if (!isset($attributes[$attributeName][$attributeValueId])) {
+                    $attributes[$attributeName][$attributeValueId] = $attrValue;
                 }
             }
+        }
+
+        // Chuyển đổi mảng liên kết thành mảng tuần tự để hiển thị trên view
+        foreach ($attributes as $attributeName => $attributeValues) {
+            $attributes[$attributeName] = array_values($attributeValues);
         }
 
         return $attributes;
@@ -435,31 +436,39 @@ class ProductRepository extends BaseRepository
 
 
     public function getRelatedProducts(Product $product, int $limit = 6)
-    {
-        $relatedProducts = Product::where('id', '!=', $product->id)
+{
+    $relatedProducts = Product::with('reviews') 
+        ->where('id', '!=', $product->id)
+        ->where('is_active', 1)
+        ->whereBetween('sale_price', [$product->sale_price * 0.8, $product->sale_price * 1.2])
+        ->whereHas('categories', function ($query) use ($product) {
+            $query->whereIn('category_id', $product->categories->pluck('id')); // Lấy tất cả danh mục của sản phẩm
+        })
+        ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price]) // Ưu tiên cùng brand
+        ->limit($limit)
+        ->get();
+
+    // Nếu không tìm thấy sản phẩm tương tự, lấy sản phẩm trong cùng danh mục
+    if ($relatedProducts->isEmpty()) {
+        $relatedProducts = Product::with('reviews') // Eager load reviews relationship
+            ->where('id', '!=', $product->id)
             ->where('is_active', 1)
-            ->whereBetween('sale_price', [$product->sale_price * 0.8, $product->sale_price * 1.2])
             ->whereHas('categories', function ($query) use ($product) {
-                $query->whereIn('category_id', $product->categories->pluck('id')); // Lấy tất cả danh mục của sản phẩm
+                $query->whereIn('category_id', $product->categories->pluck('id'));
             })
-            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price]) // Ưu tiên cùng brand
+            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price])
             ->limit($limit)
             ->get();
-
-        // Nếu không tìm thấy sản phẩm tương tự, lấy sản phẩm trong cùng danh mục
-        if ($relatedProducts->isEmpty()) {
-            $relatedProducts = Product::where('id', '!=', $product->id)
-                ->where('is_active', 1)
-                ->whereHas('categories', function ($query) use ($product) {
-                    $query->whereIn('category_id', $product->categories->pluck('id'));
-                })
-                ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price])
-                ->limit($limit)
-                ->get();
-        }
-
-        return $relatedProducts;
     }
+
+    // Tính số sao
+    $relatedProducts->each(function ($relatedProduct) {
+        $averageRating = $relatedProduct->reviews->avg('rating') ?? 0; 
+        $relatedProduct->average_rating = number_format($averageRating, 1); 
+    });
+
+    return $relatedProducts;
+}
 
     public function detailModal($id)
     {
@@ -467,41 +476,11 @@ class ProductRepository extends BaseRepository
         // dd($product);
         return $product;
     }
-    public function createComment($data)
-    {
-        return Comment::create($data);
-    }
+   
 
-    public function createReply($data)
-    {
-        return CommentReply::create($data);
-    }
+    
 
-    public function createReview(array $data)
-    {
-        return Review::create($data);
-    }
+    
 
-    public function userHasPurchasedProduct($userId, $productId)
-    {
-        return Order::where('user_id', $userId)
-            ->where('is_paid', 1) 
-            ->whereHas('orderItems', function ($query) use ($productId) {
-                $query->where('product_id', $productId);
-            })
-            ->exists();
-    }
-
-    public function getLatestReview($productId, $userId)
-    {
-        return Review::where('product_id', $productId)
-            ->where('user_id', $userId)
-            ->latest()
-            ->first();
-    }
-
-    public function getReviewsByProductId(int $id)
-    {
-        return Review::where('product_id', $id)->where('is_active', 1)->get();
-    }
+   
 }

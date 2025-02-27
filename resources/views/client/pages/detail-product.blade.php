@@ -117,7 +117,6 @@
                                                         id="productImage">
                                                 </div>
                                             </div>
-
                                             @foreach ($detail->productGallery as $index => $gallery)
                                                 <div class="gallery-image" data-index="{{ $index }}">
                                                     <div class="slider-image">
@@ -139,7 +138,6 @@
                                                         class="img-fluid blur-up lazyload" alt="Ảnh chính">
                                                 </div>
                                             </div>
-
                                             @foreach ($detail->productGallery as $gallery)
                                                 <div>
                                                     <div class="sidebar-image">
@@ -155,7 +153,6 @@
                         </div>
 
                         <div class="col-xl-6 wow fadeInUp">
-
                             <div class="right-box-contain">
                                 <h2 class="name">{{ $detail->name }}</h2>
                                 <div class="price-rating">
@@ -164,7 +161,6 @@
                                             {{ number_format($detail->sale_price, 0, ',', '.') }} ₫
                                             <br><del class="text-content">{{ number_format($detail->price, 0, ',', '.') }}
                                                 ₫</del>
-                                            {{-- <span class="offer theme-color">({{ Str::before($sl, '.') }}% off)</span> --}}
                                         @else
                                             {{ number_format($detail->price, 0, ',', '.') }} ₫
                                         @endif
@@ -177,6 +173,8 @@
                                             </li>
                                         </ul>
                                         <span class="review">{{ $detail->totalReviews }} đánh giá</span>
+                                        <input type="hidden" id="isAuthenticated"
+                                            value="{{ auth()->check() ? 'true' : 'false' }}">
                                     </div>
                                 </div>
 
@@ -185,75 +183,72 @@
                                 </div>
 
                                 <div class="product-package">
-                                    @if (isset($detail->attributes['Màu sắc']))
+                                    @foreach ($detail->attributes as $attributeName => $attributeValues)
                                         <div class="product-title">
-                                            <h4>Màu sắc</h4>
+                                            <h4>{{ $attributeName }}</h4>
                                         </div>
-                                        <ul class="color circle select-package" id="color-options">
-                                            @foreach ($detail->attributes['Màu sắc'] as $index => $attrValue)
+                                        <ul class="circle select-package"
+                                            id="{{ str_replace(' ', '-', strtolower($attributeName)) }}-options">
+                                            @foreach ($attributeValues as $index => $attrValue)
                                                 <li>
                                                     <button type="button"
-                                                        class="option color-option {{ $index === 0 ? 'active' : '' }}"
-                                                        data-value="{{ $attrValue->value }}">{{ $attrValue->value }}</button>
+                                                        class="option {{ str_replace(' ', '-', strtolower($attributeName)) }}-option "
+                                                        data-attribute-name="{{ $attributeName }}"
+                                                        data-attribute-value-id="{{ $attrValue->id }}"
+                                                        data-attribute-value="{{ $attrValue->value }}">{{ $attrValue->value }}</button>
                                                 </li>
                                             @endforeach
                                         </ul>
-                                    @endif
-
-                                    @if (isset($detail->attributes['Bộ nhớ RAM']))
-                                        <div class="product-title">
-                                            <h4>Bộ nhớ RAM</h4>
-                                        </div>
-                                        <ul class="circle select-package" id="memory-options">
-                                            @foreach ($detail->attributes['Bộ nhớ RAM'] as $index => $attrValue)
-                                                <li>
-                                                    <button type="button"
-                                                        class="option memory-option {{ $index === 0 ? 'active' : '' }}"
-                                                        data-value="{{ $attrValue->value }}">{{ $attrValue->value }}</button>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    @endif
+                                    @endforeach
 
                                     <br>
-                                    <span id="productStock">{{ $detail->productStock->stock }}</span>
+                                    @if ($detail->type == 1)
+                                        <span id="productStock"></span>
+                                    @else
+                                        <span id="productStock">Số lượng tồn kho :
+                                            {{ $detail->productStock->stock }}</span>
+                                    @endif
                                 </div>
 
 
                                 <div class="time deal-timer product-deal-timer mx-md-0 mx-auto" id="clockdiv-1"
-                                    data-hours="1" data-minutes="2" data-seconds="3">
-                                    <div class="product-title">
-                                        <h4>Nhanh lên! Khuyến mại kết thúc vào</h4>
+                                    @if ($detail->is_sale == 1 && $detail->sale_price_start_at && $detail->sale_price_end_at) data-start-date="{{ $detail->sale_price_start_at->timestamp }}"
+    data-end-date="{{ $detail->sale_price_end_at->timestamp }}"
+    @else
+    style="display: none;" @endif>
+                                    <div class="my-timer-product-title">
+                                        <h4 class="my-timer-promotion-message" id="promotion-message">Nhanh lên! Khuyến mạikết thúc vào</h4>
+                                            
                                     </div>
                                     <ul>
                                         <li>
                                             <div class="counter d-block">
-                                                <div class="days d-block">
-                                                    <h5></h5>
+                                                <div class="d-block">
+                                                    <h5 class="my-timer-days-value"></h5>
                                                 </div>
                                                 <h6>Days</h6>
                                             </div>
                                         </li>
                                         <li>
                                             <div class="counter d-block">
-                                                <div class="hours d-block">
-                                                    <h5></h5>
+                                                <div class=" d-block">
+                                                    <h5 class="my-timer-hours-value"></h5>
                                                 </div>
                                                 <h6>Hours</h6>
                                             </div>
                                         </li>
                                         <li>
                                             <div class="counter d-block">
-                                                <div class="minutes d-block">
-                                                    <h5></h5>
+                                                <div class=" d-block">
+                                                    <h5 class="my-timer-minutes-value"></h5>
                                                 </div>
                                                 <h6>Min</h6>
                                             </div>
                                         </li>
                                         <li>
                                             <div class="counter d-block">
-                                                <div class="seconds d-block">
-                                                    <h5></h5>
+                                                <div class=" d-block">
+                                                    <h5 class="my-timer-seconds-value"></h5>
                                                 </div>
                                                 <h6>Sec</h6>
                                             </div>
@@ -269,7 +264,8 @@
                                             </button>
                                             <input class="form-control input-number qty-input" type="text"
                                                 name="quantity" value="1">
-                                            <button type="button" class="qty-right-plus" data-type="plus" data-field="">
+                                            <button type="button" class="qty-right-plus" data-type="plus"
+                                                data-field="">
                                                 <i class="fa fa-plus"></i>
                                             </button>
                                         </div>
@@ -293,7 +289,7 @@
 
                                 <div class="payment-option">
                                     <div class="product-title">
-                                        <h4>Guaranteed Safe Checkout</h4>
+                                        <h4>Đảm bảo thanh toán an toàn !</h4>
                                     </div>
                                     <ul>
                                         <li>
@@ -502,14 +498,22 @@
                                                             @for ($i = 5; $i >= 1; $i--)
                                                                 <li>
                                                                     <div class="rating-product">
-                                                                        <h5>{{ $i }}<i data-feather="star"></i></h5>
+                                                                        <h5>{{ $i }}<i data-feather="star"></i>
+                                                                        </h5>
                                                                         <div class="progress">
                                                                             @php
-                                                                                $count = $detail->review->where('rating', $i)->count();
+                                                                                $count = $detail->review
+                                                                                    ->where('rating', $i)
+                                                                                    ->count();
                                                                                 $totalReviews = $detail->review->count();
-                                                                                $percentage = $totalReviews > 0 ? ($count / $totalReviews) * 100 : 0;
+                                                                                $percentage =
+                                                                                    $totalReviews > 0
+                                                                                        ? ($count / $totalReviews) * 100
+                                                                                        : 0;
                                                                             @endphp
-                                                                            <div class="progress-bar" style="width: {{ $percentage }}%;"></div>
+                                                                            <div class="progress-bar"
+                                                                                style="width: {{ $percentage }}%;">
+                                                                            </div>
                                                                         </div>
                                                                         <h5 class="total">{{ $count }}</h5>
                                                                     </div>
@@ -590,7 +594,7 @@
                                 </div>
                             </div>
 
-                            <div class="tab-pane fade show active" id="comments" role="tabpanel">
+                            <div class="tab-pane fade  active" id="comments" role="tabpanel">
                                 <div class="review-box">
                                     <div class="row">
                                         <div class="col-xl-7">
@@ -768,11 +772,11 @@
                                                     @for ($i = 1; $i <= 5; $i++)
                                                         <li>
                                                             <i data-feather="star"
-                                                                class="{{ $i <= round($related->reviews_avg_rating) ? 'fill' : '' }}"></i>
+                                                                class="{{ $i <= round($related->average_rating) ? 'fill' : '' }}"></i>
                                                         </li>
                                                     @endfor
                                                 </ul>
-                                                <span>({{ number_format($related->reviews_avg_rating, 1) }})</span>
+                                                <span>({{ number_format($related->average_rating, 1) }})</span>
                                             </div>
                                             <h5 class="price">
                                                 <span
@@ -783,11 +787,8 @@
                                                 @endif
                                             </h5>
                                             <div class="add-to-cart-box bg-white">
-                                                <button class="btn btn-add-cart addcart-button">Thêm vào giỏ
-                                                    <span class="add-icon bg-light-gray">
-                                                        <i class="fa-solid fa-plus"></i>
-                                                    </span>
-                                                </button>
+                                                <button class="btn btn-add-cart addcart-button">add </button>
+
                                                 <div class="cart_qty qty-box">
                                                     <div class="input-group bg-white">
                                                         {{-- <button type="button" class="qty-left-minus bg-gray"
@@ -1350,187 +1351,147 @@
 
         //Chọn biến thể
 
-        document.addEventListener("DOMContentLoaded", function() {
-            let productVariants = JSON.parse(document.getElementById("productVariantsData").textContent);
-            let productImageElement = document.getElementById("productImage");
-            let priceElement = document.getElementById("productPrice");
-            let stockElement = document.getElementById("productStock");
-            let mainImageContainer = document.getElementById("main-image-container");
-            let galleryImages = document.querySelectorAll(".gallery-image");
+        document.addEventListener('DOMContentLoaded', function() {
+            const attributeOptions = document.querySelectorAll('.option');
+            const
+                selectedAttributes = {}; // Object để lưu thuộc tính đã chọn, ví dụ: { "Bộ nhớ trong": "128GB", "Màu sắc": "Đen" }
+            const productVariants = @json($detail->productVariants); // Lấy danh sách biến thể từ Blade
 
-            let selectedColor = null;
-            let selectedMemory = null;
-            let defaultSalePrice =
-                "{{ $detail->sale_price !== null ? number_format($detail->sale_price, 0, ',', '.') : 'null' }}";
-            let defaultPrice = "{{ number_format($detail->price, 0, ',', '.') }}";
-            let defaultImage = "{{ asset('storage/' . $detail->thumbnail) }}";
-            let defaultStock = "{{ $detail->productStock->stock }}";
+            let defaultVariant = null;
 
-            function selectCheapestVariant() {
-                if (productVariants.length > 0) {
-                    let cheapestVariant = productVariants.reduce((min, variant) => {
-                        return (variant.sale_price !== null ? variant.sale_price : variant.price) < (min
-                            .sale_price !== null ? min.sale_price : min.price) ? variant : min;
+            if (productVariants.length > 0) {
+                // **Tìm biến thể mặc định: Ưu tiên giá thấp nhất, sau đó biến thể đầu tiên**
+                defaultVariant = productVariants.reduce((minVariant, currentVariant) => {
+                    let minPrice = minVariant ? (minVariant.sale_price !== null ? minVariant.sale_price :
+                        minVariant.price) : Infinity;
+                    let currentPrice = currentVariant.sale_price !== null ? currentVariant.sale_price :
+                        currentVariant.price;
+
+                    if (currentPrice < minPrice) {
+                        return currentVariant;
+                    } else if (currentPrice === minPrice && !
+                        minVariant) { // Nếu giá bằng nhau và chưa có minVariant, chọn biến thể đầu tiên
+                        return currentVariant;
+                    } else {
+                        return minVariant ||
+                            currentVariant; // Nếu giá bằng nhau và đã có minVariant, giữ minVariant hiện tại, hoặc chọn currentVariant nếu minVariant chưa có
+                    }
+                }, null);
+
+                if (defaultVariant) {
+                    console.log('Biến thể mặc định được chọn:', defaultVariant);
+                    // Chọn các option tương ứng với biến thể mặc định khi trang tải
+                    defaultVariant.attribute_values.forEach(attrValue => {
+                        const optionButton = document.querySelector(
+                            `.option[data-attribute-name="${attrValue.attribute.name}"][data-attribute-value="${attrValue.value}"]`
+                        );
+                        if (optionButton) {
+                            optionButton.classList.add('active');
+                            selectedAttributes[attrValue.attribute.name] = attrValue.value;
+                        }
                     });
-
-                    selectedColor = cheapestVariant.attribute_values.find(attr => attr.name === "Màu sắc")?.value
-                        ?.trim() || null;
-                    selectedMemory = cheapestVariant.attribute_values.find(attr => attr.name === "Dung lượng")
-                        ?.value?.trim() || null;
-
-                    updateImage(cheapestVariant.thumbnail);
-                    updatePrice(cheapestVariant);
-                    updateStock(cheapestVariant);
-
-                    if (selectedColor) {
-                        let colorBtn = document.querySelector(`.color-option[data-value="${selectedColor}"]`);
-                        if (colorBtn) {
-                            colorBtn.classList.add("active");
-                        }
-                    }
-
-                    if (selectedMemory) {
-                        let memoryBtn = document.querySelector(`.memory-option[data-value="${selectedMemory}"]`);
-                        if (memoryBtn) {
-                            memoryBtn.classList.add("active");
-                        }
-                    }
-                } else {
-                    updatePriceWithoutVariant();
-                    productImageElement.src = defaultImage;
-                    stockElement.textContent = `Số lượng tồn kho: ${defaultStock}`;
+                    updateProductDisplay(defaultVariant); // Cập nhật hiển thị ban đầu với biến thể mặc định
                 }
             }
 
-            document.querySelectorAll(".color-option").forEach(colorBtn => {
-                colorBtn.addEventListener("click", function() {
-                    document.querySelectorAll(".color-option").forEach(btn => btn.classList.remove(
-                        "active"));
-                    this.classList.add("active");
-                    selectedColor = this.getAttribute("data-value")?.trim();
-                    updateVariant(true); // Pass true to update image
+
+            attributeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 1. Xóa active class khỏi các option khác trong cùng nhóm thuộc tính
+                    const attributeGroupOptions = this.closest('.select-package').querySelectorAll(
+                        '.option');
+                    attributeGroupOptions.forEach(opt => opt.classList.remove('active'));
+                    // 2. Thêm active class vào option vừa click
+                    this.classList.add('active');
+
+                    // 3. Thu thập thuộc tính đã chọn
+                    const attributeName = this.dataset.attributeName;
+                    const attributeValue = this.dataset.attributeValue;
+                    selectedAttributes[attributeName] = attributeValue;
+                    console.log('Thuộc tính đã chọn:', selectedAttributes);
+
+                    // 4. Tìm biến thể phù hợp
+                    const selectedVariant = findMatchingVariant(selectedAttributes,
+                        productVariants);
+
+                    if (selectedVariant) {
+                        console.log('Biến thể phù hợp:', selectedVariant);
+                        updateProductDisplay(
+                            selectedVariant); // Cập nhật hiển thị với biến thể đã chọn
+                    } else {
+                        console.log('Không tìm thấy biến thể phù hợp');
+                        // Xử lý trường hợp không tìm thấy biến thể (ví dụ: thông báo cho người dùng)
+                        document.getElementById('productStock').textContent =
+                            ' Không có sẵn với lựa chọn này';
+                        document.getElementById('productPrice').textContent =
+                            'Liên hệ'; // Hoặc giá mặc định, tùy logic của bạn
+                    }
                 });
             });
 
-            document.querySelectorAll(".memory-option").forEach(memoryBtn => {
-                memoryBtn.addEventListener("click", function() {
-                    document.querySelectorAll(".memory-option").forEach(btn => btn.classList.remove(
-                        "active"));
-                    this.classList.add("active");
-                    selectedMemory = this.getAttribute("data-value")?.trim();
-                    updateVariant(false); // Pass false to not update image
-                });
-            });
-
-            function updateVariant(updateImageFlag) {
-                let selectedVariant = productVariants.find(variant => {
-                    let hasColor = selectedColor ? variant.attribute_values?.some(attr => attr?.value
-                    ?.trim() === selectedColor) : true;
-                    let hasMemory = selectedMemory ? variant.attribute_values?.some(attr => attr?.value
-                        ?.trim() === selectedMemory) : true;
-                    return hasColor && hasMemory;
-                });
-
-                if (selectedVariant) {
-                    if (updateImageFlag) {
-                        updateImage(selectedVariant.thumbnail);
+            function findMatchingVariant(selectedAttributes, productVariants) {
+                for (const variant of productVariants) {
+                    let match = true;
+                    for (const attrName in selectedAttributes) {
+                        const selectedAttrValue = selectedAttributes[attrName];
+                        let variantHasAttrValue = false;
+                        for (const variantAttrValue of variant.attribute_values) {
+                            if (variantAttrValue.attribute.name === attrName && variantAttrValue.value ===
+                                selectedAttrValue) {
+                                variantHasAttrValue = true;
+                                break;
+                            }
+                        }
+                        if (!variantHasAttrValue) {
+                            match = false;
+                            break;
+                        }
                     }
-                    updatePrice(selectedVariant);
-                    updateStock(selectedVariant);
+                    if (match) {
+                        return variant;
+                    }
+                }
+                return null; // Không tìm thấy biến thể phù hợp
+            }
+
+
+            function updateProductDisplay(variant) {
+                const productPriceElement = document.getElementById('productPrice');
+                const productStockElement = document.getElementById('productStock');
+                const productImageElement = document.getElementById('productImage'); // Lấy element ảnh chính
+
+                // Cập nhật giá (ưu tiên giá sale nếu có)
+                if (variant.sale_price !== null) {
+                    productPriceElement.innerHTML = formatPrice(variant.sale_price) +
+                        ' ₫ <br><del class="text-content">' + formatPrice(variant.price) + ' ₫</del>';
                 } else {
-                    updatePriceWithoutVariant();
-                    productImageElement.src = defaultImage;
-                    stockElement.textContent = `Số lượng tồn kho: ${defaultStock}`;
+                    productPriceElement.innerHTML = formatPrice(variant.price) + ' ₫';
+                }
+
+                // Cập nhật số lượng tồn kho
+                if (variant.product_stock && variant.product_stock.stock > 0) {
+                    productStockElement.textContent = 'Số lượng tồn kho: ' + variant.product_stock.stock;
+                } else {
+                    productStockElement.textContent = 'Hết hàng';
+                }
+
+                // Cập nhật ảnh (nếu có thumbnail cho biến thể)
+                if (variant.thumbnail) { // Giả sử biến thể có trường 'thumbnail'
+                    productImageElement.src = "{{ asset('storage/') }}/" + variant.thumbnail;
+                    productImageElement.dataset.zoomImage = "{{ asset('storage/') }}/" + variant.thumbnail;
+
+                    // (Tùy chọn) Cập nhật cả sidebar slider và gallery nếu cần, tương tự như cách bạn làm với thumbnail chính
+                } else {
+                    // Nếu biến thể không có thumbnail riêng, sử dụng lại thumbnail sản phẩm chính (hoặc ảnh mặc định)
+                    productImageElement.src = "{{ asset('storage/' . $detail->thumbnail) }}";
+                    productImageElement.dataset.zoomImage = "{{ asset('storage/' . $detail->thumbnail) }}";
                 }
             }
 
-            function updatePrice(variant) {
-                let salePrice = variant.sale_price !== null ? formatPrice(variant.sale_price) : null;
-                let originalPrice = formatPrice(variant.price);
-                let discount = salePrice ? calculateDiscount(variant.price, variant.sale_price) : null;
-
-                if (salePrice) {
-                    priceElement.innerHTML =
-                        `${salePrice} ₫ <br><del class="text-content">${originalPrice} ₫</del> <span class="offer theme-color">(${discount}% off)</span>`;
-                } else {
-                    priceElement.innerHTML = `${originalPrice} ₫`;
-                }
-            }
-
-            function updatePriceWithoutVariant() {
-                if (defaultSalePrice !== "null") {
-                    priceElement.innerHTML =
-                        `${defaultSalePrice} ₫ <br><del class="text-content">${defaultPrice} ₫</del> <span class="offer theme-color">(${calculateDiscount(parseFloat("{{ $detail->price }}"), parseFloat("{{ $detail->sale_price }}"))}% off)</span>`;
-                } else {
-                    priceElement.innerHTML = `${defaultPrice} ₫`;
-                }
-            }
-
-            function updateImage(thumbnail) {
-                if (thumbnail) {
-                    let newImageSrc = "{{ asset('storage/') }}/" + thumbnail;
-                    productImageElement.src = newImageSrc;
-                    productImageElement.setAttribute("data-zoom-image", newImageSrc);
-                    updateMainImageContainer(newImageSrc);
-                } else {
-                    productImageElement.src = defaultImage;
-                    productImageElement.setAttribute("data-zoom-image", defaultImage);
-                    updateMainImageContainer(defaultImage);
-                }
-            }
-
-            function updateMainImageContainer(newImageSrc) {
-                mainImageContainer.innerHTML = `<div class="slider-image">
-            <img src="${newImageSrc}" data-zoom-image="${newImageSrc}" class="img-fluid image_zoom_cls-0 blur-up lazyload" alt="Ảnh chính" id="productImage">
-        </div>`;
-            }
-
-            function updateStock(variant) {
-                if (variant.product_stock) {
-                    stockElement.textContent = `Số lượng tồn kho: ${variant.product_stock.stock}`;
-                } else {
-                    stockElement.textContent = `Số lượng tồn kho: ${defaultStock}`;
-                }
-            }
 
             function formatPrice(price) {
-                return new Intl.NumberFormat("vi-VN").format(price);
+                return new Intl.NumberFormat('vi-VN').format(price); // Định dạng giá tiền Việt Nam
             }
-
-            function calculateDiscount(original, sale) {
-                let discount = ((original - sale) / original) * 100;
-                return Math.round(discount);
-            }
-
-            function addActiveToCheapestVariant() {
-                if (productVariants.length > 0) {
-                    let cheapestVariant = productVariants.reduce((min, variant) => {
-                        return (variant.sale_price !== null ? variant.sale_price : variant.price) < (min
-                            .sale_price !== null ? min.sale_price : min.price) ? variant : min;
-                    });
-
-                    if (cheapestVariant.attribute_values) {
-                        cheapestVariant.attribute_values.forEach(attr => {
-                            if (attr.name === "Màu sắc") {
-                                let colorBtn = document.querySelector(
-                                    `.color-option[data-value="${attr.value.trim()}"]`);
-                                if (colorBtn) {
-                                    colorBtn.classList.add("active");
-                                }
-                            } else if (attr.name === "Dung lượng") {
-                                let memoryBtn = document.querySelector(
-                                    `.memory-option[data-value="${attr.value.trim()}"]`);
-                                if (memoryBtn) {
-                                    memoryBtn.classList.add("active");
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-
-            selectCheapestVariant();
-            addActiveToCheapestVariant();
         });
 
 
@@ -1634,97 +1595,276 @@
         // đánh giá 
 
         document.addEventListener('DOMContentLoaded', function() {
+            // --- Khai báo các biến ---
             const stars = document.querySelectorAll('.star');
             const ratingValue = document.getElementById('ratingValue');
             const reviewForm = document.getElementById('reviewForm');
             const submitButton = document.getElementById('submitReview');
             const reviewText = document.getElementById('content');
+            const imagesInput = document.getElementById('images');
+            const videosInput = document.getElementById('videos');
+            const isAuthenticated = document.getElementById('isAuthenticated')?.value === 'true';
 
+            // --- Hàm xử lý chọn sao đánh giá ---
+            function handleStarRating(starElement) {
+                if (!isAuthenticated) {
+                    showLoginRequiredAlert();
+                    return;
+                }
+
+                const value = starElement.getAttribute('data-value');
+                ratingValue.value = value;
+
+                stars.forEach(s => {
+                    if (s.getAttribute('data-value') <= value) {
+                        s.classList.add('fill');
+                    } else {
+                        s.classList.remove('fill');
+                    }
+                });
+            }
+
+            // --- Hàm hiển thị thông báo yêu cầu đăng nhập ---
+            function showLoginRequiredAlert() {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thông báo!',
+                    text: 'Bạn cần đăng nhập để đánh giá!',
+                });
+            }
+
+            // --- Hàm kiểm tra số lượng ảnh (Client-side) ---
+            function validateImageCount() {
+                const files = imagesInput.files;
+                if (files.length > 5) {
+                    return {
+                        'images_count': 'Bạn chỉ được phép tải lên tối đa 5 hình ảnh.'
+                    };
+                }
+                return null; // Không có lỗi
+            }
+
+            // --- Hàm xử lý gửi đánh giá ---
+            async function submitReviewForm(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!isAuthenticated) {
+                    showLoginRequiredAlert();
+                    return;
+                }
+
+                // Xóa thông báo lỗi hiện tại
+                clearErrorMessages();
+
+                // Kiểm tra số lượng ảnh (Client-side)
+                const imageCountError = validateImageCount();
+                if (imageCountError) {
+                    displayErrorMessages(imageCountError);
+                    return; // Dừng gửi form nếu lỗi số lượng ảnh
+                }
+
+                // Kiểm tra tính hợp lệ của dữ liệu (Client-side - basic, can remove if you rely solely on backend validation)
+                const validationErrors = validateInput();
+                if (validationErrors) {
+                    displayErrorMessages(validationErrors);
+                    return;
+                }
+
+                // Gửi form data bằng Fetch API
+                try {
+                    const formData = new FormData(reviewForm);
+                    const response = await fetch(reviewForm.action, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        handleSuccessResponse();
+                    } else {
+                        handleErrorResponse(response);
+                    }
+                } catch (error) {
+                    handleFetchError(error);
+                }
+            }
+
+            // --- Hàm xóa tất cả thông báo lỗi ---
+            function clearErrorMessages() {
+                document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            }
+
+            // --- Hàm kiểm tra dữ liệu đầu vào (Client-side - basic, can remove if you rely solely on backend validation) ---
+            function validateInput() {
+                let errors = {};
+                if (!ratingValue.value) {
+                    errors['rating'] = 'Vui lòng chọn số sao.';
+                }
+                if (!reviewText.value) {
+                    errors['review_text'] = 'Vui lòng nhập nội dung đánh giá.';
+                }
+                return Object.keys(errors).length > 0 ? errors : null;
+            }
+
+            // --- Hàm hiển thị thông báo lỗi ---
+            function displayErrorMessages(errors) {
+                for (const key in errors) {
+                    let errorElement = null;
+
+                    if (key === 'rating') {
+                        errorElement = document.getElementById('rating-error');
+                    } else if (key === 'review_text') {
+                        errorElement = document.getElementById('review_text-error');
+                    } else if (key === 'images' || key === 'images_count') { // Thêm 'images_count' key here
+                        errorElement = document.getElementById('images-error');
+                    } else if (key.startsWith('images.')) { // For individual image errors like format, size
+                        errorElement = document.getElementById(
+                            'images-error'); // Display all image errors under the same span
+                    } else if (key.startsWith('videos.')) { // For video errors
+                        errorElement = document.getElementById('videos-error');
+                    }
+
+                    if (errorElement) {
+                        errorElement.textContent = errors[key];
+                    }
+                }
+            }
+
+            // --- Hàm xử lý khi gửi đánh giá thành công ---
+            function handleSuccessResponse() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Đánh giá thành công!',
+                    timer: 2000,
+                    showConfirmButton: false,
+                }).then(() => {
+                    location.reload();
+                });
+            }
+
+            // --- Hàm xử lý khi có lỗi từ server ---
+            async function handleErrorResponse(response) {
+                try {
+                    const data = await response.json();
+
+                    if (data && data.errors) {
+                        displayErrorMessages(data.errors);
+                    } else if (data && data.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: data.error,
+                        });
+                    }
+                } catch (jsonError) {
+                    handleFetchError(jsonError);
+                }
+            }
+
+
+            // --- Hàm xử lý lỗi Fetch API ---
+            function handleFetchError(error) {
+                console.error('Lỗi Fetch:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Có lỗi xảy ra khi gửi đánh giá.',
+                });
+            }
+
+
+            // --- Gắn kết các sự kiện ---
             stars.forEach(star => {
                 star.addEventListener('click', function() {
-                    const value = this.getAttribute('data-value');
-                    ratingValue.value = value;
-
-                    stars.forEach(s => {
-                        if (s.getAttribute('data-value') <= value) {
-                            s.classList.add('fill');
-                        } else {
-                            s.classList.remove('fill');
-                        }
-                    });
+                    handleStarRating(this);
                 });
             });
 
             if (submitButton && reviewForm) {
-                submitButton.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    event.stopPropagation();
+                submitButton.addEventListener('click', submitReviewForm);
+            }
+        });
 
-                    // Xóa thông báo lỗi trước đó
-                    document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+        //Khuyến mãi 
 
-                    // Kiểm tra dữ liệu đầu vào
-                    let hasError = false;
-                    if (!ratingValue || !ratingValue.value) {
-                        document.getElementById('rating-error').textContent = 'Vui lòng chọn số sao.';
-                        hasError = true;
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Timer Javascript code ---
+            const timerContainer = document.getElementById(
+            'clockdiv-1'); // Keep the ID the same if you want to target the existing div
+            if (timerContainer && timerContainer.dataset.startDate && timerContainer.dataset.endDate) {
+                const startTimeStamp = timerContainer.dataset.startDate;
+                const endTimeStamp = timerContainer.dataset.endDate;
+
+                const promotionMessageElement = timerContainer.querySelector(
+                    '.my-timer-promotion-message'); // New class name
+
+                if (startTimeStamp && endTimeStamp) {
+                    const startTime = new Date(startTimeStamp * 1000);
+                    const endTime = new Date(endTimeStamp * 1000);
+                    const now = new Date();
+
+                    let targetTime;
+                    let promotionMessage = "Nhanh lên! Khuyến mại kết thúc vào";
+
+                    if (now < startTime) {
+                        targetTime = startTime;
+                        promotionMessage = "Khuyến mại bắt đầu sau";
+                    } else if (now >= endTime) {
+                        timerContainer.innerHTML =
+                            "<div class='my-timer-product-title'><h4 class='my-timer-promotion-ended'>Khuyến mại đã kết thúc!</h4></div>";  
+                        return;
+                    } else {
+                        targetTime = endTime;
+                        promotionMessage = "Nhanh lên! Khuyến mại kết thúc vào";
                     }
-                    if (!reviewText || !reviewText.value) {
-                        document.getElementById('review_text-error').textContent =
-                            'Vui lòng nhập nội dung đánh giá.';
-                        hasError = true;
+
+                    if (promotionMessageElement) {
+                        promotionMessageElement.textContent = promotionMessage;
                     }
 
-                    if (hasError) {
-                        return; // Ngăn chặn việc gửi form nếu có lỗi
-                    }
+                    function updateClock() {
+                        const now = new Date();
+                        const timeDiff = targetTime - now;
 
-                    const formData = new FormData(reviewForm);
-
-                    fetch(reviewForm.action, {
-                            method: 'POST',
-                            body: formData,
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Thành công!',
-                                    text: 'Đánh giá thành công!',
-                                    timer: 2000,
-                                    showConfirmButton: false,
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                return response.json();
-                            }
-                        })
-                        .then(data => {
-                            if (data && data.errors) {
-                                for (const key in data.errors) {
-                                    const errorElement = document.getElementById(key + '-error');
-                                    if (errorElement) {
-                                        errorElement.textContent = data.errors[key][0];
-                                    }
+                        if (timeDiff <= 0) {
+                            clearInterval(timeInterval);
+                            if (now < startTime) {
+                                targetTime = endTime;
+                                if (promotionMessageElement) {
+                                    promotionMessageElement.textContent =
+                                        "Nhanh lên! Khuyến mại kết thúc vào";
                                 }
-                            } else if (data && data.error) {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Lỗi!',
-                                    text: data.error,
-                                });
+                                timeInterval = setInterval(updateClock, 1000);
+                            } else {
+                                timerContainer.innerHTML =
+                                    "<div class='my-timer-product-title'><h4 class='my-timer-promotion-ended'>Khuyến mại đã kết thúc!</h4></div>"; // New class names
+                                return;
                             }
-                        })
-                        .catch(error => {
-                            console.error('Lỗi:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi!',
-                                text: 'Có lỗi xảy ra khi gửi đánh giá.',
-                            });
-                        });
-                });
+                        }
+
+                        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+                        timerContainer.querySelector('.my-timer-days-value').textContent = formatTime(
+                        days); // New class names
+                        timerContainer.querySelector('.my-timer-hours-value').textContent = formatTime(
+                        hours); // New class names
+                        timerContainer.querySelector('.my-timer-minutes-value').textContent = formatTime(
+                        minutes); // New class names
+                        timerContainer.querySelector('.my-timer-seconds-value').textContent = formatTime(
+                        seconds); // New class names
+                    }
+
+                    function formatTime(time) {
+                        return time < 10 ? "0" + time : time;
+                    }
+
+                    updateClock();
+                    let timeInterval = setInterval(updateClock, 1000);
+                }
             }
         });
     </script>

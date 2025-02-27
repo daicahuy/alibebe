@@ -11,4 +11,8 @@ class CommentReplyRepository extends BaseRepository {
         return CommentReply::class;
     }
     
+    public function createReply($data)
+    {
+        return CommentReply::create($data);
+    }
 }

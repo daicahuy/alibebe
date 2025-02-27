@@ -3,10 +3,13 @@
 namespace App\Services\Web\Client;
 
 use App\Models\OrderItem;
+use App\Repositories\CommentReplyRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ProductVariant;
 use App\Models\Review;
+use App\Repositories\CommentRepository;
 use App\Repositories\ProductRepository;
+use App\Repositories\ReviewRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -14,9 +17,21 @@ use Illuminate\Support\Facades\Log;
 class DetailProductService
 {
     protected $productRepository;
-    public function __construct(ProductRepository $productRepository)
+    protected $commentRepository;
+    protected $commentReplyRepository;
+    protected $reviewRepository;
+    public function __construct(
+        ProductRepository $productRepository,
+        CommentRepository $commentRepository,
+        CommentReplyRepository $commentReplyRepository,
+        ReviewRepository $reviewRepository
+
+        )
     {
         $this->productRepository = $productRepository;
+        $this->commentRepository = $commentRepository;
+        $this->commentReplyRepository = $commentReplyRepository;
+        $this->reviewRepository = $reviewRepository;
     }
 
     public function getProductDetail(int $id, array $columns = ['*'])
@@ -30,10 +45,10 @@ class DetailProductService
 
         $product->totalReviews = $totalReviews;
         $product->averageRating = $averageRating;
-        $product->review = $this->productRepository->getReviewsByProductId($id);
+        $product->review = $this->reviewRepository->getReviewsByProductId($id);
 
         // Lấy thuộc tính sản phẩm
-        $product->attributes = $this->productRepository->getProductAttributes($product, ['Màu sắc', 'Bộ nhớ RAM']);
+        $product->attributes = $this->productRepository->getProductAttributes($product);
 
         return $product;
     }
@@ -114,7 +129,7 @@ class DetailProductService
     public function createComment(int $productId, string $content)
     {
         $userId = Auth::id();
-        return $this->productRepository->createComment([
+        return $this->commentRepository->createComment([
             'product_id' => $productId,
             'user_id' => $userId,
             'content' => $content,
@@ -124,7 +139,7 @@ class DetailProductService
     public function createReply(int $commentId, string $content, int $replyUserId)
     {
         $userId = Auth::id();
-        return $this->productRepository->createReply([
+        return $this->commentReplyRepository->createReply([
             'comment_id' => $commentId,
             'user_id' => $userId,
             'reply_user_id' => $replyUserId,
@@ -137,16 +152,16 @@ class DetailProductService
         $userId = Auth::id();
         $productId = $data['product_id'];
 
-        if (!$this->productRepository->userHasPurchasedProduct($userId, $productId)) {
+        if (!$this->reviewRepository->userHasPurchasedProduct($userId, $productId)) {
             return false;
         }
 
-        return $this->productRepository->createReview($data);
+        return $this->reviewRepository->createReview($data);
     }
 
     public function getLatestReview($productId, $userId)
     {
-        return $this->productRepository->getLatestReview($productId, $userId);
+        return $this->reviewRepository->getLatestReview($productId, $userId);
     }
 
     public function createProductReviewWithFiles(array $data, array $files = [])
@@ -218,6 +233,6 @@ class DetailProductService
 
     public function getProductReviews(int $productId)
     {
-        return $this->productRepository->getReviewsByProductId($productId);
+        return $this->reviewRepository->getReviewsByProductId($productId);
     }
 }
