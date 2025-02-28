@@ -13,6 +13,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderOrderStatus;
 use App\Models\ProductStock;
+use App\Models\User;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -169,6 +170,11 @@ class OrderCustomerControllerApi extends Controller
                 }
             }
 
+
+            $user = User::where('id', $dataOrderCustomer["user_id"]);
+
+            $user->loyalty_points = $user->loyalty_points + 10;
+            $user->save();
 
             OrderOrderStatus::create([
                 "order_status_id" => "1",
