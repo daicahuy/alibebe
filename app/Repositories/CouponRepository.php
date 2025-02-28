@@ -16,6 +16,7 @@ class CouponRepository extends BaseRepository
     {
         return Coupon::class;
     }
+    // Admin -----------------------------------------------------------------
     // lấy tất cả sản phẩm chỉ có is_active
     public function paginationIsActive(
         array $columns = ['*'],
@@ -170,7 +171,8 @@ class CouponRepository extends BaseRepository
             $coupon->forceDelete();
         });
     }
-
+    
+    // Client ---------------------------------------------------
     public function getAllCouponForUserLogin($user_id)
     {
         return CouponUser::with('coupon')

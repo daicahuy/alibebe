@@ -117,7 +117,9 @@ class AccountController extends Controller
     {
         $result = $this->profileService->updatePasswordService($updateAccountPasswordRequest);
         if ($result['status']) {
-            return redirect()->route('account.profile')->with('success', $result['message']);
+            return redirect()->route('account.profile')
+            ->with('success', $result['message'])
+            ->with('logout_required', true);;
         } else {
             return back()->withErrors(['message' => $result['message']]);
         }

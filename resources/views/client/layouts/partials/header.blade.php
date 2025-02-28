@@ -266,6 +266,9 @@
                                                         href="{{ route('account.dashboard') }}">{{ __('form.accounts') }}</a>
                                                 </li>
                                                 <li class="product-box-contain">
+                                                    <a href="{{ route('listOrder') }}">Đơn hàng</a>
+                                                </li>
+                                                <li class="product-box-contain">
                                                     <a
                                                         href="{{ route('api.auth.logout') }}">{{ __('form.auth.logout') }}</a>
                                                 </li>

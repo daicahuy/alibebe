@@ -146,8 +146,8 @@
 
         <!-- Search Bar -->
         <div class="mt-3 mb-3">
-            <input type="text" class="form-control"
-                placeholder="Bạn có thể tìm kiếm theo tên Shop, ID đơn hàng hoặc Tên Sản phẩm">
+            <input type="text" class="form-control" id="inputSearchOrder"
+                placeholder="Bạn có thể tìm kiếm theo ID đơn hàng hoặc Tên Sản phẩm">
         </div>
 
 
@@ -189,7 +189,7 @@
             let currentPage = 1;
             const itemsPerPage = 5;
 
-            function fetchOrders() {
+            function fetchOrders(search = null) {
 
                 $("#loading-icon").show();
                 // Gọi API
@@ -198,12 +198,15 @@
                     method: "POST",
                     data: {
                         order_status_id: activeTab,
+                        search: search,
                         user_id: dataUser.id,
                         page: currentPage,
                         limit: itemsPerPage,
                     },
                     success: function(response) {
 
+                        // console.log(response);
+                        // return;
                         renderTable(response.orders, response.totalPages);
 
                         if (response
@@ -233,6 +236,24 @@
                     }
                 });
             }
+
+            function debounce(func, delay) {
+                let timeout;
+                return function(...args) {
+                    const context = this;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), delay);
+                }
+            }
+
+            const debouncedGetOrderList = debounce(function() {
+                const search = $("#inputSearchOrder").val();
+
+                fetchOrders(search);
+            }, 400); // Delay 300ms
+
+            $("#inputSearchOrder").on('input', debouncedGetOrderList)
+
 
             $(".tab").click(function() {
                 $(".tab .nav-link").removeClass("active");
@@ -291,7 +312,6 @@
         `;
 
                     // Thêm danh sách sản phẩm của đơn hàng
-                    console.log("order.coupon_discount_type:", order.coupon_discount_type)
 
                     orderHTML += order.order_items.map(item => {
 
@@ -352,8 +372,6 @@
             `;
                     }).join(""); // Kết hợp tất cả các sản phẩm thành một chuỗi
 
-                    console.log("amountAllItems: ", amountAllItems)
-                    console.log("order.coupon_discount_value ", order.coupon_discount_value)
                     if (order.coupon_discount_type == CouponDiscountType_PERCENT) {
                         if (amountAllItems * order.coupon_discount_value / 100 >
                             order.coupon.restriction.max_discount_value) {
@@ -367,7 +385,6 @@
 
                     }
 
-                    console.log("discountValueOrder:", discountValueOrder)
 
                     // Thêm phần footer của đơn hàng
                     orderHTML += `
@@ -376,26 +393,26 @@
     ${
         order.order_statuses[0].id === 1
             ? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}">Hủy hàng</button>
-                                                                                                                                                                                                                                                                                                                                    `
+                                                                                                                                                                                                                                                                                                                                                                                                `
             : order.order_statuses[0].id === 4
             ? `
-                        <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
-                            Đã nhận
-                        </button>
-                        <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
-                        `
+                                                                                    <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
+                                                                                        Đã nhận
+                                                                                    </button>
+                                                                                    <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
+                                                                                    `
             : ""
     }
 </div>
                 <div>
                     <div>${order.coupon_discount_type ? `
-                                                                            
-                                    <span>Giảm giá: </span>
-                                <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
-                                </div>
-                                    
-                                    
-                                    `:""}
+                                                                                                                                        
+                                                                                                <span>Giảm giá: </span>
+                                                                                            <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
+                                                                                            </div>
+                                                                                                
+                                                                                                
+                                                                                                `:""}
                     <div>
                         <span>Tổng tiền: </span>
                     <span class="price-new">${formatCurrency(order.total_amount)}₫</span>
@@ -423,7 +440,6 @@
                             status_id: 7
                         },
                         success: function(response) {
-                            console.log(response);
                             if (response.status == 200) {
                                 fetchOrders();
                             }
@@ -452,7 +468,6 @@
                             status_id: 6
                         },
                         success: function(response) {
-                            console.log(response);
                             if (response.status == 200) {
                                 fetchOrders();
                             }
@@ -469,7 +484,6 @@
 
                 $(".btn-not-received-order").click(function() {
                     const orderId = $(this).data("idordernotreceived");
-                    console.log("Order ID to cancel:", orderId);
 
                     if (!confirm('Bạn có chắc chắn thao tác này không?')) {
                         return; // Ngưng nếu người dùng không xác nhận
@@ -484,7 +498,6 @@
                             status_id: null
                         },
                         success: function(response) {
-                            console.log(response);
                             if (response.status == 200) {
                                 fetchOrders();
                             }

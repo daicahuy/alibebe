@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderOrderStatus;
 use App\Models\ProductStock;
+use App\Models\User;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -274,8 +275,14 @@ class VNPayController extends Controller
                         "order_id" => $order->id,
                     ]);
 
-                    DB::commit();
+                    $user = User::where('id', $dataOrderCustomer["user_id"]);
 
+                    $user->loyalty_points = $user->loyalty_points + 10;
+                    $user->save();
+
+                    DB::commit();
+                    session()->forget('selectedProducts');
+                    session()->forget('totalPrice');
                     $request->session()->forget('order_data_customer');
                     $request->session()->forget('order_item_data_customer');
 

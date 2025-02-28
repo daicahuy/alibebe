@@ -189,6 +189,8 @@ return [
     'attributes' => [
         'fullname' => 'Họ Và Tên',
         'phone_number' => 'Số Điện Thoại',
+        'birthday' => 'Ngày Sinh',
+        'avatar' => 'Hình Ảnh',
         'address' => 'Địa chỉ',
         'code' => 'Mã giảm giá',
         'title' => 'Tiêu đề',

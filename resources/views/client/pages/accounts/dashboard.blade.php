@@ -160,18 +160,19 @@
                     <div class="col-md-6">
                         <div class="dashboard-detail card p-3 shadow-sm">
                             <h6 class="text-content">Địa Chỉ Mặc Định</h6>
-                            <p class="text-content">{{ $data['defaultAddress']->address }}</p>
+                            <p class="text-content">
+                                {{ !empty($data['defaultAddress']->address) ? $data['defaultAddress']->address : 'Chưa Có Địa Chỉ Mặc Định !!!' }}
+                            </p>
                         </div>
                     </div>
                     <!-- Bản đồ hiển thị địa chỉ -->
                     <div class="col-md-6">
-                        <div class="map-container card p-0 shadow-sm">
-                            <iframe width="100%" height="300" frameborder="0" style="border:0"
-                                src="https://www.google.com/maps/embed/v1/place?q={{ urlencode($data['defaultAddress']->address) }}&key=AIzaSyD0KlXUweWDKJXEgy9bt8pbUsCxN96gBoU"
-                                allowfullscreen>
-                            </iframe>
+                        <div class="map-container card shadow-sm p-0">
+                            <iframe
+                                src="https://www.google.com/maps/embed/v1/place?q={{ urlencode($data['defaultAddress'] && $data['defaultAddress']->address ? $data['defaultAddress']->address : 'Ho Chi Minh City, Vietnam') }}&key=AIzaSyD0KlXUweWDKJXEgy9bt8pbUsCxN96gBoU"
+                                allowfullscreen=""  loading="lazy"></iframe>
                         </div>
-                    </div>
+                    </div>                    
                 </div>
             </div>
         </div>

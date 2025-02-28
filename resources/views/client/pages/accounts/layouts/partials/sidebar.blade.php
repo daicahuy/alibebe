@@ -92,38 +92,3 @@
         </div>
     </div>
 </div>
-
-@push('js_library')
-    <!-- Flatpickr JS -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-@endpush
-
-@push('js')
-    <script>
-        $(document).ready(function() {
-            @if (session()->has('success'))
-                Toastify({
-                    text: "{{ session('success') }}",
-                    duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
-                }).showToast();
-            @endif
-
-            @if ($errors->any())
-                @foreach ($errors->all() as $error)
-                    Toastify({
-                        text: "{{ $error }}",
-                        duration: 3000,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
-                    }).showToast();
-                @endforeach
-            @endif
-        });
-    </script>
-@endpush
