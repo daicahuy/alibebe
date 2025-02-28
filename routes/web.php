@@ -228,6 +228,8 @@ Route::prefix('/admin')
 
             Route::get('/trash', 'trash')->name('trash');
 
+            Route::get('/hidden', 'hidden')->name('hidden');
+
             Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
 
             Route::get('/create', 'create')->name('create');

@@ -26,6 +26,7 @@ class ProductController extends Controller
         $productData = $this->productService->getProducts($perPage, $categoryId, $stockStatus, $keyword);
         $products = $productData['products'];
         $countTrash = $productData['countTrash'];
+        $countHidden = $productData['countHidden'];
         $categories = $this->productService->getCategories();
 
         return view('admin.pages.products.list', compact(
@@ -36,6 +37,7 @@ class ProductController extends Controller
             'stockStatus',
             'keyword',
             'countTrash',
+            'countHidden'
         ));
     }
 
@@ -47,6 +49,21 @@ class ProductController extends Controller
         $listTrashs = $this->productService->getTrash($perPage, $keyword);
         // dd($listTrashs);
         return view('admin.pages.products.trash', compact('listTrashs', 'perPage', 'keyword'));
+    }
+
+    public function hidden(Request $request)
+    {
+        $perPage = $request->input('per_page', 15);
+        $keyword = $request->get('_keyword');
+
+
+        $listHidden = $this->productService->getHidden($perPage, $keyword);
+        // dd($listHidden);
+        return view('admin.pages.products.hidden', compact(
+            'listHidden',
+            'perPage',
+            'keyword'
+        ));
     }
 
     public function show(Product $product)

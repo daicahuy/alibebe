@@ -126,12 +126,14 @@ class ProductService
         }
 
         $countTrash = $this->productRepository->countTrash();
+        $countHidden = $this->productRepository->countHidden();
 
 
         // dd($products);
         return [
             'products' => $products,
             'countTrash' => $countTrash,
+            'countHidden' => $countHidden,
         ];
     }
 
@@ -249,6 +251,43 @@ class ProductService
             return ['success' => false, 'message' => 'Đã xảy ra lỗi, vui lòng thử lại sau'];
         }
     }
+
+    public function getHidden($perPage, $keyword)
+    {
+        try {
+            $listHidden = $this->productRepository->getHidden($perPage, $keyword);
+            $listHidden->getCollection()->each(function ($hidden) {
+                 // Lấy giá biến thể
+            if ($hidden->productVariants->isNotEmpty()) {
+                $minPrice = $hidden->productVariants->min('price');
+                $maxPrice = $hidden->productVariants->max('price');
+
+                if ($minPrice != $maxPrice) {
+                    $hidden->price_range = number_format($minPrice, 0, ',', '.') . ' VND - ' . number_format($maxPrice, 0, ',', '.') . ' VND';
+                } else {
+                    $hidden->price_range = number_format($minPrice, 0, ',', '.') . ' VNĐ';
+                }
+            } else {
+                $hidden->price_range = $hidden->price ? number_format($hidden->price, 0, ',', '.') . ' VND' : '';
+            }
+
+                // Lấy tổng stock quantity thông qua Accessor (thuộc tính ảo) trong model hidden
+                $stockQuantity = $hidden->totalStockQuantity;
+                $hidden->stock_quantity = $stockQuantity;
+            });
+            // dd($listTrashs);
+            return $listHidden;
+        } catch (\Throwable $th) {
+            log::error(
+                __CLASS__ . '--@--' . __FUNCTION__,
+                ['error' => $th->getMessage()]
+            );
+
+            return ['success' => false, 'message' => 'Đã xảy ra lỗi, vui lòng thử lại sau'];
+        }
+    }
+
+
 
     // Xóa cứng
     public function forceDeleteProduct($productId)
