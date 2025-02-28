@@ -455,7 +455,11 @@
 @endpush
 
 @push('js')
-    <script></script>
+<script>
+    let sessionData = <?php echo json_encode(session('selectedProducts')); ?>;
+    console.log(sessionData); // Kiểm tra dữ liệu trên console
+</script>
+
 
     <script>
         async function openAddressEdit(id) {

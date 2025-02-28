@@ -31,26 +31,29 @@ class AuthAdminController extends Controller
     public function handleLogin(HandleLoginRequest $request)
     {
         $login = $request->validated();
-
+    
         if (Auth::attempt($login)) {
             $request->session()->regenerate();
-
+    
             /**
              * @var User
              */
-
             $user = Auth::user();
+    
             if ($user->isAdmin() || $user->isEmployee()) {
                 return redirect()->route('admin.index');
+            } else {
+                Auth::logout(); // Đăng xuất ngay nếu không phải Admin/Nhân viên
+                return redirect()->route('auth.admin.showFormLogin')
+                    ->withErrors(['email' => 'Tài khoản không có quyền truy cập.']);
             }
-            
         }
-
+    
         return back()->withErrors([
             'email' => 'Email hoặc mật khẩu không đúng.',
         ]);
     }
-
+    
 
 
 

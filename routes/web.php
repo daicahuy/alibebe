@@ -136,7 +136,7 @@ Route::name('auth.')
             ->group(function () {
 
 
-                Route::get('/login', 'showFormLogin')->name('showFormLogin');
+                Route::get('/login', 'showFormLogin')->name('showFormLogin')->middleware([ 'isAdmin']);
                 Route::get('/logout', 'logout')->name('logout');
                 Route::post('/handle', 'handleLogin')->name('handleLogin');
                 Route::get('/register', 'showFormRegister')->name('showFormRegister');
@@ -156,7 +156,7 @@ Route::name('auth.')
 
 Route::prefix('/admin')
     ->name('admin.')
-    ->middleware(['isAdmin', 'admin'])
+    ->middleware(['isAdmin'])
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');

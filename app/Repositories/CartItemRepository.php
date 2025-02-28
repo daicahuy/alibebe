@@ -19,9 +19,12 @@ class CartItemRepository extends BaseRepository
     public function getAllCartItem()
     {
         return CartItem::with([
-            'productVariant.product',
+            'productVariant.productStock', 
+        'product.productStock',
+            'productVariant.product.productStock',
             'productVariant.attributeValues.attribute'
         ])->where('user_id', auth()->id())->get();
+        
     }
     public function addToCart($data)
     {
@@ -56,7 +59,7 @@ class CartItemRepository extends BaseRepository
             // Nếu chưa có, tạo mới
             CartItem::create([
                 'user_id' => $userId,
-                'product_id' => empty($data['product_variant_id']) ? $data['product_id'] : null,
+                'product_id' => $data['product_id'] ?? null, // Giữ nguyên product_id nếu có
                 'product_variant_id' => $data['product_variant_id'] ?? null,
                 'quantity' => $data['quantity'],
             ]);
