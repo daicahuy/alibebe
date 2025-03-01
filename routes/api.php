@@ -142,7 +142,7 @@ Route::prefix('/auth')
         })->middleware('auth')->name('verification.notice');
 
 
-        Route::get('/email/verify/{id}', [AuthCustomerApiController::class, 'actionVerifyEmail'])->middleware(['checknotLogin'])->name('verification.verify');
+        Route::get('/email/verify/{id}', [AuthCustomerApiController::class, 'actionVerifyEmail'])->name('verification.verify');
 
 
     });
