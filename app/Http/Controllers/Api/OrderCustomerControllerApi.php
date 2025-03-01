@@ -176,7 +176,7 @@ class OrderCustomerControllerApi extends Controller
             }
 
 
-            $user = User::where('id', $dataOrderCustomer["user_id"]);
+            $user = User::where('id', $dataOrderCustomer["user_id"])->first();
 
             $user->loyalty_points = $user->loyalty_points + 10;
             $user->save();
