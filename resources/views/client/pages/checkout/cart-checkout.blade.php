@@ -1063,7 +1063,8 @@
                             _token: '{{ csrf_token() }}' // Laravel CSRF token
                         },
                         success: function(response) {
-                            console.log("Order: ", response);
+                            // console.log("Order: ", response);
+                            // return;
                             if (response.status == 200) {
                                 window.location.href = '/page_successfully';
                             } else {

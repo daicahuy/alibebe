@@ -91,7 +91,7 @@ Route::name('account.')
         Route::delete('/delete-address/{id}', 'deleteAddress')->name('account.delete-address');
 
         //coupon
-        Route::get('/coupon','coupon')->name('coupon');
+        Route::get('/coupon', 'coupon')->name('coupon');
 
         //dashboard
         Route::get('/', 'dashboard')->name('dashboard');
@@ -99,11 +99,11 @@ Route::name('account.')
         //order
         Route::get('/order-history', 'order')->name('order-history');
         Route::get('/order-history/{id}', 'orderHistoryDetail')->name('order-history-detail');
-        
+
         //wishlist
         Route::get('/wishlist', 'wishlist')->name('wishlist');
-        Route::post('/add/{id}','addWishlist')->name('add');
-        Route::delete('/remove-wishlist/{id}','removeWishlist')->name('remove-wishlist');
+        Route::post('/add/{id}', 'addWishlist')->name('add');
+        Route::delete('/remove-wishlist/{id}', 'removeWishlist')->name('remove-wishlist');
     });
 
 /*--------------AUTHENTICATION--------------*/
@@ -252,7 +252,7 @@ Route::prefix('/admin')
             Route::post('/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
 
 
-            });
+        });
 
         // ATTRIBUTES
         Route::prefix('/attributes')
@@ -423,11 +423,11 @@ Route::prefix('/admin')
             ->controller(ReviewController::class)
             ->group(function () {
 
-                Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
-                Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
-                
-            });
+            Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
+
+        });
 
         // COUPONS
         Route::prefix('/coupons')

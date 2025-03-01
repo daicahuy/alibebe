@@ -1,11 +1,5 @@
 @extends('client.pages.accounts.layouts.master')
 
-@push('css_library')
-    <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-@endpush
-
-
 @section('content_account')
     <div class="dashboard-profile">
         <div class="title">
@@ -287,14 +281,10 @@
     </div>
 @endsection
 
-@push('js_library')
-    <!-- Flatpickr JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-@endpush
-
 @push('js')
     <script>
         $(document).ready(function() {
+
             var datePicker = $('#birthday_input').flatpickr({
                 dateFormat: 'Y-m-d',
                 allowInput: true,

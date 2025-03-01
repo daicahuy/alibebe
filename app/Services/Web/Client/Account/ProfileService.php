@@ -30,31 +30,37 @@ class ProfileService
 
     public function updateInfomation()
     {
-        $data = request()->validate([
-            'avatar' => [
-                'nullable',
-                'image',
-                'max:2048'
+        $data = request()->validate(
+            [
+                'avatar' => [
+                    'nullable',
+                    'image',
+                    'max:2048'
+                ],
+                'fullname' => [
+                    'required',
+                    'string',
+                    'max:100'
+                ],
+                'gender' => [
+                    'nullable',
+                    Rule::in([0, 1, 2])
+                ],
+                'birthday' => [
+                    'required',
+                    'date',
+                    'before_or_equal:today'
+                ],
+                'address' => [
+                    'required',
+                    'integer',
+                    Rule::exists('user_addresses', 'id')
+                ]
             ],
-            'fullname' => [
-                'required',
-                'string',
-                'max:100'
-            ],
-            'gender' => [
-                'nullable',
-                Rule::in([0, 1, 2])
-            ],
-            'birthday' => [
-                'required',
-                'date'
-            ],
-            'address' => [
-                'required',
-                'integer',
-                Rule::exists('user_addresses', 'id')
+            [
+                'birthday.before_or_equal' => 'Ngày sinh không được vượt quá ngày hôm nay (' . now()->format('d/m/Y') . ').',
             ]
-        ]);
+        );
 
         try {
             // Tìm user đang đăng nhập
@@ -169,7 +175,7 @@ class ProfileService
         try {
             $user = $this->accountRepository->findUserLogin();
 
-            // Kiểm tra mật khẩu nhập vào có khớp với mật khẩu đã lưu không
+            // Kiểm tra mật khẩu cũ có đúng không
             if (!Hash::check($data['current_password'], $user->password)) {
                 return [
                     'status' => false,
@@ -177,26 +183,28 @@ class ProfileService
                 ];
             }
 
-            // Không cho phép nhập mật khẩu mới giống với mật khẩu cũ
-            if ($data['current_password'] === $data['new_password']) {
+            // Không cho phép nhập mật khẩu mới giống mật khẩu cũ
+            if (Hash::check($data['new_password'], $user->password)) {
                 return [
                     'status' => false,
-                    'message' => 'Vui Lòng Không Nhập Lại Mật Khẩu Cũ!'
+                    'message' => 'Vui lòng không nhập lại mật khẩu cũ!'
                 ];
             }
 
             // Cập nhật mật khẩu mới
-            $user->update(['password' => Hash::make($data['new_password'])]);
-
-            Auth::login($user); // Đăng nhập lại
+            $user->update([
+                'password' => Hash::make($data['new_password'])
+            ]);
 
             return [
                 'status' => true,
-                'message' => 'Cập nhật mật khẩu thành công!'
+                'message' => 'Cập nhật mật khẩu thành công! Vui lòng đăng nhập lại.',
+                'logout_required' => true
             ];
         } catch (\Throwable $th) {
-            Log::error("Error in ProfileService::updatePasswordService", [
+            Log::error("Lỗi trong ProfileService::updatePasswordService", [
                 'message' => $th->getMessage(),
+                'user_id' => $user->id ?? null
             ]);
 
             return [

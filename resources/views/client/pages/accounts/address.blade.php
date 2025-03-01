@@ -72,8 +72,8 @@
 
                         <div class="button-group">
                             <button class="btn btn-sm add-button w-100" data-bs-toggle="modal" data-bs-target="#editAddress"
-                                data-id="{{ $address->id }}" data-address="{{ $address->address }}" data-fullname="{{$address->fullname}}"
-                                data-phone_number="{{$address->phone_number}}"
+                                data-id="{{ $address->id }}" data-address="{{ $address->address }}"
+                                data-fullname="{{ $address->fullname }}" data-phone_number="{{ $address->phone_number }}"
                                 data-default="{{ $address->id_default }}">
                                 <i data-feather="edit"></i>
                                 {{ __('message.edit') }}
@@ -249,7 +249,7 @@
             const fullname = $(this).data('fullname');
             const phone_number = $(this).data('phone_number');
             const isDefault = $(this).data('default');
-            console.log(address,fullname,phone_number);
+            console.log(address, fullname, phone_number);
 
             // Gán giá trị vào form trong modal
             $('#editAddress input[name="address"]').val(address);

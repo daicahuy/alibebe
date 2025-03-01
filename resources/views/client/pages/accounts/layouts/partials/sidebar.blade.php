@@ -46,13 +46,13 @@
                     Trang Chủ
                 </a>
             </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link  {{ Request::is('account/order-history') ? 'active' : '' }}" id="pills-order-tab"
+            {{-- <li class="nav-item" role="presentation">
+                <a class="nav-link {{ Request::is('account/order-history*') ? 'active' : '' }}" id="pills-order-tab"
                     data-bs-target="#pills-order" href="{{ route('account.order-history') }}">
                     <i data-feather="shopping-bag"></i>
                     Đơn Hàng
                 </a>
-            </li>
+            </li> --}}
             <li class="nav-item" role="presentation">
                 <a class="nav-link {{ Request::is('account/wishlist') ? 'active' : '' }}" id="pills-wishlist-tab"
                     data-bs-target="#pills-wishlist" href="{{ route('account.wishlist') }}">
@@ -83,7 +83,7 @@
             </li>
         </ul>
         <div class="d-flex justify-content-center mt-3 mb-3">
-            <form action="{{route('api.auth.logout')}}" method="get">
+            <form action="{{ route('api.auth.logout') }}" method="get">
                 @csrf
                 <button class="btn theme-bg-color text-white fw-bold">
                     Đăng Xuất
@@ -92,38 +92,3 @@
         </div>
     </div>
 </div>
-
-@push('js_library')
-    <!-- Flatpickr JS -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-@endpush
-
-@push('js')
-    <script>
-        $(document).ready(function() {
-            @if (session()->has('success'))
-                Toastify({
-                    text: "{{ session('success') }}",
-                    duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
-                }).showToast();
-            @endif
-
-            @if ($errors->any())
-                @foreach ($errors->all() as $error)
-                    Toastify({
-                        text: "{{ $error }}",
-                        duration: 3000,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
-                    }).showToast();
-                @endforeach
-            @endif
-        });
-    </script>
-@endpush

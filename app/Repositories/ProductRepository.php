@@ -148,7 +148,8 @@ class ProductRepository extends BaseRepository
                     if (is_array($filterValues)) { // check mảng 
                         $variantAttributeFilters[$filterName] = $filterValues; // gán giá trị vào mảng
                     }
-                };
+                }
+                ;
             }
 
             if (!empty($variantAttributeFilters)) {
@@ -712,9 +713,11 @@ class ProductRepository extends BaseRepository
             ->with(
                 [
                     'productVariants' => function ($query) {
-                        $query->with(['attributeValues' => function ($query) {
-                            $query->with('attribute');
-                        }]);
+                        $query->with([
+                            'attributeValues' => function ($query) {
+                                $query->with('attribute');
+                            }
+                        ]);
                     },
                     'attributeValues' => function ($query) {
                         $query->whereHas('attribute', function ($q) {
@@ -757,7 +760,7 @@ class ProductRepository extends BaseRepository
 
     public function getRelatedProducts(Product $product, int $limit = 6)
     {
-        $relatedProducts = Product::with('reviews') 
+        $relatedProducts = Product::with('reviews')
             ->where('id', '!=', $product->id)
             ->where('is_active', 1)
             ->whereBetween('sale_price', [$product->sale_price * 0.8, $product->sale_price * 1.2])
@@ -783,8 +786,8 @@ class ProductRepository extends BaseRepository
 
         // Tính số sao
         $relatedProducts->each(function ($relatedProduct) {
-            $averageRating = $relatedProduct->reviews->avg('rating') ?? 0; 
-            $relatedProduct->average_rating = number_format($averageRating, 1); 
+            $averageRating = $relatedProduct->reviews->avg('rating') ?? 0;
+            $relatedProduct->average_rating = number_format($averageRating, 1);
         });
 
         return $relatedProducts;
@@ -819,11 +822,11 @@ class ProductRepository extends BaseRepository
             ])
             ->find($id);
     }
-   
 
-    
 
-    
 
-   
+
+
+
+
 }
