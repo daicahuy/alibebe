@@ -772,14 +772,17 @@
                                     .map(attr => attr.id)
                                     .sort((a, b) => a - b)
                                     .join('-');
-
                                 globalVariantMap[key] = {
-                                    id: variant
-                                    .id, // Sử dụng 'id' thay vì 'variant_id'
+                                    id: variant.id,
                                     price: variant.price,
                                     thumbnail: variant.thumbnail,
-                                    product_stock: variant.product_stock
-                                    
+                                    product_stock: variant.product_stock,
+                                    is_sale: variant.is_sale || 0,
+                                    sale_price: variant.sale_price || 0,
+                                    display_price: variant.display_price || variant
+                                        .price,
+                                    original_price: variant.original_price ||
+                                        variant.price
                                 };
                             });
                             console.log("Global Variant Map updated:", globalVariantMap);
@@ -807,13 +810,13 @@
                                 for (const [id, value] of valuesMap.entries()) {
                                     sampleAttrValue = variants.reduce((found,
                                         variant) => {
-                                            if (found) return found;
-                                            return variant.attribute_values.find(
-                                                av => av.attributes_slug ===
-                                                attrSlug);
-                                        }, null);
+                                        if (found) return found;
+                                        return variant.attribute_values.find(
+                                            av => av.attributes_slug ===
+                                            attrSlug);
+                                    }, null);
                                     if (sampleAttrValue)
-                                break; // Tìm thấy một attribute_value, dừng vòng lặp
+                                        break; // Tìm thấy một attribute_value, dừng vòng lặp
                                 }
 
 
@@ -848,20 +851,26 @@
                                     thumbnail: variant.thumbnail,
                                     product_stock: variant.product_stock,
                                     display_price: variant.display_price,
-original_price: variant.original_price
+                                    original_price: variant.original_price
                                 }
                             })
                             console.log("Variant Map:", variantMap);
 
-                            // Tìm và hiển thị biến thể có giá thấp nhất làm mặc định
-                            const lowestVariant = variants.reduce((prev, curr) =>
-                                parseFloat(prev.price) < parseFloat(curr.price) ? prev :
-                                curr
-                            )
+                            // Tìm biến thể giá thấp nhất
+                            const lowestVariant = variants.reduce((prev, curr) => {
+                                const prevDisplayPrice = prev.is_sale && prev
+                                    .display_price ? prev.display_price : prev
+                                    .original_price;
+                                const currDisplayPrice = curr.is_sale && curr
+                                    .display_price ? curr.display_price : curr
+                                    .original_price;
+                                return parseFloat(prevDisplayPrice) < parseFloat(
+                                    currDisplayPrice) ? prev : curr;
+                            });
                             // cập nhật thông tin theo biến thể giá min
-                            updateProductInfo(lowestVariant)
-                            setSelectedAttributes(lowestVariant.attribute_values)
-                            updateStockInfo(lowestVariant)
+                            updateProductInfo(lowestVariant, response.is_sale);
+                            setSelectedAttributes(lowestVariant.attribute_values);
+                            updateStockInfo(lowestVariant);
                             $('#cartProductVariantId').val(lowestVariant.id);
                             // Xử lý sự kiện thay đổi select dropdown thuộc tính biến thể
                             $('.variant-attribute').change(function() {
@@ -869,33 +878,31 @@ original_price: variant.original_price
                                 const variantKey = selectedValues.sort((a, b) => a - b)
                                     .join('-');
                                 const variant = globalVariantMap[variantKey];
-
                                 if (variant) {
-                                    console.log("Variant ID khi change (variant.id):",
-                                        variant.id);
-                                    $('#cartProductVariantId').val(variant
-                                    .id); // Cập nhật #cartProductVariantId với variant.id
-                                    updateProductInfo(
-                                    variant); // Cập nhật giá và thumbnail theo biến thể đã chọn
-                                    updateStockInfo(
-                                    variant); // Cập nhật thông tin kho hàng
+                                    $('#cartProductVariantId').val(variant.id);
+                                    updateProductInfo(variant, response.is_sale);
+                                    updateStockInfo(variant);
                                 } else {
-                                    console.log("Variant KHONG tim thay cho key:",
+                                    console.log("Không tìm thấy biến thể cho key:",
                                         variantKey);
-                                    $('#cartProductVariantId').val(
-                                    ''); // Reset #cartProductVariantId nếu không tìm thấy variant
-                                    //  reset về giá và hình ảnh gốc hoặc thông báo không tìm thấy biến thể
+                                    $('#cartProductVariantId').val('');
                                 }
                             });
 
 
-                        } else { // Trường hợp sản phẩm không có biến thể
-                            $('#productVariants').html('<p>Sản phẩm này không có biến thể</p>')
-                            $('#prdPrice').text(formatPrice(response.price || 0))
-                            $('#prdThumbnail').attr('src', response.thumbnail)
+                        } else {
+                            let priceHtml;
+                            if (response.is_sale && response.display_price) {
+                                priceHtml =
+                                    `${formatPrice(response.display_price)} <small><del>${formatPrice(response.original_price)}</del></small>`;
+                            } else {
+                                priceHtml = formatPrice(response.original_price || 0);
+                            }
+                            $('#prdPrice').html(priceHtml);
+                            $('#prdThumbnail').attr('src', response.thumbnail ||
+                                '/path/to/default-image.jpg');
                             $('.product-stock span').text(`Kho: ${response.stock || 0}`);
-                            $('#cartProductVariantId').val(
-                            ''); // Đảm bảo  #cartProductVariantId rỗng khi không có biến thể
+                            $('#cartProductVariantId').val('');
                         }
                     },
                     error: () => alert('Không tìm thấy sản phẩm')
@@ -904,9 +911,18 @@ original_price: variant.original_price
 
 
             // Hàm cập nhật giá và thumbnail sản phẩm trong modal
-            function updateProductInfo(variant) {
-                $('#prdPrice').text(formatPrice(variant.price))
-                $('#prdThumbnail').attr('src', variant.thumbnail)
+            function updateProductInfo(variant, isSale) {
+                let priceHtml;
+                const isVariantOnSale = isSale && variant.display_price && variant.original_price && parseFloat(
+                    variant.display_price) < parseFloat(variant.original_price);
+                if (isVariantOnSale) {
+                    priceHtml =
+                        `${formatPrice(variant.display_price)} <small><del>${formatPrice(variant.original_price)}</del></small>`;
+                } else {
+                    priceHtml = formatPrice(variant.original_price || 0);
+                }
+                $('#prdPrice').html(priceHtml);
+                $('#prdThumbnail').attr('src', variant.thumbnail);
             }
 
             // Hàm chọn giá trị thuộc tính trong dropdown (dựa trên biến thể được chọn)
@@ -939,7 +955,7 @@ original_price: variant.original_price
             // Hàm cập nhật thông tin stock sản phẩm trong modal
             function updateStockInfo(variant) {
                 const stock = variant.product_stock ? variant.product_stock.stock :
-                0; // Lấy stock từ product_stock.stock
+                    0; // Lấy stock từ product_stock.stock
                 $('.product-stock span').text(`Kho: ${stock}`);
             }
 
@@ -949,7 +965,7 @@ original_price: variant.original_price
                 // Lấy product_id từ modal
                 const productId = $('#view').data('product-id');
                 const selectedVariantId = $('#cartProductVariantId')
-            .val(); // Lấy variant ID từ input hidden
+                    .val(); // Lấy variant ID từ input hidden
 
                 // Kiểm tra xem sản phẩm có biến thể hay không
                 const hasVariants = $('#productVariants .variant-attribute').length > 0;
@@ -983,32 +999,7 @@ original_price: variant.original_price
                 }
                 this.submit();
 
-                // Thêm AJAX request để gửi dữ liệu đến server
-                // $.ajax({
-                //     url: '/api/cart/add',
-                //     method: 'POST',
-                //     data: cartData,
-                //     success: function(response) {
-                //         // Swal.fire({
-                //         //     icon: 'success',
-                //         //     title: 'Thành công!',
-                //         //     text: 'Sản phẩm đã được thêm vào giỏ hàng!',
-                //         //     timer: 1500,
-                //         //     showConfirmButton: false
-                //         // }).then(() => {
 
-                //             window.location.reload(); 
-                //         // });
-                //     },
-                //     error: function(error) {
-                //         Swal.fire({
-                //             icon: 'error',
-                //             title: 'Lỗi!',
-                //             text: 'Có lỗi xảy ra khi thêm vào giỏ hàng. Vui lòng thử lại sau.',
-                //             showConfirmButton: true
-                //         });
-                //     }
-                // });
             });
 
         })
