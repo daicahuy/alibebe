@@ -513,7 +513,7 @@
                 coupon_code: "",
                 coupon_discount_type: "",
                 coupon_discount_value: "",
-                total_amount_discounted: "",
+                total_amount_discounted: totalPrice,
             }
 
             const ordersItem = selectedProducts;
@@ -1096,7 +1096,7 @@
                         url: 'http://127.0.0.1:8000/payment/vnpay',
                         type: 'POST',
                         data: {
-                            amount: dataSaveOrder.total_amount,
+                            amount: dataSaveOrder.total_amount_discounted,
                             dataOrder: dataSaveOrder,
                             ordersItem: ordersItem,
                             _token: '{{ csrf_token() }}' // Laravel CSRF token
@@ -1240,7 +1240,7 @@
                                 <p class="text-xs text-gray-500">Đơn Tối Thiếu ₫${voucher.coupon.restriction.min_order_value ? parseFloat(voucher.coupon.restriction.min_order_value)/1000 + 'k' : '...' }</p>
                                 ${voucher.coupon.is_shopee_video ? '<div class="bg-red-50 text-red-500 text-xs font-medium rounded-full px-2 py-1 mt-1 inline-block">Chỉ có trên Shopee Video</div>' : ''}
                                
-                                <div class="text-xs text-gray-500">Đã dùng ${parseFloat(voucher.coupon.usage_count)/parseFloat(voucher.coupon.usage_limit)*100}%, HSD: ${formatDateString(voucher.coupon.end_date)}</div>
+                                <div class="text-xs text-gray-500">Đã dùng ${parseFloat(voucher.coupon.usage_count)/parseFloat(voucher.coupon.usage_limit)*100}%, HSD: ${voucher.coupon.end_date?formatDateString(voucher.coupon.end_date):"Không"}</div>
                             </div>
                         </div>
                         <div class="flex flex-col items-end">
