@@ -6,6 +6,7 @@ use App\Enums\UserRoleType;
 use App\Enums\UserStatusType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ForgotPasswordRequest;
+use App\Mail\VerifyEmail;
 use App\Models\Otp;
 use App\Models\User;
 use App\Services\Api\Client\AuthCustomerService;
@@ -388,6 +389,26 @@ class AuthCustomerApiController extends Controller
             return response()->json(['status' => Response::HTTP_OK, 'message' => "success"], 200);
 
         } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function actionVerifyEmail($id)
+    {
+        try {
+            $user = User::query()->where('id', $id)->first();
+
+            $verificationUrl = route('auth.verification.verify', ['id' => $user->code_verified_email]); // Sử dụng ID user
+            Mail::to($user->email)->send(new VerifyEmail($user, $verificationUrl));
+
+            return response()->json(['status' => Response::HTTP_OK], 200);
+
+        } catch (\Throwable $th) {
+            //throw $th;
             return response()->json([
                 'message' => 'An error occurred: ' . $th->getMessage(),
                 'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
