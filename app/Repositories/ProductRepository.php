@@ -757,37 +757,71 @@ class ProductRepository extends BaseRepository
 
     public function getRelatedProducts(Product $product, int $limit = 6)
     {
-        $relatedProducts = Product::with('reviews') 
+        // Hàm này lấy giá đại diện của sản phẩm, tìm giá sale_price NHỎ NHẤT trong tất cả biến thể,
+        // sau đó fallback về sale_price của sản phẩm chính, rồi đến price của sản phẩm chính.
+        $getProductRepresentativePrice = function (Product $prod) {
+            $minVariantPrice = null; // Khởi tạo giá biến thể nhỏ nhất là null
+    
+            // Duyệt qua tất cả biến thể của sản phẩm
+            foreach ($prod->productVariants as $variant) {
+                if ($variant->sale_price > 0) {
+                    if ($minVariantPrice === null || $variant->sale_price < $minVariantPrice) {
+                        $minVariantPrice = $variant->sale_price; // Cập nhật giá nhỏ nhất nếu tìm thấy giá nhỏ hơn
+                    }
+                }
+            }
+    
+            // Nếu tìm thấy giá biến thể nhỏ nhất hợp lệ, trả về nó
+            if ($minVariantPrice !== null) {
+                return $minVariantPrice;
+            }
+    
+            // Nếu không có giá biến thể hợp lệ, fallback về giá của sản phẩm chính
+            if ($prod->sale_price > 0) {
+                return $prod->sale_price;
+            }
+            return $prod->price > 0 ? $prod->price : 1; // Fallback cuối cùng
+        };
+    
+        // Lấy giá đại diện của sản phẩm hiện tại để so sánh
+        $comparePrice = $getProductRepresentativePrice($product);
+    
+        $relatedProducts = Product::with('reviews', 'productVariants') // Load thêm 'variants' relationship
             ->where('id', '!=', $product->id)
             ->where('is_active', 1)
-            ->whereBetween('sale_price', [$product->sale_price * 0.8, $product->sale_price * 1.2])
+            ->whereBetween(
+                'sale_price', // Vẫn filter ban đầu trên 'sale_price' của bảng 'products'
+                [
+                    $comparePrice * 0.8,
+                    $comparePrice * 1.2
+                ]
+            )
             ->whereHas('categories', function ($query) use ($product) {
-                $query->whereIn('category_id', $product->categories->pluck('id')); // Lấy tất cả danh mục của sản phẩm
+                $query->whereIn('category_id', $product->categories->pluck('id'));
             })
-            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price]) // Ưu tiên cùng brand
+            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $comparePrice]) // Vẫn sort ban đầu trên 'price' của bảng 'products'
             ->limit($limit)
             ->get();
-
-        // Nếu không tìm thấy sản phẩm tương tự, lấy sản phẩm trong cùng danh mục
-        if ($relatedProducts->isEmpty()) {
-            $relatedProducts = Product::with('reviews') // Eager load reviews relationship
-                ->where('id', '!=', $product->id)
-                ->where('is_active', 1)
-                ->whereHas('categories', function ($query) use ($product) {
-                    $query->whereIn('category_id', $product->categories->pluck('id'));
-                })
-                ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $product->sale_price])
-                ->limit($limit)
-                ->get();
-        }
-
-        // Tính số sao
-        $relatedProducts->each(function ($relatedProduct) {
-            $averageRating = $relatedProduct->reviews->avg('rating') ?? 0; 
-            $relatedProduct->average_rating = number_format($averageRating, 1); 
+    
+        // Lọc lại và sắp xếp sản phẩm dựa trên giá ĐẠI DIỆN (bao gồm giá biến thể nhỏ nhất)
+        $relatedProducts = $relatedProducts->filter(function ($relatedProduct) use ($comparePrice, $getProductRepresentativePrice) {
+            $relatedProductPrice = $getProductRepresentativePrice($relatedProduct);
+            return $relatedProductPrice >= $comparePrice * 0.8 && $relatedProductPrice <= $comparePrice * 1.2; // Lọc lại theo khoảng giá đại diện
+        })->sortBy(function ($relatedProduct) use ($comparePrice, $getProductRepresentativePrice) {
+            $relatedProductPrice = $getProductRepresentativePrice($relatedProduct);
+            return [$relatedProduct->brand_id != $relatedProduct->brand_id, abs($relatedProductPrice - $comparePrice)]; // Sắp xếp lại, vẫn ưu tiên brand và độ lệch giá
         });
-
-        return $relatedProducts;
+    
+        $relatedProducts = $relatedProducts->take($limit); // Giới hạn lại số lượng sau lọc và sắp xếp
+    
+    
+        // Tính số sao (không thay đổi)
+        foreach ($relatedProducts as $relatedProduct) { // Changed to foreach for Laravel Collection
+            $averageRating = $relatedProduct->reviews->avg('rating') ?? 0;
+            $relatedProduct->average_rating = number_format($averageRating, 1);
+        }
+    
+        return $relatedProducts->values(); // Return as a numerically indexed collection, if needed
     }
 
     public function detailModal($id)
