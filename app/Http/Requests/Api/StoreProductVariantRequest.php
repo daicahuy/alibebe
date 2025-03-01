@@ -36,7 +36,7 @@ class StoreProductVariantRequest extends FormRequest
             'product.thumbnail'                         =>    ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'product.type'                              =>    ['required', Rule::in([ProductType::SINGLE, ProductType::VARIANT])],
             'product.sku'                               =>    ['required', Rule::unique('products', 'sku'), Rule::unique('product_variants', 'sku'), new CheckUniqueSkuProductRule()],
-            'product.sale_price_start_at'               =>    ['nullable', 'sometimes', 'required_with:product.is_sale', 'date', 'after:yesterday'],
+            'product.sale_price_start_at'               =>    ['nullable', 'sometimes', 'required_with:product.is_sale', 'date'],
             'product.sale_price_end_at'                 =>    ['nullable', 'sometimes', 'required_with:product.is_sale', 'date', 'after:product.sale_price_start_at'],
             'product.is_sale'                           =>    ['nullable', Rule::in([0, 1]) ],
             'product.is_featured'                       =>    ['nullable', Rule::in([0, 1]) ],

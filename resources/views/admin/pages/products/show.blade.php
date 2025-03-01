@@ -20,9 +20,6 @@
         }
     </style>
 @endpush
-{{-- @dd($product->productVariants->toArray()); --}}
-
-{{-- @dd($product->toArray()); --}}
 
 
 {{-- ================================== --}}
@@ -678,7 +675,7 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex justify-content-end">
-                                                <a class="btn btn-warning ms-auto mt-4" href="{{ route('admin.products.edit', $product->id) }}">
+                                                <a class="btn btn-warning ms-auto mt-4" href="{{ route('admin.products.edit', $product->slug) }}">
                                                     <div>{{ __('message.edit') }}</div>
                                                 </a>
                                             </div>

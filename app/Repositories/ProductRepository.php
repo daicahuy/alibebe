@@ -366,9 +366,8 @@ class ProductRepository extends BaseRepository
                 'products.sale_price',
                 DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
                 DB::raw('COUNT(oi2.product_id) as frequency'),
-                'products.stock_quantity'
             )
-            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price', 'products.stock_quantity')
+            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price')
             ->orderByDesc('frequency')
             ->limit(24)
             ->get();
@@ -384,6 +383,7 @@ class ProductRepository extends BaseRepository
 
         $query->select(
             'id',
+            'slug',
             'sku',
             'thumbnail',
             'name',

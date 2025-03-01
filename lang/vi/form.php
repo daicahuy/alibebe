@@ -344,6 +344,7 @@ return [
         'user_id' => 'ID người dùng',
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
+        'import' => 'Nhập kho',
     ],
 
     'tags' => 'Thẻ',

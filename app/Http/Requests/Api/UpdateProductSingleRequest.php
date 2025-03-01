@@ -36,7 +36,7 @@ class UpdateProductSingleRequest extends FormRequest
             'product.sku'                  =>    ['required', Rule::unique('products', 'sku')->ignore($this->route('id')), Rule::unique('product_variants', 'sku')],
             'product.price'                =>    ['required', 'numeric', 'integer', 'gt:0'],
             'product.sale_price'           =>    ['nullable', 'numeric', 'integer', 'gt:0', 'lt:product.price'],
-            'product.sale_price_start_at'  =>    ['nullable', 'sometimes', 'required_with:product.sale_price', 'date', 'after:yesterday'],
+            'product.sale_price_start_at'  =>    ['nullable', 'sometimes', 'required_with:product.sale_price', 'date'],
             'product.sale_price_end_at'    =>    ['nullable', 'sometimes', 'required_with:product.sale_price', 'date', 'after:product.sale_price_start_at'],
             'product.is_sale'              =>    ['nullable', Rule::in([0, 1]) ],
             'product.is_featured'          =>    ['nullable', Rule::in([0, 1]) ],

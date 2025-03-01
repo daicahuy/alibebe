@@ -352,7 +352,7 @@
                                                                             {{ __('message.add') . ' ' . __('form.attributes') }}
                                                                         </div>
                                                                     </button>
-                                                                    <button class="btn btn-warning btn-sm ms-2 d-inline"
+                                                                    <button class="btn btn-warning-gradien btn-sm ms-2 d-inline"
                                                                         id="genarate-variant-btn" type="button">
                                                                         <div>
                                                                             {{ __('message.create') . ' ' . __('form.product_variants') }}

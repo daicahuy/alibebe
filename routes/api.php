@@ -16,6 +16,7 @@ use App\Http\Controllers\api\UserAddressController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Api\ListCategoryController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\StockController;
 use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Client\AccountController as ClientAccountController;
 use App\Http\Controllers\Web\Client\DetailProductController;
@@ -159,3 +160,10 @@ Route::prefix('/products')
         Route::put('/variant/{id}', [ProductController::class, 'updateVariant'])->name('updateVariant')->where(['id' => '[0-9]+']);
     });
 
+// STOCK
+Route::prefix('stocks')
+    ->name('api.stocks.')
+    ->group(function() {
+        Route::post('/import-single', [StockController::class, 'importSingle'])->name('importSingle');
+        Route::post('/import-variant', [StockController::class, 'importVariant'])->name('importVariant');
+    });

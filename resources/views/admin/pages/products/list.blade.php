@@ -217,11 +217,11 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.products.show', $product->id) }}" class="btn-detail"><i
+                                                            <a href="{{ route('admin.products.show', $product->slug) }}" class="btn-detail"><i
                                                                     class="ri-eye-line"></i></a>
                                                         </li>
                                                         <li>
-                                                            <a href="" class="btn-edit"><i
+                                                            <a href="{{ route('admin.products.edit', $product->slug) }}" class="btn-edit"><i
                                                                     class="ri-pencil-line"></i></a>
                                                         </li>
                                                         <li>
