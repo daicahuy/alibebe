@@ -84,4 +84,10 @@ class HomeService
             return response()->json(['error' => $th->getMessage()], 500);
         }
     }
+
+    public function getAllCategories() {
+        return $this->categoryRepo->getAllCategories();
+    }
+
+    
 };

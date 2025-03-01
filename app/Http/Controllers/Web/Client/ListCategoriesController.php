@@ -48,4 +48,6 @@ class ListCategoriesController extends Controller
         ));
     }
 
+    
+
 }

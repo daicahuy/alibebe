@@ -241,4 +241,13 @@ class CategoryRepository extends BaseRepository
             ->get();
     }
 
+    public function getAllCategories() {
+     return Category::whereNull('parent_id')
+    ->with('categories.categories') // Lấy danh mục con của danh mục con
+    ->where('is_active', 1)
+    ->orderBy('ordinal', 'asc')
+    ->get();
+    }
+
+
 }
