@@ -119,6 +119,7 @@ Route::name('auth.')
 
 
         Route::name('customer.')
+            ->middleware(["guest"])
             ->controller(AuthCustomerController::class)
             ->group(function () {
 
