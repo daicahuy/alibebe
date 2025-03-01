@@ -159,7 +159,7 @@ class VNPayController extends Controller
                     $discountValue = 0;
                     $coupon = null;
 
-                    $userCheckVerify = User::where('id', $dataOrderCustomer["user_id"]);
+                    $userCheckVerify = User::where('id', $dataOrderCustomer["user_id"])->first();
 
                     if (!$userCheckVerify->email_verified_at) {
                         return redirect('/cart-checkout')->with('error', "Xác minh tài khoản trước khi mua hàng!");
@@ -283,7 +283,7 @@ class VNPayController extends Controller
                         "order_id" => $order->id,
                     ]);
 
-                    $user = User::where('id', $dataOrderCustomer["user_id"]);
+                    $user = User::where('id', $dataOrderCustomer["user_id"])->first();
 
                     $user->loyalty_points = $user->loyalty_points + 10;
                     $user->save();
