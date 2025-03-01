@@ -33,7 +33,12 @@ class OrderCustomerControllerApi extends Controller
             $couponCode = $dataOrderCustomer['coupon_code'] ?? null;
             $discountValue = 0;
             $coupon = null;
+            $userCheckVerify = User::where('id', $dataOrderCustomer["user_id"]);
 
+            if (!$userCheckVerify->email_verified_at) {
+                return redirect('/cart-checkout')->with('error', "Xác minh tài khoản trước khi mua hàng!");
+
+            }
             if ($couponCode) {
                 $coupon = Coupon::where('code', $couponCode)->lockForUpdate()->first();
 
