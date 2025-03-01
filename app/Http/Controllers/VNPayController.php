@@ -159,7 +159,7 @@ class VNPayController extends Controller
                     $discountValue = 0;
                     $coupon = null;
 
-                    $userCheckVerify = User::where('id', $dataOrderCustomer["user_id"]);
+                    $userCheckVerify = User::where('id', $dataOrderCustomer["user_id"])->first();
 
                     if (!$userCheckVerify->email_verified_at) {
                         return redirect('/cart-checkout')->with('error', "Xác minh tài khoản trước khi mua hàng!");
@@ -248,24 +248,29 @@ class VNPayController extends Controller
                         if ($item["product_variant_id"]) {
                             $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
                                 ->where('product_variant_id', $item['product_variant_id'])->first();
-                            if ((INT) $cartItem["quantity"] - (INT) $item['quantity_variant'] == 0) {
+
+
+                            if ($cartItem->quantity == $item['quantity_variant']) {
                                 $cartItem->delete();
-                                $cartItem->save();
                             } else {
-                                $quantityCartItems = $cartItem["quantity"];
-                                $cartItem->update(["quantity" => (INT) $quantityCartItems - (INT) $item['quantity_variant']]);
+
+
+                                $quantityCartItems = $cartItem->quantity;
+                                $coupon->quantity = (INT) $quantityCartItems - (INT) $item['quantity_variant'];
+
                                 $cartItem->save();
 
                             }
                         } else {
                             $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
                                 ->where('product_id', $item['product_id'])->first();
-                            if ((INT) $cartItem["quantity"] - (INT) $item['quantity'] == 0) {
+
+                            if ($cartItem->quantity == $item['quantity']) {
                                 $cartItem->delete();
-                                $cartItem->save();
                             } else {
-                                $quantityCartItems = $cartItem["quantity"];
-                                $cartItem->update(["quantity" => (INT) $quantityCartItems - (INT) $item['quantity']]);
+                                $quantityCartItems = $cartItem->quantity;
+                                $coupon->quantity = (INT) $quantityCartItems - (INT) $item['quantity'];
+
                                 $cartItem->save();
 
                             }
@@ -283,7 +288,7 @@ class VNPayController extends Controller
                         "order_id" => $order->id,
                     ]);
 
-                    $user = User::where('id', $dataOrderCustomer["user_id"]);
+                    $user = User::where('id', $dataOrderCustomer["user_id"])->first();
 
                     $user->loyalty_points = $user->loyalty_points + 10;
                     $user->save();
