@@ -246,7 +246,7 @@
                                         @auth
                                             <div class="delivery-detail">
                                                 <h6>{{ __('message.hello') }},</h6>
-                                                <h5>{{ Auth::user()->fullname }}</h5>
+                                                <h5> {{ Str::limit( Auth::user()->fullname, 10, '...') }}</h5>
                                             </div>
                                         @endauth
 

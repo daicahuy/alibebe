@@ -18,7 +18,7 @@ class CartItemController extends Controller
         $data = $this->cartItemService->getAllCartItem();
         // $productVariant = $this->cartItemService->getProductVariant(); 
 
-        // dd($productVariant);
+        // dd($data);
         return view('client.pages.cart-item', compact('data'));
     }
 

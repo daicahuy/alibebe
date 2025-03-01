@@ -16,16 +16,29 @@ class IsAdmin
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
-         /**
+        // Bỏ qua kiểm tra nếu truy cập trang đăng nhập admin
+        if ($request->is('admin/login')) {
+            return $next($request);
+        }
+    
+        /**
          * @var User
          */
         $user = Auth::user();
-        if (!Auth::check() || !$user->isAdmin() && !$user->isEmployee()) {
-            return redirect()->back()->with('error', 'Bạn không có quyền truy cập!');
+    
+        // Nếu không có user hoặc user không phải Admin/Nhân viên
+        if (!$user || (!$user->isAdmin() && !$user->isEmployee())) {
+            Auth::logout(); // Đăng xuất người dùng
+            session()->invalidate(); // Xóa toàn bộ session
+            session()->regenerateToken(); // Tạo token mới tránh lỗi bảo mật
+    
+            return redirect()->route('auth.admin.showFormLogin')
+                ->with('error', 'Bạn không có quyền truy cập!');
         }
-
+    
         return $next($request);
     }
+    
 }

@@ -313,7 +313,7 @@
                                         <input type="hidden" class="price"
                                             value="{{ $cartItem->product->price ?? $cartItem->productVariant->product->price }}">
                                         <input type="hidden" class="old_price"
-                                            value="{{ $cartItem->product->sale_price ?? ($cartItem->productVariant->product->sale_price ?? '') }}">
+                                            value="{{ $cartItem->product->sale_price ?? $cartItem->productVariant->product->sale_price }}">
                                         <input type="hidden" class="price_variant"
                                             value="{{ $cartItem->productVariant?->price > 0 ? $cartItem->productVariant->price : null }}">
                                         <input type="hidden" class="old_price_variant"
@@ -350,8 +350,8 @@
 
                                                         <input type="text" name="quantity"
                                                             value="{{ $cartItem->quantity }}"
-                                                            class="form-control input-number">
-
+                                                            class="form-control input-number"
+                                                            data-max-stock="{{ $cartItem->productVariant?->productStock?->stock ?? ($cartItem->product?->productStock?->stock ?? 1) }}">
                                                         <button class="btn qty-right-plus" type="button">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16"
                                                                 height="16" fill="currentColor" class="bi bi-plus"
@@ -401,17 +401,9 @@
             <div class="col-xxl-3 col-xl-4">
                 <div class="summery-box p-sticky">
                     <div class="summery-header">
-                        <h3>Tổng giỏ hàng</h3>
+                        <h3>Hóa đơn</h3>
                     </div>
-                    <div class="summery-contain">
-                        <ul>
-                            <li>
-                                <h4>Tổng cộng</h4>
-                                <h4 class="price total">0đ</h4>
-                            </li>
-
-                        </ul>
-                    </div>
+                   
                     <ul class="summery-total">
                         <li class="list-total border-top-0">
                             <h4>Tổng tiền</h4>
@@ -460,36 +452,42 @@
                 });
             @endif
 
-            // Khi bấm nút tăng/giảm số lượng
             $(".qty-left-minus, .qty-right-plus").off("click").on("click", function() {
                 let qtyInput = $(this).closest(".cart_qty").find(".input-number");
                 let cartItemId = $(this).closest("tr").data("id");
                 let qty = parseInt(qtyInput.val()) || 1;
+                let maxStock = parseInt(qtyInput.data("max-stock")) || 1;
 
                 if ($(this).hasClass("qty-left-minus") && qty > 1) {
                     qty -= 1;
-                } else if ($(this).hasClass("qty-right-plus")) {
+                } else if ($(this).hasClass("qty-right-plus") && qty < maxStock) {
                     qty += 1;
                 }
 
                 qtyInput.val(qty);
                 updateCartQuantity(cartItemId, qty, qtyInput);
                 updateCartSession(); // 🔥 Cập nhật session ngay lập tức
+
             });
 
-            // Khi nhập số lượng trực tiếp vào ô input
             $(".input-number").on("change", function() {
                 let cartItemId = $(this).closest("tr").data("id");
                 let newQty = parseInt($(this).val()) || 1;
+                let maxStock = parseInt($(this).data("max-stock")) || 1;
 
                 if (newQty < 1) {
-                    newQty = 1; // Đảm bảo số lượng tối thiểu là 1
-                    $(this).val(newQty);
+                    newQty = 1;
+                } else if (newQty > maxStock) {
+                    newQty = maxStock;
                 }
 
+                $(this).val(newQty);
                 updateCartQuantity(cartItemId, newQty, $(this));
                 updateCartSession(); // 🔥 Cập nhật session ngay lập tức
+
             });
+
+
 
 
             // --- Logic Checkbox ---
@@ -522,7 +520,7 @@
             // Hàm AJAX cập nhật giỏ hàng
             function updateCartQuantity(cartItemId, newQty, qtyInput) {
                 $.ajax({
-                    url: "{{ route('cart.update') }}", // Đặt route cập nhật giỏ hàng
+                    url: "{{ route('cart.update') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -531,9 +529,9 @@
                     },
                     success: function(response) {
                         if (response.success) {
-
                             qtyInput.closest("tr").find(".subtotal h5").text(response.newSubtotal);
-                            updateTotalPrice();
+                            updateTotalPrice
+                                (); // 🔥 Gọi lại để cập nhật tổng tiền sau khi thay đổi số lượng
                         }
                     },
                     error: function() {
@@ -546,6 +544,8 @@
                     }
                 });
             }
+
+
 
             // tính tổng tiền
             function updateIdsToDelete() {
@@ -563,14 +563,18 @@
                 $(".checkbox-input:checked").each(function() {
                     let row = $(this).closest("tr");
                     let priceText = row.find(".subtotal h5").text().trim();
-                    let price = parseInt(priceText.replace(/\D/g, "")) || 0;
+                    let price = parseInt(priceText.replace(/\D/g, "")) || 0; // Loại bỏ ký tự không phải số
 
-                    totalSum += price;
+                    totalSum += price; // Cộng tổng tiền của tất cả sản phẩm đã chọn
                 });
 
+                // Cập nhật tổng tiền trong giao diện
                 $(".summery-total .total").text(totalSum.toLocaleString("vi-VN") + "đ");
                 $(".summery-contain .total").text(totalSum.toLocaleString("vi-VN") + "đ");
             }
+
+
+
 
             // --- Phân loại ---
             $(".toggle-button").click(function(e) {
@@ -628,7 +632,6 @@
                 }
             });
         });
-        
 
         // lưu sesson
         function updateCartSession() {
@@ -645,6 +648,11 @@
                 let nameVariant = row.find(".selected-variation").text().trim() || null;
                 let imageUrl = row.find(".product-image img").attr("src") || "";
 
+                // Loại bỏ URL đầy đủ, chỉ giữ phần đường dẫn sau "/storage/"
+                if (imageUrl.startsWith("http")) {
+                    let url = new URL(imageUrl);
+                    imageUrl = url.pathname.replace("/storage/", "").replace(/^\/+/, "");
+                }
                 // Lấy giá của sản phẩm gốc
                 let originalPrice = parseInt(row.find(".price").val()) || 0;
                 let salePrice = parseInt(row.find(".old_price").val()) || 0;
