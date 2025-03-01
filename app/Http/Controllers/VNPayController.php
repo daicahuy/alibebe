@@ -248,24 +248,29 @@ class VNPayController extends Controller
                         if ($item["product_variant_id"]) {
                             $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
                                 ->where('product_variant_id', $item['product_variant_id'])->first();
-                            if ((INT) $cartItem["quantity"] - (INT) $item['quantity_variant'] == 0) {
+
+
+                            if ($cartItem->quantity == $item['quantity_variant']) {
                                 $cartItem->delete();
-                                $cartItem->save();
                             } else {
-                                $quantityCartItems = $cartItem["quantity"];
-                                $cartItem->update(["quantity" => (INT) $quantityCartItems - (INT) $item['quantity_variant']]);
+
+
+                                $quantityCartItems = $cartItem->quantity;
+                                $coupon->quantity = (INT) $quantityCartItems - (INT) $item['quantity_variant'];
+
                                 $cartItem->save();
 
                             }
                         } else {
                             $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
                                 ->where('product_id', $item['product_id'])->first();
-                            if ((INT) $cartItem["quantity"] - (INT) $item['quantity'] == 0) {
+
+                            if ($cartItem->quantity == $item['quantity']) {
                                 $cartItem->delete();
-                                $cartItem->save();
                             } else {
-                                $quantityCartItems = $cartItem["quantity"];
-                                $cartItem->update(["quantity" => (INT) $quantityCartItems - (INT) $item['quantity']]);
+                                $quantityCartItems = $cartItem->quantity;
+                                $coupon->quantity = (INT) $quantityCartItems - (INT) $item['quantity'];
+
                                 $cartItem->save();
 
                             }
