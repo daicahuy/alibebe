@@ -230,6 +230,8 @@ Route::prefix('/admin')
 
             Route::get('/show/{slug}', 'show')->name('show');
             
+            Route::get('/hidden', 'hidden')->name('hidden');
+
             Route::get('/create', 'create')->name('create');
 
             Route::post('/', 'store')->name('store');

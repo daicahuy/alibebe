@@ -28,38 +28,83 @@ class ProductRepository extends BaseRepository
         $query = $this->model->query();
 
         //  giá sản phẩm thường và biến thể
+
+        // Giá hiển thị cho sản phẩm thường và biến thể
         $priceFiled = DB::raw('
-        CASE 
-            WHEN products.type = 1 THEN (
-                SELECT price 
-                FROM product_variants 
-                WHERE product_variants.product_id = products.id
-                ORDER BY product_variants.price ASC LIMIT 1
-            )
-            ELSE products.price 
-         END ');
+CASE
+    WHEN products.type = 1 THEN (  -- Sản phẩm biến thể
+        SELECT
+            CASE
+                WHEN products.is_sale = 1 THEN  -- Sản phẩm GỐC ĐANG SALE
+                    CASE
+                        WHEN MIN(product_variants.sale_price) > 0 THEN MIN(product_variants.sale_price)
+                        ELSE MIN(product_variants.price)
+                    END
+                ELSE  -- Sản phẩm GỐC KHÔNG SALE
+                    MIN(product_variants.price)  -- Đảm bảo lấy giá thấp nhất của các biến thể
+            END
+        FROM product_variants
+        WHERE product_variants.product_id = products.id AND product_variants.price > 0  -- Thêm điều kiện này để loại bỏ các biến thể không có giá
+    )
+    ELSE  -- Sản phẩm đơn (type != 1)
+        CASE
+            WHEN products.is_sale = 1 THEN  -- Sản phẩm đơn ĐANG SALE
+                CASE
+                    WHEN products.sale_price > 0 THEN products.sale_price
+                    ELSE products.price
+                END
+            ELSE  -- Sản phẩm đơn KHÔNG SALE
+                products.price
+        END
+END');
 
-        $soldCountSubQuery = DB::raw('(SELECT COALESCE(SUM(order_items.quantity),0)
-         FROM order_items
-         JOIN orders ON order_items.order_id = orders.id
-         JOIN order_order_status ON orders.id = order_order_status.order_id
-         JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
-         WHERE order_items.product_id = products.id
-         AND order_statuses.name = "Hoàn thành") as sold_count');
+        // Giá gốc (original_price) - để hiển thị gạch ngang khi sale
+        $originalPriceFiled = DB::raw('
+CASE
+    WHEN products.type = 1 THEN ( -- Sản phẩm biến thể
+        SELECT 
+            CASE 
+                WHEN COUNT(*) > 0 THEN MAX(product_variants.price)  -- Lấy giá gốc CAO NHẤT
+                ELSE products.price  -- Fallback nếu không có biến thể
+            END
+        FROM product_variants
+        WHERE product_variants.product_id = products.id AND product_variants.price > 0  -- Thêm điều kiện để loại bỏ các biến thể không có giá
+    )
+    ELSE products.price -- Sản phẩm đơn
+END');
 
+        // Sửa lại soldCountSubQuery để tránh lỗi
+        $soldCountSubQuery = DB::raw('(
+    SELECT COALESCE(SUM(order_items.quantity), 0)
+    FROM order_items
+    JOIN orders ON order_items.order_id = orders.id
+    JOIN order_order_status ON orders.id = order_order_status.order_id
+    JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
+    WHERE order_items.product_id = products.id
+    AND order_statuses.name = "Hoàn thành"
+) as sold_count');
 
+        // Phần select trong query
         $query->select(
             'id',
             'name',
             'thumbnail',
-            DB::raw('COALESCE(NULLIF(sale_price, 0), ' . $priceFiled->getValue(DB::connection()->getQueryGrammar()) . ') as display_price'), // Nội suy giá trị của $priceFiled
+            // Logic display_price - CHỈ HIỂN THỊ GIÁ SALE KHI is_sale = 1
+            DB::raw('CASE 
+        WHEN products.is_sale = 1 THEN ' . $priceFiled->getValue(DB::connection()->getQueryGrammar()) . ' 
+        ELSE ' . $priceFiled->getValue(DB::connection()->getQueryGrammar()) . ' 
+     END as display_price'),  // Luôn lấy giá theo logic $priceFiled
+            // Logic original_price - LUÔN LẤY GIÁ GỐC CAO NHẤT ĐỂ GẠCH NGANG KHI SALE
+            DB::raw($originalPriceFiled->getValue(DB::connection()->getQueryGrammar()) . ' as original_price'),
             'sale_price',
+            'is_sale',
             'price',
             'short_description',
             'views',
             'type',
             $soldCountSubQuery
-        );
+        )->where('is_active', 1);
+
 
         // filters
         if (!empty($filters)) {
@@ -148,8 +193,7 @@ class ProductRepository extends BaseRepository
                     if (is_array($filterValues)) { // check mảng 
                         $variantAttributeFilters[$filterName] = $filterValues; // gán giá trị vào mảng
                     }
-                }
-                ;
+                };
             }
 
             if (!empty($variantAttributeFilters)) {
@@ -393,7 +437,7 @@ class ProductRepository extends BaseRepository
             'type',
         )
             ->with(['categories', 'productStock', 'productVariants.productStock'])
-            ->where('deleted_at', null)
+            ->where(['deleted_at' => null, 'is_active' => 1])
             ->orderBy('updated_at', 'DESC');
 
 
@@ -410,7 +454,6 @@ class ProductRepository extends BaseRepository
             $query->whereHas('categories', function ($q) use ($categoryIdsToFilter) {
                 $q->whereIn('categories.id', $categoryIdsToFilter);
             });
-
         }
 
 
@@ -452,7 +495,10 @@ class ProductRepository extends BaseRepository
     {
         return $this->model->onlyTrashed()->count();
     }
-
+    public function countHidden()
+    {
+        return $this->model->where('is_active', 0)->count();
+    }
 
     // get trash
     public function getTrash($perPage = 15, $keyword = null)
@@ -500,7 +546,56 @@ class ProductRepository extends BaseRepository
             '_keyword' => $keyword,
         ]);
         return $listTrashs;
+    }
 
+    // get hidden
+    public function getHidden($perPage = 15, $keyword = null)
+    {
+
+        $query = $this->model->query();
+
+        $query
+            ->select(
+                'id',
+                'sku',
+                'thumbnail',
+                'name',
+                'price',
+                'is_active',
+                'type',
+            )
+            ->with([
+                'categories' => function ($query) {
+                    $query->withTrashed();
+                },
+                'productStock', //   (HasOne) không dùng withTrashed()
+                'productVariants' => function ($query) {
+                    $query->with('productStock');
+                },
+            ])
+            ->where('is_active', 0)
+            ->orderBy('updated_at', 'DESC');
+
+
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('products.name', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('products.sku', 'LIKE', '%' . $keyword . '%')
+                    ->orWhereHas('productVariants', function ($variantQuery) use ($keyword) {
+                        $variantQuery->where(function ($variant) use ($keyword) {
+                            $variant->where('name', 'LIKE', '%' . $keyword . '%')
+                                ->orWhere('sku', 'LIKE', '%' . $keyword . '%');
+                        });
+                    });
+            });
+        }
+
+        $listHidden = $query->paginate($perPage)->appends([
+            'per_page' => $perPage,
+            '_keyword' => $keyword,
+        ]);
+        // dd($listHidden);
+        return $listHidden;
     }
 
     // Xóa mềm sản phẩm
@@ -536,7 +631,7 @@ class ProductRepository extends BaseRepository
         }
 
         try {
-            $product->categories()->detach();// xóa reation liên quan
+            $product->categories()->detach(); // xóa reation liên quan
             $product->productStock()->delete();
             $product->attributeValues()->detach();
             $product->cartItems()->delete();
@@ -569,8 +664,6 @@ class ProductRepository extends BaseRepository
             Log::error(__METHOD__ . ' - Error force deleting product ID: ' . $productId, ['error' => $th->getMessage()]);
             return false; // Xóa cứng thất bại
         }
-
-
     }
 
 
@@ -599,7 +692,6 @@ class ProductRepository extends BaseRepository
         // }
 
         return $product->restore();
-
     }
 
     public function findTrash($id)
@@ -654,7 +746,7 @@ class ProductRepository extends BaseRepository
 
         foreach ($products as $product) {
             try {
-                $product->categories()->detach();// chỉ dùng cho belongtomany
+                $product->categories()->detach(); // chỉ dùng cho belongtomany
                 $product->productStock()->delete();
                 $product->attributeValues()->detach();
                 $product->cartItems()->delete();
@@ -687,9 +779,7 @@ class ProductRepository extends BaseRepository
                 $deleteCount++;
             } catch (\Throwable $th) {
                 Log::error(__METHOD__ . ' - Error  product ID: ' . $product->id, ['error' => $th->getMessage()]);
-
             }
-
         }
         return $deleteCount;
     }
@@ -764,7 +854,7 @@ class ProductRepository extends BaseRepository
         // sau đó fallback về sale_price của sản phẩm chính, rồi đến price của sản phẩm chính.
         $getProductRepresentativePrice = function (Product $prod) {
             $minVariantPrice = null; // Khởi tạo giá biến thể nhỏ nhất là null
-    
+
             // Duyệt qua tất cả biến thể của sản phẩm
             foreach ($prod->productVariants as $variant) {
                 if ($variant->sale_price > 0) {
@@ -773,22 +863,22 @@ class ProductRepository extends BaseRepository
                     }
                 }
             }
-    
+
             // Nếu tìm thấy giá biến thể nhỏ nhất hợp lệ, trả về nó
             if ($minVariantPrice !== null) {
                 return $minVariantPrice;
             }
-    
+
             // Nếu không có giá biến thể hợp lệ, fallback về giá của sản phẩm chính
             if ($prod->sale_price > 0) {
                 return $prod->sale_price;
             }
             return $prod->price > 0 ? $prod->price : 1; // Fallback cuối cùng
         };
-    
+
         // Lấy giá đại diện của sản phẩm hiện tại để so sánh
         $comparePrice = $getProductRepresentativePrice($product);
-    
+
         $relatedProducts = Product::with('reviews', 'productVariants') // Load thêm 'variants' relationship
             ->where('id', '!=', $product->id)
             ->where('is_active', 1)
@@ -805,7 +895,7 @@ class ProductRepository extends BaseRepository
             ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $comparePrice]) // Vẫn sort ban đầu trên 'price' của bảng 'products'
             ->limit($limit)
             ->get();
-    
+
         // Lọc lại và sắp xếp sản phẩm dựa trên giá ĐẠI DIỆN (bao gồm giá biến thể nhỏ nhất)
         $relatedProducts = $relatedProducts->filter(function ($relatedProduct) use ($comparePrice, $getProductRepresentativePrice) {
             $relatedProductPrice = $getProductRepresentativePrice($relatedProduct);
@@ -814,53 +904,109 @@ class ProductRepository extends BaseRepository
             $relatedProductPrice = $getProductRepresentativePrice($relatedProduct);
             return [$relatedProduct->brand_id != $relatedProduct->brand_id, abs($relatedProductPrice - $comparePrice)]; // Sắp xếp lại, vẫn ưu tiên brand và độ lệch giá
         });
-    
+
         $relatedProducts = $relatedProducts->take($limit); // Giới hạn lại số lượng sau lọc và sắp xếp
-    
-    
+
+
         // Tính số sao (không thay đổi)
         foreach ($relatedProducts as $relatedProduct) { // Changed to foreach for Laravel Collection
             $averageRating = $relatedProduct->reviews->avg('rating') ?? 0;
             $relatedProduct->average_rating = number_format($averageRating, 1);
         }
-    
+
         return $relatedProducts->values(); // Return as a numerically indexed collection, if needed
     }
 
     public function detailModal($id)
     {
-        $soldCountSubQuerySql = '(SELECT COALESCE(SUM(order_items.quantity),0)
-            FROM order_items
-            JOIN orders ON order_items.order_id = orders.id
-            JOIN order_order_status ON orders.id = order_order_status.order_id
-            JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
-            WHERE order_items.product_id = products.id
-            AND order_statuses.name = "Hoàn thành")';
+        // Giá hiển thị (display_price) - RAW SQL expression (GIỮ NGUYÊN cho sản phẩm GỐC)
+        $priceFiled = DB::raw('
+        CASE
+            WHEN products.type = 1 THEN (  -- Sản phẩm biến thể
+                SELECT
+                    CASE
+                        WHEN EXISTS (SELECT 1 FROM product_variants WHERE product_variants.product_id = products.id AND product_variants.sale_price > 0) THEN
+                            CASE
+                                WHEN MIN(product_variants.sale_price) > 0 THEN MIN(product_variants.sale_price)
+                                ELSE MIN(product_variants.price)
+                            END
+                        ELSE
+                            MIN(product_variants.price)
+                    END
+                FROM product_variants
+                WHERE product_variants.product_id = products.id AND product_variants.price > 0
+            )
+            ELSE  -- Sản phẩm đơn (type != 1)
+                CASE
+                    WHEN products.is_sale = 1 THEN
+                        CASE
+                            WHEN products.sale_price > 0 THEN products.sale_price
+                            ELSE products.price
+                        END
+                    ELSE
+                        products.price
+                END
+        END');
 
-        return $this->model->selectRaw("products.*, {$soldCountSubQuerySql} as sold_count")
+        // Giá gốc (original_price) - RAW SQL expression (GIỮ NGUYÊN cho sản phẩm GỐC)
+        $originalPriceFiled = DB::raw('
+        CASE
+            WHEN products.type = 1 THEN ( -- Sản phẩm biến thể
+                SELECT
+                    CASE
+                        WHEN COUNT(*) > 0 THEN MAX(product_variants.price)
+                        ELSE products.price
+                    END
+                FROM product_variants
+                WHERE product_variants.product_id = products.id AND product_variants.price > 0
+            )
+            ELSE products.price -- Sản phẩm đơn
+        END');
+
+        $soldCountSubQuerySql = '(SELECT COALESCE(SUM(order_items.quantity),0)
+        FROM order_items
+        JOIN orders ON order_items.order_id = orders.id
+        JOIN order_order_status ON orders.id = order_order_status.order_id
+        JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
+        WHERE order_items.product_id = products.id
+        AND order_statuses.name = "Hoàn thành")';
+
+        return $this->model->selectRaw("
+            products.*,
+            {$soldCountSubQuerySql} as sold_count,
+            " . $priceFiled->getValue(DB::connection()->getQueryGrammar()) . " as display_price,
+            " . $originalPriceFiled->getValue(DB::connection()->getQueryGrammar()) . " as original_price
+        ")
             ->with([
                 'categories',
                 'brand',
                 'reviews',
-                'productVariants' => function ($q) {
-                    $q->orderBy('price', 'ASC')->select(
-                        'product_id',
-                        'price',
-                        'sale_price',
-                        'thumbnail',
-                        'id',
-                    );
+                'productVariants' => function ($q) use ($priceFiled, $originalPriceFiled) {
+                    // **CHỈNH SỬA QUAN TRỌNG: JOIN bảng products vào subquery productVariants**
+                    $q->join('products', 'products.id', '=', 'product_variants.product_id')
+                        ->orderBy('product_variants.price', 'ASC')
+                        ->selectRaw("
+                        product_variants.*,
+                        -- **CHỈNH SỬA LOGIC GIÁ CHO BIẾN THỂ: Tham chiếu bảng `product_variants` (alias `pv`)**
+                        CASE
+                            -- **Giá hiển thị (display_price) cho BIẾN THỂ**
+                            WHEN product_variants.sale_price > 0 THEN  -- Nếu biến thể có giá sale
+                                product_variants.sale_price -- Sử dụng giá sale của biến thể
+                            ELSE
+                                product_variants.price -- Ngược lại dùng giá gốc của biến thể
+                        END as display_price,
+                        CASE
+                            -- **Giá gốc (original_price) cho BIẾN THỂ**
+                            WHEN product_variants.price > 0 THEN -- Nếu biến thể có giá gốc
+                                product_variants.price -- Sử dụng giá gốc của biến thể
+                            ELSE
+                                0 -- Trường hợp không có giá gốc (có thể tùy chỉnh)
+                        END as original_price
+                    ");
                 },
                 'productVariants.attributeValues.attribute',
                 'productVariants.productStock'
             ])
             ->find($id);
     }
-
-
-
-
-
-
-
 }
