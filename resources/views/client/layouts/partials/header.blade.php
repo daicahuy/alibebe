@@ -251,11 +251,6 @@
                                         @endauth
 
                                     </div>
-                                    @auth
-                                        @if (!Auth::user()->email_verified_at)
-                                            <p style="color: red">Tài khoản chưa xác minh</p>
-                                        @endif
-                                    @endauth
 
                                     <div class="onhover-div onhover-div-login">
 
@@ -275,6 +270,16 @@
 
 
                                             </ul>
+                                        @endauth
+
+                                        @auth
+                                            @if (!Auth::user()->email_verified_at)
+                                                <p style="color: red">Tài khoản chưa xác minh</p>
+                                                <button id="verifyButton" onclick="verifyEmail({{ Auth::id() }})">Gửi
+                                                    lại mã
+                                                    xác minh</button>
+                                                <p id="timer"></p>
+                                            @endif
                                         @endauth
 
                                         @guest
@@ -1201,3 +1206,71 @@
         </div>
     </div>
 </header>
+@push('js')
+    <script>
+        let countdown = 60;
+        let timerInterval;
+        const timerElement = document.getElementById('timer');
+        const verifyButton = document.getElementById('verifyButton');
+
+        // Hàm xác minh email
+        function verifyEmail(userId) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            // Tạo URL từ named route
+            const verifyUrl = `{{ route('api.auth.verification.verify', ['id' => ':userId']) }}`.replace(':userId',
+                userId);
+
+            fetch(verifyUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken, // Thêm CSRF token vào header
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        // Hiển thị thông báo thành công
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công!',
+                            text: data.message,
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        // Hiển thị thông báo lỗi nếu có
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Có lỗi xảy ra',
+                        text: 'Vui lòng thử lại sau.'
+                    });
+                });
+        }
+
+        // Hàm đếm ngược và vô hiệu hóa nút gửi lại mã
+        function startCountdown() {
+            verifyButton.disabled = true; // Vô hiệu hóa nút sau khi nhấn
+            countdown = 60; // Reset lại thời gian đếm ngược
+            timerInterval = setInterval(function() {
+                countdown--;
+                timerElement.innerText = `Bạn có thể gửi lại sau ${countdown} giây.`;
+                if (countdown <= 0) {
+                    clearInterval(timerInterval); // Dừng đếm ngược
+                    timerElement.innerText = '';
+                    verifyButton.disabled = false; // Kích hoạt lại nút sau khi 60 giây
+                }
+            }, 1000);
+        }
+    </script>
+@endpush

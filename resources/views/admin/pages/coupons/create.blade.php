@@ -293,21 +293,6 @@
                                         <div class="tab-pane fade" id="usage-panel" role="tabpanel"
                                             aria-labelledby="ngb-nav-2">
                                             <h3>Cài Đặt Sử Dụng</h3>
-                                            <div class="align-items-center g-2 mb-4 row">
-                                                <label class="col-sm-3 form-label-title mb-0" for="is_unlimited">
-                                                    Không Giới Hạn<span class="theme-color ms-2 required-dot">*</span>
-                                                </label>
-                                                <div class="col-sm-9">
-                                                    <div class="form-check form-switch ps-0">
-                                                        <label class="switch">
-                                                            <input type="checkbox" id="is_unlimited"
-                                                                formcontrolname="is_unlimited"
-                                                                class="ng-untouched ng-pristine ng-valid">
-                                                            <span class="switch-state"></span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
 
                                             <div class="align-items-center g-2 mb-4 row" id="usage-per-coupon">
                                                 <label class="col-sm-3 form-label-title mb-0" for="usage_limit">

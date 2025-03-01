@@ -8,6 +8,7 @@ use App\Models\Coupon;
 use App\Models\CouponUser;
 use App\Models\Product;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CouponRepository extends BaseRepository

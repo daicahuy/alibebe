@@ -4,6 +4,7 @@ namespace App\Services\Web\Client\Account;
 
 use App\Repositories\CouponRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CouponService
 {
@@ -17,4 +18,5 @@ class CouponService
         $data = $this->couponRepository->getAllCouponForUserLogin($user_id);
         return $data;
     }
+   
 }

@@ -111,6 +111,7 @@ class StoreCouponRequest extends FormRequest
                 'after_or_equal:start_date'
             ],
             'coupon_restrictions.min_order_value' => [
+                'required',
                 function ($attribute, $value, $fail) {
                     $discountType = request('discount_type');
                     $discountValue = (float) request('discount_value'); // % giảm giá
@@ -121,11 +122,23 @@ class StoreCouponRequest extends FormRequest
                         if ($value == 0) {
                             $fail('Khi giảm giá vượt quá 20%, yêu cầu phải có giá trị đơn hàng tối thiểu.');
                         }
+
+                        // Tính toán tổng số tiền giảm giá dựa trên % và giá trị đơn hàng tối thiểu
+                        $calculatedDiscount = ($discountValue / 100) * $value;
+
+                        // Đảm bảo rằng giá trị đơn hàng tối thiểu gấp 3 hoặc 4 lần tổng số tiền giảm giá
+                        if ($value < $calculatedDiscount * 3) {
+                            $fail('Giá trị đơn hàng tối thiểu phải lớn hơn hoặc bằng ' . ($calculatedDiscount * 3) . ' để đảm bảo giảm giá không vượt quá giới hạn.');
+                        }
+                    }
+
+                    // Kiểm tra nếu loại giảm giá là cố định hoặc phần trăm và giá trị đơn hàng tối thiểu nhỏ hơn giá trị giảm giá
+                    if ($value <= $discountValue) {
+                        $fail('Giá trị đơn hàng tối thiểu phải lớn hơn giá trị giảm giá.');
                     }
                 },
-                'required',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
 
             'coupon_restrictions.max_discount_value' => [
@@ -150,15 +163,6 @@ class StoreCouponRequest extends FormRequest
                     }
                 }
             ],
-
-            // 'coupon_restrictions.valid_categories' => [
-            //     'required',
-            //     'array'
-            // ],
-            // 'coupon_restrictions.valid_products' => [
-            //     $allProducts == 'on' ? 'nullable' : 'required',
-            //     'array'
-            // ],
         ];
     }
 }

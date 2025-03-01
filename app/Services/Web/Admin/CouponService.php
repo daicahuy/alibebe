@@ -97,73 +97,59 @@ class CouponService
             // Lưu thông tin mã giảm giá vào bảng coupons
             $coupon = $this->couponRepository->create($couponData);
 
-            // $user_group = request('user_group');
+            $user_group = request('user_group');
+            $userIds = [];
 
-            // if ($user_group == UserGroupType::ALL) {
-            //     $allUsers = $this->userRepository->getAll();
+            if ($user_group == UserGroupType::ALL) {
+                $allUsers = $this->userRepository->getAll();
 
-            //     if ($allUsers->isEmpty()) {
-            //         return [
-            //             'status' => false,
-            //             'message' => 'Không tìm thấy người dùng nào .'
-            //         ];
-            //     }
+                if ($allUsers->isEmpty()) {
+                    return [
+                        'status' => false,
+                        'message' => 'Không tìm thấy người dùng nào.'
+                    ];
+                }
 
-            //     $userIds = $allUsers->pluck('id')->toArray();
+                $userIds = $allUsers->pluck('id')->toArray();
+            } else if ($user_group == UserGroupType::NEWBIE) {
+                $currentDate = now();
+                // Giới hạn thời gian
+                $newUserThreshold = $currentDate->subDays(10);
 
-                
-            // } else if ($user_group == UserGroupType::NEWBIE) {
-            //     $curentDate = now();
-            //     // giới hạn thời gian
-            //     $newUserThreshold = $curentDate->subDays(10);
+                // Lấy người dùng mới
+                $newUsers = $this->userRepository->getUsersByCreatedDate($newUserThreshold);
 
-            //     // lấy người dùng mới
-            //     $newUsers = $this->userRepository->getUsersByCreatedDate($newUserThreshold);
+                if ($newUsers->isEmpty()) {
+                    return [
+                        'status' => false,
+                        'message' => 'Không tìm thấy người dùng mới trong 10 ngày qua.'
+                    ];
+                }
 
-            //     if ($newUsers->isEmpty()) {
-            //         return [
-            //             'status' => false,
-            //             'message' => 'Không tìm thấy người dùng mới trong 10 ngày qua.'
-            //         ];
-            //     }
+                $userIds = $newUsers->pluck('id')->toArray();
+            } else {
+                $users = $this->userRepository->getUsersByGroupAndLoyaltyPoints($user_group);
+                if ($users->isEmpty()) {
+                    return [
+                        'status' => false,
+                        'message' => 'Không tìm thấy người dùng nào.'
+                    ];
+                }
+                $userIds = $users->pluck('id')->toArray();
+            }
 
-            //     $serIds = $newUsers->pluck('id')->toArray();
+            // Chuẩn bị mảng user_id với amount = 1
+            $userCouponData = array_fill_keys($userIds, ['amount' => 1]);
 
-            // } else {
-            //     $users = $this->userRepository->getUsersByGroupAndLoyaltyPoints($user_group);
-            //     if ($users->isEmpty()) {
-            //         return [
-            //             'status' => false,
-            //             'message' => 'Không tìm thấy người dùng nào .'
-            //         ];
-            //     }
-            //     $userIds = $users->pluck('id')->toArray();
-
-            // }
-            
-            // $coupon->users()->attach($userIds);
+            // Gán mã giảm giá cho người dùng với amount = 1
+            $coupon->users()->attach($userCouponData);
 
             // Lấy dữ liệu ràng buộc
             $restrictionsData = [
                 'min_order_value' => $data['coupon_restrictions']['min_order_value'] ?? 0,
                 'max_discount_value' => $data['coupon_restrictions']['max_discount_value'] ?? 0,
-                // 'valid_categories' => json_encode(array_map('intval', $data['coupon_restrictions']['valid_categories'])),
                 'coupon_id' => $coupon->id
             ];
-
-            // $data['is_apply_all'] = request('is_apply_all');
-
-            // // Kiểm tra nếu checkbox 'is_apply_all' được chọn
-            // if (isset($data['is_apply_all']) && $data['is_apply_all'] == 'on') {
-            //     // Lấy tất cả sản phẩm từ bảng products
-            //     $products = $this->showProducts();
-            //     $restrictionsData['valid_products'] = json_encode($products->pluck('id')->toArray());
-            // } else {
-            //     // Kiểm tra nếu có 'valid_products' trong request, nếu không thì gán giá trị mặc định là mảng rỗng
-            //     $restrictionsData['valid_products'] = isset($data['coupon_restrictions']['valid_products'])
-            //         ? json_encode(array_map('intval', $data['coupon_restrictions']['valid_products']))
-            //         : json_encode([]);  // Gán giá trị mặc định là mảng rỗng nếu không có valid_products
-            // }
 
             // Lưu ràng buộc nếu có
             if (!empty($restrictionsData)) {
@@ -225,70 +211,57 @@ class CouponService
 
             $coupon->update($couponData);
 
-            // $user_group = request('user_group');
+            $user_group = request('user_group');
 
-            // if ($user_group == UserGroupType::ALL) {
-            //     $allUsers = $this->userRepository->getAll();
+            if ($user_group == UserGroupType::ALL) {
+                $allUsers = $this->userRepository->getAll();
 
-            //     if ($allUsers->isEmpty()) {
-            //         return [
-            //             'status' => false,
-            //             'message' => 'Không tìm thấy người dùng nào .'
-            //         ];
-            //     }
+                if ($allUsers->isEmpty()) {
+                    return [
+                        'status' => false,
+                        'message' => 'Không tìm thấy người dùng nào .'
+                    ];
+                }
 
-            //     $userIds = $allUsers->pluck('id')->toArray();
-                
-            // } else if ($user_group == UserGroupType::NEWBIE) {
-            //     $curentDate = now();
-            //     // giới hạn thời gian
-            //     $newUserThreshold = $curentDate->subDays(10);
+                $userIds = $allUsers->pluck('id')->toArray();
+            } else if ($user_group == UserGroupType::NEWBIE) {
+                $curentDate = now();
+                // giới hạn thời gian
+                $newUserThreshold = $curentDate->subDays(10);
 
-            //     // lấy người dùng mới
-            //     $newUsers = $this->userRepository->getUsersByCreatedDate($newUserThreshold);
+                // lấy người dùng mới
+                $newUsers = $this->userRepository->getUsersByCreatedDate($newUserThreshold);
 
-            //     if ($newUsers->isEmpty()) {
-            //         return [
-            //             'status' => false,
-            //             'message' => 'Không tìm thấy người dùng mới trong 10 ngày qua.'
-            //         ];
-            //     }
+                if ($newUsers->isEmpty()) {
+                    return [
+                        'status' => false,
+                        'message' => 'Không tìm thấy người dùng mới trong 10 ngày qua.'
+                    ];
+                }
 
-            //     $userIds = $newUsers->pluck('id')->toArray();
-            // } else {
-            //     $users = $this->userRepository->getUsersByGroupAndLoyaltyPoints($user_group);
-            //     if ($users->isEmpty()) {
-            //         return [
-            //             'status' => false,
-            //             'message' => 'Không tìm thấy người dùng nào .'
-            //         ];
-            //     }
-            //     $userIds = $users->pluck('id')->toArray();
-            // }
+                $userIds = $newUsers->pluck('id')->toArray();
+            } else {
+                $users = $this->userRepository->getUsersByGroupAndLoyaltyPoints($user_group);
+                if ($users->isEmpty()) {
+                    return [
+                        'status' => false,
+                        'message' => 'Không tìm thấy người dùng nào .'
+                    ];
+                }
+                $userIds = $users->pluck('id')->toArray();
+            }
+            // Chuẩn bị mảng user_id với amount = 1
+            $userCouponData = array_fill_keys($userIds, ['amount' => 1]);
 
-            // $coupon->users()->sync($userIds);
+            // Gán mã giảm giá cho người dùng với amount = 1
+            $coupon->users()->sync($userCouponData);
 
             // Lấy dữ liệu ràng buộc
             $restrictionsData = [
                 'min_order_value' => $data['coupon_restrictions']['min_order_value'] ?? 0,
                 'max_discount_value' => $data['coupon_restrictions']['max_discount_value'] ?? null,
-                // 'valid_categories' => json_encode(array_map('intval', $data['coupon_restrictions']['valid_categories'])),
                 'coupon_id' => $coupon->id
             ];
-
-            // $data['is_apply_all'] = request('is_apply_all');
-
-            // // Kiểm tra nếu checkbox 'is_apply_all' được chọn
-            // if (isset($data['is_apply_all']) && $data['is_apply_all'] == 'on') {
-            //     // Lấy tất cả sản phẩm từ bảng products
-            //     $products = $this->showProducts();
-            //     $restrictionsData['valid_products'] = json_encode($products->pluck('id')->toArray());
-            // } else {
-            //     // Kiểm tra nếu có 'valid_products' trong request, nếu không thì gán giá trị mặc định là mảng rỗng
-            //     $restrictionsData['valid_products'] = isset($data['coupon_restrictions']['valid_products'])
-            //         ? json_encode(array_map('intval', $data['coupon_restrictions']['valid_products']))
-            //         : json_encode([]);  // Gán giá trị mặc định là mảng rỗng nếu không có valid_products
-            // }
 
             $restrictionId = $coupon->restriction->id;
 
@@ -304,7 +277,7 @@ class CouponService
             ];
         } catch (\Throwable $th) {
             DB::rollBack();
-            Log::error("Error in CouponService::store", [
+            Log::error("Error in CouponService::update", [
                 'message' => $th->getMessage(),
                 'data' => $data
             ]);
@@ -374,9 +347,9 @@ class CouponService
                 $coupon->restriction->forceDelete();
             }
 
-            // if ($coupon->users()->exists()) {
-            //     $coupon->users()->sync([]);
-            // }
+            if ($coupon->users()->exists()) {
+                $coupon->users()->sync([],['amount'=>0]);
+            }
 
             $coupon->forceDelete();
             DB::commit();
@@ -470,7 +443,7 @@ class CouponService
 
             foreach ($coupons as $coupon) {
 
-                // $coupon->users()->sync([]);
+                $coupon->users()->sync([]);
 
                 if ($coupon->restriction) {
                     $coupon->restriction->forceDelete();
@@ -529,7 +502,6 @@ class CouponService
             ];
         }
     }
-    // khôi phục tất cả mã giảm giá đã xóa
     // khôi phục tất cả mã giảm giá đã xóa
     public function restoreSelectedCoupon($couponIds)
     {
