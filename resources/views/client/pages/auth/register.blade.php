@@ -16,10 +16,49 @@
         .checkbox_animated.is-invalid {
             border: 2px solid red !important;
         }
+
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            /* Nền trắng mờ */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            /* Đảm bảo nó ở trên cùng */
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            /* Màu xám nhạt */
+            border-top: 5px solid #3498db;
+            /* Màu xanh dương */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 @endpush
 
 @section('content')
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+    </div>
     <!-- Breadcrumb Section Start -->
     <section class="breadcrumb-section pt-0">
         <div class="container-fluid-lg">
@@ -173,7 +212,7 @@
 
             $('#formRegisterCustomer').on('submit', function(event) {
                 event.preventDefault(); // Ngăn chặn hành vi mặc định của form
-
+                $("#loading-overlay").show();
                 let formData = $(this).serializeArray(); //Chuyển đổi dữ liệu form thành mảng
                 let data = {};
                 $(formData).each(function(index, obj) {
@@ -248,6 +287,10 @@
 
                         }
                     },
+                    complete: function() {
+                        $("#loading-overlay")
+                            .hide(); // Ẩn icon loading khi API hoàn tất (thành công hoặc thất bại)
+                    },
                     error: function(error) {
                         console.error("Lỗi Đăng Ký", error);
                     }
@@ -257,6 +300,7 @@
 
 
             })
+            $('#loading-overlay').fadeOut();
         })
     </script>
 @endpush
