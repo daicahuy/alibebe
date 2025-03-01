@@ -48,7 +48,7 @@ Route::get('/categories/{category?}', [ListCategoriesController::class, 'index']
 // Route::get('/product/{id}', [ListCategoriesController::class, 'detailModal']);
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
-Route::get('/list-order', [ListOrderController::class, 'index'])->middleware(['auth']);
+Route::get('/list-order', [ListOrderController::class, 'index'])->middleware(['auth'])->name('listOrder');
 
 Route::post('/payment/vnpay', [VNPayController::class, 'createPayment'])->middleware(["web"])->name('vnpay.create');
 Route::get('/payment/vnpay/return', [VNPayController::class, 'handleReturn'])->middleware(["web"])->name('vnpay.return');

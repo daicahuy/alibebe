@@ -313,7 +313,7 @@
                                         <input type="hidden" class="price"
                                             value="{{ $cartItem->product->price ?? $cartItem->productVariant->product->price }}">
                                         <input type="hidden" class="old_price"
-                                            value="{{ $cartItem->product->sale_price ?? $cartItem->productVariant->product->sale_price }}">
+                                            value="{{ $cartItem->product?->sale_price ?? $cartItem->productVariant?->product->sale_price }}">
                                         <input type="hidden" class="price_variant"
                                             value="{{ $cartItem->productVariant?->price > 0 ? $cartItem->productVariant->price : null }}">
                                         <input type="hidden" class="old_price_variant"

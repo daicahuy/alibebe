@@ -689,7 +689,6 @@
 
     <!-- sidebar open js -->
     <script src="{{ asset('theme/admin/assets/js/filter-sidebar.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         // Hàm định dạng giá tiền sang VNĐ
