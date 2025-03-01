@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CartItem;
 use App\Models\Coupon;
+use App\Models\CouponUser;
 use App\Models\HistoryOrderStatus;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -169,16 +170,43 @@ class VNPayController extends Controller
 
                     if ($couponCode) {
                         $coupon = Coupon::where('code', $couponCode)->lockForUpdate()->first();
-                        if (!$coupon || (INT) $coupon->usage_limit - (INT) $coupon->usage_count == 0) {
-                            return redirect('/cart-checkout')->with('error', "Mã giảm giá không hợp lệ hoặc đã hết.");
 
+                        if (!$coupon) {
+                            return response()->json(["status" => "error", "message" => "Mã giảm giá không hợp lệ."]);
                         }
-                        if ($coupon->is_expired == 1 && (now()->lt($coupon->start_date) || now()->gt($coupon->end_date))) {
-                            return redirect('/cart-checkout')->with('error', "Mã giảm giá hết hạn.");
 
+                        if ((INT) ($coupon->usage_limit ?? 0) - (INT) ($coupon->usage_count ?? 0) == 0) {
+                            return response()->json(["status" => "error", "message" => "Mã giảm giá đã hết lượt sử dụng."]);
                         }
-                        $coupon->usage_count += 1;
+
+                        if (
+                            $coupon->is_expired == 1 &&
+                            (($coupon->start_date && now()->lt($coupon->start_date)) ||
+                                ($coupon->end_date && now()->gt($coupon->end_date)))
+                        ) {
+                            return response()->json(["status" => "error", "message" => "Mã giảm giá đã hết hạn."]);
+                        }
+
+                        $couponUser = CouponUser::where('coupon_id', $coupon->id)->first();
+
+                        if (!$couponUser) {
+                            return response()->json(["status" => "error", "message" => "Không tìm thấy người dùng mã giảm giá."]);
+                        }
+
+                        if ($couponUser->amount <= 0) {
+                            return response()->json(["status" => "error", "message" => "Số lượng mã giảm giá không đủ."]);
+                        }
+
+                        $coupon->usage_count = (INT) $coupon->usage_count + 1;
                         $coupon->save();
+
+                        // Cập nhật amount của couponUser
+                        $dataNewAmount = (INT) $couponUser->amount - 1;
+
+                        // Cách 1: Sử dụng instance
+                        $couponUser->amount = $dataNewAmount;
+                        $couponUser->save();
+
                     }
 
                     $currentTime = now();
@@ -196,7 +224,7 @@ class VNPayController extends Controller
                         'note' => $dataOrderCustomer['note'],
                         'payment_id' => $dataOrderCustomer['payment_id'],
                         'total_amount' => $dataOrderCustomer['total_amount_discounted'],
-                        'is_paid' => 1, // Giả sử đơn hàng chưa được thanh toán
+                        'is_paid' => 1,
                         'coupon_id' => isset($coupon) ? $coupon->id : null,
                         'coupon_discount_value' => $dataOrderCustomer["coupon_discount_value"],
                         'coupon_discount_type' => $dataOrderCustomer["coupon_discount_type"],

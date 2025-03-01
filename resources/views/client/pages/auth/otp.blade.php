@@ -236,8 +236,6 @@
                         timeLeft = 60; // Reset thời gian đếm ngược
                     }
                 }, 1000);
-
-
             };
         })
     </script>
