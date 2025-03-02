@@ -284,15 +284,15 @@
 
 
                                 <div class="buy-box">
-                                    <a href="wishlist.html">
-                                        <i data-feather="heart"></i>
-                                        <span>Add To Wishlist</span>
-                                    </a>
 
-                                    <a href="compare.html">
-                                        <i data-feather="shuffle"></i>
-                                        <span>Add To Compare</span>
-                                    </a>
+                                    <form action="{{ route('account.add', $detail->id) }}" method="POST">
+                                        @csrf
+
+                                        <button class="btn btn-sm btn-danger " type="submit"><i
+                                                data-feather="heart"></i> Add To Wishlist</button>
+
+                                    </form>
+
                                 </div>
 
                                 <div class="payment-option">
@@ -424,7 +424,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="product-section-box">
-                        <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
+                        {{-- <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="description-tab" data-bs-toggle="tab"
                                     data-bs-target="#description" type="button" role="tab">Mô tả</button>
@@ -443,43 +443,44 @@
                                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#comments" type="button"
                                     role="tab">Bình luận</button>
                             </li>
-                        </ul>
-
+                        </ul> --}}
+                        <h2 class="fw-bold text-center">Tìm hiểm về sản phẩm </h2>
                         <div class="tab-content custom-tab" id="myTabContent">
                             <div class="tab-pane fade show active" id="description" role="tabpanel">
-                                <div class="product-description">
-                                    <div class="nav-desh">
-                                        <p>{!! $detail->description !!}</p>
+                                <div class="row">
+                                    <div class="nav-desh col-xl-6 ">
+                                        <h3 class="fw-bold">Mô tả sản phẩm</h3>
+                                        <p class="m-4">{!! $detail->description !!}</p>
+                                    </div>
+                                    <div class="nav-desh col-xl-5">
+                                        <h3 class="fw-bold">Thông số kĩ thuật</h3>
+
+                                        <table class="table info-table m-4">
+                                            <tbody>
+                                                @php
+                                                    $groupedAttributes = $detail->attributeValues->groupBy(
+                                                        'attribute.name',
+                                                    );
+                                                @endphp
+
+                                                @foreach ($groupedAttributes as $attributeName => $values)
+                                                    <tr>
+                                                        <td>{{ $attributeName }}</td>
+                                                        <td>
+                                                            {{ $values->pluck('value')->join(', ') }}
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
-                            </div>
+                                <h3 class="fw-bold my-4 text-center">Đánh giá sản phẩm</h3>
+                                <div class="review-box m-4 ">
+                                    <div class="row d-flex justify-content-center">
 
-                            <div class="tab-pane fade" id="info" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table info-table">
-                                        <tbody>
-                                            @php
-                                                $groupedAttributes = $detail->attributeValues->groupBy(
-                                                    'attribute.name',
-                                                );
-                                            @endphp
 
-                                            @foreach ($groupedAttributes as $attributeName => $values)
-                                                <tr>
-                                                    <td>{{ $attributeName }}</td>
-                                                    <td>
-                                                        {{ $values->pluck('value')->join(', ') }}
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="review" role="tabpanel">
-                                <div class="review-box">
-                                    <div class="row">
-                                        <div class="col-xl-5">
+                                        <div class="col-xl-12">
                                             <div class="product-rating-box">
                                                 <div class="row">
                                                     <div class="col-xl-12">
@@ -520,19 +521,16 @@
                                                             @endfor
                                                         </ul>
 
-                                                        <div class="review-title-2">
+                                                        {{-- <div class="review-title-2">
                                                             <h4 class="fw-bold">Đánh giá sản phẩm này</h4>
                                                             <p>Hãy cho những khách hàng khác biết suy nghĩ của bạn</p>
                                                             <button class="btn" type="button" data-bs-toggle="modal"
                                                                 data-bs-target="#writereview">Đánh giá</button>
-                                                        </div>
+                                                        </div> --}}
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-
-                                        <div class="col-xl-7">
-                                            <div class="review-people">
+                                            <div class="review-people mt-4">
                                                 <ul class="review-list">
                                                     @foreach ($detail->reviews as $item)
                                                         <li>
@@ -540,15 +538,15 @@
                                                                 <div>
                                                                     @if ($item->user->avatar == null)
                                                                         <div class="people-image people-text">
-                                                                            <h3 class="text-center rounded-circle bg-white d-inline-flex align-items-center justify-content-center"
-                                                                                style="width: 70px; height: 70px;">
+                                                                            <h3 class="text-center rounded-circle bg-info d-inline-flex align-items-center justify-content-center"
+                                                                                style="width: 40px; height: 40px;">
                                                                                 {{ strtoupper(substr($item->user->fullname, 0, 1)) }}
                                                                             </h3>
                                                                         </div>
                                                                     @else
                                                                         <div class="people-image people-text">
                                                                             <img alt="user" class="img-fluid "
-                                                                                src="{{ asset('storage/' . $item->user->avatar) }}">
+                                                                                src="{{ asset('storage/' . $item->user->avatar) }}"style="width: 50px; height: 50px;">
                                                                         </div>
                                                                     @endif
                                                                 </div>
@@ -591,22 +589,28 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="tab-pane fade  active" id="comments" role="tabpanel">
+                                <h3 class="fw-bold my-4 text-center">Bình luận</h3>
                                 <div class="review-box">
-                                    <div class="row">
-                                        <div class="col-xl-7">
+                                    <div class="row d-flex justify-content-center">
+                                        <div class="col-xl-12">
                                             <div class="review-people">
-                                                <ul class="review-list">
+                                                <div class="mt-3">
+                                                    <textarea class="form-control" id="new-comment" placeholder="Nhập bình luận của bạn..." rows="3"></textarea>
+                                                    <div id="comment-error" class="text-danger"></div>
+                                                    <button class="btn btn-primary mt-2" id="submit-comment"
+                                                        data-product-id="{{ $detail->id }}">
+                                                        Gửi bình luận
+                                                    </button>
+                                                </div>
+                                                <ul class="review-list mt-3">
                                                     @foreach ($detail->comments as $item)
                                                         <li>
                                                             <div class="people-box">
                                                                 <div>
                                                                     @if ($item->user->avatar == null)
                                                                         <div class="people-image people-text">
-                                                                            <h3 class="text-center rounded-circle bg-white d-inline-flex align-items-center justify-content-center"
-                                                                                style="width: 70px; height: 70px;"
+                                                                            <h3 class="text-center rounded-circle bg-info d-inline-flex align-items-center justify-content-center"
+                                                                                style="width: 40px; height: 40px;"
                                                                                 data-user-id="{{ $item->user->id }}">
                                                                                 {{ strtoupper(substr($item->user->fullname, 0, 1)) }}
                                                                             </h3>
@@ -657,8 +661,8 @@
                                                                             <div>
                                                                                 @if ($reply->user->avatar == null)
                                                                                     <div class="people-image people-text">
-                                                                                        <h3 class="text-center rounded-circle bg-white d-inline-flex align-items-center justify-content-center"
-                                                                                            style="width: 50px; height: 50px;"
+                                                                                        <h3 class="text-center rounded-circle bg-info d-inline-flex align-items-center justify-content-center"
+                                                                                            style="width: 40px; height: 40px;"
                                                                                             data-user-id="{{ $reply->user->id }}">
                                                                                             {{ strtoupper(substr($reply->user->fullname, 0, 1)) }}
                                                                                         </h3>
@@ -695,19 +699,21 @@
                                                         </li>
                                                     @endforeach
                                                 </ul>
-                                                <div class="mt-4">
+                                                {{-- <div class="mt-4">
                                                     <textarea class="form-control" id="new-comment" placeholder="Nhập bình luận của bạn..." rows="3"></textarea>
                                                     <div id="comment-error" class="text-danger"></div>
                                                     <button class="btn btn-primary mt-2" id="submit-comment"
                                                         data-product-id="{{ $detail->id }}">
                                                         Gửi bình luận
                                                     </button>
-                                                </div>
+                                                </div> --}}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+
 
                         </div>
                     </div>
@@ -736,7 +742,7 @@
                                 <div class="product-box-3 wow fadeInUp">
                                     <div class="product-header">
                                         <div class="product-image">
-                                            <a href="#">
+                                            <a href="{{ route('products', $related->id) }}">
                                                 <img src="{{ asset('storage/' . $related->thumbnail) }}"
                                                     class="img-fluid blur-up lazyload" alt="{{ $related->name }}">
                                             </a>
@@ -971,9 +977,10 @@
                                         <button type="submit" class="btn btn-md add-cart-button icon">Thêm vào giỏ
                                             hàng</button>
                                     </form>
-                                    <button onclick="location.href = 'product-left.html';"
-                                        class="btn theme-bg-color view-button icon text-white fw-bold btn-md">
-                                        View More Details</button>
+
+                                    <a href="#"
+                                        class="xem-chi-tiet-button btn theme-bg-color view-button icon text-white fw-bold btn-md ">Xem
+                                        chi tiết</a>
                                 </div>
                             </div>
                         </div>
@@ -982,7 +989,7 @@
             </div>
         </div>
     </div>
-    @endsection
+@endsection
 @push('js')
     <script>
         //thêm vào giỏ hàng 
@@ -990,8 +997,8 @@
 
 
 
-         // Hàm định dạng giá tiền sang VNĐ
-         function formatPrice(price) {
+        // Hàm định dạng giá tiền sang VNĐ
+        function formatPrice(price) {
             const number = parseFloat(price) // Chuyển đổi giá sang số thực
             return isNaN(number) ? "0 đ" : number.toLocaleString('vi-VN', { // Định dạng số sang VNĐ
                 style: 'currency',
@@ -1001,12 +1008,36 @@
 
         $(document).ready(function() {
 
+            $('a.xem-chi-tiet-button').click(function(
+                e) { // Bắt sự kiện click trên nút "Xem chi tiết" (class 'xem-chi-tiet-button')
+                e.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ <a> (nếu có href)
+
+                const productId = $(this).data(
+                    'id'); // Lấy product ID từ thuộc tính `data-id` của nút "Xem chi tiết"
+
+
+                const productDetailPageUrl = `/products/${productId}`;
+
+                // Chuyển hướng trình duyệt đến trang chi tiết sản phẩm
+                window.location.href = productDetailPageUrl;
+            });
+
             // Khai báo biến toàn cục để lưu trữ variantMap
             let globalVariantMap = {};
 
             $('a[data-bs-target="#view"]').click(function() { // Bắt sự kiện  mở modal
-                const productId = $(this).data('id') // Lấy product ID từ thuộc tính `data-id` của thẻ `<a>`
 
+                const productId = $(this).data('id')
+
+                $('a.xem-chi-tiet-button').click(function(
+                    e) {
+                    e.preventDefault();
+
+
+                    const productDetailPageUrl = `/products/${productId}`;
+
+                    window.location.href = productDetailPageUrl;
+                });
 
                 $('#view').data('product-id', productId); // Lưu product_id vào data của modal #view
 
@@ -1031,7 +1062,7 @@
                             Array.from({
                                     length: 5
                                 }, (_, i) => // Tạo mảng 5 phần tử để lặp qua 5 ngôi sao
-                                    `<li><i data-feather="star" class="${i < avgRating ? 'fill' : ''}"></i></li>` // Tạo thẻ <li> chứa icon star,
+                                `<li><i data-feather="star" class="${i < avgRating ? 'fill' : ''}"></i></li>` // Tạo thẻ <li> chứa icon star,
                             ).join('') // Chuyển mảng thành chuỗi HTML
                         )
                         feather
@@ -1044,7 +1075,7 @@
 
                         // Xử lý biến thể sản phẩm (Product Variants)
                         const variants = response.productVariants ||
-                            [] // Lấy mảng biến thể, mặc định là mảng rỗng nếu không có
+                        [] // Lấy mảng biến thể, mặc định là mảng rỗng nếu không có
 
                         $('#productVariants')
                             .empty() // Xóa nội dung hiện tại (để chuẩn bị hiển thị biến thể mới)
@@ -1103,7 +1134,7 @@
                                             return found; // Nếu đã tìm thấy, không cần tìm tiếp
                                         return variant.attribute_values.find(
                                             av => av.attributes_slug ===
-                                                attrSlug);
+                                            attrSlug);
                                     }, null);
                                     if (sampleAttrValue)
                                         break; // Tìm thấy một attribute_value, dừng vòng lặp
@@ -1148,7 +1179,8 @@
                                 variantMap[
                                     key
                                 ] = { // Lưu thông tin biến thể vào variantMap, key là chuỗi ID thuộc tính
-                                    variant_id: variant.id, // Thêm variant_id vào đây
+                                    variant_id: variant
+                                        .id, // Thêm variant_id vào đây
                                     price: variant.price, // Giá biến thể
                                     thumbnail: variant
                                         .thumbnail, // Thumbnail biến thể
@@ -1162,8 +1194,8 @@
 
                             // Tìm và hiển thị biến thể có giá thấp nhất làm mặc định
                             const lowestVariant = variants.reduce((prev,
-                                curr
-                            ) => // Sử dụng reduce để tìm biến thể có giá thấp nhất
+                                    curr
+                                ) => // Sử dụng reduce để tìm biến thể có giá thấp nhất
                                 parseFloat(prev.price) < parseFloat(curr.price) ? prev :
                                 curr // So sánh giá và trả về biến thể có giá thấp hơn
                             )
@@ -1276,7 +1308,7 @@
                     const selectedVariant = globalVariantMap[variantKey];
 
                     if (!selectedVariant) {
-                        Swal.fire({  // **SWEETALERT2 ERROR MESSAGE**
+                        Swal.fire({ // **SWEETALERT2 ERROR MESSAGE**
                             icon: 'error',
                             title: 'Lỗi!',
                             text: 'Vui lòng chọn đầy đủ thuộc tính sản phẩm!',
@@ -1292,7 +1324,8 @@
                 } else {
                     // Xử lý sản phẩm không có biến thể
                     // **ĐẢM BẢO INPUT HIDDEN product_variant_id TRONG FORM ĐƯỢC XÓA/RỖNG**
-                    addToCartForm.querySelector('#cartProductVariantId').value = ''; // hoặc null, hoặc xóa thuộc tính value
+                    addToCartForm.querySelector('#cartProductVariantId').value =
+                        ''; // hoặc null, hoặc xóa thuộc tính value
                 }
 
                 // **CẬP NHẬT INPUT HIDDEN product_id TRONG FORM**
@@ -1302,12 +1335,12 @@
                 // **FORM SẼ ĐƯỢC SUBMIT ĐI (vì đã bỏ event.preventDefault())**
                 // KHÔNG CẦN AJAX NỮA - FORM SUBMIT MẶC ĐỊNH SẼ ĐƯỢC THỰC HIỆN
                 Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công!',
-                        text: 'Sản phẩm đã được thêm vào giỏ hàng!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Sản phẩm đã được thêm vào giỏ hàng!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
 
             });
         })

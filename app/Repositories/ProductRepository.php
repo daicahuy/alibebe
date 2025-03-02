@@ -696,36 +696,36 @@ class ProductRepository extends BaseRepository
 
 
     public function detailProduct(int $id, array $columns = ['*'])
-    {
-        return Product::select($columns)
-            ->with([
-                'productGallery',
-                'productAccessories',
-                'reviews.user',
-                'reviews.ReviewMultimedia',
-                'attributeValues.attribute',
-                'productVariants.productStock',
-                'productStock',
-                'productVariants.attributeValues.attribute',
-                'comments.commentReplies',
-            ])
-            ->with(
-                [
-                    'productVariants' => function ($query) {
-                        $query->with(['attributeValues' => function ($query) {
-                            $query->with('attribute');
-                        }]);
-                    },
-                    'attributeValues' => function ($query) {
-                        $query->whereHas('attribute', function ($q) {
-                            $q->where('is_variant', '0');
-                        });
-                    },
-                ]
-            )
-            ->where('is_active', 1)
-            ->findOrFail($id);
-    }
+{
+    return Product::select($columns)
+        ->with([
+            'productGallery',
+            'productAccessories',
+            'reviews.user',
+            'reviews.ReviewMultimedia',
+            'attributeValues.attribute',
+            'productVariants.productStock',
+            'productStock',
+            'productVariants.attributeValues.attribute',
+            'comments.commentReplies',
+        ])
+        ->with(
+            [
+                'productVariants' => function ($query) {
+                    $query->where('is_active', 1)->with(['attributeValues' => function ($query) {
+                        $query->with('attribute');
+                    }]);
+                },
+                'attributeValues' => function ($query) {
+                    $query->whereHas('attribute', function ($q) {
+                        $q->where('is_variant', '0');
+                    });
+                },
+            ]
+        )
+        ->where('is_active', 1)
+        ->findOrFail($id);
+}
 
     public function getProductAttributes(Product $product)
     {
