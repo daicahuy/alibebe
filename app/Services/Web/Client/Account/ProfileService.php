@@ -6,6 +6,7 @@ use App\Http\Requests\User\UpdateUserRequest;
 use App\Repositories\AccountRepository;
 use App\Repositories\UserAddressRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -28,8 +29,9 @@ class ProfileService
         return $user;
     }
 
-    public function updateInfomation()
+    public function updateInformation()
     {
+        // Validate dữ liệu đầu vào
         $data = request()->validate(
             [
                 'avatar' => [
@@ -44,7 +46,7 @@ class ProfileService
                 ],
                 'gender' => [
                     'nullable',
-                    Rule::in([0, 1, 2])
+                    Rule::in([0, 1, 2]) // 0: Khác, 1: Nam, 2: Nữ
                 ],
                 'birthday' => [
                     'required',
@@ -52,9 +54,14 @@ class ProfileService
                     'before_or_equal:today'
                 ],
                 'address' => [
-                    'required',
+                    'nullable', // Địa chỉ cũ
                     'integer',
                     Rule::exists('user_addresses', 'id')
+                ],
+                'new_address' => [
+                    'nullable',
+                    'string',
+                    'max:255' // Địa chỉ mới nếu không có mặc định
                 ]
             ],
             [
@@ -63,59 +70,71 @@ class ProfileService
         );
 
         try {
-            // Tìm user đang đăng nhập
-            $user = $this->accountRepository->findUserLogin();
+            // Thực hiện transaction
+            DB::transaction(function () use ($data) {
+                // Tìm user đang đăng nhập
+                $user = $this->accountRepository->findUserLogin();
 
-            // Kiểm tra xem user có tồn tại hay không
-            if (!$user) {
-                return [
-                    'status' => false,
-                    'message' => 'Không tìm thấy người dùng!'
-                ];
-            }
-
-            $dataValidated = collect($data)->except('avatar')->all();
-
-            // Kiểm tra địa chỉ mặc định hiện tại của user
-            $oldDefaultAddress = $this->accountRepository->getUserProfileData()->defaultAddress;
-
-            // Nếu có địa chỉ mặc định, cập nhật địa chỉ cũ về không mặc định
-            if ($oldDefaultAddress) {
-                $oldDefaultAddress->update(['id_default' => 0]);
-            }
-
-            // Cập nhật địa chỉ mới làm địa chỉ mặc định
-            $newAddress = $this->userAddressRepository->findById($dataValidated['address']);
-            if ($newAddress) {
-                $newAddress->update(['id_default' => 1]);
-            }
-            // Cập nhật thông tin của user
-            $user->update($dataValidated);
-
-            // Kiểm tra và lưu ảnh đại diện mới nếu có
-            if (request()->hasFile('avatar')) {
-                $oldImage = $user->avatar;
-
-                // Lưu ảnh mới vào thư mục 'users' trên Storage
-                $imagePath = Storage::put('users', request()->file('avatar'));
-
-                // Cập nhật ảnh đại diện mới
-                $user->update(['avatar' => $imagePath]);
-
-                // Xóa avatar cũ nếu tồn tại
-                if (!empty($oldImage) && Storage::exists($oldImage)) {
-                    Storage::delete($oldImage);
+                // Kiểm tra xem user có tồn tại hay không
+                if (!$user) {
+                    throw new \Exception('Không tìm thấy người dùng!');
                 }
-            }
 
-            // Trả về phản hồi thành công
+                // Lấy dữ liệu hợp lệ trừ ảnh đại diện
+                $dataValidated = collect($data)->except('avatar', 'new_address')->all();
+
+                // Lấy địa chỉ mặc định hiện tại
+                $addressDefault = $this->accountRepository->getUserProfileData()->defaultAddress;
+
+                // Nếu có địa chỉ mới, tạo mới trong bảng user_addresses
+                if (!empty($data['new_address'])) {
+                    // Tạo địa chỉ mới và đặt là mặc định
+                    $newAddress = $this->userAddressRepository->create([
+                        'user_id' => $user->id,
+                        'address' => $data['new_address'],
+                        'phone_number' => $user->phone_number,
+                        'fullname' => $user->fullname,
+                        'id_default' => 1, // Đặt làm mặc định
+                    ]);
+
+                    // Loại bỏ địa chỉ cũ khỏi mảng dữ liệu cập nhật
+                    $dataValidated['address'] = $newAddress->id;
+                } else if (!empty($data['address'])) {
+                    // Nếu có địa chỉ cũ được chọn, đặt nó là mặc định
+                    $oldDefaultAddress = $this->userAddressRepository->findById($data['address']);
+                    if ($oldDefaultAddress) {
+                        if ($addressDefault) {
+                            $addressDefault->update(['id_default' => 0]);
+                        }
+                        $oldDefaultAddress->update(['id_default' => 1]);
+                    }
+                }
+
+                // Cập nhật thông tin user
+                $user->update($dataValidated);
+
+                // Xử lý avatar mới nếu có
+                if (request()->hasFile('avatar')) {
+                    $oldImage = $user->avatar;
+                    $imagePath = Storage::put('users', request()->file('avatar'));
+
+                    // Cập nhật ảnh đại diện mới
+                    $user->update(['avatar' => $imagePath]);
+
+                    // Xóa avatar cũ nếu tồn tại
+                    if (!empty($oldImage) && Storage::exists($oldImage)) {
+                        Storage::delete($oldImage);
+                    }
+                }
+            });
+
             return [
                 'status' => true,
                 'message' => 'Cập nhật thông tin thành công!'
             ];
         } catch (\Throwable $th) {
             // Ghi log lỗi
-            Log::error("Error in ProfileService::updateInfomation", [
+            Log::error("Error in ProfileService::updateInformation", [
                 'message' => $th->getMessage(),
                 'data' => $user ?? 'No user data'
             ]);
@@ -127,7 +146,6 @@ class ProfileService
             ];
         }
     }
-
     public function createOrUpdateImage()
     {
         request()->validate(

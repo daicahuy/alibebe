@@ -69,7 +69,6 @@ class StoreCouponRequest extends FormRequest
                 'nullable',
                 'integer',
                 'min:0',
-                'max:100'
             ],
             'usage_count' => [
                 'nullable',
@@ -123,13 +122,6 @@ class StoreCouponRequest extends FormRequest
                             $fail('Khi giảm giá vượt quá 20%, yêu cầu phải có giá trị đơn hàng tối thiểu.');
                         }
 
-                        // Tính toán tổng số tiền giảm giá dựa trên % và giá trị đơn hàng tối thiểu
-                        $calculatedDiscount = ($discountValue / 100) * $value;
-
-                        // Đảm bảo rằng giá trị đơn hàng tối thiểu gấp 3 hoặc 4 lần tổng số tiền giảm giá
-                        if ($value < $calculatedDiscount * 3) {
-                            $fail('Giá trị đơn hàng tối thiểu phải lớn hơn hoặc bằng ' . ($calculatedDiscount * 3) . ' để đảm bảo giảm giá không vượt quá giới hạn.');
-                        }
                     }
 
                     // Kiểm tra nếu loại giảm giá là cố định hoặc phần trăm và giá trị đơn hàng tối thiểu nhỏ hơn giá trị giảm giá

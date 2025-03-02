@@ -67,7 +67,6 @@ class UpdateCouponRequest extends FormRequest
                 'nullable',
                 'integer',
                 'min:0',
-                'max:100'
             ],
             'usage_count' => [
                 'nullable',

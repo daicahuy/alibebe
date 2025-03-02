@@ -95,7 +95,7 @@ class AccountController extends Controller
 
     public function updateBasicInfomation()
     {
-        $result = $this->profileService->updateInfomation();
+        $result = $this->profileService->updateInformation();
         if ($result['status']) {
             return redirect()->route('account.profile')->with('success', $result['message']);
         } else {
