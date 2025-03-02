@@ -102,7 +102,7 @@ Route::name('account.')
 
         //wishlist
         Route::get('/wishlist', 'wishlist')->name('wishlist');
-        Route::post('/add/{id}', 'addWishlist')->name('add');
+        Route::post('/wishlist/toggle/{id}', 'toggleWishlist')->name('wishlist-toggle');
         Route::delete('/remove-wishlist/{id}', 'removeWishlist')->name('remove-wishlist');
     });
 

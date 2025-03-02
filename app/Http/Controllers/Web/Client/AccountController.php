@@ -132,14 +132,24 @@ class AccountController extends Controller
         return view('client.pages.accounts.wishlist',compact('wishlist'));
     }
 
-    public function addWishlist($id) {
-        $result = $this->wishlistService->add($id);
-        if ($result['status']) {
-            return redirect()->route('account.wishlist')->with('success', $result['message']);
+    public function toggleWishlist($id)
+    {
+        $wishlistItem = $this->wishlistService->findWishlistItem($id);
+    
+        if ($wishlistItem) {
+            $result = $this->wishlistService->remove($wishlistItem->id);
+            $action = 'removed'; // Hành động là xóa
         } else {
-            return back()->withErrors(['message' => $result['message']]);
+            $result = $this->wishlistService->add($id);
+            $action = 'added'; // Hành động là thêm
         }
-    }
+        return response()->json([
+            'result' => $result['status'],
+            'message' => $result['message'],
+            'action' => $action,
+        ]);
+    }   
+    
     public function removeWishlist($id) {
         $result = $this->wishlistService->remove($id);
         if ($result['status']) {

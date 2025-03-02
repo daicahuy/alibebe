@@ -159,7 +159,8 @@
                                             <img src="{{ Storage::url($category->icon) }}" class="blur-up lazyload"
                                                 alt="">
                                             <h5>
-                                                <a href="{{ route('categories',['category' => $category->id])}}">{{ $category->name }}</a>
+                                                <a
+                                                    href="{{ route('categories', ['category' => $category->id]) }}">{{ $category->name }}</a>
                                             </h5>
                                         </div>
                                     </li>
@@ -236,18 +237,21 @@
                                     @foreach ($trendingProducts as $trendingProduct)
                                         <li>
                                             <div class="offer-product">
-                                                <a href="{{route('categories',['category' => $trendingProduct->id])}}" class="offer-image">
+                                                <a href="{{ route('categories', ['category' => $trendingProduct->id]) }}"
+                                                    class="offer-image">
                                                     <img src="{{ Storage::url($trendingProduct->thumbnail) }}"
                                                         class="blur-up lazyload" alt="">
                                                 </a>
 
                                                 <div class="offer-detail">
                                                     <div>
-                                                        <a href="{{route('categories',['category' => $trendingProduct->id])}}" class="text-title">
+                                                        <a href="{{ route('categories', ['category' => $trendingProduct->id]) }}"
+                                                            class="text-title">
                                                             <h6 class="name">{{ $trendingProduct->name }}</h6>
                                                         </a>
                                                         <span>{{ $trendingProduct->views }}</span>
-                                                        <h6 class="price theme-color">{{ number_format($trendingProduct->price, 0, ',', '.') }}₫</h6>
+                                                        <h6 class="price theme-color">
+                                                            {{ number_format($trendingProduct->price, 0, ',', '.') }}₫</h6>
                                                     </div>
                                                 </div>
                                             </div>
@@ -303,12 +307,13 @@
                                         <div class="col-lg-3 col-md-4 col-sm-6 ">
                                             <div class="product-box border rounded shadow-sm p-3">
                                                 <div class="product-image">
-                                                    <a href="{{route('products',['product' => $topSell->id])}}">
+                                                    <a href="{{ route('products', ['product' => $topSell->id]) }}">
                                                         <img src="{{ Storage::url($topSell->thumbnail) }}"
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
                                                     <ul class="product-option">
-                                                        <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="View">
                                                             <a href="javascript:void(0)" data-bs-toggle="modal"
                                                                 data-bs-target="#view" data-id={{ $topSell->id }}>
                                                                 <i data-feather="eye"></i>
@@ -331,15 +336,16 @@
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
-                                                    <a href="{{route('products',['product' => $topSell->id])}}">
+                                                    <a href="{{ route('products', ['product' => $topSell->id]) }}">
                                                         <h6 class="name">{{ $topSell->product_names }}</h6>
                                                     </a>
 
                                                     <h5 class="sold text-content">
-                                                        <span class="theme-color price">{{ number_format($topSell->price, 0, ',', '.') }}₫</span>
+                                                        <span
+                                                            class="theme-color price">{{ number_format($topSell->price, 0, ',', '.') }}₫</span>
                                                         <del>{{ number_format($topSell->sale_price, 0, ',', '.') }}₫</del>
                                                     </h5>
-                                                    
+
 
                                                     <div class="product-rating mt-sm-2 mt-1">
                                                         <ul class="rating">
@@ -349,7 +355,7 @@
                                                                         class="{{ $i <= round($topSell->average_rating) ? 'fill' : '' }}"></i>
                                                                 </li>
                                                             @endfor
-                                                        </ul> 
+                                                        </ul>
                                                     </div>
 
                                                     <div class="add-to-cart-box">
@@ -390,7 +396,8 @@
                     <div class="category-slider-2 product-wrapper no-arrow">
                         @foreach ($topCategoriesInweek as $topCategory)
                             <div>
-                                <a href="{{ route('categories',['category' => $topCategory->id])}}" class="category-box category-dark">
+                                <a href="{{ route('categories', ['category' => $topCategory->id]) }}"
+                                    class="category-box category-dark">
                                     <div>
                                         <img src="{{ Storage::url($topCategory->icon) }}" class="blur-up lazyload"
                                             alt="">
@@ -449,7 +456,7 @@
                                         <div class="col-lg-3 col-md-4 col-sm-6 ">
                                             <div class="product-box border rounded shadow-sm p-3">
                                                 <div class="product-image">
-                                                    <a href="{{route('products',['product' => $aiSuggest->id])}}">
+                                                    <a href="{{ route('products', ['product' => $aiSuggest->id]) }}">
                                                         <img src="{{ Storage::url($aiSuggest->thumbnail) }}"
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
@@ -471,14 +478,16 @@
 
                                                         <li data-bs-toggle="tooltip" data-bs-placement="top"
                                                             title="Wishlist">
-                                                            <a href="wishlist.html" class="notifi-wishlist">
-                                                                <i data-feather="heart"></i>
+                                                            <a href="javascript:void(0);"
+                                                                class="notifi-wishlist wishlist-toggle"
+                                                                data-product-id="{{ $aiSuggest->id }}">
+                                                                <i data-feather="heart" class="wishlist-icon"></i>
                                                             </a>
                                                         </li>
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
-                                                    <a href="{{route('products',['product' => $aiSuggest->id])}}">
+                                                    <a href="{{ route('products', ['product' => $aiSuggest->id]) }}">
                                                         <h6 class="name">{{ $aiSuggest->name }}</h6>
                                                     </a>
 
@@ -597,14 +606,16 @@
                                     @foreach ($chunk as $product)
                                         <li>
                                             <div class="offer-product">
-                                                <a href="{{route('products',['product' => $product->product_id])}}" class="offer-image">
+                                                <a href="{{ route('products', ['product' => $product->product_id]) }}"
+                                                    class="offer-image">
                                                     <img src="{{ $product->thumbnail }}" class="blur-up lazyload"
                                                         alt="{{ $product->product_name }}">
                                                 </a>
 
                                                 <div class="offer-detail">
                                                     <div>
-                                                        <a href="{{route('products',['product' => $product->product_id])}}" class="text-title">
+                                                        <a href="{{ route('products', ['product' => $product->product_id]) }}"
+                                                            class="text-title">
                                                             <h6 class="name">{{ $product->product_name }}</h6>
                                                         </a>
                                                         <span>{{ $product->total_sold }} đã bán</span>
@@ -728,7 +739,7 @@
                                             <h5>Brand:</h5>
                                             <h6 id = 'prdBrand'></h6>
                                         </div>
-</li>
+                                    </li>
 
                                     {{-- <li>
                                         <div class="brand-box">
@@ -811,7 +822,7 @@
     <!-- Quick View Modal Box End -->
 @endsection
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         // sửa lại script để phù hợp với làm giỏ hàng
@@ -871,7 +882,7 @@
                                 variant.attribute_values.forEach(attr => {
                                     if (!allAttributes[attr.attributes_name]) {
                                         allAttributes[attr
-                                    .attributes_name] = [];
+                                            .attributes_name] = [];
                                     }
                                     if (!allAttributes[attr.attributes_name]
                                         .some(v => v.id === attr.id)) {
@@ -985,6 +996,62 @@
                     showConfirmButton: true
                 });
             @endif
+
+            $(document).on('click', '.wishlist-toggle', function(e) {
+                e.preventDefault();
+
+                var productId = $(this).data('product-id'); // Lấy product ID từ thuộc tính data-product-id
+                var icon = $(this).find('.wishlist-icon'); // Chỉ chọn icon trong element hiện tại
+
+                $.ajax({
+                    url: `/account/wishlist/toggle/${productId}`,
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    data: {
+                        product_id: productId
+                    },
+                    success: function(data) {
+                        if (data.result) {
+                            if (data.action === 'added') {
+                                icon.css('color', 'red'); // Đổi màu khi thêm vào wishlist
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Đã thêm!',
+                                    text: 'Sản phẩm đã được thêm vào danh sách yêu thích!',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                            } else if (data.action === 'removed') {
+                                icon.css('color', 'black'); // Đổi màu khi xóa khỏi wishlist
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Đã xóa!',
+                                    text: 'Sản phẩm đã bị xóa khỏi danh sách yêu thích!',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                            }
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi!',
+                                text: data.message ||
+                                    'Có lỗi xảy ra, vui lòng thử lại!',
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: 'Có lỗi xảy ra, vui lòng thử lại!',
+                        });
+                    }
+                });
+            });
+
         });
     </script>
 @endpush
