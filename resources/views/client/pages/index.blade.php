@@ -350,8 +350,12 @@
                                                                 </li>
                                                             @endfor
                                                         </ul> 
+                                                        <span class="text-muted ms-2">({{ number_format($topSell->average_rating, 1) }})</span>   
                                                     </div>
-
+                                                    <div class="d-flex justify-content-between mt-sm-2 mt-1">
+                                                        <h6 class="unit">Lượt xem: {{$topSell->views_count}}</h6> 
+                                                        <h6 class="unit">Đã Bán: {{$topSell->total_sold}}</h6> 
+                                                    </div>
                                                     <div class="add-to-cart-box">
                                                         <a href="javascript:void(0)" data-bs-toggle="modal"
                                                         data-bs-target="#view" data-id={{ $topSell->id }}
@@ -486,8 +490,12 @@
                                                                 </li>
                                                             @endfor
                                                         </ul>
+                                                        <span class="text-muted ms-2">({{ number_format($aiSuggest->average_rating, 1) }})</span>
                                                     </div>
-
+                                                    <div class="d-flex justify-content-between mt-sm-2 mt-1">
+                                                        <h6 class="unit">Lượt xem: {{$aiSuggest->views_count}}</h6> 
+                                                        <h6 class="unit">Đã Bán: {{$aiSuggest->total_sold}}</h6> 
+                                                    </div>
                                                     <div class="add-to-cart-box">
                                                         <a href="javascript:void(0)" data-bs-toggle="modal"
                                                             data-bs-target="#view" data-id={{ $aiSuggest->id }}
@@ -666,96 +674,39 @@
                         <div class="col-lg-6">
                             <div class="right-sidebar-modal">
                                 <h4 class="title-name" id='prdName'></h4>
-                                <h4 class="price" id='prdPrice'></h4>
-                                {{-- <div class="product-rating">
+                                <h4 class="price" id='prdPrice'></h4>                              
+                                <div class="product-rating" id="prdRating">
                                     <ul class="rating">
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star" class="fill"></i>
-                                        </li>
-                                        <li>
-                                            <i data-feather="star"></i>
-                                        </li>
+
                                     </ul>
-                                    <span class="ms-2">8 Reviews</span>
-                                    <span class="ms-2 text-danger">6 sold in last 16 hours</span>
-                                </div> --}}
+                                    {{-- <span class="ms-2">8 Reviews</span> --}}
+                                    <span class="ms-2 text-danger" id="prdSoldCount"></span>
+                                </div>
+
+                                <div class="product-stock">
+                                    <span> </span>
+                                </div>
 
                                 <div class="product-detail">
-                                    <h4>Product Details :</h4>
+                                    <h4>Mô tả sản phẩm :</h4>
                                     <p id='prdDescription'></p>
                                 </div>
 
                                 <ul class="brand-list">
                                     <li>
                                         <div class="brand-box">
-                                            <h5>Brand:</h5>
+                                            <h5>Thương Hiệu:</h5>
                                             <h6 id = 'prdBrand'></h6>
                                         </div>
-</li>
-
-                                    {{-- <li>
-                                        <div class="brand-box">
-                                            <h5>Product Code:</h5>
-                                            <h6>W0690034</h6>
-                                        </div>
-                                    </li> --}}
-
+                                    </li>
                                     <li>
                                         <div class="brand-box">
-                                            <h5>Category:</h5>
+                                            <h5>Danh Mục:</h5>
                                             <h6 id="prdCategories"></h6>
                                         </div>
                                     </li>
                                 </ul>
 
-                                {{-- Thuốc tính biến thể --}}
-                                {{-- <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="color">Color:</label>
-                                            <select class="form-control" id="color">
-                                                <option selected>Select Color</option>
-                                                <option value="red">Red</option>
-                                                <option value="blue">Blue</option>
-                                                <option value="green">Green</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="ram">RAM:</label>
-                                            <select class="form-control" id="ram">
-                                                <option selected>Select RAM</option>
-                                                <option value="4gb">4GB</option>
-                                                <option value="8gb">8GB</option>
-                                                <option value="16gb">16GB</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div> --}}
-                                {{-- <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label for="screen">Screen Size:</label>
-                                            <select class="form-control" id="screen">
-                                                <option selected>Select Screen Size</option>
-                                                <option value="13inch">13 inch</option>
-<option value="13inch">13 inch</option>
-                                                <option value="15inch">15 inch</option>
-                                                <option value="17inch">17 inch</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div> --}}
                                 <div id="productVariants">
 
                                 </div>
@@ -766,12 +717,11 @@
                                         <input type="hidden" name="product_id" id="cartProductId">
                                         <input type="hidden" name="product_variant_id" id="cartProductVariantId">
                                         <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="btn btn-md add-cart-button icon">Add To
-                                            Cart</button>
+                                        <button type="submit" class="btn btn-md add-cart-button icon">Thêm Vào giỏ hàng</button>
                                     </form>
                                     <button onclick="location.href = 'product-left.html';"
                                         class="btn theme-bg-color view-button icon text-white fw-bold btn-md">
-                                        View More Details</button>
+                                        Xem chi tiết</button>
                                 </div>
                             </div>
                         </div>
@@ -786,6 +736,15 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+
+         // Hàm định dạng giá tiền sang VNĐ
+         function formatPrice(price) {
+            const number = parseFloat(price) // Chuyển đổi giá sang số thực
+            return isNaN(number) ? "0 đ" : number.toLocaleString('vi-VN', { // Định dạng số sang VNĐ
+                style: 'currency',
+                currency: 'VND'
+            })
+        }
         // sửa lại script để phù hợp với làm giỏ hàng
 
         $(document).ready(function() {
@@ -817,14 +776,36 @@
 
                         // Cập nhật thông tin sản phẩm
                         $('#prdName').text(response.name).data('id', response.id);
-                        $('#prdPrice').text(response.price).data('default-price', response
+                        $('#prdPrice').text(formatPrice(response.price)).data('default-price', response
                             .price);
-                        $('#prdDescription').text(response.description);
+                        $('#prdDescription').text(response.short_description);
                         $('#prdThumbnail').attr('src', response.thumbnail).data(
                             'default-thumbnail', response.thumbnail);
                         $('#prdBrand').text(response.brand);
                         $('#prdCategories').text(response.categories);
                         $('#productVariants').empty();
+
+                         // Xử lý rating (start)
+                         const avgRating = response.avgRating ||
+                            0
+                        $('#prdRating ul.rating').html(
+                            Array.from({
+                                    length: 5
+                                }, (_, i) => // Tạo mảng 5 phần tử để lặp qua 5 ngôi sao
+                                    `<li><i data-feather="star" class="${i < avgRating ? 'fill' : ''}"></i></li>` // Tạo thẻ <li> chứa icon star,
+                            ).join('') // Chuyển mảng thành chuỗi HTML
+                        )
+                        feather
+                            .replace() // loai lại idcon start
+
+                       // Hiển thị số lượng đã bán
+                        var soldCountText = response.sold_count ? `Đã bán (${response.sold_count})` : "Đã bán (0)";
+                        $('#prdSoldCount').text(soldCountText);
+
+                        // Hiển thị số lượng tồn kho
+                        var stockQuantityText = response.stock_quantity ? `Kho: ${response.stock_quantity}` : "Kho: 0";
+                        $('.product-stock span').text(stockQuantityText);
+
                         productVariantsData = {};
 
                         if (response.productVariants && response.productVariants.length > 0) {
