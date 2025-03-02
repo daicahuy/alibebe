@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Client;
 use App\Http\Controllers\Controller;
 use App\Services\Web\Client\CartItemService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CartItemController extends Controller
 {
@@ -30,6 +31,21 @@ class CartItemController extends Controller
             'quantity' => 'required|integer|min:1'
         ]);
     
+        // Kiểm tra tồn kho từ bảng product_stocks
+        $stock = DB::table('product_stocks')
+            ->where(function ($query) use ($data) {
+                $query->where('product_id', $data['product_id']);
+                if (!empty($data['product_variant_id'])) {
+                    $query->where('product_variant_id', $data['product_variant_id']);
+                }
+            })
+            ->value('stock');
+    
+        // Nếu không có stock hoặc stock < số lượng cần mua, báo lỗi
+        if (!$stock || $stock < $data['quantity']) {
+            return redirect()->back()->with('error', 'Sản phẩm không đủ hàng trong kho!');
+        }
+    
         // Nhận kết quả từ Service
         $result = $this->cartItemService->addToCart($data);
     
@@ -40,6 +56,7 @@ class CartItemController extends Controller
     
         return redirect()->back()->with('success', 'Sản phẩm đã được thêm vào giỏ hàng!');
     }
+    
     
     
     public function delete(Request $request)

@@ -246,6 +246,7 @@
                                     <tr class="product-box-contain" data-id="{{ $cartItem->id }}"
                                         data-product-id="{{ $cartItem->product->id ?? '' }}"
                                         data-product-variant-id="{{ $cartItem->productVariant->id ?? '' }}">
+
                                         <td class="product-detail">
                                             <div class="product border-0">
                                                 <div class="custom-control custom-checkbox">
@@ -403,7 +404,7 @@
                     <div class="summery-header">
                         <h3>Hóa đơn</h3>
                     </div>
-                   
+
                     <ul class="summery-total">
                         <li class="list-total border-top-0">
                             <h4>Tổng tiền</h4>
@@ -423,9 +424,6 @@
             </div>
         </div>
     </div>
-@endsection
-
-@section('modal')
 @endsection
 
 @push('js')
@@ -465,6 +463,7 @@
                 }
 
                 qtyInput.val(qty);
+              // 🔥 Chỉ gọi `updateDropdownCart()` sau khi AJAX trả về kết quả
                 updateCartQuantity(cartItemId, qty, qtyInput);
                 updateCartSession(); // 🔥 Cập nhật session ngay lập tức
 
@@ -518,6 +517,41 @@
             }
 
             // Hàm AJAX cập nhật giỏ hàng
+    
+ function updateDropdownCart(cartItemId, newQty, newSubtotal) {
+    console.log("🔄 Đang cập nhật dropdown cart:", cartItemId, newQty, newSubtotal); // 🔥 Debug
+
+    let dropdownItem = $(".drop-cart[data-id='" + cartItemId + "']");
+    
+    if (dropdownItem.length) {
+        // 🔥 Cập nhật số lượng hiển thị
+        dropdownItem.find(".input-number").text(newQty + " x");
+
+        // 🔥 Kiểm tra nếu `newSubtotal` từ server đã có thì dùng, nếu không thì tự tính lại
+        let totalPrice = parseInt(newSubtotal.replace(/\D/g, "")) || 0;
+
+        dropdownItem.find("h6").html(
+            newQty + " x " + totalPrice.toLocaleString("vi-VN") + "đ"
+        );
+
+        console.log("✅ Dropdown cart đã cập nhật:", dropdownItem.html()); // Kiểm tra DOM có đổi chưa
+    } else {
+        console.log("❌ Không tìm thấy .drop-cart[data-id='" + cartItemId + "']");
+    }
+}
+function updateDropdownTotal() {
+    let totalSum = 0;
+
+    $(".drop-cart").each(function() {
+        let qty = parseInt($(this).find(".input-number").text()) || 1;
+        let price = parseInt($(this).find(".sale_price").val()) || 0;
+
+        totalSum += qty * price;
+    });
+
+    $(".total-dropdown-price").text(totalSum.toLocaleString("vi-VN") + "đ");
+}
+            // Hàm AJAX cập nhật giỏ hàng
             function updateCartQuantity(cartItemId, newQty, qtyInput) {
                 $.ajax({
                     url: "{{ route('cart.update') }}",
@@ -528,10 +562,12 @@
                         quantity: newQty
                     },
                     success: function(response) {
+                        console.log("Response từ server:", response); 
                         if (response.success) {
                             qtyInput.closest("tr").find(".subtotal h5").text(response.newSubtotal);
-                            updateTotalPrice
-                                (); // 🔥 Gọi lại để cập nhật tổng tiền sau khi thay đổi số lượng
+                            updateTotalPrice(); 
+                            updateDropdownCart(cartItemId, qty, response.newSubtotal);
+                            updateDropdownTotal();
                         }
                     },
                     error: function() {
@@ -546,6 +582,7 @@
             }
 
 
+         
 
             // tính tổng tiền
             function updateIdsToDelete() {

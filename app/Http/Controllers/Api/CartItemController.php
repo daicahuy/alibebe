@@ -91,54 +91,53 @@ class CartItemController extends Controller
 
     public function saveSession(Request $request)
     {
-        $selectedProducts = [];
-
-        if (!empty($request->selectedProducts)) {
-            foreach ($request->selectedProducts as $product) {
-                // Xử lý ảnh để loại bỏ URL đầy đủ
-                $imagePath = $product['image'] ?? 'products/default.jpg';
-
-                if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
-                    $imagePath = parse_url($imagePath, PHP_URL_PATH); // Lấy phần đường dẫn
-                    $imagePath = ltrim(str_replace('/storage/', '', $imagePath), '/'); // Loại bỏ /storage/
-                }
-
-
-                Log::info('Original Image Path: ' . ($product['image'] ?? 'NULL'));
-                Log::info('Final Image Path: ' . $imagePath);
-                $selectedProducts[] = [
-                    'id' => $product['id'] ?? null,
-                    'product_id' => $product['product_id'] ?? null,
-                    'product_variant_id' => $product['product_variant_id'] ?? null,
-                    'name' => $product['name'] ?? 'Sản phẩm không xác định',
-                    'name_variant' => $product['name_variant'] ?? "Không có biến thể",
-                    'image' => $imagePath,
-                    'quantity' => $product['quantity'] ?? null,
-                    'quantity_variant' => $product['quantity_variant'] ?? null,
-                    'price' => $product['price'] ?? 0,
-                    'old_price' => isset($product['old_price']) ? $product['old_price'] : null,
-                    'price_variant' => $product['price_variant'] ?? 0,
-                    'old_price_variant' => isset($product['old_price_variant']) ? $product['old_price_variant'] : null,
-                ];
-            }
-
-    // 🔥 XÓA SESSION CŨ TRƯỚC KHI LƯU DỮ LIỆU MỚI
-    session()->forget('selectedProducts');
-
-            session(['selectedProducts' => $selectedProducts]);
-            session(['totalPrice' => $request->total ?? 0]);
+        if (empty($request->selectedProducts)) {
+            session()->forget('selectedProducts');
+            session()->forget('total');
+            session()->forget('cartHeader'); // ❗ Xóa session DropCart khi vào thanh toán
+    
             return response()->json([
-                'message' => 'Giỏ hàng đã được lưu vào session!',
-                'sessionData' => session('selectedProducts'),
-                'total' => session('totalPrice')
+                'message' => 'Giỏ hàng trống, session đã được xoá!',
+                'sessionData' => session('selectedProducts', []),
+                'total' => session('total', 0)
             ]);
         }
-
+    
+        session()->forget('selectedProducts'); // ❗ Xóa session cũ trước khi lưu mới
+        session()->forget('cartHeader'); // ❗ Đảm bảo DropCart không còn dữ liệu
+    
+        $selectedProducts = [];
+    
+        foreach ($request->selectedProducts as $product) {
+            $selectedProducts[] = [
+                'id' => $product['id'] ?? null,
+                'product_id' => $product['product_id'] ?? null,
+                'product_variant_id' => $product['product_variant_id'] ?? null,
+                'name' => $product['name'] ?? 'Sản phẩm không xác định',
+                'name_variant' => $product['name_variant'] ?? "Không có biến thể",
+                'image' => $product['image'] ?? 'products/default.jpg',
+                'quantity' => $product['quantity'] ?? null,
+                'quantity_variant' => $product['quantity_variant'] ?? null,
+                'price' => $product['price'] ?? 0,
+                'old_price' => isset($product['old_price']) ? $product['old_price'] : null,
+                'price_variant' => $product['price_variant'] ?? 0,
+                'old_price_variant' => isset($product['old_price_variant']) ? $product['old_price_variant'] : null,
+            ];
+        }
+    
+        session(['selectedProducts' => $selectedProducts]);
+        session(['totalPrice' => $request->total ?? 0]);
+    
         return response()->json([
-            'message' => 'Không có sản phẩm nào được chọn!',
-            'sessionData' => []
-        ], 400);
+            'message' => 'Giỏ hàng đã được lưu vào session!',
+            'sessionData' => session('selectedProducts'),
+            'total' => session('totalPrice')
+        ]);
     }
+    
+
+    
+
 
 
 

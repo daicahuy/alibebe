@@ -66,6 +66,7 @@ Route::post('/cart/update', [ApiCartItemController::class, 'update'])->name('car
 Route::post('/cart/save-session', [ApiCartItemController::class, 'saveSession'])->name('cart.saveSession');
 
 
+
 Route::post('/comments', [DetailProductController::class, 'store'])->middleware('auth');
 Route::post('/comment-replies', [DetailProductController::class, 'storeReply'])->middleware('auth');
 
