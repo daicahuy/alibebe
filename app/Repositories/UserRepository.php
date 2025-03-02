@@ -33,7 +33,7 @@ class UserRepository extends BaseRepository
             5 => [701, 850],     // Gold (701 - 850 điểm, tương ứng 71 - 85 lần mua hàng)
             6 => [851, 999],     // Platinum (851 - 999 điểm, tương ứng 86 - 99 lần mua hàng)
             7 => [1000, PHP_INT_MAX] // Diamond (từ 1000 điểm trở lên, không giới hạn tối đa)
-        ];        
+        ];
 
         // Kiểm tra xem có nhóm loyalty_points tương ứng không
         if (array_key_exists($userGroup, $loyaltyRanges)) {
@@ -41,6 +41,27 @@ class UserRepository extends BaseRepository
         }
 
         return collect(); // Trả về collection rỗng nếu không có nhóm phù hợp
+    }
+
+    public function getUserRank($loyaltyPoints)
+    {
+        $ranks = [
+            'Newbie'   => [0, 100],
+            'Iron'     => [101, 300],
+            'Bronze'   => [301, 500],
+            'Silver'   => [501, 700],
+            'Gold'     => [701, 850],
+            'Platinum' => [851, 999],
+            'Diamond'  => [1000, PHP_INT_MAX],
+        ];
+
+        foreach ($ranks as $rank => [$min, $max]) {
+            if ($loyaltyPoints >= $min && $loyaltyPoints <= $max) {
+                return $rank;
+            }
+        }
+
+        return 'Newbie';
     }
 
     public function getUserCustomer(Request $request, $limit)
@@ -192,5 +213,4 @@ class UserRepository extends BaseRepository
     {
         return $this->model->whereIn('id', $ids)->update(['status' => $status]);
     }
-
 }

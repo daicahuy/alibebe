@@ -243,19 +243,7 @@
                                             <i data-feather="user"></i>
                                         </div>
 
-                                        @auth
-                                            <div class="delivery-detail">
-                                                <h6>{{ __('message.hello') }},</h6>
-                                                <h5>{{ Auth::user()->fullname }}</h5>
-                                            </div>
-                                        @endauth
-
                                     </div>
-                                    @auth
-                                        @if (!Auth::user()->email_verified_at)
-                                            <p style="color: red">Tài khoản chưa xác minh</p>
-                                        @endif
-                                    @endauth
 
                                     <div class="onhover-div onhover-div-login">
 
@@ -266,12 +254,28 @@
                                                         href="{{ route('account.dashboard') }}">{{ __('form.accounts') }}</a>
                                                 </li>
                                                 <li class="product-box-contain">
+                                                    <a href="{{ route('listOrder') }}">Đơn hàng</a>
+                                                </li>
+                                                <li class="product-box-contain">
                                                     <a
                                                         href="{{ route('api.auth.logout') }}">{{ __('form.auth.logout') }}</a>
                                                 </li>
-
-
                                             </ul>
+                                        @endauth
+
+                                        @auth
+                                            @if (!Auth::user()->email_verified_at)
+                                                <div class="mt-2 user-box-name">
+                                                    <p class="mt-2" style="color: red">Tài khoản chưa xác minh</p>
+                                                    <button
+                                                        class="btn btn-sm cart-button theme-bg-color
+                                                text-white product-box-contain"
+                                                        id="verifyButton">Gửi lại mã xác
+                                                        minh</button>
+                                                    <p id="statusText"></p>
+                                                    <p id="timer"></p>
+                                                </div>
+                                            @endif
                                         @endauth
 
                                         @guest
@@ -1198,3 +1202,91 @@
         </div>
     </div>
 </header>
+@push('js')
+    <script>
+        let countdown = 60;
+        let timerInterval;
+
+        $(document).ready(function() {
+            // Hàm xác minh email
+            $('#verifyButton').on('click', function() {
+                const userId = {{ Auth::id() }};
+                const csrfToken = $('meta[name="csrf-token"]').attr('content');
+                const statusTextElement = $('#statusText');
+                const timerElement = $('#timer');
+                const verifyButton = $('#verifyButton');
+
+                // Hiển thị trạng thái "Đang gửi..." và bắt đầu đếm ngược ngay lập tức
+                statusTextElement.text("Đang gửi...");
+                startCountdown(timerElement, verifyButton); // Bắt đầu đếm ngược ngay khi nhấn
+
+                $.ajax({
+                    url: `{{ route('api.auth.verification.verify', ['id' => ':userId']) }}`
+                        .replace(':userId', userId),
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken // Thêm CSRF token
+                    },
+                    success: function(data) {
+                        if (data.status) {
+                            // Hiển thị thông báo thành công
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Gửi Mã Thành công!',
+                                text: 'Vui lòng kiểm tra email của bạn!',
+                                timer: 3000,
+                                showConfirmButton: false
+                            });
+
+                            // Xóa trạng thái "Đang gửi..." sau khi thành công
+                            statusTextElement.text("");
+                        } else {
+                            // Hiển thị thông báo lỗi nếu có
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi!',
+                                text: data.message
+                            });
+
+                            // Xóa trạng thái "Đang gửi..." nếu có lỗi
+                            statusTextElement.text("");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Hiển thị thông báo lỗi
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Có lỗi xảy ra',
+                            text: 'Vui lòng thử lại sau.'
+                        });
+
+                        // Xóa trạng thái "Đang gửi..." nếu có lỗi
+                        statusTextElement.text("");
+                        console.error('Error:', xhr.responseText);
+                    }
+                });
+            });
+        });
+
+        // Hàm đếm ngược và vô hiệu hóa nút gửi lại mã
+        function startCountdown(timerElement, verifyButton) {
+            verifyButton.prop('disabled', true); // Vô hiệu hóa nút sau khi nhấn
+            countdown = 60; // Reset lại thời gian đếm ngược
+
+            // Đảm bảo xóa bộ đếm trước khi tạo bộ mới
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            timerInterval = setInterval(function() {
+                countdown--;
+                timerElement.text(`Bạn có thể gửi lại sau ${countdown} giây.`);
+                if (countdown <= 0) {
+                    clearInterval(timerInterval); // Dừng đếm ngược
+                    timerElement.text('');
+                    verifyButton.prop('disabled', false); // Kích hoạt lại nút sau khi 60 giây
+                }
+            }, 1000);
+        }
+    </script>
+@endpush

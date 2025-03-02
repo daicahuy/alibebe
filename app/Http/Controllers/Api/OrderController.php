@@ -44,8 +44,9 @@ class OrderController extends Controller
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 10);
         $user_id = $request->input('user_id');
+        $search = $request->input('search');
 
-        $orders = $this->orderService->getOrdersByUser($filters, $page, $limit, $user_id);
+        $orders = $this->orderService->getOrdersByUser($filters, $page, $limit, $user_id, $search);
 
         return response()->json([
             'orders' => $orders->items(),

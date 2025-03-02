@@ -48,7 +48,7 @@ Route::get('/categories/{category?}', [ListCategoriesController::class, 'index']
 // Route::get('/product/{id}', [ListCategoriesController::class, 'detailModal']);
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
-Route::get('/list-order', [ListOrderController::class, 'index'])->middleware(['auth'])->name('index');
+Route::get('/list-order', [ListOrderController::class, 'index'])->middleware(['auth'])->name('listOrder');
 
 Route::post('/payment/vnpay', [VNPayController::class, 'createPayment'])->middleware(["web"])->name('vnpay.create');
 Route::get('/payment/vnpay/return', [VNPayController::class, 'handleReturn'])->middleware(["web"])->name('vnpay.return');
@@ -91,7 +91,7 @@ Route::name('account.')
         Route::delete('/delete-address/{id}', 'deleteAddress')->name('account.delete-address');
 
         //coupon
-        Route::get('/coupon','coupon')->name('coupon');
+        Route::get('/coupon', 'coupon')->name('coupon');
 
         //dashboard
         Route::get('/', 'dashboard')->name('dashboard');
@@ -99,11 +99,11 @@ Route::name('account.')
         //order
         Route::get('/order-history', 'order')->name('order-history');
         Route::get('/order-history/{id}', 'orderHistoryDetail')->name('order-history-detail');
-        
+
         //wishlist
         Route::get('/wishlist', 'wishlist')->name('wishlist');
-        Route::post('/add/{id}','addWishlist')->name('add');
-        Route::delete('/remove-wishlist/{id}','removeWishlist')->name('remove-wishlist');
+        Route::post('/wishlist/toggle/{id}', 'toggleWishlist')->name('wishlist-toggle');
+        Route::delete('/remove-wishlist/{id}', 'removeWishlist')->name('remove-wishlist');
     });
 
 /*--------------AUTHENTICATION--------------*/
@@ -119,6 +119,7 @@ Route::name('auth.')
 
 
         Route::name('customer.')
+            ->middleware(["guest"])
             ->controller(AuthCustomerController::class)
             ->group(function () {
 
@@ -252,7 +253,7 @@ Route::prefix('/admin')
             Route::post('/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
 
 
-            });
+        });
 
         // ATTRIBUTES
         Route::prefix('/attributes')
@@ -423,11 +424,11 @@ Route::prefix('/admin')
             ->controller(ReviewController::class)
             ->group(function () {
 
-                Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
-                Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
-                
-            });
+            Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
+
+        });
 
         // COUPONS
         Route::prefix('/coupons')

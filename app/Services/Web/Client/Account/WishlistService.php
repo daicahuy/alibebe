@@ -82,4 +82,12 @@ class WishlistService
             ];
         }
     }
+
+    public function findWishlistItem($productId) {
+        $userLogin = Auth::id();
+    
+        // Kiểm tra sản phẩm đã có trong wishlist của người dùng hay chưa
+        return $this->wishlistRepository->findByUserAndProduct($userLogin, $productId);
+    }
+    
 }

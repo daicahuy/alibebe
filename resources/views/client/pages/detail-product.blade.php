@@ -284,14 +284,13 @@
 
 
                                 <div class="buy-box">
-
-                                    <form action="{{ route('account.add', $detail->id) }}" method="POST">
-                                        @csrf
-
-                                        <button class="btn btn-sm btn-danger " type="submit"><i
-                                                data-feather="heart"></i> Add To Wishlist</button>
-
-                                    </form>
+                                    <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
+                                        <a href="javascript:void(0);" class="notifi-wishlist wishlist-toggle"
+                                            data-product-id="{{ $detail->id }}">
+                                            <i data-feather="heart" class="wishlist-icon"></i>
+                                            <span>Add To Wishlist</span>
+                                        </a>
+                                    </li>
 
                                 </div>
 
@@ -1918,6 +1917,61 @@
                     let timeInterval = setInterval(updateClock, 1000);
                 }
             }
+        });
+
+        $(document).on('click', '.wishlist-toggle', function(e) {
+            e.preventDefault();
+
+            var productId = $(this).data('product-id'); // Lấy product ID từ thuộc tính data-product-id
+            var icon = $(this).find('.wishlist-icon'); // Chỉ chọn icon trong element hiện tại
+
+            $.ajax({
+                url: `/account/wishlist/toggle/${productId}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                data: {
+                    product_id: productId
+                },
+                success: function(data) {
+                    if (data.result) {
+                        if (data.action === 'added') {
+                            icon.css('color', 'red'); // Đổi màu khi thêm vào wishlist
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã thêm!',
+                                text: 'Sản phẩm đã được thêm vào danh sách yêu thích!',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else if (data.action === 'removed') {
+                            icon.css('color', 'black'); // Đổi màu khi xóa khỏi wishlist
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã xóa!',
+                                text: 'Sản phẩm đã bị xóa khỏi danh sách yêu thích!',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: data.message ||
+                                'Có lỗi xảy ra, vui lòng thử lại!',
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: 'Có lỗi xảy ra, vui lòng thử lại!',
+                    });
+                }
+            });
         });
     </script>
     <!-- JSON chứa danh sách biến thể sản phẩm -->

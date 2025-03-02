@@ -67,7 +67,6 @@ class UpdateCouponRequest extends FormRequest
                 'nullable',
                 'integer',
                 'min:0',
-                'max:100'
             ],
             'usage_count' => [
                 'nullable',
@@ -109,9 +108,6 @@ class UpdateCouponRequest extends FormRequest
                 'after_or_equal:start_date'
             ],
             'coupon_restrictions.min_order_value' => [
-                'nullable',
-                'numeric',
-                'min:0',
                 function ($attribute, $value, $fail) {
                     $discountType = request('discount_type');
                     $discountValue = (float) request('discount_value'); // % giảm giá
@@ -123,11 +119,14 @@ class UpdateCouponRequest extends FormRequest
                             $fail('Khi giảm giá vượt quá 20%, yêu cầu phải có giá trị đơn hàng tối thiểu.');
                         }
                     }
-                }
+                },
+                'required',
+                'numeric',
+                'min:0'
             ],
 
             'coupon_restrictions.max_discount_value' => [
-                'nullable',
+                'required_if:discount_type,' . CouponDiscountType::PERCENT,
                 'numeric',
                 'min:0',
                 function ($attribute, $value, $fail) {

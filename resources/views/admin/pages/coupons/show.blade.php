@@ -81,7 +81,7 @@
                                 <div class="col-sm-6">
                                     <label for="status" class="form-label">{{ __('form.coupon.is_expired') }}:</label>
                                     <input type="text" id="status" class="form-control"
-                                        value="{{ $coupon->is_active ? 'Có Thời Hạn' : 'Không' }}" readonly>
+                                        value="{{ $coupon->is_expired == 1 ? 'Có Thời Hạn' : 'Không' }}" readonly>
                                 </div>
                             </div>
 

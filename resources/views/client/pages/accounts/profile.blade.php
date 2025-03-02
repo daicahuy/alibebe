@@ -1,11 +1,5 @@
 @extends('client.pages.accounts.layouts.master')
 
-@push('css_library')
-    <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-@endpush
-
-
 @section('content_account')
     <div class="dashboard-profile">
         <div class="title">
@@ -222,18 +216,29 @@
                                 </div>
 
                                 <!-- Address -->
-                                <div class="form-floating theme-form-floating mt-3">
-                                    <select name="address" id="address" class="form-control">
-                                        <option value="" selected>{{ __('Chọn địa chỉ mặc định') }}</option>
-                                        @foreach ($user->addresses as $address)
-                                            <option value="{{ $address->id }}"
-                                                {{ $user->defaultAddress && $user->defaultAddress->id == $address->id ? 'selected' : '' }}>
-                                                {{ $address->address }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <label for="address">{{ __('form.user_addresses') }}</label>
-                                </div>
+                                @if ($user->addresses->isEmpty())
+                                    <!-- Hiển thị ô nhập địa chỉ nếu không có địa chỉ nào -->
+                                    <div class="form-floating theme-form-floating mt-3">
+                                        <input type="text" name="new_address" class="form-control"
+                                            placeholder="Nhập địa chỉ mới" value="{{ old('new_address') }}">
+                                        <label for="new_address">{{ __('Nhập địa chỉ mới') }}</label>
+                                    </div>
+                                @else
+                                    <!-- Hiển thị select nếu đã có địa chỉ -->
+                                    <div class="form-floating theme-form-floating mt-3">
+                                        <select name="address" id="address" class="form-control">
+                                            <option value="" selected>{{ __('Chọn địa chỉ mặc định') }}</option>
+                                            @foreach ($user->addresses as $address)
+                                                <option value="{{ $address->id }}"
+                                                    {{ $user->defaultAddress && $user->defaultAddress->id == $address->id ? 'selected' : '' }}>
+                                                    {{ $address->address }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <label for="address">{{ __('form.user_addresses') }}</label>
+                                    </div>
+                                @endif
+
                                 <!-- Submit and Cancel Buttons -->
                                 <div class="modal-footer mt-3">
                                     <button type="button" class="btn btn-animation btn-md fw-bold"
@@ -287,14 +292,10 @@
     </div>
 @endsection
 
-@push('js_library')
-    <!-- Flatpickr JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-@endpush
-
 @push('js')
     <script>
         $(document).ready(function() {
+
             var datePicker = $('#birthday_input').flatpickr({
                 dateFormat: 'Y-m-d',
                 allowInput: true,
