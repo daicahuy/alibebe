@@ -453,9 +453,10 @@ public function getPopularProducts()
                 'products.sale_price',
                 DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
                 DB::raw('COUNT(oi2.product_id) as frequency'),
-                'products.stock_quantity'
+                DB::raw('products.views as views_count'),
+                DB::raw('SUM(oi2.quantity + COALESCE(oi2.quantity_variant, 0)) as total_sold'),
             )
-            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price', 'products.stock_quantity')
+            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price')
             ->orderByDesc('frequency')
             ->limit(24)
             ->get();
