@@ -251,14 +251,14 @@
                                                                     value="{{ $cartItem->productVariant?->sale_price > 0 ? $cartItem->productVariant->sale_price : null }}">
                                                                 <h6><span class="input-number" name="quantity"
                                                                         data-max-stock="{{ $cartItem->productVariant?->productStock?->stock ?? ($cartItem->product?->productStock?->stock ?? 1) }}">{{ $cartItem->quantity }}
-                                                                        x</span>
+                                                                        </span>x
                                                                     {{ number_format($salePrice, 0, ',', '.') }}đ
                                                                     @if ($salePrice < $price)
                                                                         <del
                                                                             class="text-content">{{ number_format($price, 0, ',', '.') }}đ</del>
                                                                     @endif
                                                                 </h6>
-                                                                {{-- <input type="hidden" class="sale_price" value="{{ $salePrice }}" > --}}
+                                                                <input type="hidden" class="sale_price" value="{{ $salePrice }}" >
 
 
                                                                 <form method="POST"

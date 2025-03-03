@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use ApiBaseController;
 use App\Http\Controllers\Controller;
 use App\Models\CartItem;
+use App\Services\Web\Client\CartItemService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -18,6 +19,11 @@ class CartItemController extends Controller
     /**
      * Display a listing of the resource.
      */
+    protected $cartItemService;
+    public function __construct(CartItemService $cartItemService)
+    {
+        $this->cartItemService = $cartItemService;
+    }
     public function index()
     {
         //
@@ -65,6 +71,8 @@ class CartItemController extends Controller
             $cartItem->quantity = $request->quantity;
             $cartItem->save();
 
+          
+
             // Kiểm tra sản phẩm có biến thể hay không
             if ($cartItem->productVariant) {
                 // Nếu có biến thể, ưu tiên sale_price, nếu null thì lấy price
@@ -79,7 +87,8 @@ class CartItemController extends Controller
 
             return response()->json([
                 'success' => true,
-                'newSubtotal' => $newSubtotal
+                'newSubtotal' => $newSubtotal,
+                // 'cartItem' => $data
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
@@ -91,23 +100,25 @@ class CartItemController extends Controller
 
     public function saveSession(Request $request)
     {
+        $selectedProducts = [];
+
+
         if (empty($request->selectedProducts)) {
             session()->forget('selectedProducts');
             session()->forget('total');
             session()->forget('cartHeader'); // ❗ Xóa session DropCart khi vào thanh toán
-    
+
             return response()->json([
                 'message' => 'Giỏ hàng trống, session đã được xoá!',
                 'sessionData' => session('selectedProducts', []),
                 'total' => session('total', 0)
             ]);
         }
-    
+
         session()->forget('selectedProducts'); // ❗ Xóa session cũ trước khi lưu mới
         session()->forget('cartHeader'); // ❗ Đảm bảo DropCart không còn dữ liệu
-    
-        $selectedProducts = [];
-    
+
+
         foreach ($request->selectedProducts as $product) {
             $selectedProducts[] = [
                 'id' => $product['id'] ?? null,
@@ -124,20 +135,15 @@ class CartItemController extends Controller
                 'old_price_variant' => isset($product['old_price_variant']) ? $product['old_price_variant'] : null,
             ];
         }
-    
         session(['selectedProducts' => $selectedProducts]);
         session(['totalPrice' => $request->total ?? 0]);
-    
+
         return response()->json([
             'message' => 'Giỏ hàng đã được lưu vào session!',
             'sessionData' => session('selectedProducts'),
-            'total' => session('totalPrice')
+            'total' => session('totalPrice'),
         ]);
     }
-    
-
-    
-
 
 
 
