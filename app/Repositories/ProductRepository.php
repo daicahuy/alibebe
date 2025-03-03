@@ -415,8 +415,9 @@ public function getPopularProducts()
                 'products.sale_price',
                 DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
                 DB::raw('COUNT(oi2.product_id) as frequency'),
+                'products.stock_quantity'
             )
-            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price')
+            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price', 'products.stock_quantity')
             ->orderByDesc('frequency')
             ->limit(24)
             ->get();
@@ -791,38 +792,36 @@ public function getPopularProducts()
 
 
     public function detailProduct(int $id, array $columns = ['*'])
-    {
-        return Product::select($columns)
-            ->with([
-                'productGallery',
-                'productAccessories',
-                'reviews.user',
-                'reviews.ReviewMultimedia',
-                'attributeValues.attribute',
-                'productVariants.productStock',
-                'productStock',
-                'productVariants.attributeValues.attribute',
-                'comments.commentReplies',
-            ])
-            ->with(
-                [
-                    'productVariants' => function ($query) {
-                        $query->with([
-                            'attributeValues' => function ($query) {
-                                $query->with('attribute');
-                            }
-                        ]);
-                    },
-                    'attributeValues' => function ($query) {
-                        $query->whereHas('attribute', function ($q) {
-                            $q->where('is_variant', '0');
-                        });
-                    },
-                ]
-            )
-            ->where('is_active', 1)
-            ->findOrFail($id);
-    }
+{
+    return Product::select($columns)
+        ->with([
+            'productGallery',
+            'productAccessories',
+            'reviews.user',
+            'reviews.ReviewMultimedia',
+            'attributeValues.attribute',
+            'productVariants.productStock',
+            'productStock',
+            'productVariants.attributeValues.attribute',
+            'comments.commentReplies',
+        ])
+        ->with(
+            [
+                'productVariants' => function ($query) {
+                    $query->where('is_active', 1)->with(['attributeValues' => function ($query) {
+                        $query->with('attribute');
+                    }]);
+                },
+                'attributeValues' => function ($query) {
+                    $query->whereHas('attribute', function ($q) {
+                        $q->where('is_variant', '0');
+                    });
+                },
+            ]
+        )
+        ->where('is_active', 1)
+        ->findOrFail($id);
+}
 
     public function getProductAttributes(Product $product)
     {
@@ -899,7 +898,6 @@ public function getPopularProducts()
             ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $comparePrice]) // Vẫn sort ban đầu trên 'price' của bảng 'products'
             ->limit($limit)
             ->get();
-
         // Lọc lại và sắp xếp sản phẩm dựa trên giá ĐẠI DIỆN (bao gồm giá biến thể nhỏ nhất)
         $relatedProducts = $relatedProducts->filter(function ($relatedProduct) use ($comparePrice, $getProductRepresentativePrice) {
             $relatedProductPrice = $getProductRepresentativePrice($relatedProduct);
