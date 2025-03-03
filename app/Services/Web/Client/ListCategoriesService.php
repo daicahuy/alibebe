@@ -44,16 +44,21 @@ class ListCategoriesService
         $categories = $this->categoryRepo->getAllParentCate();
 
         foreach ($categories as $category) {
+            // Đếm sản phẩm active của danh mục cha
+            $parentProductCount = $category->products()
+                ->where('is_active', 1)
+                ->count();
+    
+            // Đếm sản phẩm active từ các danh mục con
             $childProductCount = 0;
-            // $parentProductCount = $category->products()->count();
-            // $childProductCount += $parentProductCount;
             foreach ($category->categories as $childCategory) {
-                if ($childCategory->is_active == 1) {
-                    $childProductCount += $childCategory->products()->count();
-                }
-                $category->child_products_count = $childProductCount;
-                // $category->products_count = $parentProductCount;
+                $childProductCount += $childCategory->products()
+                    ->where('is_active', 1)
+                    ->count();
             }
+    
+            $category->products_count = $parentProductCount;
+            $category->child_products_count = $childProductCount;
         }
 
         return $categories;
@@ -87,60 +92,61 @@ class ListCategoriesService
 
 
     public function detailModal($id)
-{
-    try {
-        $product = $this->productRepo->detailModal($id) ?? 0;
+    {
+        try {
+            $product = $this->productRepo->detailModal($id) ?? 0;
 
-        if (!$product) {
-            throw new ModelNotFoundException('Không tìm thấy sản phẩm.');
-        }
-        $avgRating = $product->reviews->avg('rating');
+            if (!$product) {
+                throw new ModelNotFoundException('Không tìm thấy sản phẩm.');
+            }
+            $avgRating = $product->reviews->avg('rating');
 
-        $productVariants = $product->productVariants->map(function ($variant) {
+            $productVariants = $product->productVariants->map(function ($variant) {
+                return [
+                    'id' => $variant->id,
+                    'price' => $variant->price,
+                    'sale_price' => $variant->sale_price,
+                    'display_price' => $variant->display_price, // **LẤY display_price TỪ REPOSITORY**
+                    'original_price' => $variant->original_price, // **LẤY original_price TỪ REPOSITORY**
+                    'thumbnail' => Storage::url($variant->thumbnail),
+                    'is_active' => $variant->is_active,
+                    'attribute_values' => $variant->attributeValues->map(function ($attributeValue) {
+                        return [
+                            'id' => $attributeValue->id,
+                            'attribute_value' => $attributeValue->value,
+                            'attributes_name' => $attributeValue->attribute->name,
+                            'attributes_slug' => $attributeValue->attribute->slug,
+                        ];
+                    }),
+                    'product_stock' => $variant->productStock ?
+                        [
+                            "product_id" => $variant->productStock->product_id,
+                            'product_variant_id' => $variant->productStock->product_variant_id,
+                            'stock' => $variant->productStock->stock,
+                        ] : [],
+                ];
+            });
+
             return [
-                'id' => $variant->id,
-                'price' => $variant->price,
-                'sale_price' => $variant->sale_price,
-                'display_price' => $variant->display_price, // **LẤY display_price TỪ REPOSITORY**
-                'original_price' => $variant->original_price, // **LẤY original_price TỪ REPOSITORY**
-                'thumbnail' => Storage::url($variant->thumbnail),
-                'attribute_values' => $variant->attributeValues->map(function ($attributeValue) {
-                    return [
-                        'id' => $attributeValue->id,
-                        'attribute_value' => $attributeValue->value,
-                        'attributes_name' => $attributeValue->attribute->name,
-                        'attributes_slug' => $attributeValue->attribute->slug,
-                    ];
-                }),
-                'product_stock' => $variant->productStock ?
-                    [
-                        "product_id" => $variant->productStock->product_id,
-                        'product_variant_id' => $variant->productStock->product_variant_id,
-                        'stock' => $variant->productStock->stock,
-                    ] : [],
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'display_price' => $product->display_price, // **LẤY display_price TỪ REPOSITORY**
+                'original_price' => $product->original_price, // **LẤY original_price TỪ REPOSITORY**
+                'thumbnail' => Storage::url($product->thumbnail),
+                'short_description' => $product->short_description,
+                'categories' => $product->categories->pluck('name')->implode(', '),
+                'brand' => $product->brand ? $product->brand->name : null,
+                'avgRating' => $avgRating,
+                'productVariants' => $productVariants,
+                'sold_count' => $product->sold_count,
+                'is_sale' => $product->is_sale,
             ];
-        });
-
-        return [
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => $product->price,
-            'display_price' => $product->display_price, // **LẤY display_price TỪ REPOSITORY**
-            'original_price' => $product->original_price, // **LẤY original_price TỪ REPOSITORY**
-            'thumbnail' => Storage::url($product->thumbnail),
-            'short_description' => $product->short_description,
-            'categories' => $product->categories->pluck('name')->implode(', '),
-            'brand' => $product->brand ? $product->brand->name : null,
-            'avgRating' => $avgRating,
-            'productVariants' => $productVariants,
-            'sold_count' => $product->sold_count,
-            'is_sale' => $product->is_sale,
-        ];
-    } catch (\Throwable $th) {
-        return response()->json(['error' => $th->getMessage()], 500);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()], 500);
+        }
     }
-}
 
-   
+
 
 }

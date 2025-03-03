@@ -131,7 +131,7 @@ class AttributeValueRepository extends BaseRepository
             // Lọc thêm: Chỉ đếm biến thể có stock > 0
             $q->whereHas('productStock', function ($qStock) {
                 $qStock->where('stock', '>', 0); // Chỉ đếm biến thể có stock > 0
-            });
+            })->where('is_active', 1);
     
             if (!empty($categoryIds)) { // Kiểm tra xem $categoryIds có rỗng không
                 $q->whereHas('product', function ($q2) use ($categoryIds) {
@@ -143,15 +143,15 @@ class AttributeValueRepository extends BaseRepository
         }])->with('attribute');
     
         // 3. Lọc AttributeValue THEO danh mục SAU KHI ĐÃ ĐẾM (để đảm bảo đếm chính xác trên tập AttributeValue đã lọc theo danh mục)
-        if (!empty($categoryIds)) { // Chỉ lọc AttributeValue theo danh mục khi $categoryIds không rỗng
-            $query->whereHas('productVariants', function ($q) use ($categoryIds) {
-                $q->whereHas('product', function ($q2) use ($categoryIds) {
-                    $q2->whereHas('categories', function ($q3) use ($categoryIds) {
-                        $q3->whereIn('categories.id', $categoryIds);
-                    });
-                });
-            });
-        }
+        // if (!empty($categoryIds)) { // Chỉ lọc AttributeValue theo danh mục khi $categoryIds không rỗng
+        //     $query->whereHas('productVariants', function ($q) use ($categoryIds) {
+        //         $q->whereHas('product', function ($q2) use ($categoryIds) {
+        //             $q2->whereHas('categories', function ($q3) use ($categoryIds) {
+        //                 $q3->whereIn('categories.id', $categoryIds);
+        //             });
+        //         });
+        //     });
+        // }
     // dd($query->get());
         return $query->get();
     }
