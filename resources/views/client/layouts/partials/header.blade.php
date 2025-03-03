@@ -267,18 +267,21 @@
                                                     <a
                                                         href="{{ route('api.auth.logout') }}">{{ __('form.auth.logout') }}</a>
                                                 </li>
-
-
                                             </ul>
                                         @endauth
 
                                         @auth
                                             @if (!Auth::user()->email_verified_at)
-                                                <p style="color: red">Tài khoản chưa xác minh</p>
-                                                <button id="verifyButton" onclick="verifyEmail({{ Auth::id() }})">Gửi
-                                                    lại mã
-                                                    xác minh</button>
-                                                <p id="timer"></p>
+                                                <div class="mt-2 user-box-name">
+                                                    <p class="mt-2" style="color: red">Tài khoản chưa xác minh</p>
+                                                    <button
+                                                        class="btn btn-sm cart-button theme-bg-color
+                                                text-white product-box-contain"
+                                                        id="verifyButton">Gửi lại mã xác
+                                                        minh</button>
+                                                    <p id="statusText"></p>
+                                                    <p id="timer"></p>
+                                                </div>
                                             @endif
                                         @endauth
 
@@ -836,65 +839,85 @@
     <script>
         let countdown = 60;
         let timerInterval;
-        const timerElement = document.getElementById('timer');
-        const verifyButton = document.getElementById('verifyButton');
 
-        // Hàm xác minh email
-        function verifyEmail(userId) {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        $(document).ready(function() {
+            // Hàm xác minh email
+            $('#verifyButton').on('click', function() {
+                const userId = {{ Auth::id() }};
+                const csrfToken = $('meta[name="csrf-token"]').attr('content');
+                const statusTextElement = $('#statusText');
+                const timerElement = $('#timer');
+                const verifyButton = $('#verifyButton');
 
-            // Tạo URL từ named route
-            const verifyUrl = `{{ route('api.auth.verification.verify', ['id' => ':userId']) }}`.replace(':userId',
-                userId);
+                // Hiển thị trạng thái "Đang gửi..." và bắt đầu đếm ngược ngay lập tức
+                statusTextElement.text("Đang gửi...");
+                startCountdown(timerElement, verifyButton); // Bắt đầu đếm ngược ngay khi nhấn
 
-            fetch(verifyUrl, {
-                    method: 'GET',
+                $.ajax({
+                    url: `{{ route('api.auth.verification.verify', ['id' => ':userId']) }}`
+                        .replace(':userId', userId),
+                    type: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken, // Thêm CSRF token vào header
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        // Hiển thị thông báo thành công
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Thành công!',
-                            text: data.message,
-                            timer: 3000,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        // Hiển thị thông báo lỗi nếu có
+                        'X-CSRF-TOKEN': csrfToken // Thêm CSRF token
+                    },
+                    success: function(data) {
+                        if (data.status) {
+                            // Hiển thị thông báo thành công
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Gửi Mã Thành công!',
+                                text: 'Vui lòng kiểm tra email của bạn!',
+                                timer: 3000,
+                                showConfirmButton: false
+                            });
+
+                            // Xóa trạng thái "Đang gửi..." sau khi thành công
+                            statusTextElement.text("");
+                        } else {
+                            // Hiển thị thông báo lỗi nếu có
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi!',
+                                text: data.message
+                            });
+
+                            // Xóa trạng thái "Đang gửi..." nếu có lỗi
+                            statusTextElement.text("");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Hiển thị thông báo lỗi
                         Swal.fire({
                             icon: 'error',
-                            title: 'Lỗi!',
-                            text: data.message
+                            title: 'Có lỗi xảy ra',
+                            text: 'Vui lòng thử lại sau.'
                         });
+
+                        // Xóa trạng thái "Đang gửi..." nếu có lỗi
+                        statusTextElement.text("");
+                        console.error('Error:', xhr.responseText);
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Có lỗi xảy ra',
-                        text: 'Vui lòng thử lại sau.'
-                    });
                 });
-        }
+            });
+        });
 
         // Hàm đếm ngược và vô hiệu hóa nút gửi lại mã
-        function startCountdown() {
-            verifyButton.disabled = true; // Vô hiệu hóa nút sau khi nhấn
+        function startCountdown(timerElement, verifyButton) {
+            verifyButton.prop('disabled', true); // Vô hiệu hóa nút sau khi nhấn
             countdown = 60; // Reset lại thời gian đếm ngược
+
+            // Đảm bảo xóa bộ đếm trước khi tạo bộ mới
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
             timerInterval = setInterval(function() {
                 countdown--;
-                timerElement.innerText = `Bạn có thể gửi lại sau ${countdown} giây.`;
+                timerElement.text(`Bạn có thể gửi lại sau ${countdown} giây.`);
                 if (countdown <= 0) {
                     clearInterval(timerInterval); // Dừng đếm ngược
-                    timerElement.innerText = '';
-                    verifyButton.disabled = false; // Kích hoạt lại nút sau khi 60 giây
+                    timerElement.text('');
+                    verifyButton.prop('disabled', false); // Kích hoạt lại nút sau khi 60 giây
                 }
             }, 1000);
         }
