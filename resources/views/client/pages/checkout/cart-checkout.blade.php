@@ -1046,8 +1046,6 @@
             $("#button-confirm-order").on("click", async function() {
 
                 dataSaveOrder.note = $("#noteOrder").val();
-                console.log("dataSaveOrder:", dataSaveOrder);
-                return;
                 if ($("input[name='payment-type']:checked").val() == 1) {
 
                     //chưa thanh toán
