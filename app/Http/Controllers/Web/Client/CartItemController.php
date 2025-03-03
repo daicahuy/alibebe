@@ -81,5 +81,11 @@ class CartItemController extends Controller
         
     }
     
-    
+    public function countCart() {
+        $data = $this->cartItemService->getAllCartItem();
+        return response()->json([
+            'code' => 200,
+            'data' => $data
+        ]);
+    }
 }
