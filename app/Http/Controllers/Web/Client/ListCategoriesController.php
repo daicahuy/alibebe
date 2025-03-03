@@ -17,7 +17,7 @@ class ListCategoriesController extends Controller
     {
         $this->listCategoriesService = $listCategoriesService;
     }
-    public function index(ListCategoriesFilterRequest $request, $category = null)
+    public function index(ListCategoriesFilterRequest $request, $slug = null)
     {
         // dd($request->all());
         $listParentCategories = $this->listCategoriesService->listParentCate();
@@ -26,15 +26,21 @@ class ListCategoriesController extends Controller
         $sortBy = $request->input('sort_by', 'default');
         $currentFilters = $request->query();
         $filters = []; // mảng lưu id của category, và các dư liệu từ currentFilters
-        if ($category) {
-            $filters['category'] = [$category];
+        if ($slug) {
+            $category = Category::where('slug', $slug)->first();
+            if ($category) {
+                $filters['category'] = [$category->id];
+
+            } else {
+                abort(404, "Danh mục không tồn tại");
+            }
         }
 
         $filters = array_merge($filters, $currentFilters);
 
         $listProductCate = $this->listCategoriesService->listProductCate($perpage, $sortBy, $filters);
         $listStar = $this->listCategoriesService->getAllReviews();
-        $listVariantAttributes = $this->listCategoriesService->listVariantAttributes($category);
+        $listVariantAttributes = $this->listCategoriesService->listVariantAttributes($slug ? $category->id : null);
 
         // dd($listProductCate); 
 
@@ -48,6 +54,6 @@ class ListCategoriesController extends Controller
         ));
     }
 
-    
+
 
 }

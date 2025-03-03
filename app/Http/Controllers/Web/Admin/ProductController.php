@@ -18,7 +18,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
 
-        $perPage = $request->get('per_page', 5);
+        $perPage = $request->get('per_page', 15);
         $categoryId = $request->get('category_id');
         $stockStatus = $request->get('stock_status');
         $keyword = $request->get('_keyword');

@@ -23,10 +23,18 @@ class WishlistRepository extends BaseRepository
             ->latest('id')
             ->paginate(10);
     }
-    public function countWishlists() {
+    public function countWishlists()
+    {
         $authLogin = Auth::id();
         $user = User::with('wishlists')->findOrFail($authLogin);
 
         return $user->wishlists->count();
+    }
+
+    public function findByUserAndProduct($userId, $productId)
+    {
+        return $this->model->where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->first();
     }
 }

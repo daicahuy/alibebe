@@ -44,7 +44,7 @@ use Illuminate\Support\Facades\Route;
 /*--------------CLIENT--------------*/
 
 Route::get('/', [HomeController::class, 'index'])->name('index');
-Route::get('/categories/{category?}', [ListCategoriesController::class, 'index'])->name('categories');
+Route::get('/categories/{slug?}', [ListCategoriesController::class, 'index'])->name('categories');
 // Route::get('/product/{id}', [ListCategoriesController::class, 'detailModal']);
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
@@ -102,7 +102,7 @@ Route::name('account.')
 
         //wishlist
         Route::get('/wishlist', 'wishlist')->name('wishlist');
-        Route::post('/add/{id}', 'addWishlist')->name('add');
+        Route::post('/wishlist/toggle/{id}', 'toggleWishlist')->name('wishlist-toggle');
         Route::delete('/remove-wishlist/{id}', 'removeWishlist')->name('remove-wishlist');
     });
 

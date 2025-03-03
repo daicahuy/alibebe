@@ -48,16 +48,12 @@
                                         </option>
                                     </select>
                                     <label>{{ __('message.items_per_page') }}</label>
-                                    <button type="button"
-                                        class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
-                                        id="btn-restore-all">
-                                        {{ __('message.restore_all') }}
+                                    
+                                    <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
+                                        type="button" id="btn-move-to-trash-all">
+                                        {{ __('message.move_to_trash') }}
                                     </button>
-                                    <button type="button"
-                                        class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
-                                        id="btn-delete-all">
-                                        {{ __('message.delete_all') }}
-                                    </button>
+                                    
                                 </div>
                                 <div class="datepicker-wrap">
 
@@ -85,7 +81,7 @@
                                         <tr>
                                             <th class="sm-width">
                                                 <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" id="select-all"
+                                                    <input type="checkbox" id="checkbox-table"
                                                         class="custom-control-input checkbox_animated">
                                                 </div>
                                             </th>
@@ -122,35 +118,35 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($listHidden as $trash)
+                                        @foreach ($listHidden as $hidden)
                                             <tr>
                                                 <td class="sm-width">
                                                     <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" id="ids[]" value="{{ $trash->id }}"
+                                                        <input type="checkbox" id="" value="{{ $hidden->id }}"
                                                             class="custom-control-input checkbox_animated checkbox-input">
                                                     </div>
                                                 </td>
-                                                <td class="cursor-pointer sm-width">{{ $trash->id }}</td>
-                                                <td class="cursor-pointer">{{ $trash->sku }}</td>
+                                                <td class="cursor-pointer sm-width">{{ $hidden->id }}</td>
+                                                <td class="cursor-pointer">{{ $hidden->sku }}</td>
                                                 <td class="cursor-pointer sm-width"><img alt="image" class="tbl-image"
-                                                        src="{{ Storage::url($trash->thumbnail) }}">
+                                                        src="{{ Storage::url($hidden->thumbnail) }}">
                                                 </td>
-                                                <td class="cursor-pointer">{{ $trash->name }}</td>
+                                                <td class="cursor-pointer">{{ $hidden->name }}</td>
                                                 <td class="cursor-pointer">
-                                                    @if ($trash->categories->isNotEmpty())
-                                                        {{ $trash->categories->pluck('name')->implode(', ') }}
+                                                    @if ($hidden->categories->isNotEmpty())
+                                                        {{ $hidden->categories->pluck('name')->implode(', ') }}
                                                     @else
                                                         <span class="text-muted">Không có danh mục</span>
                                                     @endif
                                                 </td>
-                                                <td class="cursor-pointer">{{ $trash->price_range }} </td>
-                                                <td class="cursor-pointer">{{ $trash->stock_quantity }}</td>
+                                                <td class="cursor-pointer">{{ $hidden->price_range }} </td>
+                                                <td class="cursor-pointer">{{ $hidden->stock_quantity }}</td>
                                                 <td class="cursor-pointer">
-                                                    @if ($trash->stock_quantity > 10)
+                                                    @if ($hidden->stock_quantity > 10)
                                                         <div class="status-in_stock">
                                                             <span>{{ __('form.product_stock_in_stock') }}</span>{{-- còn  --}}
                                                         </div>
-                                                    @elseif($trash->stock_quantity > 0)
+                                                    @elseif($hidden->stock_quantity > 0)
                                                         <div class="status-low_stock">
                                                             <span>{{ __('form.product_stock_low_stock') }}</span>{{-- hết  --}}
                                                         </div>
@@ -164,8 +160,8 @@
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch switch-sm">
                                                             <input type="checkbox"  class="toggle-active-products-hidden"
-                                                            data-product-id="{{ $trash->id }}"
-                                                                {{ $trash->is_active == 1 ? 'checked' : '' }} >
+                                                            data-product-id="{{ $hidden->id }}"
+                                                                {{ $hidden->is_active == 1 ? 'checked' : '' }} >
                                                             <span class="switch-state"></span>
                                                         </label>
                                                     </div>
@@ -173,23 +169,21 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <form action="{{ route('admin.products.restore', $trash) }}"
-                                                                method="POST">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <button type="submit" class="btn-restore">
-                                                                    <i class="ri-refresh-line"></i>
-                                                                </button>
-                                                            </form>
+                                                            <a href="{{ route('admin.products.show', $hidden->id) }}" class="btn-detail"><i
+                                                                    class="ri-eye-line"></i></a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="{{ route('admin.products.edit', $hidden->id) }}" class="btn-edit"><i
+                                                                    class="ri-pencil-line"></i></a>
                                                         </li>
 
                                                         <li>
-                                                            <form action="{{ route('admin.products.destroy', $trash) }}"
+                                                            <form action="{{ route('admin.products.delete', $hidden) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" class="btn-delete"
-                                                                    onclick="return confirm('{{ __('message.confirm_delete_item') }}')">
+                                                                    onclick="return confirm('{{ __('message.confirm_move_to_trash_item') }}')">
                                                                     <i class="ri-delete-bin-line"></i>
                                                                 </button>
                                                             </form>
@@ -232,121 +226,112 @@
     <script>
         $(document).ready(function() {
 
-            // --- Logic Checkbox ---
-            $('#select-all').on('click', function() {
+             // --- Logic Checkbox ---
+             $('#checkbox-table').on('click', function() {
 
-                $('.checkbox-input').prop('checked', $(this).prop('checked'));
-                toggleBulkActionButtons();
+$('.checkbox-input').prop('checked', $(this).prop('checked'));
+toggleBulkActionButton();
 
-            });
-            // toggleBulkActionButtons();
+});
 
-            $('.checkbox-input').on('click', function() {
+$('.checkbox-input').on('click', function() {
 
-                const total = $('.checkbox-input').length;
-                const checked = $('.checkbox-input:checked').length;
+const total = $('.checkbox-input').length;
+const checked = $('.checkbox-input:checked').length;
 
-                $('#select-all').prop('checked', total === checked);
-                toggleBulkActionButtons();
+$('#checkbox-table').prop('checked', total === checked);
+toggleBulkActionButton();
 
-            });
-
-            // chạy hàm khi load trang
-            toggleBulkActionButtons();
+});
 
 
-            // click  button
-            $('#btn-restore-all').on('click', function() {
-                handleBulkAction('restore');
-            });
+// --- Xử lý sự kiện click nút "Xóa tất cả" ---
+$('#btn-move-to-trash-all').on('click', function() {
+handleBulkAction(); // 6.1 Gọi hàm xử lý
+});
 
-            $('#btn-delete-all').on('click', function() {
-                let confirmMessage = confirm("{{ __('message.confirm_delete_all_item') }}");
+//  Hàm ẩn/hiện nút "Xóa tất cả"
+function toggleBulkActionButton() {
+if ($('.checkbox-input:checked').length > 0) {
+    $('#btn-move-to-trash-all').removeClass('visually-hidden'); // checkbox => hiện
+} else {
+    $('#btn-move-to-trash-all').addClass('visually-hidden'); //  ẩn
+}
+}
 
-                if (confirmMessage) {
-                    handleBulkAction('destroy');
-                }
+toggleBulkActionButton(); // 5. Gọi hàm lần đầu khi trang tải
 
-            });
+// Lấy ids và gửi AJAX request
+function handleBulkAction() {
 
+const selectedIds = [];
+$('.checkbox-input:checked').each(function() {
+    selectedIds.push($(this).val());
+});
 
-            // Hàm ẩn/hiên button 
-            function toggleBulkActionButtons() {
-                if ($('.checkbox-input:checked').length > 0) {
-                    $('#btn-restore-all').removeClass('visually-hidden');
-                    $('#btn-delete-all').removeClass('visually-hidden');
+if (selectedIds.length == 0) { // 6.2 Kiểm tra nếu không có ID nào được chọn
+    alert('Vui lòng chọn ít nhất một danh mục.');
+    return; // Dừng thực thi nếu không có ID
+}
+
+if (confirm(
+        "{{ __('message.confirm_move_to_trash_all_item') }}"
+    )) {
+    $.ajax({ // Gửi AJAX request
+        url: '{{ route('admin.products.bulkTrash') }}', //  URL của route xử lý
+        method: 'POST', //  Phương thức POST
+        data: {
+            _token: '{{ csrf_token() }}',
+            product_ids: selectedIds,
+        },
+
+        success: function(response) {
+            console.log("data:", selectedIds);
+
+            console.log("Response:", response);
+
+            if (response && typeof response === 'object') {
+
+                if (response.success === true) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        html: response.message,
+                        timer: 1500, // Tự động đóng sau 1.5 giây
+                        showConfirmButton: false,
+                    }).then(() => {
+                        location.reload();
+                    });
+
                 } else {
-                    $('#btn-restore-all').addClass('visually-hidden');
-                    $('#btn-delete-all').addClass('visually-hidden');
+
+                    // let errorMessage = "Đã có lỗi xảy ra.";
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        html: response.message,
+                    }).then(() => {
+                        location.reload();
+                    });
                 }
+
+            } else {
+                console.error("Response không đúng định dạng:", response);
+                alert("Đã có lỗi xảy ra trong quá trình xử lý.");
             }
+        },
+        error: function(error) {
+            console.error("Lỗi AJAX:", error);
+            alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+        }
+    });
+}
 
+}
 
-
-            // --- Xử lý submit bằng AJAX ---
-            function handleBulkAction(action) {
-
-                // Truyền ids vào mảng
-                let checkedIds = [];
-                $('.checkbox-input:checked').each(function() {
-                    checkedIds.push($(this).val());
-                });
-
-                if (checkedIds.length === 0) {
-                    alert("Vui lòng chọn ít nhất một mục.");
-                    return;
-                }
-
-                let url = '';
-                if (action === 'restore') {
-                    url = "{{ route('admin.products.bulkRestore') }}";
-                } else if (action === 'destroy') {
-                    url = "{{ route('admin.products.bulkDestroy') }}";
-                }
-
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        bulk_ids: checkedIds,
-                        // _method: action === 'restore' ? 'PUT' : 'DELETE'
-                    },
-                    success: function(response) {
-                        console.log("Response từ server:", response);
-
-                        if (response && typeof response === 'object') { // Kiểm tra response là object
-                            if (response.success === true) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Thành công!',
-                                    text: response.message,
-                                    timer: 1500, // Tự động đóng sau 1.5 giây
-                                    showConfirmButton: false,
-                                }).then(() => {
-                                    location.reload();
-                                });
-
-                            } else {
-
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Lỗi!',
-                                    html: response.message,
-                                });
-                            }
-                        } else {
-                            console.error("Response không đúng định dạng:", response);
-                            alert("Đã có lỗi xảy ra khi xử lý yêu cầu.");
-                        }
-                    },
-                    error: function(error) {
-                        console.error("Lỗi AJAX:", error);
-                        alert("Đã xảy ra lỗi. Vui lòng thử lại.");
-                    }
-                });
-            }
-            // --- End Logic Checkbox ---
+// --- End Logic Checkbox ---
 
 
             // update Is_active Api

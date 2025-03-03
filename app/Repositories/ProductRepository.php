@@ -26,7 +26,6 @@ class ProductRepository extends BaseRepository
     {
 
         $query = $this->model->query();
-
         //  giá sản phẩm thường và biến thể
 
         // Giá hiển thị cho sản phẩm thường và biến thể
@@ -44,7 +43,7 @@ CASE
                     MIN(product_variants.price)  -- Đảm bảo lấy giá thấp nhất của các biến thể
             END
         FROM product_variants
-        WHERE product_variants.product_id = products.id AND product_variants.price > 0  -- Thêm điều kiện này để loại bỏ các biến thể không có giá
+        WHERE product_variants.product_id = products.id AND product_variants.is_active = 1 AND product_variants.price > 0 
     )
     ELSE  -- Sản phẩm đơn (type != 1)
         CASE
@@ -68,12 +67,12 @@ CASE
                 ELSE products.price  -- Fallback nếu không có biến thể
             END
         FROM product_variants
-        WHERE product_variants.product_id = products.id AND product_variants.price > 0  -- Thêm điều kiện để loại bỏ các biến thể không có giá
+        WHERE product_variants.product_id = products.id AND product_variants.is_active = 1 AND product_variants.price > 0  
     )
     ELSE products.price -- Sản phẩm đơn
 END');
 
-        // Sửa lại soldCountSubQuery để tránh lỗi
+
         $soldCountSubQuery = DB::raw('(
     SELECT COALESCE(SUM(order_items.quantity), 0)
     FROM order_items
@@ -134,29 +133,66 @@ END');
 
 
 
-
-            if (isset($filters['min_price']) && isset($filters['max_price'])) { // Search Price Range
+            // Search Price Range
+            if (isset($filters['min_price']) && isset($filters['max_price'])) {
 
                 $minPrice = $filters['min_price'];
                 $maxPrice = $filters['max_price'];
 
-                // check input
-                // if (is_numeric($minPrice) && is_numeric($maxPrice) && $minPrice >= 0 && $maxPrice >= 0 && $minPrice <= $maxPrice) {
-                //     Log::info('min: ' . $minPrice . ' max: ' . $maxPrice);
-                //     $query->whereBetween('price', [$minPrice, $maxPrice]);
-                // } else {
-                //     Log::warning('warning' . 'min: ' . $minPrice . ' max: ' . $maxPrice);
-                // }
+
+                // $query->where(function ($q) use ($minPrice, $maxPrice) {
+                //     $q->where('type', 0)
+                //         ->whereBetween('price', [$minPrice, $maxPrice])
+                //         ->orWhere(function ($q) use ($minPrice, $maxPrice) {
+                //             $q->where('type', 1)
+                //                 ->whereHas('productVariants', function ($variantQuery) use ($minPrice, $maxPrice) {
+                //                     $variantQuery->whereBetween('price', [$minPrice, $maxPrice]);
+                //                 });
+                //         });
+                // });
                 $query->where(function ($q) use ($minPrice, $maxPrice) {
-                    $q->where('type', 0)
-                        ->whereBetween('price', [$minPrice, $maxPrice])
+                    // Type  = 0
+                    $q->where(function ($q) use ($minPrice, $maxPrice) {
+                        $q->where('type', 0)
+                            ->where(function ($q) use ($minPrice, $maxPrice) {
+                                // is_sale = 1 && sale_price not null
+                                $q->where(function ($q) use ($minPrice, $maxPrice) {
+                                    $q->where('is_sale', 1)
+                                        ->whereNotNull('sale_price')
+                                        ->whereBetween('sale_price', [$minPrice, $maxPrice]);
+                                })
+                                    // is_sale == 0 or sale_price null
+                                    ->orwhere(function ($q) use ($minPrice, $maxPrice) {
+                                    $q->where(function ($q) {
+                                        $q->where('is_sale', 0)
+                                            ->orWhereNull('sale_price');
+                                    })->whereBetween('price', [$minPrice, $maxPrice]);
+                                });
+                            });
+                    })
+                        // type = 1
                         ->orWhere(function ($q) use ($minPrice, $maxPrice) {
                             $q->where('type', 1)
                                 ->whereHas('productVariants', function ($variantQuery) use ($minPrice, $maxPrice) {
-                                    $variantQuery->whereBetween('price', [$minPrice, $maxPrice]);
+                                    $variantQuery->where('is_active', 1)->where(function ($q) use ($minPrice, $maxPrice) {
+                                        // sale true
+                                        $q->where(function ($q) use ($minPrice, $maxPrice) {
+                                            $q->where('is_sale', 1)
+                                                ->WhereNotNull('sale_price')
+                                                ->whereBetween('sale_price', [$minPrice, $maxPrice]);
+                                        })
+                                            // sale false
+                                            ->orWhere(function ($q) use ($minPrice, $maxPrice) {
+                                            $q->where(function ($q) {
+                                                $q->where('is_sale', 0)
+                                                    ->orWhereNull('sale_price');
+                                            })->whereBetween('price', [$minPrice, $maxPrice]);
+                                        });
+                                    });
                                 });
                         });
                 });
+
             } //end search price
 
 
@@ -193,12 +229,14 @@ END');
                     if (is_array($filterValues)) { // check mảng 
                         $variantAttributeFilters[$filterName] = $filterValues; // gán giá trị vào mảng
                     }
-                };
+                }
+                ;
             }
 
             if (!empty($variantAttributeFilters)) {
                 Log::info('variant: ' . json_encode($variantAttributeFilters));
                 $query->whereHas('productVariants', function ($variantQuery) use ($variantAttributeFilters) {
+                    $variantQuery->where('is_active', 1);
                     foreach ($variantAttributeFilters as $attributeSlug => $attributeValues) {
                         $variantQuery->whereHas('attributeValues', function ($attributeValueQuery) use ($attributeSlug) {
                             $attributeValueQuery->whereHas('attribute', function ($attributeQuery) use ($attributeSlug) {
@@ -269,7 +307,7 @@ END');
             'categories:id,name',
             'reviews',
             'productVariants' => function ($q) {
-                $q->orderBy('price', 'ASC')->select('product_id', 'price');
+                $q->where('is_active', 1)->orderBy('price', 'ASC')->select('product_id', 'price');
             }
         ]);
         $products = $query->paginate($perpage)->appends(['sort_by' => $sortBy]); // Lưu  $products
@@ -987,6 +1025,7 @@ END');
                         ->orderBy('product_variants.price', 'ASC')
                         ->selectRaw("
                         product_variants.*,
+                        product_variants.is_active,
                         -- **CHỈNH SỬA LOGIC GIÁ CHO BIẾN THỂ: Tham chiếu bảng `product_variants` (alias `pv`)**
                         CASE
                             -- **Giá hiển thị (display_price) cho BIẾN THỂ**
