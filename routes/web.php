@@ -62,9 +62,11 @@ Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middlew
 Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add')->middleware('auth');
 ;
 Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
-Route::post('/cart/update', [ApiCartItemController::class, 'update'])->name('cart.update');
-Route::post('/cart/save-session', [ApiCartItemController::class, 'saveSession'])->name('cart.saveSession');
+// Route::post('/cart/update', [ApiCartItemController::class, 'update'])->name('cart.update');
+// Route::post('/cart/save-session', [ApiCartItemController::class, 'saveSession'])->name('cart.saveSession');
 
+
+Route::post('/cart/count', [CartItemController::class, 'countCart'])->name('cart.count');
 
 Route::post('/comments', [DetailProductController::class, 'store'])->middleware('auth');
 Route::post('/comment-replies', [DetailProductController::class, 'storeReply'])->middleware('auth');
@@ -144,7 +146,8 @@ Route::name('auth.')
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
                 Route::post('/send-otp', 'sendOtp')->name('sendOtp');
                 Route::get('/otp', 'showFormOtp')->name('showFormOtp')->middleware('check.reset.flow');
-                ;
+                Route::post('/resend-otp', 'resendOtp')->name('resendOtp');
+
                 Route::post('/verify-otp', 'verifyOtp')->name('verifyOtp');
                 Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');
                 ;

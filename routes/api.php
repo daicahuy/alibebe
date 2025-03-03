@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AttributeValueController;
 use App\Http\Controllers\api\AuthCustomerApiController;
 use App\Http\Controllers\api\AuthCustomerController;
 use App\Http\Controllers\Api\BrandController;
+use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\api\CouponApiController;
 use App\Http\Controllers\Api\HomeController;
@@ -39,6 +40,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('/cart/update', [CartItemController::class, 'update'])->middleware('web')->name('cart.update');
+Route::post('/cart/save-session', [CartItemController::class, 'saveSession'])->middleware('web')->name('cart.saveSession');
 
 Route::get('/productListCate/{id}', [ListCategoryController::class, 'detailModal']);
 Route::get('/products/{id}', [DetailProductController::class, 'getProductDetail']);
