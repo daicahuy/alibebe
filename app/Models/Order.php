@@ -17,6 +17,7 @@ class Order extends Model
         'email',
         'fullname',
         'address',
+        'note',
         'total_amount',
         'is_paid',
         'coupon_id',

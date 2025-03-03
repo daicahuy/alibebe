@@ -16,8 +16,8 @@ return new class extends Migration {
             $table->id();
             $table->foreignIdFor(Coupon::class)->constrained();
             $table->foreignIdFor(User::class)->constrained();
-            $table->primary(['coupon_id', 'user_id']);
             $table->integer("amount");
+            $table->unique(['coupon_id', 'user_id']);
             $table->timestamps();
         });
     }
