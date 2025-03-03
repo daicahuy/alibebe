@@ -31,57 +31,98 @@ class CartItemController extends Controller
             'quantity' => 'required|integer|min:1'
         ]);
     
-        // Kiểm tra tồn kho từ bảng product_stocks
-        $stock = DB::table('product_stocks')
-            ->where(function ($query) use ($data) {
-                $query->where('product_id', $data['product_id']);
-                if (!empty($data['product_variant_id'])) {
-                    $query->where('product_variant_id', $data['product_variant_id']);
-                }
-            })
-            ->value('stock');
+        // Nếu là sản phẩm biến thể, lấy product_id từ bảng product_variants
+        if (!empty($data['product_variant_id'])) {
+            $productId = DB::table('product_variants')
+                ->where('id', $data['product_variant_id'])
+                ->value('product_id');
+        } else {
+            $productId = $data['product_id'];
+        }
     
-        // Nếu không có stock hoặc stock < số lượng cần mua, báo lỗi
+        // ✅ Kiểm tra tồn kho từ bảng product_stocks
+        $stockQuery = DB::table('product_stocks');
+        
+        if (!empty($data['product_variant_id'])) {
+            // Nếu là biến thể, kiểm tra stock theo `product_variant_id`
+            $stockQuery->where('product_variant_id', $data['product_variant_id']);
+        } else {
+            // Nếu là sản phẩm đơn, kiểm tra stock theo `product_id`
+            $stockQuery->where('product_id', $productId);
+        }
+    
+        $stock = $stockQuery->value('stock');
+    
+        // ❌ Nếu không có tồn kho hoặc số lượng mua lớn hơn stock
         if (!$stock || $stock < $data['quantity']) {
             return redirect()->back()->with('error', 'Sản phẩm không đủ hàng trong kho!');
         }
     
-        // Nhận kết quả từ Service
-        $result = $this->cartItemService->addToCart($data);
+        // ✅ Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+        $cartQuery = DB::table('cart_items')
+            ->where('user_id', auth()->id()) // Thay thế bằng session ID nếu không dùng auth
+            ->where('product_id', $productId);
     
-        // Nếu Service trả về redirect (tức là có lỗi), return luôn
-        if ($result instanceof \Illuminate\Http\RedirectResponse) {
-            return $result;
+        if (!empty($data['product_variant_id'])) {
+            // Nếu có biến thể, kiểm tra theo `product_variant_id`
+            $cartQuery->where('product_variant_id', $data['product_variant_id']);
+        }
+    
+        $existingCartItem = $cartQuery->first();
+    
+        if ($existingCartItem) {
+            // ✅ Nếu đã có trong giỏ hàng, cập nhật số lượng
+            $newQuantity = $existingCartItem->quantity + $data['quantity'];
+    
+            if ($newQuantity > $stock) {
+                return redirect()->back()->with('error', 'Không thể thêm số lượng lớn hơn tồn kho!');
+            }
+    
+            DB::table('cart_items')
+                ->where('id', $existingCartItem->id)
+                ->update(['quantity' => $newQuantity]);
+        } else {
+            // ✅ Nếu chưa có trong giỏ hàng, thêm sản phẩm mới
+            DB::table('cart_items')->insert([
+                'user_id' => auth()->id(), // Thay bằng session ID nếu cần
+                'product_id' => $productId,
+                'product_variant_id' => $data['product_variant_id'] ?? null,
+                'quantity' => $data['quantity'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
         }
     
         return redirect()->back()->with('success', 'Sản phẩm đã được thêm vào giỏ hàng!');
     }
     
     
-    
+
+
+
     public function delete(Request $request)
     {
-            $id = $request->input('id');
-            $ids = $request->input('ids', []);
-            // dd($ids);
-            if (is_string($ids)) {
-                $ids = explode(',', $ids);
-            }
-            $ids = array_map('intval', (array) $ids);
-    
-            if ($id) {
-                $this->cartItemService->delete($id);
-            } elseif (!empty($ids)) {
-                $this->cartItemService->deleteAll($ids);
-            } else {
-                return back()->with('error', 'Không có sản phẩm nào để xóa.');
-            }
-    
-            return back()->with('success', 'Xóa thành công!');
-        
+        $id = $request->input('id');
+        $ids = $request->input('ids', []);
+        // dd($ids);
+        if (is_string($ids)) {
+            $ids = explode(',', $ids);
+        }
+        $ids = array_map('intval', (array) $ids);
+
+        if ($id) {
+            $this->cartItemService->delete($id);
+        } elseif (!empty($ids)) {
+            $this->cartItemService->deleteAll($ids);
+        } else {
+            return back()->with('error', 'Không có sản phẩm nào để xóa.');
+        }
+
+        return back()->with('success', 'Xóa thành công!');
     }
-    
-    public function countCart() {
+
+    public function countCart()
+    {
         $data = $this->cartItemService->getAllCartItem();
         return response()->json([
             'code' => 200,
