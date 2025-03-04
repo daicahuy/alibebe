@@ -160,6 +160,17 @@
                             </span>
                         </a>
                     </li>
+                    <li class="sidebar-list">
+                        <a href="{{ route('admin.comments.index') }}"
+                            class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/comments*') ? 'active' : '' }}">
+                            <span>
+                                <div class="d-flex align-items-center">
+                                    <i class="ri-chat-2-line"></i>
+                                    <div class="sidebar-main-link">{{ __('form.comments') }}</div>
+                                </div>
+                            </span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </nav>

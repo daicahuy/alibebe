@@ -1050,7 +1050,7 @@
                     ) {
                         // Cập nhật thông tin cơ bản của sản phẩm trong modal
                         $('#prdName').text(response.name)
-                        $('#prdDescription').text(response.description)
+                        $('#prdDescription').text(response.short_description)
                         $('#prdBrand').text(response.brand)
                         $('#prdCategories').text(response.categories)
 

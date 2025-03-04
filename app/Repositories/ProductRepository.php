@@ -816,12 +816,12 @@ class ProductRepository extends BaseRepository
     
     
         // Tính số sao (không thay đổi)
-        foreach ($relatedProducts as $relatedProduct) { // Changed to foreach for Laravel Collection
+        foreach ($relatedProducts as $relatedProduct) { 
             $averageRating = $relatedProduct->reviews->avg('rating') ?? 0;
             $relatedProduct->average_rating = number_format($averageRating, 1);
         }
     
-        return $relatedProducts->values(); // Return as a numerically indexed collection, if needed
+        return $relatedProducts->values();
     }
 
     public function detailModal($id)
