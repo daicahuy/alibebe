@@ -440,8 +440,9 @@ Route::prefix('/admin')
 
             Route::get('/', 'index')->name('index');
 
-            // Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
+            Route::get('/{product}', 'show')->name('show');
 
+            Route::get('/comments/{commentId}/replies',  'getCommentReplies')->name('comments.replies');
         });
 
 

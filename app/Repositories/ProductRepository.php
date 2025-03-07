@@ -409,7 +409,6 @@ class ProductRepository extends BaseRepository
             $query->whereHas('categories', function ($q) use ($categoryIdsToFilter) {
                 $q->whereIn('categories.id', $categoryIdsToFilter);
             });
-
         }
 
 
@@ -499,7 +498,6 @@ class ProductRepository extends BaseRepository
             '_keyword' => $keyword,
         ]);
         return $listTrashs;
-
     }
 
     // Xóa mềm sản phẩm
@@ -535,7 +533,7 @@ class ProductRepository extends BaseRepository
         }
 
         try {
-            $product->categories()->detach();// xóa reation liên quan
+            $product->categories()->detach(); // xóa reation liên quan
             $product->productStock()->delete();
             $product->attributeValues()->detach();
             $product->cartItems()->delete();
@@ -568,8 +566,6 @@ class ProductRepository extends BaseRepository
             Log::error(__METHOD__ . ' - Error force deleting product ID: ' . $productId, ['error' => $th->getMessage()]);
             return false; // Xóa cứng thất bại
         }
-
-
     }
 
 
@@ -598,7 +594,6 @@ class ProductRepository extends BaseRepository
         // }
 
         return $product->restore();
-
     }
 
     public function findTrash($id)
@@ -653,7 +648,7 @@ class ProductRepository extends BaseRepository
 
         foreach ($products as $product) {
             try {
-                $product->categories()->detach();// chỉ dùng cho belongtomany
+                $product->categories()->detach(); // chỉ dùng cho belongtomany
                 $product->productStock()->delete();
                 $product->attributeValues()->detach();
                 $product->cartItems()->delete();
@@ -686,9 +681,7 @@ class ProductRepository extends BaseRepository
                 $deleteCount++;
             } catch (\Throwable $th) {
                 Log::error(__METHOD__ . ' - Error  product ID: ' . $product->id, ['error' => $th->getMessage()]);
-
             }
-
         }
         return $deleteCount;
     }
@@ -696,36 +689,36 @@ class ProductRepository extends BaseRepository
 
 
     public function detailProduct(int $id, array $columns = ['*'])
-{
-    return Product::select($columns)
-        ->with([
-            'productGallery',
-            'productAccessories',
-            'reviews.user',
-            'reviews.ReviewMultimedia',
-            'attributeValues.attribute',
-            'productVariants.productStock',
-            'productStock',
-            'productVariants.attributeValues.attribute',
-            'comments.commentReplies',
-        ])
-        ->with(
-            [
-                'productVariants' => function ($query) {
-                    $query->where('is_active', 1)->with(['attributeValues' => function ($query) {
-                        $query->with('attribute');
-                    }]);
-                },
-                'attributeValues' => function ($query) {
-                    $query->whereHas('attribute', function ($q) {
-                        $q->where('is_variant', '0');
-                    });
-                },
-            ]
-        )
-        ->where('is_active', 1)
-        ->findOrFail($id);
-}
+    {
+        return Product::select($columns)
+            ->with([
+                'productGallery',
+                'productAccessories',
+                'reviews.user',
+                'reviews.ReviewMultimedia',
+                'attributeValues.attribute',
+                'productVariants.productStock',
+                'productStock',
+                'productVariants.attributeValues.attribute',
+                'comments.commentReplies',
+            ])
+            ->with(
+                [
+                    'productVariants' => function ($query) {
+                        $query->where('is_active', 1)->with(['attributeValues' => function ($query) {
+                            $query->with('attribute');
+                        }]);
+                    },
+                    'attributeValues' => function ($query) {
+                        $query->whereHas('attribute', function ($q) {
+                            $q->where('is_variant', '0');
+                        });
+                    },
+                ]
+            )
+            ->where('is_active', 1)
+            ->findOrFail($id);
+    }
 
     public function getProductAttributes(Product $product)
     {
@@ -757,71 +750,100 @@ class ProductRepository extends BaseRepository
 
     public function getRelatedProducts(Product $product, int $limit = 6)
     {
-        // Hàm này lấy giá đại diện của sản phẩm, tìm giá sale_price NHỎ NHẤT trong tất cả biến thể,
-        // sau đó fallback về sale_price của sản phẩm chính, rồi đến price của sản phẩm chính.
-        $getProductRepresentativePrice = function (Product $prod) {
-            $minVariantPrice = null; // Khởi tạo giá biến thể nhỏ nhất là null
-    
-            // Duyệt qua tất cả biến thể của sản phẩm
-            foreach ($prod->productVariants as $variant) {
-                if ($variant->sale_price > 0) {
-                    if ($minVariantPrice === null || $variant->sale_price < $minVariantPrice) {
-                        $minVariantPrice = $variant->sale_price; // Cập nhật giá nhỏ nhất nếu tìm thấy giá nhỏ hơn
-                    }
-                }
-            }
-    
-            // Nếu tìm thấy giá biến thể nhỏ nhất hợp lệ, trả về nó
-            if ($minVariantPrice !== null) {
-                return $minVariantPrice;
-            }
-    
-            // Nếu không có giá biến thể hợp lệ, fallback về giá của sản phẩm chính
-            if ($prod->sale_price > 0) {
-                return $prod->sale_price;
-            }
-            return $prod->price > 0 ? $prod->price : 1; // Fallback cuối cùng
-        };
-    
-        // Lấy giá đại diện của sản phẩm hiện tại để so sánh
-        $comparePrice = $getProductRepresentativePrice($product);
-    
-        $relatedProducts = Product::with('reviews', 'productVariants') // Load thêm 'variants' relationship
+        $comparePrice = $this->getProductRepresentativePrice($product);
+        $relatedProducts = collect();
+
+        // **Bước 1: Tìm sản phẩm TƯƠNG TỰ THEO GIÁ, CÙNG BRAND và CÙNG CATEGORY (mở rộng thêm parent_id nếu không đủ)**
+        $relatedByPriceBrandCategory = Product::with('reviews', 'productVariants', 'categories')
             ->where('id', '!=', $product->id)
             ->where('is_active', 1)
-            ->whereBetween(
-                'sale_price', // Vẫn filter ban đầu trên 'sale_price' của bảng 'products'
-                [
-                    $comparePrice * 0.8,
-                    $comparePrice * 1.2
-                ]
-            )
-            ->whereHas('categories', function ($query) use ($product) {
-                $query->whereIn('category_id', $product->categories->pluck('id'));
+            // ->where('brand_id', $product->brand_id)
+            ->where(function ($query) use ($product) {
+                $categoryIds = $product->categories->pluck('id');
+                $parentCategoryIds = Category::whereIn('parent_id', $categoryIds)->pluck('id');
+                $allRelatedCategoryIds = $categoryIds->merge($parentCategoryIds)->unique();
+                $query->whereHas('categories', function ($categoryQuery) use ($allRelatedCategoryIds) {
+                    $categoryQuery->whereIn('category_id', $allRelatedCategoryIds);
+                });
             })
-            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $comparePrice]) // Vẫn sort ban đầu trên 'price' của bảng 'products'
-            ->limit($limit)
+            ->where(function ($query) use ($comparePrice) {
+                $query->whereHas('productVariants', function ($variantQuery) use ($comparePrice) {
+                    $variantQuery->whereBetween('sale_price', [$comparePrice * 0.8, $comparePrice * 1.2])
+                        ->where('is_active', 1);
+                })
+                    ->orWhere(function ($productQuery) use ($comparePrice) {
+                        $productQuery->whereBetween('sale_price', [$comparePrice * 0.8, $comparePrice * 1.2])
+                            ->where('is_sale', 1);
+                    })
+                    ->orWhere(function ($productQuery) use ($comparePrice) {
+                        $productQuery->whereBetween('price', [$comparePrice * 0.8, $comparePrice * 1.2])
+                            ->where('is_sale', 0);
+                    });
+            })
+            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $comparePrice])
+            ->limit($limit * 2)
             ->get();
-    
-        // Lọc lại và sắp xếp sản phẩm dựa trên giá ĐẠI DIỆN (bao gồm giá biến thể nhỏ nhất)
-        $relatedProducts = $relatedProducts->filter(function ($relatedProduct) use ($comparePrice, $getProductRepresentativePrice) {
-            $relatedProductPrice = $getProductRepresentativePrice($relatedProduct);
-            return $relatedProductPrice >= $comparePrice * 0.8 && $relatedProductPrice <= $comparePrice * 1.2; // Lọc lại theo khoảng giá đại diện
-        })->sortBy(function ($relatedProduct) use ($comparePrice, $getProductRepresentativePrice) {
-            $relatedProductPrice = $getProductRepresentativePrice($relatedProduct);
-            return [$relatedProduct->brand_id != $relatedProduct->brand_id, abs($relatedProductPrice - $comparePrice)]; // Sắp xếp lại, vẫn ưu tiên brand và độ lệch giá
-        });
-    
-        $relatedProducts = $relatedProducts->take($limit); // Giới hạn lại số lượng sau lọc và sắp xếp
-    
-    
-        // Tính số sao (không thay đổi)
-        foreach ($relatedProducts as $relatedProduct) { 
+        $relatedProducts = $relatedProducts->concat($relatedByPriceBrandCategory);
+        Log::info('Step 1 Related Products Count: ' . $relatedProducts->count());
+
+
+
+        if ($relatedProducts->count() < $limit) {
+            Log::info('Count before Step 2 Check: ' . $relatedProducts->count());
+            Log::info('Entering Step 2');
+            // **Bước 2: Nếu chưa đủ sản phẩm, tìm thêm theo DANH MỤC (Ưu tiên thứ ba) - ĐÃ SỬA ĐỔI**
+            $productCategoryIds = $product->categories->pluck('id');
+            $relatedByCategory = Product::with('reviews', 'productVariants', 'categories')
+                ->where('id', '!=', $product->id)
+                ->where('is_active', 1)
+                ->whereHas('categories', function ($query) use ($productCategoryIds) { // Chỉ tìm theo categoryIds
+                    $query->whereIn('category_product.category_id', $productCategoryIds);
+                })
+                ->limit($limit - $relatedProducts->count()) // Chỉ lấy số lượng còn thiếu
+                ->get();
+
+            $relatedProducts = $relatedProducts->concat($relatedByCategory); // Gộp kết quả danh mục vào
+        }
+
+
+        // **Bước 3: Tính số sao đánh giá và Giới hạn số lượng cuối cùng (giữ nguyên)**
+        $relatedProducts = $relatedProducts->unique('id')->take($limit);
+        foreach ($relatedProducts as $relatedProduct) {
             $averageRating = $relatedProduct->reviews->avg('rating') ?? 0;
             $relatedProduct->average_rating = number_format($averageRating, 1);
         }
-    
+
+        $relatedProducts = $relatedProducts->unique('id')->take($limit);
+        foreach ($relatedProducts as $relatedProduct) {
+            $averageRating = $relatedProduct->reviews->avg('rating') ?? 0;
+            $relatedProduct->average_rating = number_format($averageRating, 1);
+            $relatedProduct->representative_price = $this->getProductRepresentativePrice($relatedProduct);
+        }
+
         return $relatedProducts->values();
+    }
+
+
+    private function getProductRepresentativePrice(Product $prod)
+    {
+        $minVariantPrice = null;
+
+        foreach ($prod->productVariants as $variant) {
+            if ($variant->sale_price > 0) {
+                if ($minVariantPrice === null || $variant->sale_price < $minVariantPrice) {
+                    $minVariantPrice = $variant->sale_price;
+                }
+            }
+        }
+
+        if ($minVariantPrice !== null) {
+            return $minVariantPrice;
+        }
+
+        if ($prod->sale_price > 0) {
+            return $prod->sale_price;
+        }
+        return $prod->price > 0 ? $prod->price : 1;
     }
 
     public function detailModal($id)
@@ -853,11 +875,4 @@ class ProductRepository extends BaseRepository
             ])
             ->find($id);
     }
-   
-
-    
-
-    
-
-   
 }
