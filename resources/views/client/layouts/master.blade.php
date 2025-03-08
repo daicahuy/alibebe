@@ -18,6 +18,7 @@
     <!-- Content start -->
     @yield('content')
     <!-- Content end -->
+    @include('client.layouts.partials.chatboxmini')
 
     <!-- Footer start -->
     @include('client.layouts.partials.footer')
