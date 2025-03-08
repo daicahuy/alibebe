@@ -94,7 +94,7 @@ class ProfileService
                         'address' => $data['new_address'],
                         'phone_number' => $user->phone_number,
                         'fullname' => $user->fullname,
-                        'id_default' => 1, // Đặt làm mặc định
+                        'is_default' => 1, // Đặt làm mặc định
                     ]);
 
                     // Loại bỏ địa chỉ cũ khỏi mảng dữ liệu cập nhật
@@ -104,9 +104,9 @@ class ProfileService
                     $oldDefaultAddress = $this->userAddressRepository->findById($data['address']);
                     if ($oldDefaultAddress) {
                         if ($addressDefault) {
-                            $addressDefault->update(['id_default' => 0]);
+                            $addressDefault->update(['is_default' => 0]);
                         }
-                        $oldDefaultAddress->update(['id_default' => 1]);
+                        $oldDefaultAddress->update(['is_default' => 1]);
                     }
                 }
 

@@ -27,9 +27,9 @@
                         <!-- Nội dung bên trong address-box -->
                         <div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="id_default"
+                                <input class="form-check-input" type="radio" name="is_default"
                                     id="is flexRadioDefault{{ $address->id }}" value="{{ $address->id }}"
-                                    @if ($address->id_default === 1) checked @endif>
+                                    @if ($address->is_default === 1) checked @endif>
                             </div>
 
                             <div class="label">
@@ -74,13 +74,13 @@
                             <button class="btn btn-sm add-button w-100" data-bs-toggle="modal" data-bs-target="#editAddress"
                                 data-id="{{ $address->id }}" data-address="{{ $address->address }}"
                                 data-fullname="{{ $address->fullname }}" data-phone_number="{{ $address->phone_number }}"
-                                data-default="{{ $address->id_default }}">
+                                data-default="{{ $address->is_default }}">
                                 <i data-feather="edit"></i>
                                 {{ __('message.edit') }}
                             </button>
                             <button class="btn btn-sm add-button w-100" data-bs-toggle="modal"
                                 data-bs-target="#removeAddress" data-id="{{ $address->id }}"
-                                data-address="{{ $address->address }}" data-id-default="{{ $address->id_default }}">
+                                data-address="{{ $address->address }}" data-id-default="{{ $address->is_default }}">
                                 <i data-feather="trash-2"></i>
                                 {{ __('message.delete') }}
                             </button>
@@ -136,9 +136,9 @@
                         </div>
                         <div class="form-group mb-4">
                             <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="id_default" name="id_default"
+                                <input type="checkbox" class="form-check-input" id="is_default" name="is_default"
                                     value="1">
-                                <label class="form-check-label fw-bold" for="id_default">Đặt Làm Mặc Định</label>
+                                <label class="form-check-label fw-bold" for="is_default">Đặt Làm Mặc Định</label>
                             </div>
                         </div>
                     </div>
@@ -182,10 +182,10 @@
                             <input type="text" class="form-control" name="phone_number" id="phone_number">
                         </div>
                         <div class="form-check form-switch">
-                            <input type="checkbox" class="form-check-input" id="id_default" name="id_default"
+                            <input type="checkbox" class="form-check-input" id="is_default" name="is_default"
                                 value="1">
                             <label class="form-check-label fw-bold"
-                                for="id_default">{{ __('form.user_address.id_default') }}</label>
+                                for="is_default">{{ __('form.user_address.is_default') }}</label>
                         </div>
                         <button type="submit" class="btn theme-bg-color text-white btn-sm fw-bold mt-lg-0 mt-3">
                             {{ __('message.edit') }}
@@ -255,7 +255,7 @@
             $('#editAddress input[name="address"]').val(address);
             $('#editAddress input[name="fullname"]').val(fullname);
             $('#editAddress input[name="phone_number"]').val(phone_number);
-            $('#editAddress input[name="id_default"]').prop('checked', isDefault === 1);
+            $('#editAddress input[name="is_default"]').prop('checked', isDefault === 1);
 
             // Thiết lập action cho form với ID của địa chỉ
             $('#editAddress form').attr('action', '/account/update-address/' + addressId);
@@ -267,7 +267,7 @@
                 return;
             }
 
-            if ($(this).find('input[name="id_default"]').is(':checked')) {
+            if ($(this).find('input[name="is_default"]').is(':checked')) {
                 return;
             }
 

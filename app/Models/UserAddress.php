@@ -14,11 +14,11 @@ class UserAddress extends Model
         "address",
         "fullname",
         "phone_number",
-        "id_default",
+        "is_default",
     ];
 
     public $attributes = [
-        'id_default' => 0
+        'is_default' => 0
     ];
 
     /////////////////////////////////////////////////////

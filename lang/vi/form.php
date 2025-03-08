@@ -391,7 +391,7 @@ return [
         'id' => 'ID',
         'user_id' => 'ID người dùng',
         'address' => 'Địa chỉ',
-        'id_default' => 'Mặc định',
+        'is_default' => 'Mặc định',
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
     ],

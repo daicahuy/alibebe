@@ -36,7 +36,7 @@ class AccountRepository extends BaseRepository
             );
     
             // Lấy địa chỉ mặc định, nếu có
-            $user->defaultAddress = $user->addresses->firstWhere('id_default', 1);
+            $user->defaultAddress = $user->addresses->firstWhere('is_default', 1);
         }
     
         return $user;
