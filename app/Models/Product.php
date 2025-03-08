@@ -39,12 +39,12 @@ class Product extends Model
         'is_trending' => 0,
         'is_active' => 0,
     ];
-    
+
     protected $casts = [
         'sale_price_start_at' => 'datetime',
         'sale_price_end_at' => 'datetime',
     ];
-    
+
     public function isSingle()
     {
         return $this->type === ProductType::SINGLE;
@@ -124,31 +124,62 @@ class Product extends Model
     {
         return $this->hasOne(ProductStock::class, 'product_id', 'id');
     }
-    
-    
+
+
 
     public function productMovement()
     {
         return $this->hasMany(StockMovement::class);
     }
-
     public function scopeTrending($query)
     {
-        return $query->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('reviews', 'reviews.product_id', '=', 'products.id')
+        return $query->leftJoin('order_items', function ($join) {
+            $join->on('products.id', '=', 'order_items.product_id');
+        })
+            ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id') // Lấy thông tin biến thể
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('order_order_status', function ($join) {
+                $join->on('orders.id', '=', 'order_order_status.order_id')
+                    ->where('order_order_status.order_status_id', 6); // Chỉ lấy đơn hàng hoàn thành
+            })
+            ->leftJoin('reviews', function ($join) {
+                $join->on('reviews.product_id', '=', 'products.id')
+                    ->where('reviews.is_active', 1);
+            })
             ->select(
                 'products.id',
                 'products.name',
                 'products.thumbnail',
-                'products.price',
-                'products.sale_price',
+                DB::raw('COALESCE(product_variants.price, products.price) as price'), // Lấy giá sản phẩm hoặc biến thể
+                DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'), // Lấy giá khuyến mãi
                 'products.created_at',
                 DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
-                DB::raw('SUM(order_items.quantity) as total_sold')
+                DB::raw('
+                SUM(
+                    CASE 
+                        WHEN order_items.product_variant_id IS NOT NULL 
+                        THEN order_items.quantity_variant
+                        ELSE order_items.quantity 
+                    END
+                ) as total_sold
+            ') // Cách tính số lượng bán mới
             )
-            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price')
-            ->orderByDesc('total_sold');
+            ->groupBy(
+                'products.id',
+                'products.name',
+                'products.thumbnail',
+                'product_variants.price',
+                'product_variants.sale_price',
+                'products.price',
+                'products.sale_price',
+                'products.created_at'
+            )
+            ->orderByDesc('total_sold')
+            ->limit(24);
     }
+
+
+
 
     public function getTotalStockQuantityAttribute()
     {

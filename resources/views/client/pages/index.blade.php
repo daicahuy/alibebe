@@ -234,7 +234,7 @@
 
                                 <ul class="product-list border-0 p-0 d-block">
 
-                                    @foreach ($trendingProducts as $trendingProduct)
+                                    @foreach ($trendingProducts->take(10) as $trendingProduct)
                                         <li>
                                             <div class="offer-product">
                                                 <a href="{{ route('categories', ['category' => $trendingProduct->id]) }}"
@@ -355,19 +355,20 @@
                                                                         class="{{ $i <= round($topSell->average_rating) ? 'fill' : '' }}"></i>
                                                                 </li>
                                                             @endfor
-                                                        </ul> 
-                                                        <span class="text-muted ms-2">({{ number_format($topSell->average_rating, 1) }})</span>   
+                                                        </ul>
+                                                        <span
+                                                            class="text-muted ms-2">({{ number_format($topSell->average_rating, 1) }})</span>
                                                     </div>
-                                                    <div class="d-flex justify-content-between mt-sm-2 mt-1">
-                                                        <h6 class="unit">Lượt xem: {{$topSell->views_count}}</h6> 
-                                                        <h6 class="unit">Đã Bán: {{$topSell->total_sold}}</h6> 
+                                                    <div class="mt-sm-2 mt-1">
+                                                        <h6 class="unit">Lượt xem: {{ $topSell->views_count }}</h6>
+                                                        <h6 class="unit">Đã Bán Hôm Nay: {{ $topSell->total_sold }}</h6>
                                                     </div>
                                                     <div class="add-to-cart-box">
                                                         <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                        data-bs-target="#view" data-id={{ $topSell->id }}
-                                                        class="btn btn-add-cart addcart-button">
-                                                        Add
-                                                    </a>
+                                                            data-bs-target="#view" data-id={{ $topSell->id }}
+                                                            class="btn btn-add-cart addcart-button">
+                                                            Add
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -499,11 +500,12 @@
                                                                 </li>
                                                             @endfor
                                                         </ul>
-                                                        <span class="text-muted ms-2">({{ number_format($aiSuggest->average_rating, 1) }})</span>
+                                                        <span
+                                                            class="text-muted ms-2">({{ number_format($aiSuggest->average_rating, 1) }})</span>
                                                     </div>
                                                     <div class="d-flex justify-content-between mt-sm-2 mt-1">
-                                                        <h6 class="unit">Lượt xem: {{$aiSuggest->views_count}}</h6> 
-                                                        <h6 class="unit">Đã Bán: {{$aiSuggest->total_sold}}</h6> 
+                                                        <h6 class="unit">Lượt xem: {{ $aiSuggest->views_count }}</h6>
+                                                        <h6 class="unit">Đã Bán: {{ $aiSuggest->total_sold }}</h6>
                                                     </div>
                                                     <div class="add-to-cart-box">
                                                         <a href="javascript:void(0)" data-bs-toggle="modal"
@@ -685,7 +687,7 @@
                         <div class="col-lg-6">
                             <div class="right-sidebar-modal">
                                 <h4 class="title-name" id='prdName'></h4>
-                                <h4 class="price" id='prdPrice'></h4>                              
+                                <h4 class="price" id='prdPrice'></h4>
                                 <div class="product-rating" id="prdRating">
                                     <ul class="rating">
 
@@ -728,7 +730,8 @@
                                         <input type="hidden" name="product_id" id="cartProductId">
                                         <input type="hidden" name="product_variant_id" id="cartProductVariantId">
                                         <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="btn btn-md add-cart-button icon">Thêm Vào giỏ hàng</button>
+                                        <button type="submit" class="btn btn-md add-cart-button icon">Thêm Vào giỏ
+                                            hàng</button>
                                     </form>
                                     <button onclick="location.href = 'product-left.html';"
                                         class="btn theme-bg-color view-button icon text-white fw-bold btn-md">
@@ -747,9 +750,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-
-         // Hàm định dạng giá tiền sang VNĐ
-         function formatPrice(price) {
+        // Hàm định dạng giá tiền sang VNĐ
+        function formatPrice(price) {
             const number = parseFloat(price) // Chuyển đổi giá sang số thực
             return isNaN(number) ? "0 đ" : number.toLocaleString('vi-VN', { // Định dạng số sang VNĐ
                 style: 'currency',
@@ -759,10 +761,8 @@
         // sửa lại script để phù hợp với làm giỏ hàng
 
         $(document).ready(function() {
-
             let productVariantsData = {};
 
-            // Khi mở modal, reset nội dung để tránh hiển thị dữ liệu cũ
             $('#view').on('hidden.bs.modal', function() {
                 $('#prdName, #prdPrice, #prdDescription, #prdBrand, #prdCategories').text('');
                 $('#prdThumbnail').attr('src', '');
@@ -772,7 +772,6 @@
                 productVariantsData = {};
             });
 
-            // Khi nhấn vào xem sản phẩm (mở modal)
             $('a[data-bs-target="#view"]').click(function() {
                 var productId = $(this).data('id');
                 console.log("🔍 Modal mở cho Product ID:", productId);
@@ -785,10 +784,6 @@
                     success: function(response) {
                         console.log("📦 Dữ liệu sản phẩm:", response);
 
-                        // Cập nhật thông tin sản phẩm
-                        $('#prdName').text(response.name).data('id', response.id);
-                        $('#prdPrice').text(formatPrice(response.price)).data('default-price', response
-                            .price);
                         $('#prdDescription').text(response.short_description);
                         $('#prdThumbnail').attr('src', response.thumbnail).data(
                             'default-thumbnail', response.thumbnail);
@@ -796,28 +791,29 @@
                         $('#prdCategories').text(response.categories);
                         $('#productVariants').empty();
 
-                         // Xử lý rating (start)
-                         const avgRating = response.avgRating ||
-                            0
+                        const avgRating = response.avgRating || 0;
                         $('#prdRating ul.rating').html(
                             Array.from({
                                     length: 5
-                                }, (_, i) => // Tạo mảng 5 phần tử để lặp qua 5 ngôi sao
-                                    `<li><i data-feather="star" class="${i < avgRating ? 'fill' : ''}"></i></li>` // Tạo thẻ <li> chứa icon star,
-                            ).join('') // Chuyển mảng thành chuỗi HTML
-                        )
-                        feather
-                            .replace() // loai lại idcon start
+                                }, (_, i) =>
+                                `<li><i data-feather="star" class="${i < avgRating ? 'fill' : ''}"></i></li>`
+                            ).join('')
+                        );
+                        feather.replace();
 
-                       // Hiển thị số lượng đã bán
-                        var soldCountText = response.sold_count ? `Đã bán (${response.sold_count})` : "Đã bán (0)";
+                        var soldCount = response.sold_count !== undefined && response
+                            .sold_count !== null ? response.sold_count : 0;
+                        var soldCountText = `Đã bán (${soldCount})`;
                         $('#prdSoldCount').text(soldCountText);
 
-                        // Hiển thị số lượng tồn kho
-                        var stockQuantityText = response.stock_quantity ? `Kho: ${response.stock_quantity}` : "Kho: 0";
+
+                        var stockQuantityText = response.stock_quantity ?
+                            `Kho: ${response.stock_quantity}` : "Kho: 0";
                         $('.product-stock span').text(stockQuantityText);
 
                         productVariantsData = {};
+                        let defaultPrice = response.price; // Giá mặc định
+                        let defaultVariantId = null; // Biến thể mặc định
 
                         if (response.productVariants && response.productVariants.length > 0) {
                             let allAttributes = {};
@@ -832,10 +828,16 @@
                                     attribute_values: variant.attribute_values
                                 };
 
+                                if (!defaultVariantId) {
+                                    defaultVariantId = variantId;
+                                    defaultPrice = variant.sale_price ? variant
+                                        .sale_price : variant.price;
+                                }
+
                                 variant.attribute_values.forEach(attr => {
                                     if (!allAttributes[attr.attributes_name]) {
                                         allAttributes[attr
-                                            .attributes_name] = [];
+                                    .attributes_name] = [];
                                     }
                                     if (!allAttributes[attr.attributes_name]
                                         .some(v => v.id === attr.id)) {
@@ -852,32 +854,35 @@
                             let attributesHtml = '';
                             for (const attrName in allAttributes) {
                                 attributesHtml += `
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="${attrName}">${attrName}:</label>
-                                    <select class="form-control attribute-select" id="${attrName}">
-                                        <option value="">Chọn ${attrName}</option>
-                                        ${allAttributes[attrName].map(attr => `<option value="${attr.id}">${attr.attribute_value}</option>`).join('')}
-                                    </select>
-                                </div>
-                            </div>`;
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="${attrName}">${attrName}:</label>
+                                <select class="form-control attribute-select" id="${attrName}">
+                                    <option value="">Chọn ${attrName}</option>
+                                    ${allAttributes[attrName].map(attr => `<option value="${attr.id}">${attr.attribute_value}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>`;
                             }
 
                             $('#productVariants').html('<div class="row">' + attributesHtml +
                                 '</div>');
-
-                            // Bắt sự kiện chọn thuộc tính để cập nhật biến thể
                             $('.attribute-select').change(updateSelectedVariant);
                         } else {
                             $('#productVariants').html(
                                 '<p>Sản phẩm này hiện không có biến thể.</p>');
                         }
+
+                        $('#prdPrice').text(formatPrice(defaultPrice)).data('default-price',
+                            defaultPrice);
+                        $('#cartProductVariantId').val(defaultVariantId);
                     },
                     error: function(xhr) {
                         alert('Không tìm thấy sản phẩm.');
                     }
                 });
             });
+
 
             function getCurrentVariantId() {
                 let selectedAttributes = {};
@@ -903,13 +908,13 @@
 
                 if (selectedVariantId) {
                     let selectedVariant = productVariantsData[selectedVariantId];
-                    $('#prdPrice').text(selectedVariant.price);
+                    $('#prdPrice').text(formatPrice(selectedVariant.price));
                     $('#prdThumbnail').attr('src', selectedVariant.thumbnail);
                     $('#cartProductVariantId').val(selectedVariantId);
                 } else {
                     console.log("⚠️ Không tìm thấy biến thể phù hợp!");
                     $('#cartProductVariantId').val(null);
-                    $('#prdPrice').text($('#prdPrice').data('default-price'));
+                    $('#prdPrice').text(formatPrice($('#prdPrice').data('default-price')));
                     $('#prdThumbnail').attr('src', $('#prdThumbnail').data('default-thumbnail'));
                 }
             }
@@ -929,80 +934,6 @@
                 }
 
                 this.submit();
-            });
-
-            @if (session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công!',
-                    text: "{{ session('success') }}",
-                    timer: 1500,
-                    showConfirmButton: true
-                });
-            @endif
-
-            @if (session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi!',
-                    text: "{{ session('error') }}",
-                    showConfirmButton: true
-                });
-            @endif
-
-            $(document).on('click', '.wishlist-toggle', function(e) {
-                e.preventDefault();
-
-                var productId = $(this).data('product-id'); // Lấy product ID từ thuộc tính data-product-id
-                var icon = $(this).find('.wishlist-icon'); // Chỉ chọn icon trong element hiện tại
-
-                $.ajax({
-                    url: `/account/wishlist/toggle/${productId}`,
-                    type: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    },
-                    data: {
-                        product_id: productId
-                    },
-                    success: function(data) {
-                        if (data.result) {
-                            if (data.action === 'added') {
-                                icon.css('color', 'red'); // Đổi màu khi thêm vào wishlist
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Đã thêm!',
-                                    text: 'Sản phẩm đã được thêm vào danh sách yêu thích!',
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                });
-                            } else if (data.action === 'removed') {
-                                icon.css('color', 'black'); // Đổi màu khi xóa khỏi wishlist
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Đã xóa!',
-                                    text: 'Sản phẩm đã bị xóa khỏi danh sách yêu thích!',
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                });
-                            }
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi!',
-                                text: data.message ||
-                                    'Có lỗi xảy ra, vui lòng thử lại!',
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Lỗi!',
-                            text: 'Có lỗi xảy ra, vui lòng thử lại!',
-                        });
-                    }
-                });
             });
 
         });
