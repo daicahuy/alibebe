@@ -348,15 +348,37 @@ END');
                 DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'), // Lấy giá khuyến mãi
                 'products.thumbnail',
                 'products.is_active',
+                  // Tổng số lượng đã bán từ trước đến giờ (không lọc theo ngày)
+            DB::raw('
+            (SELECT SUM(
+                CASE 
+                    WHEN oi.product_variant_id IS NOT NULL 
+                    THEN oi.quantity_variant
+                    ELSE oi.quantity 
+                END
+            ) 
+            FROM order_items oi
+            JOIN orders o ON oi.order_id = o.id
+            JOIN order_order_status oos ON oos.order_id = o.id
+            WHERE oi.product_id = products.id 
+            AND oos.order_status_id = 6
+            ) as total_sold
+        '),  // Tổng số lượng đã bán từ trước đến giờ (không lọc theo ngày)
                 DB::raw('
-                    SUM(
+                    (SELECT SUM(
                         CASE 
-                            WHEN order_items.product_variant_id IS NOT NULL 
-                            THEN order_items.quantity_variant
-                            ELSE order_items.quantity 
+                            WHEN oi.product_variant_id IS NOT NULL 
+                            THEN oi.quantity_variant
+                            ELSE oi.quantity 
                         END
+                    ) 
+                    FROM order_items oi
+                    JOIN orders o ON oi.order_id = o.id
+                    JOIN order_order_status oos ON oos.order_id = o.id
+                    WHERE oi.product_id = products.id 
+                    AND oos.order_status_id = 6
                     ) as total_sold
-                '), // Cập nhật cách tính số lượng bán
+                '),  // Cập nhật cách tính số lượng bán
                 DB::raw('ROUND(COALESCE(AVG(reviews.rating), 0), 1) as average_rating'),
                 DB::raw('COUNT(DISTINCT reviews.id) as total_reviews'),
                 DB::raw('products.views as views_count'), // Thêm lượt xem
@@ -375,7 +397,7 @@ END');
                 'products.views'
             )
             ->orderByDesc('total_sold')
-            ->limit(24)
+            ->limit(12)
             ->get();
     }
 
@@ -460,7 +482,7 @@ END');
                 'products.views'
             )
             ->orderByDesc('total_sold')
-            ->limit(24)
+            ->limit(12)
             ->get();
     }
     public function getUserRecommendations($userId)
@@ -529,7 +551,7 @@ END');
                 'products.views'
             )
             ->orderByDesc('frequency') // Ưu tiên sản phẩm xuất hiện nhiều cùng với sản phẩm đã mua
-            ->limit(24)
+            ->limit(12)
             ->get();
 
         // Nếu không tìm thấy sản phẩm => gợi ý sản phẩm phổ biến

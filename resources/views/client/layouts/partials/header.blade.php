@@ -401,25 +401,29 @@
                                         <a href="{{ route('categories', $category->slug) }}" class="category-name">
                                             <img src="{{ Storage::url($category->icon) }}" alt="{{ $category->name }}">
                                             <h6>{{ $category->name }}</h6>
-                                            <i class="fa-solid fa-angle-right"></i>
+                            
+                                            @if($category->categories->count() > 0)
+                                                <i class="fa-solid fa-angle-right"></i>
+                                            @endif
                                         </a>
                             
                                         @if($category->categories->count() > 0)
-                                        <div class="onhover-category-box">
-                                            <ul class="list-unstyled d-flex flex-column gap-2 align-items-start m-0 p-0">
-                                                @foreach($category->categories as $subCategory)
-                                                    <li>
-                                                        <a href="{{ route('categories', $subCategory->slug) }}" class="text-decoration-none text-dark px-2 py-1 d-block">
-                                                            {{ $subCategory->name }}
-                                                        </a>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
+                                            <div class="onhover-category-box">
+                                                <ul class="list-unstyled d-flex flex-column gap-2 align-items-start m-0 p-0">
+                                                    @foreach($category->categories as $subCategory)
+                                                        <li>
+                                                            <a href="{{ route('categories', $subCategory->slug) }}" class="text-decoration-none text-dark px-2 py-1 d-block">
+                                                                {{ $subCategory->name }}
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
                                         @endif
                                     </li>
                                 @endforeach
                             </ul>
+                            
                         </div>
                     </div>
 

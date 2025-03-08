@@ -13,7 +13,7 @@
                             <img src="{{ asset('theme/client/assets/images/product/bia1.png') }}"
                                 class="bg-img blur-up lazyload" alt="">
                         </div>
-                        <div class="home-detail p-center-left w-75">
+                        {{-- <div class="home-detail p-center-left w-75">
                             <div>
                                 <h6>Exclusive offer <span>30% Off</span></h6>
                                 <h1 class="text-uppercase">Stay home & delivered your <span class="daily">Daily
@@ -25,7 +25,7 @@
                                     class="btn btn-animation mt-xxl-4 mt-2 home-button mend-auto">Mua Ngay <i
                                         class="fa-solid fa-right-long icon"></i></button>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
 
@@ -35,7 +35,7 @@
                             <div class="home-contain">
                                 <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
                                     class="bg-img blur-up lazyload" alt="">
-                                <div class="home-detail p-center-left home-p-sm w-75">
+                                {{-- <div class="home-detail p-center-left home-p-sm w-75">
                                     <div>
                                         <h2 class="mt-0 text-danger">45% <span class="discount text-title">OFF</span>
                                         </h2>
@@ -44,7 +44,7 @@
                                         <a href="shop-left-sidebar.html" class="shop-button">Mua Ngay <i
                                                 class="fa-solid fa-right-long"></i></a>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
 
@@ -52,7 +52,7 @@
                             <div class="home-contain">
                                 <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
                                     class="bg-img blur-up lazyload" alt="">
-                                <div class="home-detail p-center-left home-p-sm w-75">
+                                {{-- <div class="home-detail p-center-left home-p-sm w-75">
                                     <div>
                                         <h3 class="mt-0 theme-color fw-bold">Healthy Food</h3>
                                         <h4 class="text-danger">Organic Market</h4>
@@ -60,7 +60,7 @@
                                         <a href="shop-left-sidebar.html" class="shop-button">Mua Ngay <i
                                                 class="fa-solid fa-right-long"></i></a>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>
@@ -78,7 +78,7 @@
                     <div class="banner-contain hover-effect">
                         <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
                             class="bg-img blur-up lazyload" alt="">
-                        <div class="banner-details">
+                        {{-- <div class="banner-details">
                             <div class="banner-box">
                                 <h6 class="text-danger">5% OFF</h6>
                                 <h5>Hot Deals on New Items</h5>
@@ -86,7 +86,7 @@
                             </div>
                             <a href="shop-left-sidebar.html" class="banner-button text-white">Mua Ngay <i
                                     class="fa-solid fa-right-long ms-2"></i></a>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
 
@@ -94,7 +94,7 @@
                     <div class="banner-contain hover-effect">
                         <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
                             class="bg-img blur-up lazyload" alt="">
-                        <div class="banner-details">
+                        {{-- <div class="banner-details">
                             <div class="banner-box">
                                 <h6 class="text-danger">5% OFF</h6>
                                 <h5>Buy More & Save More</h5>
@@ -102,7 +102,7 @@
                             </div>
                             <a href="shop-left-sidebar.html" class="banner-button text-white">Mua Ngay <i
                                     class="fa-solid fa-right-long ms-2"></i></a>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
 
@@ -110,7 +110,7 @@
                     <div class="banner-contain hover-effect">
                         <img src="{{ asset('theme/client/assets/images/product/bia1.png') }}"
                             class="bg-img blur-up lazyload" alt="">
-                        <div class="banner-details">
+                        {{-- <div class="banner-details">
                             <div class="banner-box">
                                 <h6 class="text-danger">5% OFF</h6>
                                 <h5>Organic Meat Prepared</h5>
@@ -118,7 +118,7 @@
                             </div>
                             <a href="shop-left-sidebar.html" class="banner-button text-white">Mua Ngay <i
                                     class="fa-solid fa-right-long ms-2"></i></a>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
 
@@ -126,7 +126,7 @@
                     <div class="banner-contain hover-effect">
                         <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
                             class="bg-img blur-up lazyload" alt="">
-                        <div class="banner-details">
+                        {{-- <div class="banner-details">
                             <div class="banner-box">
                                 <h6 class="text-danger">5% OFF</h6>
                                 <h5>Buy More & Save More</h5>
@@ -134,7 +134,7 @@
                             </div>
                             <a href="shop-left-sidebar.html" class="banner-button text-white">Mua Ngay <i
                                     class="fa-solid fa-right-long ms-2"></i></a>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -159,15 +159,14 @@
                                             <img src="{{ Storage::url($category->icon) }}" class="blur-up lazyload"
                                                 alt="">
                                             <h5>
-                                                <a
-                                                    href="{{ route('categories', ['category' => $category->id]) }}">{{ $category->name }}</a>
+                                                <a href="{{ route('categories', $category->slug) }}">{{ $category->name }}</a>
                                             </h5>
                                         </div>
                                     </li>
                                 @endforeach
                             </ul>
 
-                            <ul class="value-list">
+                            {{-- <ul class="value-list">
                                 <li>
                                     <div class="category-list">
                                         <h5 class="ms-0 text-title">
@@ -189,14 +188,14 @@
                                         </h5>
                                     </div>
                                 </li>
-                            </ul>
+                            </ul> --}}
                         </div>
 
                         <div class="ratio_156 section-t-space">
                             <div class="home-contain hover-effect">
-                                <img src="{{ asset('theme/client/assets/images/vegetable/banner/8.jpg') }}"
+                                <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
                                     class="bg-img blur-up lazyload" alt="">
-                                <div class="home-detail p-top-left home-p-medium">
+                                {{-- <div class="home-detail p-top-left home-p-medium">
                                     <div>
                                         <h6 class="text-yellow home-banner">Seafood</h6>
                                         <h3 class="text-uppercase fw-normal"><span
@@ -206,15 +205,15 @@
                                             class="btn btn-animation btn-md mend-auto">Mua Ngay <i
                                                 class="fa-solid fa-arrow-right icon"></i></button>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
 
                         <div class="ratio_medium section-t-space">
                             <div class="home-contain hover-effect">
-                                <img src="{{ asset('theme/client/assets/images/vegetable/banner/11.jpg') }}"
+                                <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
                                     class="img-fluid blur-up lazyload" alt="">
-                                <div class="home-detail p-top-left home-p-medium">
+                                {{-- <div class="home-detail p-top-left home-p-medium">
                                     <div>
                                         <h4 class="text-yellow text-exo home-banner">Organic</h4>
                                         <h2 class="text-uppercase fw-normal mb-0 text-russo theme-color">fresh</h2>
@@ -224,7 +223,7 @@
                                             class="btn btn-animation btn-md mend-auto">Mua Ngay <i
                                                 class="fa-solid fa-arrow-right icon"></i></button>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
 
@@ -262,7 +261,7 @@
                             </div>
                         </div>
 
-                        <div class="section-t-space">
+                        {{-- <div class="section-t-space">
                             <div class="category-menu">
                                 <h3>Customer Comment</h3>
 
@@ -276,17 +275,14 @@
 
                                     <div class="review-profile">
                                         <div class="review-image">
-                                            <img src="{{ asset('theme/client/assets/images/vegetable/review/1.jpg') }}"
+                                            <img src="{{ asset('theme/client/assets/images/product/vendor.png') }}"
                                                 class="img-fluid blur-up lazyload" alt="">
                                         </div>
-                                        <div class="review-detail">
-                                            <h5>Tina Mcdonnale</h5>
-                                            <h6>Sale Manager</h6>
-                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
 
@@ -328,11 +324,13 @@
                                                         </li>
 
                                                         <li data-bs-toggle="tooltip" data-bs-placement="top"
-                                                            title="Wishlist">
-                                                            <a href="wishlist.html" class="notifi-wishlist">
-                                                                <i data-feather="heart"></i>
-                                                            </a>
-                                                        </li>
+                                                        title="Wishlist">
+                                                        <a href="javascript:void(0);"
+                                                            class="notifi-wishlist wishlist-toggle"
+                                                            data-product-id="{{ $topSell->id }}">
+                                                            <i data-feather="heart" class="wishlist-icon"></i>
+                                                        </a>
+                                                    </li>
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
@@ -359,9 +357,9 @@
                                                         <span
                                                             class="text-muted ms-2">({{ number_format($topSell->average_rating, 1) }})</span>
                                                     </div>
-                                                    <div class="mt-sm-2 mt-1">
+                                                    <div class="d-flex justify-content-between mt-sm-2 mt-1">
                                                         <h6 class="unit">Lượt xem: {{ $topSell->views_count }}</h6>
-                                                        <h6 class="unit">Đã Bán Hôm Nay: {{ $topSell->total_sold }}</h6>
+                                                        <h6 class="unit">Đã Bán: {{ $topSell->total_sold }}</h6>
                                                     </div>
                                                     <div class="add-to-cart-box">
                                                         <a href="javascript:void(0)" data-bs-toggle="modal"
@@ -403,32 +401,15 @@
                         <div class="row g-md-4 g-3">
                             <div class="col-md-6">
                                 <div class="banner-contain hover-effect">
-                                    <img src="{{ asset('theme/client/assets/images/vegetable/banner/9.jpg') }}"
+                                    <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
                                         class="bg-img blur-up lazyload" alt="">
-                                    <div class="banner-details p-center-left p-4">
-                                        <div>
-                                            <h3 class="text-exo">50% offer</h3>
-                                            <h4 class="text-russo fw-normal theme-color mb-2">Testy Mushrooms</h4>
-                                            <button onclick="location.href = 'shop-left-sidebar.html';"
-                                                class="btn btn-animation btn-sm mend-auto">Mua Ngay <i
-                                                    class="fa-solid fa-arrow-right icon"></i></button>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="banner-contain hover-effect">
-                                    <img src="{{ asset('theme/client/assets/images/vegetable/banner/10.jpg') }}"
+                                    <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
                                         class="bg-img blur-up lazyload" alt="">
-                                    <div class="banner-details p-center-left p-4">
-                                        <div>
-                                            <h3 class="text-exo">50% offer</h3>
-                                            <h4 class="text-russo fw-normal theme-color mb-2">Fresh MEAT</h4>
-                                            <button onclick="location.href = 'shop-left-sidebar.html';"
-                                                class="btn btn-animation btn-sm mend-auto">Mua Ngay <i
-                                                    class="fa-solid fa-arrow-right icon"></i></button>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -526,14 +507,14 @@
 
                     <div class="section-t-space">
                         <div class="banner-contain">
-                            <img src="{{ asset('theme/client/assets/images/vegetable/banner/15.jpg') }}"
+                            <img src="{{ asset('theme/client/assets/images/product/bia1.png') }}"
                                 class="bg-img blur-up lazyload" alt="">
-                            <div class="banner-details p-center p-4 text-white text-center">
+                            {{-- <div class="banner-details p-center p-4 text-white text-center">
                                 <div>
                                     <h3 class="lh-base fw-bold offer-text">Get $3 Cashback! Min Order of $30</h3>
                                     <h6 class="coupon-code">Use Code : GROCERY1920</h6>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
 
@@ -541,9 +522,9 @@
                         <div class="row g-md-4 g-3">
                             <div class="col-xxl-8 col-xl-12 col-md-7">
                                 <div class="banner-contain hover-effect">
-                                    <img src="{{ asset('theme/client/assets/images/vegetable/banner/12.jpg') }}"
+                                    <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
                                         class="bg-img blur-up lazyload" alt="">
-                                    <div class="banner-details p-center-left p-4">
+                                    {{-- <div class="banner-details p-center-left p-4">
                                         <div>
                                             <h2 class="text-kaushan fw-normal theme-color">Get Ready To</h2>
                                             <h3 class="mt-2 mb-3">TAKE ON THE DAY!</h3>
@@ -554,21 +535,21 @@
                                                 class="btn btn-animation btn-sm mend-auto">Mua Ngay <i
                                                     class="fa-solid fa-arrow-right icon"></i></button>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
 
                             <div class="col-xxl-4 col-xl-12 col-md-5">
                                 <a href="shop-left-sidebar.html" class="banner-contain hover-effect h-100">
-                                    <img src="{{ asset('theme/client/assets/images/vegetable/banner/13.jpg') }}"
+                                    <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
                                         class="bg-img blur-up lazyload" alt="">
-                                    <div class="banner-details p-center-left p-4 h-100">
+                                    {{-- <div class="banner-details p-center-left p-4 h-100">
                                         <div>
                                             <h2 class="text-kaushan fw-normal text-danger">20% Off</h2>
                                             <h3 class="mt-2 mb-2 theme-color">SUMMRY</h3>
                                             <h3 class="fw-normal product-name text-title">Product</h3>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </a>
                             </div>
                         </div>
@@ -615,18 +596,18 @@
 
                     <div class="section-t-space">
                         <div class="banner-contain hover-effect">
-                            <img src="{{ asset('theme/client/assets/images/vegetable/banner/14.jpg') }}"
+                            <img src="{{ asset('theme/client/assets/images/product/vendor.png') }}"
                                 class="bg-img blur-up lazyload" alt="">
-                            <div class="banner-details p-center banner-b-space w-100 text-center">
-                                <div>
-                                    <h6 class="ls-expanded theme-color mb-sm-3 mb-1">SUMMER</h6>
-                                    <h2 class="banner-title">VEGETABLE</h2>
-                                    <h5 class="lh-sm mx-auto mt-1 text-content">Save up to 5% OFF</h5>
+                            {{-- <div class="banner-details p-center banner-b-space w-100 text-center">
+                                {{-- <div>
+                                    <h6 class="ls-expanded theme-color mb-sm-3 mb-1"> </h6>
+                                    <h2 class="banner-title"> </h2>
+                                    <h5 class="lh-sm mx-auto mt-1 text-content">Tiết kiệm lên đến 5% GIẢM GIÁ</h5>
                                     <button onclick="location.href = 'shop-left-sidebar.html';"
                                         class="btn btn-animation btn-sm mx-auto mt-sm-3 mt-2">Mua Ngay <i
                                             class="fa-solid fa-arrow-right icon"></i></button>
-                                </div>
-                            </div>
+                                </div> --}}
+                            {{-- </div>  --}}
                         </div>
                     </div>
                 </div>
@@ -937,5 +918,76 @@
             });
 
         });
+         // wish list 
+         $(document).on('click', '.wishlist-toggle', function (e) {
+    e.preventDefault();
+
+    @guest
+        // Nếu chưa đăng nhập, hiển thị thông báo yêu cầu đăng nhập
+        Swal.fire({
+            icon: 'warning',
+            title: 'Bạn chưa đăng nhập!',
+            text: 'Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích.',
+            showConfirmButton: true,
+            confirmButtonText: 'Đăng nhập',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/login'; // Điều hướng đến trang đăng nhập
+            }
+        });
+        return; // Dừng xử lý tiếp theo
+    @endguest
+
+    var productId = $(this).data('product-id'); // Lấy product ID từ thuộc tính data-product-id
+    var icon = $(this).find('.wishlist-icon'); // Chỉ chọn icon trong element hiện tại
+
+    $.ajax({
+        url: `/account/wishlist/toggle/${productId}`,
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        },
+        data: {
+            product_id: productId
+        },
+        success: function (data) {
+            if (data.result) {
+                if (data.action === 'added') {
+                    icon.css('color', 'red'); // Đổi màu khi thêm vào wishlist
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã thêm!',
+                        text: 'Sản phẩm đã được thêm vào danh sách yêu thích!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else if (data.action === 'removed') {
+                    icon.css('color', 'black'); // Đổi màu khi xóa khỏi wishlist
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã xóa!',
+                        text: 'Sản phẩm đã bị xóa khỏi danh sách yêu thích!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: data.message || 'Có lỗi xảy ra, vui lòng thử lại!',
+                });
+            }
+        },
+        error: function (xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Có lỗi xảy ra, vui lòng thử lại!',
+            });
+        }
+    });
+});
+
     </script>
 @endpush

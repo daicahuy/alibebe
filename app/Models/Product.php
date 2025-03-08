@@ -175,7 +175,7 @@ class Product extends Model
                 'products.created_at'
             )
             ->orderByDesc('total_sold')
-            ->limit(24);
+            ->limit(12);
     }
 
 
