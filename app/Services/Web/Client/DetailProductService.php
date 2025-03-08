@@ -49,7 +49,6 @@ class DetailProductService
 
         // Lấy thuộc tính sản phẩm
         $product->attributes = $this->productRepository->getProductAttributes($product);
-
         return $product;
     }
     public function detailModal($id)

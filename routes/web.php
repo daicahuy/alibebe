@@ -8,6 +8,7 @@ use App\Http\Controllers\Web\Admin\AttributeController;
 use App\Http\Controllers\Web\Admin\AttributeValueController;
 use App\Http\Controllers\Web\Admin\BrandController;
 use App\Http\Controllers\Web\Admin\CategoryController;
+use App\Http\Controllers\Web\Admin\CommentController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Web\Admin\DashboardController;
 use App\Http\Controllers\Web\Admin\OrderController;
@@ -434,6 +435,21 @@ Route::prefix('/admin')
             Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
 
         });
+
+        
+        // Comments
+        Route::prefix('/comments')
+            ->name('comments.')
+            ->controller(CommentController::class)
+            ->group(function () {
+
+            Route::get('/', 'index')->name('index');
+
+            Route::get('/{product}', 'show')->name('show');
+
+            Route::get('/comments/{commentId}/replies',  'getCommentReplies')->name('comments.replies');
+        });
+
 
         // COUPONS
         Route::prefix('/coupons')

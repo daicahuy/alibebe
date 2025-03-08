@@ -101,6 +101,8 @@ return [
     'comments' => 'Bình luận',
     'comment' => [
         'id' => 'ID',
+        'stt' => 'STT',
+        'sum_cm' => 'Tổng bình luận',
         'product_id' => 'ID sản phẩm',
         'user_id' => 'ID người dùng',
         'content' => 'Nội dung',

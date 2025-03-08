@@ -15,4 +15,23 @@ class CommentReplyRepository extends BaseRepository {
     {
         return CommentReply::create($data);
     }
+
+    public function ListReply($commentId)
+    {
+        $query = $this->model->where('comment_id', $commentId)
+                             ->with('user'); 
+
+        return $query->get();
+    }
+    
+    public function deleteReply(int $replyId): bool
+    {
+        $reply = $this->findById($replyId);
+
+        if (!$reply) {
+            return false; 
+        }
+
+        return $reply->delete();
+    }
 }

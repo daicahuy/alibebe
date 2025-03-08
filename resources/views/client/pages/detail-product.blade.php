@@ -358,7 +358,7 @@
                                                 <div class="product-box product-box-bg wow fadeInUp">
                                                     <div class="product-header">
                                                         <div class="product-image">
-                                                            <a href="#">
+                                                            <a href="{{route('products',$dk->id)}}">
                                                                 <img src="{{ asset('storage/' . $dk->thumbnail) }}"
                                                                     class="img-fluid blur-up lazyload"
                                                                     alt="{{ $dk->name }}">
@@ -474,6 +474,7 @@
                                         </table>
                                     </div>
                                 </div>
+                                
                                 <h3 class="fw-bold my-4 text-center">Đánh giá sản phẩm</h3>
                                 <div class="review-box m-4 ">
                                     <div class="row d-flex justify-content-center">
@@ -757,8 +758,10 @@
                                                     </a>
                                                 </li>
                                                 <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                    <a href="wishlist.html" class="notifi-wishlist">
-                                                        <i data-feather="heart"></i>
+                                                    <a href="javascript:void(0);" class="notifi-wishlist wishlist-toggle"
+                                                        data-product-id="{{ $related->id }}">
+                                                        <i data-feather="heart" class="wishlist-icon"></i>
+                                                       
                                                     </a>
                                                 </li>
                                             </ul>
@@ -768,7 +771,7 @@
                                     <div class="product-footer">
                                         <div class="product-detail">
                                             <span class="span-name">{{ $related->brand->name }}</span>
-                                            <a href="#">
+                                            <a href="{{route('products',$related->id)}}">
                                                 <h5 class="name">{{ $related->name }}</h5>
                                             </a>
                                             <div class="product-rating mt-2">
@@ -783,12 +786,30 @@
                                                 <span>({{ number_format($related->average_rating, 1) }})</span>
                                             </div>
                                             <h5 class="price">
-                                                <span
-                                                    class="theme-color">{{ number_format($related->sale_price ?: $related->price, 0, ',', '.') }}
-                                                    ₫</span>
-                                                @if ($related->sale_price)
-                                                    <del>{{ number_format($related->price, 0, ',', '.') }} ₫</del>
+                                                @if ($related->productVariants->count() > 0)
+                                                @php
+                                                    // Lọc ra biến thể có sale_price > 1 và sắp xếp theo sale_price tăng dần
+                                                    $variant = $related->productVariants->where('sale_price', '>', 1)->sortBy('sale_price')->first();
+                                                    $variantPrice = $variant ? $variant->price : $related->price;
+                                                    $variantSalePrice = $variant ? $variant->sale_price : null;
+                                                    $isSale = $variant ? $related->is_sale : $related->is_sale;
+                                                @endphp
+                                            
+                                                @if ($isSale == 1 && $variantSalePrice !== null)
+                                                    {{ number_format($variantSalePrice, 0, ',', '.') }} ₫
+                                                    <br><del class="text-content">{{ number_format($variantPrice, 0, ',', '.') }} ₫</del>
+                                                @else
+                                                    {{ number_format($variantPrice, 0, ',', '.') }} ₫
                                                 @endif
+                                            @else
+                                                @if ($related->is_sale == 1 && $related->sale_price > 1)
+                                                    {{ number_format($related->sale_price, 0, ',', '.') }} ₫
+                                                    <br><del class="text-content">{{ number_format($related->price, 0, ',', '.') }} ₫</del>
+                                                @else
+                                                    {{ number_format($related->price, 0, ',', '.') }} ₫
+                                                @endif
+                                            @endif
+                                            
                                             </h5>
                                             <div class="add-to-cart-box bg-white">
                                                 <button class="btn btn-add-cart addcart-button">add </button>
@@ -1041,7 +1062,7 @@
                 $('#view').data('product-id', productId); // Lưu product_id vào data của modal #view
 
                 $.ajax({
-                    url: '/api/productListCate/' +
+                    url: '/api/products/' +
                         productId,
                     method: 'GET',
                     dataType: 'json',
@@ -1050,7 +1071,7 @@
                     ) {
                         // Cập nhật thông tin cơ bản của sản phẩm trong modal
                         $('#prdName').text(response.name)
-                        $('#prdDescription').text(response.description)
+                        $('#prdDescription').text(response.short_description)
                         $('#prdBrand').text(response.brand)
                         $('#prdCategories').text(response.categories)
 
