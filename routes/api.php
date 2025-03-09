@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\ApiRefundOrderController;
 use App\Http\Controllers\Api\AttributeController;
 use App\Http\Controllers\Api\AttributeValueController;
 use App\Http\Controllers\api\AuthCustomerApiController;
@@ -67,6 +68,15 @@ Route::prefix('/attributes')
             ->group(function () {
                 Route::put('/{attributeValue}', 'update')->name('update');
             });
+    });
+
+
+Route::prefix('/refund-orders')
+    ->name('api.refund-orders.')
+    ->group(function () {
+        Route::get('/list', [ApiRefundOrderController::class, 'index'])->name('index');
+        Route::get('/{id}', [ApiRefundOrderController::class, 'getDataOrderRefund'])->name('getDataOrderRefund');
+
     });
 
 Route::prefix('/orders')
