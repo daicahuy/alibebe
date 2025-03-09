@@ -6,11 +6,9 @@
 {{-- ================================== --}}
 
 @push('css_library')
-    
 @endpush
 
 @push('css')
-    
 @endpush
 
 
@@ -21,829 +19,355 @@
 
 @section('content')
     <div class="row">
-        <!-- chart caard section start -->
-        <div class="col-sm-6 col-xxl-3 col-lg-6">
-            <div class="main-tiles border-5 border-0  card-hover card o-hidden">
-                <div class="custome-1-bg b-r-4 card-body">
-                    <div class="media align-items-center static-top-widget">
-                        <div class="media-body p-0">
-                            <span class="m-0">Total Revenue</span>
-                            <h4 class="mb-0 counter">$6659
-                                <span class="badge badge-light-primary grow">
-                                    <i data-feather="trending-up"></i>8.5%</span>
-                            </h4>
+        <section class="dashboard-tiles">
+            <div class="container-fluid">
+                <div class="row g-3 ">
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h6>{{ __('message.total_revenue') }}</h6>
+                                <h3>$1,346.42</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-wallet-line"></i></div>
                         </div>
-                        <div class="align-self-center text-center">
-                            <i class="ri-database-2-line"></i>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h6>{{ __('message.total_orders_completed') }}</h6>
+                                <h3>11</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-file-text-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h6>{{ __('message.total_products') }}</h6>
+                                <h3>9</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-store-3-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h6>{{ __('message.total_customers') }}</h6>
+                                <h3>6</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-group-line"></i></div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="col-sm-6 col-xxl-3 col-lg-6">
-            <div class="main-tiles border-5 card-hover border-0 card o-hidden">
-                <div class="custome-2-bg b-r-4 card-body">
-                    <div class="media static-top-widget">
-                        <div class="media-body p-0">
-                            <span class="m-0">Total Orders</span>
-                            <h4 class="mb-0 counter">9856
-                                <span class="badge badge-light-danger grow">
-                                    <i data-feather="trending-down"></i>8.5%</span>
-                            </h4>
-                        </div>
-                        <div class="align-self-center text-center">
-                            <i class="ri-shopping-bag-3-line"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xxl-3 col-lg-6">
-            <div class="main-tiles border-5 card-hover border-0  card o-hidden">
-                <div class="custome-3-bg b-r-4 card-body">
-                    <div class="media static-top-widget">
-                        <div class="media-body p-0">
-                            <span class="m-0">Total Products</span>
-                            <h4 class="mb-0 counter">893
-                                <a href="add-new-product.html" class="badge badge-light-secondary grow">
-                                    ADD NEW</a>
-                            </h4>
-                        </div>
-
-                        <div class="align-self-center text-center">
-                            <i class="ri-chat-3-line"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xxl-3 col-lg-6">
-            <div class="main-tiles border-5 card-hover border-0 card o-hidden">
-                <div class="custome-4-bg b-r-4 card-body">
-                    <div class="media static-top-widget">
-                        <div class="media-body p-0">
-                            <span class="m-0">Total Customers</span>
-                            <h4 class="mb-0 counter">4.6k
-                                <span class="badge badge-light-success grow">
-                                    <i data-feather="trending-down"></i>8.5%</span>
-                            </h4>
-                        </div>
-
-                        <div class="align-self-center text-center">
-                            <i class="ri-user-add-line"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- <div class="col-12">
-            <div class="card o-hidden card-hover">
-                <div class="card-header border-0 pb-1">
-                    <div class="card-header-title p-0">
-                        <h4>Category</h4>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="category-slider no-arrow">
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/vegetable.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Vegetables & Fruit</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/cup.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Beverages</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/meats.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Meats & Seafood</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/breakfast.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Breakfast</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/frozen.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Frozen Foods</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/milk.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Milk & Dairies</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/pet.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Pet Food</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/vegetable.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Vegetables & Fruit</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/cup.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Beverages</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/meats.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Meats & Seafood</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/breakfast.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Breakfast</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/frozen.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Frozen Foods</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/milk.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Milk & Dairies</h6>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dashboard-category">
-                                <a href="javascript:void(0)" class="category-image">
-                                    <img src="/theme/admin/assets/svg/pet.svg" class="img-fluid" alt="">
-                                </a>
-                                <a href="javascript:void(0)" class="category-name">
-                                    <h6>Pet Food</h6>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
-        <!-- chart card section End -->
-
-
-        <!-- Earning chart star-->
-        <div class="col-xl-6">
-            <div class="card o-hidden card-hover">
-                <div class="card-header border-0 pb-1">
-                    <div class="card-header-title">
-                        <h4>Revenue Report</h4>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div id="report-chart"></div>
-                </div>
-            </div>
-        </div>
-        <!-- Earning chart  end-->
-
-
-        <!-- Best Selling Product Start -->
-        <div class="col-xl-6 col-md-12">
-            <div class="card o-hidden card-hover">
-                <div class="card-header card-header-top card-header--2 px-0 pt-0">
-                    <div class="card-header-title">
-                        <h4>Best Selling Product</h4>
-                    </div>
-
-                    <div class="best-selling-box d-sm-flex d-none">
-                        <span>Short By:</span>
-                        <div class="dropdown">
-                            <button class="btn p-0 dropdown-toggle" type="button" id="dropdownMenuButton1"
-                                data-bs-toggle="dropdown" data-bs-auto-close="true">Today</button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                <li><a class="dropdown-item" href="#">Action</a></li>
-                                <li><a class="dropdown-item" href="#">Another action</a></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body p-0">
-                    <div>
-                        <div class="table-responsive">
-                            <table
-                                class="best-selling-table w-image
-                        w-image
-                        w-image table border-0">
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="best-product-box">
-                                                <div class="product-image">
-                                                    <img src="/theme/admin/assets/images/product/1.png" class="img-fluid"
-                                                        alt="Product">
-                                                </div>
-                                                <div class="product-name">
-                                                    <h5>Aata Buscuit</h5>
-                                                    <h6>26-08-2022</h6>
+        </section>
+        <section>
+            <div class="row m-0">
+                <div class="col-xl-8 col-md-6 p-0">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="title-header">
+                                            <div class="w-100 d-flex align-items-center justify-content-between">
+                                                <h5>{{ __('message.revenue_and_orders') }}</h5>
+                                                <div>
+                                                    <select class="form-select" name="">
+                                                        <option value="">Today</option>
+                                                        <option value="">Last Week</option>
+                                                        <option value="">Last Month</option>
+                                                        <option value="">Last Year</option>
+                                                        <option value="">Last 2 Year</option>
+                                                        <option value="">Last 3 Year</option>
+                                                    </select>
                                                 </div>
                                             </div>
-                                        </td>
+                                        </div>
+                                        <div style="min-height: 360px;">
 
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Price</h6>
-                                                <h5>$29.00</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Orders</h6>
-                                                <h5>62</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Stock</h6>
-                                                <h5>510</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Amount</h6>
-                                                <h5>$1,798</h5>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>
-                                            <div class="best-product-box">
-                                                <div class="product-image">
-                                                    <img src="/theme/admin/assets/images/product/2.png" class="img-fluid"
-                                                        alt="Product">
-                                                </div>
-                                                <div class="product-name">
-                                                    <h5>Aata Buscuit</h5>
-                                                    <h6>26-08-2022</h6>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Price</h6>
-                                                <h5>$29.00</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Orders</h6>
-                                                <h5>62</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Stock</h6>
-                                                <h5>510</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Amount</h6>
-                                                <h5>$1,798</h5>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>
-                                            <div class="best-product-box">
-                                                <div class="product-image">
-                                                    <img src="/theme/admin/assets/images/product/3.png" class="img-fluid"
-                                                        alt="Product">
-                                                </div>
-                                                <div class="product-name">
-                                                    <h5>Aata Buscuit</h5>
-                                                    <h6>26-08-2022</h6>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Price</h6>
-                                                <h5>$29.00</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Orders</h6>
-                                                <h5>62</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Stock</h6>
-                                                <h5>510</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Amount</h6>
-                                                <h5>$1,798</h5>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Best Selling Product End -->
-
-
-        <!-- Recent orders start-->
-        <div class="col-xl-6">
-            <div class="card o-hidden card-hover">
-                <div class="card-header card-header-top card-header--2 px-0 pt-0">
-                    <div class="card-header-title">
-                        <h4>Recent Orders</h4>
-                    </div>
-
-                    <div class="best-selling-box d-sm-flex d-none">
-                        <span>Short By:</span>
-                        <div class="dropdown">
-                            <button class="btn p-0 dropdown-toggle" type="button" id="dropdownMenuButton2"
-                                data-bs-toggle="dropdown" data-bs-auto-close="true">Today</button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                <li><a class="dropdown-item" href="#">Action</a></li>
-                                <li><a class="dropdown-item" href="#">Another action</a></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body p-0">
-                    <div>
-                        <div class="table-responsive">
-                            <table class="best-selling-table table border-0">
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="best-product-box">
-                                                <div class="product-name">
-                                                    <h5>Aata Buscuit</h5>
-                                                    <h6>#64548</h6>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Date Placed</h6>
-                                                <h5>5/1/22</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Price</h6>
-                                                <h5>$250.00</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Order Status</h6>
-                                                <h5>Completed</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Payment</h6>
-                                                <h5 class="text-danger">Unpaid</h5>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>
-                                            <div class="best-product-box">
-                                                <div class="product-name">
-                                                    <h5>Aata Buscuit</h5>
-                                                    <h6>26-08-2022</h6>
-                                                </div>
-                                            </div>
-                                        </td>
-
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Date Placed</h6>
-                                                <h5>5/1/22</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Price</h6>
-                                                <h5>$250.00</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Order Status</h6>
-                                                <h5>Completed</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Payment</h6>
-                                                <h5 class="theme-color">Paid</h5>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>
-                                            <div class="best-product-box">
-                                                <div class="product-name">
-                                                    <h5>Aata Buscuit</h5>
-                                                    <h6>26-08-2022</h6>
-                                                </div>
-                                            </div>
-                                        </td>
-
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Date Placed</h6>
-                                                <h5>5/1/22</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Price</h6>
-                                                <h5>$250.00</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Order Status</h6>
-                                                <h5>Completed</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Payment</h6>
-                                                <h5 class="theme-color">Paid</h5>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>
-                                            <div class="best-product-box">
-                                                <div class="product-name">
-                                                    <h5>Aata Buscuit</h5>
-                                                    <h6>26-08-2022</h6>
-                                                </div>
-                                            </div>
-                                        </td>
-
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Date Placed</h6>
-                                                <h5>5/1/22</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Price</h6>
-                                                <h5>$250.00</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Order Status</h6>
-                                                <h5>Completed</h5>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="product-detail-box">
-                                                <h6>Payment</h6>
-                                                <h5 class="theme-color">Paid</h5>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Recent orders end-->
-
-        <!-- Earning chart star-->
-        <div class="col-xl-6">
-            <div class="card o-hidden card-hover">
-                <div class="card-header border-0 mb-0">
-                    <div class="card-header-title">
-                        <h4>Earning</h4>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div id="bar-chart-earning"></div>
-                </div>
-            </div>
-        </div>
-        <!-- Earning chart end-->
-
-
-        <!-- Transactions start-->
-        <div class="col-xxl-4 col-md-6">
-            <div class="card o-hidden card-hover">
-                <div class="card-header border-0">
-                    <div class="card-header-title">
-                        <h4>Transactions</h4>
-                    </div>
-                </div>
-
-                <div class="card-body pt-0">
-                    <div>
-                        <div class="table-responsive">
-                            <table class="user-table transactions-table table border-0">
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="transactions-icon">
-                                                <i class="ri-shield-line"></i>
-                                            </div>
-                                            <div class="transactions-name">
-                                                <h6>Wallets</h6>
-                                                <p>Starbucks</p>
-                                            </div>
-                                        </td>
-
-                                        <td class="lost">-$74</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-color-1">
-                                            <div class="transactions-icon">
-                                                <i class="ri-check-line"></i>
-                                            </div>
-                                            <div class="transactions-name">
-                                                <h6>Bank Transfer</h6>
-                                                <p>Add Money</p>
-                                            </div>
-                                        </td>
-
-                                        <td class="success">+$125</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-color-2">
-                                            <div class="transactions-icon">
-                                                <i class="ri-exchange-dollar-line"></i>
-                                            </div>
-                                            <div class="transactions-name">
-                                                <h6>Paypal</h6>
-                                                <p>Add Money</p>
-                                            </div>
-                                        </td>
-
-                                        <td class="lost">-$50</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-color-3">
-                                            <div class="transactions-icon">
-                                                <i class="ri-bank-card-line"></i>
-                                            </div>
-                                            <div class="transactions-name">
-                                                <h6>Mastercard</h6>
-                                                <p>Ordered Food</p>
-                                            </div>
-                                        </td>
-
-                                        <td class="lost">-$40</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-color-4 pb-0">
-                                            <div class="transactions-icon">
-                                                <i class="ri-bar-chart-grouped-line"></i>
-                                            </div>
-                                            <div class="transactions-name">
-                                                <h6>Transfer</h6>
-                                                <p>Refund</p>
-                                            </div>
-                                        </td>
-
-                                        <td class="success pb-0">+$90</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Transactions end-->
-
-        <!-- visitors chart start-->
-        <div class="col-xxl-4 col-md-6">
-            <div class="h-100">
-                <div class="card o-hidden card-hover">
-                    <div class="card-header border-0">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="card-header-title">
-                                <h4>Visitors</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body pt-0">
-                        <div class="pie-chart">
-                            <div id="pie-chart-visitors"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- visitors chart end-->
-
-
-        <!-- To Do List start-->
-        <div class="col-xxl-4 col-md-6">
-            <div class="card o-hidden card-hover">
-                <div class="card-header border-0">
-                    <div class="card-header-title">
-                        <h4>To Do List</h4>
-                    </div>
-                </div>
-
-                <div class="card-body pt-0">
-                    <ul class="to-do-list">
-                        <li class="to-do-item">
-                            <div class="form-check user-checkbox">
-                                <input class="checkbox_animated check-it" type="checkbox" value=""
-                                    id="flexCheckDefault">
-                            </div>
-                            <div class="to-do-list-name">
-                                <strong>Pick up kids from school</strong>
-                                <p>8 Hours</p>
-                            </div>
-                        </li>
-                        <li class="to-do-item">
-                            <div class="form-check user-checkbox">
-                                <input class="checkbox_animated check-it" type="checkbox" value=""
-                                    id="flexCheckDefault1">
-                            </div>
-                            <div class="to-do-list-name">
-                                <strong>Prepare or presentation.</strong>
-                                <p>8 Hours</p>
-                            </div>
-                        </li>
-                        <li class="to-do-item">
-                            <div class="form-check user-checkbox">
-                                <input class="checkbox_animated check-it" type="checkbox" value=""
-                                    id="flexCheckDefault2">
-                            </div>
-                            <div class="to-do-list-name">
-                                <strong>Create invoice</strong>
-                                <p>8 Hours</p>
-                            </div>
-                        </li>
-                        <li class="to-do-item">
-                            <div class="form-check user-checkbox">
-                                <input class="checkbox_animated check-it" type="checkbox" value=""
-                                    id="flexCheckDefault3">
-                            </div>
-                            <div class="to-do-list-name">
-                                <strong>Meeting with Alisa</strong>
-                                <p>8 Hours</p>
-                            </div>
-                        </li>
-
-                        <li class="to-do-item">
-                            <form class="row g-2">
-                                <div class="col-8">
-                                    <input type="text" class="form-control" id="name"
-                                        placeholder="Enter Task Name">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-4">
-                                    <button type="submit" class="btn btn-primary w-100 h-100">Add
-                                        task</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-md-6 p-0 ">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="title-header">
+                                            <div class="w-100 d-flex align-items-center justify-content-between">
+                                                <h5>{{ __('message.top_customers') }}</h5>
+                                                <div>
+                                                    <select class="form-select" name="">
+                                                        <option value="">Today</option>
+                                                        <option value="">Last Week</option>
+                                                        <option value="">Last Month</option>
+                                                        <option value="">Last Year</option>
+                                                        <option value="">Last 2 Year</option>
+                                                        <option value="">Last 3 Year</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="table-responsive datatable-wrapper border-table">
+
+                                                <table class="table all-package theme-table no-footer">
+                                                    <thead>
+                                                        <tr>
+                                                            <th> Store Name</th>
+                                                            <th> Orders </th>
+                                                            <th> Earning </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="cursor-pointer ">
+                                                                <div>Trendy Fashions</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>4</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>156.58</div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="cursor-pointer ">
+                                                                <div>Docks Sports</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>0</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>0</div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="cursor-pointer ">
+                                                                <div>Mega Appliances</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>1</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>201.48</div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="cursor-pointer ">
+                                                                <div>Hailey Beauty</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>0</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>0</div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="cursor-pointer ">
+                                                                <div>Craft Furnishings</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>1</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>24.12</div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="cursor-pointer ">
+                                                                <div>Pets Provisions</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>0</div>
+                                                            </td>
+                                                            <td class="cursor-pointer ">
+                                                                <div>0</div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </form>
-                        </li>
-                    </ul>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-        </div>
-        <!-- To Do List end-->
+            <div class="row m-0">
+                <div class="col-xl-5 col-md-6 p-0 ">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="title-header">
+                                            <div class="w-100 d-flex align-items-center justify-content-between">
+                                                <h5>{{ __('message.top_selling_products') }}</h5>
+                                                <div>
+                                                    <select class="form-select" name="">
+                                                        <option value="">Today</option>
+                                                        <option value="">Last Week</option>
+                                                        <option value="">Last Month</option>
+                                                        <option value="">Last Year</option>
+                                                        <option value="">Last 2 Year</option>
+                                                        <option value="">Last 3 Year</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="top-selling-table datatable-wrapper table-responsive">
+                                            <table>
+                                                <tr>
+                                                    <td>
+                                                        <div class="img-info"><img alt="product" class="img-fluid"
+                                                                src="https://laravel.pixelstrap.net/fastkart/storage/90/Pomegranate_2.png">
+                                                            <div>
+                                                                <h6>25 Aug 2023</h6>
+                                                                <h5>Gourmet Fresh Pomegranate</h5>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Price</h6>
+                                                        <h5>$4.65</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Orders</h6>
+                                                        <h5>2</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Stock</h6>
+                                                        <h5>12</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Amount</h6>
+                                                        <h5>$733.91</h5>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="img-info"><img alt="product" class="img-fluid"
+                                                                src="https://laravel.pixelstrap.net/fastkart/storage/93/Strawberry_1.png">
+                                                            <div>
+                                                                <h6>25 Aug 2023</h6>
+                                                                <h5>Deliciously Sweet Strawberry</h5>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Price</h6>
+                                                        <h5>$6.37</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Orders</h6>
+                                                        <h5>10</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Stock</h6>
+                                                        <h5>7</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Amount</h6>
+                                                        <h5>$1,404.82</h5>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="img-info"><img alt="product" class="img-fluid"
+                                                                src="https://laravel.pixelstrap.net/fastkart/storage/100/Watermelon_4.png">
+                                                            <div>
+                                                                <h6>25 Aug 2023</h6>
+                                                                <h5>Deliciously Sweet Watermelon</h5>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Price</h6>
+                                                        <h5>$5.46</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Orders</h6>
+                                                        <h5>13</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Stock</h6>
+                                                        <h5>9</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Amount</h6>
+                                                        <h5>$1,664.94</h5>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="img-info"><img alt="product" class="img-fluid"
+                                                                src="https://laravel.pixelstrap.net/fastkart/storage/87/Plum_2.png">
+                                                            <div>
+                                                                <h6>24 Aug 2023</h6>
+                                                                <h5>Palm Bliss Unleashed</h5>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Price</h6>
+                                                        <h5>$7.36</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Orders</h6>
+                                                        <h5>8</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Stock</h6>
+                                                        <h5>5</h5>
+                                                    </td>
+                                                    <td>
+                                                        <h6>Amount</h6>
+                                                        <h5>$670.91</h5>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                </div>
+                <div class="col-xl-7 col-md-6 p-0 ">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="title-header ">
+                                            <div class="d-flex align-items-center">
+                                                <h5>{{ __('message.orders_status') }}</h5>
+                                            </div>
+                                        </div>
+                                        <div style="min-height: 360px;">
 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
     </div>
 @endsection
 
@@ -854,9 +378,7 @@
 {{-- ================================== --}}
 
 @push('js_library')
-    
 @endpush
 
 @push('js')
-    
 @endpush

@@ -451,7 +451,7 @@
                                                                                                 type="number"
                                                                                                 name="product_variants[{{ $index }}][info][sale_price]"
                                                                                                 class="form-control"
-                                                                                                value="{{ (int) $variant->sale_price }}"
+                                                                                                value="{{ $variant->sale_price ? (int) $variant->sale_price : $variant->sale_price }}"
                                                                                             >
                                                                                             <div class="invalid-feedback"></div>
                                                                                         </td>

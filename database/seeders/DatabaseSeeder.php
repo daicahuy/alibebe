@@ -42,9 +42,7 @@ class DatabaseSeeder extends Seeder
             OrderSeeder::class,
         ]);
 
-        //comment
-        //coupon
-        //order -> chua xong
-        //review
+        //comment -> loading
+        //coupon -> loading
     }
 }
