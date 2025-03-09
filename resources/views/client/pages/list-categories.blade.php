@@ -489,7 +489,9 @@
                                                 </ul>
                                             </div>
                                             <h6 class="unit">{{ $item->views }} lượt xem</h6>
-                                            <h6 class="unit">{{ $item->sold_count ?? 0 }} đã bán</h6>
+                                            {{-- <h6 class="unit">{{ $item->sold_count ?? 0 }} đã bán</h6> --}}
+                                            <h6 class="unit">{{ $item->getSoldQuantity() }} đã bán</h6>
+
                                             <h5 class="price">
                                                 <span
                                                     class="theme-color">{{ number_format($item->display_price) }}đ</span>
@@ -703,7 +705,6 @@
     <script src="{{ asset('theme/admin/assets/js/filter-sidebar.js') }}"></script>
 
     <script>
-        // comapare
         // Hàm định dạng giá tiền sang VNĐ
         function formatPrice(price) {
             const number = parseFloat(price);
@@ -769,6 +770,9 @@
 
                         // Xử lý biến thể sản phẩm
                         const variants = response.productVariants || [];
+                        console.log("response.productVariants from service:", response
+                            .productVariants); // In ra toàn bộ mảng productVariants
+
                         $('#productVariants').empty();
 
                         // Lọc các biến thể active
@@ -792,7 +796,8 @@
                                     display_price: variant.display_price || variant
                                         .price,
                                     original_price: variant.original_price ||
-                                        variant.price
+                                        variant.price,
+                                    sold_count: variant.sold_count,
                                 };
                             });
                             console.log("Global Variant Map updated:", globalVariantMap);
@@ -860,14 +865,29 @@
                                 const variantKey = selectedValues.sort((a, b) => a - b)
                                     .join('-');
                                 const variant = globalVariantMap[variantKey];
+                                // **THÊM console.log ĐỂ KIỂM TRA variant TRONG CHANGE EVENT**
+                                console.log("change event - variantKey:",
+                                    variantKey); // In ra variantKey
+                                console.log("change event - variant:",
+                                    variant); // In ra object variant tìm được
                                 if (variant) {
                                     $('#cartProductVariantId').val(variant.id);
                                     updateProductInfo(variant, response.is_sale);
                                     updateStockInfo(variant);
+                                    // **XOÁ thông báo lỗi (nếu có) khi tìm thấy variant**
+                                    $('#variant-not-found-message')
+                                        .hide(); // Ẩn thông báo lỗi
                                 } else {
                                     console.log("Không tìm thấy biến thể cho key:",
                                         variantKey);
                                     $('#cartProductVariantId').val('');
+                                    // **HIỂN THỊ thông báo lỗi khi không tìm thấy variant**
+                                    $('#prdPrice').html(
+                                        '<p class="text-danger" id="variant-not-found-message">Biến thể không có sẵn</p>'
+                                    ); // Hiển thị thông báo lỗi ở khu vực giá
+                                    $('.product-stock span').text(
+                                        ''); // Xóa thông tin kho
+                                    $('#prdSoldCount').text(''); // Xóa thông tin đã bán
                                 }
                             });
                         } else {
@@ -925,8 +945,18 @@
 
             // Hàm cập nhật thông tin kho
             function updateStockInfo(variant) {
-                const stock = variant.product_stock ? variant.product_stock.stock : 0;
-                $('.product-stock span').text(`Kho: ${stock}`);
+                if (variant) { // **KIỂM TRA variant CÓ TỒN TẠI**
+                    const stock = variant.product_stock ? variant.product_stock.stock : 0;
+                    $('.product-stock span').text(`Kho: ${stock}`);
+                    // **THÊM console.log ĐỂ KIỂM TRA variant.sold_count**
+                    console.log("updateStockInfo - variant:", variant); // In ra toàn bộ object variant
+                    console.log("updateStockInfo - variant.sold_count:", variant
+                        .sold_count); // In ra giá trị sold_count
+                    $('#prdSoldCount').text(`Đã bán biến thể (${variant.sold_count || 0})`);
+                } else {
+                    $('.product-stock span').text(''); // Xóa thông tin kho khi không có variant
+                    $('#prdSoldCount').text(''); // Xóa thông tin đã bán khi không có variant
+                }
             }
 
             // Thêm vào giỏ hàng
@@ -1087,25 +1117,26 @@
             updateCompareButtonInitialStatus();
 
             $('.compare-toggle').click(function(e) {
-    e.preventDefault();
-    var productId = $(this).data('product-id');
-    var productCategoryId = $(this).data('product-category-id');
-    var currentState = this.dataset.state;
+                e.preventDefault();
+                var productId = $(this).data('product-id');
+                var productCategoryId = $(this).data('product-category-id');
+                var currentState = this.dataset.state;
 
-    console.log(
-        `[compare-toggle click] productId: ${productId}, productCategoryId: ${productCategoryId}, currentState: ${currentState}`
-    );
+                console.log(
+                    `[compare-toggle click] productId: ${productId}, productCategoryId: ${productCategoryId}, currentState: ${currentState}`
+                );
 
-    if (currentState === 'unselected') {
-        console.log(`  Action: Add product to compare`);
-        addProductToCompare(productId, productCategoryId); // **ĐẢM BẢO DÒNG NÀY KHÔNG BỊ COMMENT VÀ GÕ ĐÚNG CHÍNH TẢ**
-    } else {
-        console.log(`  Action: Remove product from compare`);
-        removeFromCompareCookie(productId);
-        updateCompareCountBadgeCookie();
-        updateCompareButtonStatus(productId, false);
-    }
-}); //end compare-toggle
+                if (currentState === 'unselected') {
+                    console.log(`  Action: Add product to compare`);
+                    addProductToCompare(productId,
+                        productCategoryId); // **ĐẢM BẢO DÒNG NÀY KHÔNG BỊ COMMENT VÀ GÕ ĐÚNG CHÍNH TẢ**
+                } else {
+                    console.log(`  Action: Remove product from compare`);
+                    removeFromCompareCookie(productId);
+                    updateCompareCountBadgeCookie();
+                    updateCompareButtonStatus(productId, false);
+                }
+            }); //end compare-toggle
 
             feather.replace(); // load lại icon
             // });
@@ -1164,62 +1195,62 @@
                     }
                 });
             }
-          
-//             function addProductToCompare(productId, productCategoryId) { // GIỮ NGUYÊN tham số
-//                 console.log(
-//         "[addProductToCompare] Hàm addProductToCompare ĐƯỢC GỌI! productId:",
-//         productId,
-//         "productCategoryId:",
-//         productCategoryId
-//     );
-//                 // Gửi AJAX request lên backend để THÊM sản phẩm vào so sánh
-//     $.ajax({
-//         url: '/api/compare/add/' + productId, // **API endpoint MỚI để THÊM sản phẩm**
-//         method: 'POST', // Sử dụng method POST
-//         // Không cần gửi data compareList nữa, vì backend tự quản lý cookie
-//         success: function(response) {
-//             if (response.status === 'success') {
-//                 // Backend đã thêm sản phẩm thành công vào cookie
-//                 // Cập nhật UI (badge số lượng, trạng thái nút)
-//                 updateCompareCountBadgeCookie(); // Cập nhật badge số lượng
-//                 // **CHỈNH SỬA 2: BỌC updateCompareButtonStatus TRONG requestAnimationFrame (khi THÊM sản phẩm)**
-//                 requestAnimationFrame(() => { // **<-- THÊM requestAnimationFrame VÀO ĐÂY**
-//                     updateCompareButtonStatus(productId, true);
-//                 });
-//                 Swal.fire({ // Hiển thị thông báo thành công (tùy chọn)
-//                     icon: 'success',
-//                     title: 'Thành công!',
-//                     text: 'Sản phẩm đã được thêm vào danh sách so sánh.',
-//                     showConfirmButton: true,
-//                 });
-//             } else if (response.status === 'error') {
-//                 // Backend báo lỗi (ví dụ: không cùng danh mục, quá số lượng)
-//                 alert(response.message); // Hiển thị thông báo lỗi từ backend
-//                 console.error('[addProductToCompare] Lỗi từ server:', response);
-//             }
-//         },
-//         error: function(xhr, status, error) {
-//             // Xử lý lỗi AJAX request (mạng, server) - GIỮ NGUYÊN phần XỬ LÝ LỖI NÀY
-//             if (xhr.responseJSON && xhr.responseJSON.message) {
-//                 Swal.fire({
-//                     icon: 'error',
-//                     title: 'Lỗi!',
-//                     text: xhr.responseJSON.message,
-//                 });
-//             } else {
-//                 Swal.fire({
-//                     icon: 'error',
-//                     title: 'Lỗi!',
-//                     text: 'Lỗi khi thêm sản phẩm vào so sánh. Vui lòng thử lại sau.',
-//                 });
-//             }
-//             console.error('[addProductToCompare] Lỗi AJAX request:', error);
-//         }
-//     });
-// }
-          
-          
-          
+
+            //             function addProductToCompare(productId, productCategoryId) { // GIỮ NGUYÊN tham số
+            //                 console.log(
+            //         "[addProductToCompare] Hàm addProductToCompare ĐƯỢC GỌI! productId:",
+            //         productId,
+            //         "productCategoryId:",
+            //         productCategoryId
+            //     );
+            //                 // Gửi AJAX request lên backend để THÊM sản phẩm vào so sánh
+            //     $.ajax({
+            //         url: '/api/compare/add/' + productId, // **API endpoint MỚI để THÊM sản phẩm**
+            //         method: 'POST', // Sử dụng method POST
+            //         // Không cần gửi data compareList nữa, vì backend tự quản lý cookie
+            //         success: function(response) {
+            //             if (response.status === 'success') {
+            //                 // Backend đã thêm sản phẩm thành công vào cookie
+            //                 // Cập nhật UI (badge số lượng, trạng thái nút)
+            //                 updateCompareCountBadgeCookie(); // Cập nhật badge số lượng
+            //                 // **CHỈNH SỬA 2: BỌC updateCompareButtonStatus TRONG requestAnimationFrame (khi THÊM sản phẩm)**
+            //                 requestAnimationFrame(() => { // **<-- THÊM requestAnimationFrame VÀO ĐÂY**
+            //                     updateCompareButtonStatus(productId, true);
+            //                 });
+            //                 Swal.fire({ // Hiển thị thông báo thành công (tùy chọn)
+            //                     icon: 'success',
+            //                     title: 'Thành công!',
+            //                     text: 'Sản phẩm đã được thêm vào danh sách so sánh.',
+            //                     showConfirmButton: true,
+            //                 });
+            //             } else if (response.status === 'error') {
+            //                 // Backend báo lỗi (ví dụ: không cùng danh mục, quá số lượng)
+            //                 alert(response.message); // Hiển thị thông báo lỗi từ backend
+            //                 console.error('[addProductToCompare] Lỗi từ server:', response);
+            //             }
+            //         },
+            //         error: function(xhr, status, error) {
+            //             // Xử lý lỗi AJAX request (mạng, server) - GIỮ NGUYÊN phần XỬ LÝ LỖI NÀY
+            //             if (xhr.responseJSON && xhr.responseJSON.message) {
+            //                 Swal.fire({
+            //                     icon: 'error',
+            //                     title: 'Lỗi!',
+            //                     text: xhr.responseJSON.message,
+            //                 });
+            //             } else {
+            //                 Swal.fire({
+            //                     icon: 'error',
+            //                     title: 'Lỗi!',
+            //                     text: 'Lỗi khi thêm sản phẩm vào so sánh. Vui lòng thử lại sau.',
+            //                 });
+            //             }
+            //             console.error('[addProductToCompare] Lỗi AJAX request:', error);
+            //         }
+            //     });
+            // }
+
+
+
             // Compare so sánh sesion
 
             //         var comparedProducts = [];

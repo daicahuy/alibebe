@@ -48,7 +48,7 @@ class ListCategoriesService
             $parentProductCount = $category->products()
                 ->where('is_active', 1)
                 ->count();
-    
+
             // Đếm sản phẩm active từ các danh mục con
             $childProductCount = 0;
             foreach ($category->categories as $childCategory) {
@@ -56,7 +56,7 @@ class ListCategoriesService
                     ->where('is_active', 1)
                     ->count();
             }
-    
+
             $category->products_count = $parentProductCount;
             $category->child_products_count = $childProductCount;
         }
@@ -101,13 +101,14 @@ class ListCategoriesService
             }
             $avgRating = $product->reviews->avg('rating');
 
-            $productVariants = $product->productVariants->map(function ($variant) {
+            // **CHỈNH SỬA QUAN TRỌNG: Tính toán sold_count TRƯỚC VÒNG LẶP và truyền vào map**
+            $productVariants = $product->productVariants->map(function ($variant) use ($product) { // **USE $product để truyền product ID nếu cần**
                 return [
                     'id' => $variant->id,
                     'price' => $variant->price,
                     'sale_price' => $variant->sale_price,
-                    'display_price' => $variant->display_price, // **LẤY display_price TỪ REPOSITORY**
-                    'original_price' => $variant->original_price, // **LẤY original_price TỪ REPOSITORY**
+                    'display_price' => $variant->display_price,
+                    'original_price' => $variant->original_price,
                     'thumbnail' => Storage::url($variant->thumbnail),
                     'is_active' => $variant->is_active,
                     'attribute_values' => $variant->attributeValues->map(function ($attributeValue) {
@@ -124,6 +125,8 @@ class ListCategoriesService
                             'product_variant_id' => $variant->productStock->product_variant_id,
                             'stock' => $variant->productStock->stock,
                         ] : [],
+                    // **TÍNH TOÁN sold_count TRONG VÒNG LẶP MAP, ĐẢM BẢO TÍNH CHO TỪNG BIẾN THỂ**
+                    'sold_count' => $variant->getSoldQuantity(), // **ĐẢM BẢO GỌI getSoldQuantity() CHO TỪNG $variant**
                 ];
             });
 
@@ -131,18 +134,17 @@ class ListCategoriesService
                 'id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,
-                'display_price' => $product->display_price, // **LẤY display_price TỪ REPOSITORY**
-                'original_price' => $product->original_price, // **LẤY original_price TỪ REPOSITORY**
+                'display_price' => $product->display_price,
+                'original_price' => $product->original_price,
                 'thumbnail' => Storage::url($product->thumbnail),
                 'short_description' => $product->short_description,
                 'categories' => $product->categories->pluck('name')->implode(', '),
                 'brand' => $product->brand ? $product->brand->name : null,
                 'avgRating' => $avgRating,
                 'productVariants' => $productVariants,
-                'sold_count' => $product->sold_count,
+                'sold_count' => $product->getSoldQuantity(), // Vẫn giữ lại tổng sold_count của sản phẩm gốc (nếu cần)
                 'is_sale' => $product->is_sale,
                 'stock' => $product->stock,
-
             ];
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()], 500);

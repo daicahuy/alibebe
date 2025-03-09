@@ -339,12 +339,12 @@
         // **ĐẢM BẢO RẰNG CÁC FUNCTIONS NÀY ĐƯỢC ĐỊNH NGHĨA TRƯỚC**
         function getCompareListFromCookie() {
             let cookieValue = document.cookie.split('; ').find(row => row.startsWith(
-            'compare_list=')); // Thay 'compareList=' thành 'compare_list='
+                'compare_list=')); // Thay 'compareList=' thành 'compare_list='
             let compareList = [];
 
             if (cookieValue) {
                 cookieValue = cookieValue.substring('compare_list='
-                .length); // Thay 'compareList='.length thành 'compare_list='.length
+                    .length); // Thay 'compareList='.length thành 'compare_list='.length
                 try {
                     compareList = JSON.parse(cookieValue) || [];
                 } catch (e) {
@@ -372,7 +372,7 @@
             console.log("[updateCompareListUI] UI updated with compareList:", compareList);
             // Ví dụ: Cập nhật số lượng sản phẩm trong badge giỏ so sánh (nếu có)
             const compareCountElement = document.querySelector(
-            '.compare-count'); // Selector có thể khác tùy theo HTML của bạn
+                '.compare-count'); // Selector có thể khác tùy theo HTML của bạn
             if (compareCountElement) {
                 compareCountElement.textContent = compareList.length;
             }
@@ -441,7 +441,7 @@
             button.addEventListener('click', function() {
                 const productId = this.dataset.productId;
                 removeProductFromCompare(
-                productId); // **removeProductFromCompare ĐÃ ĐƯỢC ĐỊNH NGHĨA Ở TRÊN**
+                    productId); // **removeProductFromCompare ĐÃ ĐƯỢC ĐỊNH NGHĨA Ở TRÊN**
             });
         });
     </script>
