@@ -194,21 +194,20 @@ class CategoryRepository extends BaseRepository
     {
         $category = $this->model
             ->whereNull('parent_id')
-            ->where('is_active', 1)
-            ->orderBy('id', 'ASC') //orinal
-            ->select('id', 'name', 'icon')
-            ->with('categories')
-            // ->withCount([
-
-            //     'childProductsCount AS child_products_count' => function ($query) {
-            //         $query->whereHas('categories', function ($q) {
-            //             $q->where('categories.is_active', 1);
-            //         });
-
-            //     }
-            // ])
-            ->withCount('products') //đếm cha
-            ->get();
+            // ->where('is_active', 1)
+            // ->orderBy('id', 'ASC') //orinal
+            // ->select('id','slug', 'name', 'icon')
+            // ->with('categories')
+            // ->withCount('products') //đếm cha
+            // ->get();
+            ->whereNull('parent_id')
+        ->where('is_active', 1)
+        ->orderBy('id', 'ASC')
+        ->select('id', 'slug', 'name', 'icon')
+        ->with(['categories' => function ($query) {
+            $query->where('is_active', 1);
+        }])
+        ->get();
         // dd($category);
         return $category;
     }
@@ -240,5 +239,14 @@ class CategoryRepository extends BaseRepository
             ->orderByDesc('total_sales')
             ->get();
     }
+
+    public function getAllCategories() {
+     return Category::whereNull('parent_id')
+    ->with('categories.categories') // Lấy danh mục con của danh mục con
+    ->where('is_active', 1)
+    ->orderBy('ordinal', 'asc')
+    ->get();
+    }
+
 
 }

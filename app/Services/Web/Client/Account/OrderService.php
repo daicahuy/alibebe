@@ -14,12 +14,4 @@ class OrderService
     {
         $this->orderRepository = $orderRepository;
     }
-
-    public function index() {
-        $orderStatuses = array_map('strtolower', OrderStatusType::asSelectArray());
-        
-        return [
-            'orderStatuses' => $orderStatuses,
-        ];
-    }
 }

@@ -18,7 +18,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
 
-        $perPage = $request->get('per_page', 5);
+        $perPage = $request->get('per_page', 15);
         $categoryId = $request->get('category_id');
         $stockStatus = $request->get('stock_status');
         $keyword = $request->get('_keyword');
@@ -26,6 +26,7 @@ class ProductController extends Controller
         $productData = $this->productService->getProducts($perPage, $categoryId, $stockStatus, $keyword);
         $products = $productData['products'];
         $countTrash = $productData['countTrash'];
+        $countHidden = $productData['countHidden'];
         $categories = $this->productService->getCategories();
 
         return view('admin.pages.products.list', compact(
@@ -36,6 +37,7 @@ class ProductController extends Controller
             'stockStatus',
             'keyword',
             'countTrash',
+            'countHidden'
         ));
     }
 
@@ -49,9 +51,25 @@ class ProductController extends Controller
         return view('admin.pages.products.trash', compact('listTrashs', 'perPage', 'keyword'));
     }
 
-    public function show(Product $product)
+    public function hidden(Request $request)
     {
-        // dd($product);
+        $perPage = $request->input('per_page', 15);
+        $keyword = $request->get('_keyword');
+
+
+        $listHidden = $this->productService->getHidden($perPage, $keyword);
+        // dd($listHidden);
+        return view('admin.pages.products.hidden', compact(
+            'listHidden',
+            'perPage',
+            'keyword'
+        ));
+    }
+
+    public function show(string $slug)
+    {
+        $product = Product::query()->where('slug', $slug)->firstOrFail();
+
         $product->load(['categories', 'tags', 'productAccessories', 'productGallery', 'attributeValues', 'attributeValues.attribute', 'productStock']);
 
         if ($product->type === 1) {
@@ -71,8 +89,10 @@ class ProductController extends Controller
         dd($request->all());
     }
 
-    public function edit(Product $product)
+    public function edit(string $slug)
     {
+        $product = Product::query()->where('slug', $slug)->firstOrFail();
+
         $product->load(['categories', 'tags', 'productAccessories', 'productGallery', 'attributeValues', 'attributeValues.attribute', 'productStock']);
 
         if ($product->type === 1) {

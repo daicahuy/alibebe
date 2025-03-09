@@ -44,17 +44,17 @@ class ProductService
         $newAttributeSpecifications = [];
         $newAttributeVariants = [];
 
-        foreach ($attributeSpecifications as $attribute) {  
+        foreach ($attributeSpecifications as $attribute) {
             $attributeName = $attribute['name'];
             $attributeValues = array_column($attribute['attribute_values'], 'value', 'id');
-            
+
             $newAttributeSpecifications[$attributeName] = $attributeValues;
         }
 
-        foreach ($attributeVariants as $attribute) {  
+        foreach ($attributeVariants as $attribute) {
             $attributeName = $attribute['name'];
             $attributeValues = array_column($attribute['attribute_values'], 'value', 'id');
-            
+
             $newAttributeVariants[$attributeName] = $attributeValues;
         }
 
@@ -98,40 +98,34 @@ class ProductService
         });
 
         // Lọc theo stockStatus
+        $filteredProductsCollection = $products->getCollection(); // Lấy collection trước khi paginate
         if ($stockStatus) {
             $st = 10;
-            $filteredProducts = $products->getCollection()->filter(function ($product) use ($stockStatus, $st) {
+            $filteredProductsCollection = $products->getCollection()->filter(function ($product) use ($stockStatus, $st) {
                 switch ($stockStatus) {
                     case 'in_stock':
                         return $product->stock_quantity > $st;
-
                     case 'out_of_stock':
                         return $product->stock_quantity == 0;
-
                     case 'low_stock':
                         return $product->stock_quantity <= $st && $product->stock_quantity > 0;
-
                     default:
                         return true;
                 }
             });
-            // Tạo lại paginate
-            $products = new LengthAwarePaginator(
-                $filteredProducts->values()->all(),
-                $filteredProducts->count(),
-                $products->perPage(),
-                $products->currentPage(),
-                ['path' => request()->url(), 'query' => request()->query()]
-            );
+            // Gán lại collection đã lọc vào đối tượng phân trang gốc
+            $products->setCollection($filteredProductsCollection->values()); // Cập nhật collection trong đối tượng $products
         }
 
         $countTrash = $this->productRepository->countTrash();
+        $countHidden = $this->productRepository->countHidden();
 
 
         // dd($products);
         return [
             'products' => $products,
             'countTrash' => $countTrash,
+            'countHidden' => $countHidden,
         ];
     }
 
@@ -220,19 +214,19 @@ class ProductService
         try {
             $listTrashs = $this->productRepository->getTrash($perPage, $keyword);
             $listTrashs->getCollection()->each(function ($trash) {
-                 // Lấy giá biến thể
-            if ($trash->productVariants->isNotEmpty()) {
-                $minPrice = $trash->productVariants->min('price');
-                $maxPrice = $trash->productVariants->max('price');
+                // Lấy giá biến thể
+                if ($trash->productVariants->isNotEmpty()) {
+                    $minPrice = $trash->productVariants->min('price');
+                    $maxPrice = $trash->productVariants->max('price');
 
-                if ($minPrice != $maxPrice) {
-                    $trash->price_range = number_format($minPrice, 0, ',', '.') . ' VND - ' . number_format($maxPrice, 0, ',', '.') . ' VND';
+                    if ($minPrice != $maxPrice) {
+                        $trash->price_range = number_format($minPrice, 0, ',', '.') . ' VND - ' . number_format($maxPrice, 0, ',', '.') . ' VND';
+                    } else {
+                        $trash->price_range = number_format($minPrice, 0, ',', '.') . ' VNĐ';
+                    }
                 } else {
-                    $trash->price_range = number_format($minPrice, 0, ',', '.') . ' VNĐ';
+                    $trash->price_range = $trash->price ? number_format($trash->price, 0, ',', '.') . ' VND' : '';
                 }
-            } else {
-                $trash->price_range = $trash->price ? number_format($trash->price, 0, ',', '.') . ' VND' : '';
-            }
 
                 // Lấy tổng stock quantity thông qua Accessor (thuộc tính ảo) trong model trash
                 $stockQuantity = $trash->totalStockQuantity;
@@ -249,6 +243,43 @@ class ProductService
             return ['success' => false, 'message' => 'Đã xảy ra lỗi, vui lòng thử lại sau'];
         }
     }
+
+    public function getHidden($perPage, $keyword)
+    {
+        try {
+            $listHidden = $this->productRepository->getHidden($perPage, $keyword);
+            $listHidden->getCollection()->each(function ($hidden) {
+                // Lấy giá biến thể
+                if ($hidden->productVariants->isNotEmpty()) {
+                    $minPrice = $hidden->productVariants->min('price');
+                    $maxPrice = $hidden->productVariants->max('price');
+
+                    if ($minPrice != $maxPrice) {
+                        $hidden->price_range = number_format($minPrice, 0, ',', '.') . ' VND - ' . number_format($maxPrice, 0, ',', '.') . ' VND';
+                    } else {
+                        $hidden->price_range = number_format($minPrice, 0, ',', '.') . ' VNĐ';
+                    }
+                } else {
+                    $hidden->price_range = $hidden->price ? number_format($hidden->price, 0, ',', '.') . ' VND' : '';
+                }
+
+                // Lấy tổng stock quantity thông qua Accessor (thuộc tính ảo) trong model hidden
+                $stockQuantity = $hidden->totalStockQuantity;
+                $hidden->stock_quantity = $stockQuantity;
+            });
+            // dd($listTrashs);
+            return $listHidden;
+        } catch (\Throwable $th) {
+            log::error(
+                __CLASS__ . '--@--' . __FUNCTION__,
+                ['error' => $th->getMessage()]
+            );
+
+            return ['success' => false, 'message' => 'Đã xảy ra lỗi, vui lòng thử lại sau'];
+        }
+    }
+
+
 
     // Xóa cứng
     public function forceDeleteProduct($productId)

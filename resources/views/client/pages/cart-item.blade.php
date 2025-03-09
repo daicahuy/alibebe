@@ -243,9 +243,10 @@
                                 @endphp
 
                                 @foreach ($data as $cartItem)
-                                    <tr class="product-box-contain" data-id="{{ $cartItem->id }}"
+                                    <tr class="product-box-contain product-item" data-id="{{ $cartItem->id }}"
                                         data-product-id="{{ $cartItem->product->id ?? '' }}"
                                         data-product-variant-id="{{ $cartItem->productVariant->id ?? '' }}">
+
                                         <td class="product-detail">
                                             <div class="product border-0">
                                                 <div class="custom-control custom-checkbox">
@@ -313,7 +314,7 @@
                                         <input type="hidden" class="price"
                                             value="{{ $cartItem->product->price ?? $cartItem->productVariant->product->price }}">
                                         <input type="hidden" class="old_price"
-                                            value="{{ $cartItem->product->sale_price ?? ($cartItem->productVariant->product->sale_price ?? '') }}">
+                                            value="{{ $cartItem->product?->sale_price ?? $cartItem->productVariant?->product->sale_price }}">
                                         <input type="hidden" class="price_variant"
                                             value="{{ $cartItem->productVariant?->price > 0 ? $cartItem->productVariant->price : null }}">
                                         <input type="hidden" class="old_price_variant"
@@ -350,8 +351,8 @@
 
                                                         <input type="text" name="quantity"
                                                             value="{{ $cartItem->quantity }}"
-                                                            class="form-control input-number">
-
+                                                            class="form-control input-number"
+                                                            data-max-stock="{{ $cartItem->productVariant?->productStock?->stock ?? ($cartItem->product?->productStock?->stock ?? 1) }}">
                                                         <button class="btn qty-right-plus" type="button">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16"
                                                                 height="16" fill="currentColor" class="bi bi-plus"
@@ -401,17 +402,9 @@
             <div class="col-xxl-3 col-xl-4">
                 <div class="summery-box p-sticky">
                     <div class="summery-header">
-                        <h3>Tổng giỏ hàng</h3>
+                        <h3>Hóa đơn</h3>
                     </div>
-                    <div class="summery-contain">
-                        <ul>
-                            <li>
-                                <h4>Tổng cộng</h4>
-                                <h4 class="price total">0đ</h4>
-                            </li>
 
-                        </ul>
-                    </div>
                     <ul class="summery-total">
                         <li class="list-total border-top-0">
                             <h4>Tổng tiền</h4>
@@ -420,7 +413,8 @@
                     </ul>
                     <div class="button-group cart-button">
                         <ul>
-                            <li><a class="btn btn-animation proceed-btn fw-bold" href="{{ route('cartCheckout') }}">Thanh
+                            <li><a class="btn btn-animation proceed-btn fw-bold checkout-btn disabled"
+                                    href="{{ route('cartCheckout') }}">Thanh
                                     toán</a>
                             </li>
                             <li><a class="btn shopping-button text-dark" href="{{ route('index') }}"><i
@@ -433,14 +427,12 @@
     </div>
 @endsection
 
-@section('modal')
-@endsection
-
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function() {
+            // Hiển thị thông báo nếu có session success hoặc error
             @if (session('success'))
                 Swal.fire({
                     icon: 'success',
@@ -460,69 +452,314 @@
                 });
             @endif
 
-            // Khi bấm nút tăng/giảm số lượng
+            // Cập nhật số lượng sản phẩm khi nhấn nút +/- trong giỏ hàng
             $(".qty-left-minus, .qty-right-plus").off("click").on("click", function() {
+                let status = '';
                 let qtyInput = $(this).closest(".cart_qty").find(".input-number");
                 let cartItemId = $(this).closest("tr").data("id");
-                let qty = parseInt(qtyInput.val()) || 1;
+                let checked = $(this).closest("tr").find(".checkbox-input").prop("checked");
+                console.log(checked);
 
+                let qty = parseInt(qtyInput.val()) || 1;
+                let maxStock = parseInt(qtyInput.data("max-stock")) || 1;
+
+                // Thay đổi số lượng
                 if ($(this).hasClass("qty-left-minus") && qty > 1) {
                     qty -= 1;
-                } else if ($(this).hasClass("qty-right-plus")) {
+                } else if ($(this).hasClass("qty-right-plus") && qty < maxStock) {
                     qty += 1;
                 }
 
                 qtyInput.val(qty);
-                updateCartQuantity(cartItemId, qty, qtyInput);
+
+                // Gọi hàm cập nhật giỏ hàng và cập nhật session ngay lập tức
+                if (!checked) {
+                    updateCartQuantity(cartItemId, qty, qtyInput);
+                } else {
+                    let obj = {
+                        type: "check"
+                    }
+                    updateCartQuantity(cartItemId, qty, qtyInput, obj);
+                }
+
                 updateCartSession(); // 🔥 Cập nhật session ngay lập tức
+                updateTotalPrice(); // Cập nhật tổng tiền sau khi thay đổi
             });
 
-            // Khi nhập số lượng trực tiếp vào ô input
+            // Xử lý khi thay đổi giá trị trực tiếp trong input số lượng
             $(".input-number").on("change", function() {
                 let cartItemId = $(this).closest("tr").data("id");
                 let newQty = parseInt($(this).val()) || 1;
+                let maxStock = parseInt($(this).data("max-stock")) || 1;
 
+                // Đảm bảo giá trị số lượng hợp lệ
                 if (newQty < 1) {
-                    newQty = 1; // Đảm bảo số lượng tối thiểu là 1
-                    $(this).val(newQty);
+                    newQty = 1;
+                } else if (newQty > maxStock) {
+                    newQty = maxStock;
                 }
 
+                $(this).val(newQty);
+
+                // Gọi hàm cập nhật giỏ hàng và cập nhật session ngay lập tức
                 updateCartQuantity(cartItemId, newQty, $(this));
                 updateCartSession(); // 🔥 Cập nhật session ngay lập tức
+                updateTotalPrice(); // Cập nhật tổng tiền sau khi thay đổi
             });
 
+            // Cập nhật giỏ hàng trong dropdown cart (header)
+            function updateDropdownCart(cartItemId, newQty, newsSubtotal) {
+                console.log("🔄 Đang cập nhật dropdown cart:", cartItemId, newQty, newsSubtotal); // 🔥 Debug
 
-            // --- Logic Checkbox ---
-            $('#checkbox-table').on('click', function() {
-                let isChecked = $(this).prop('checked');
-                $('.checkbox-input').prop('checked', isChecked);
-                toggleDeleteAllButton();
-                updateIdsToDelete();
-                updateTotalPrice(); // Cập nhật tổng tiền khi chọn tất cả
-            });
+                let dropdownItem = $(".drop-cart[data-id='" + cartItemId + "']");
 
-            $('.checkbox-input').on('click', function() {
-                const total = $('.checkbox-input').length;
-                const checked = $('.checkbox-input:checked').length;
+                if (dropdownItem.length) {
+                    // Cập nhật số lượng hiển thị
+                    dropdownItem.find(".input-number").text(newQty + " x");
 
-                $('#checkbox-table').prop('checked', total === checked);
-                toggleDeleteAllButton();
-                updateIdsToDelete();
-                updateTotalPrice(); // Cập nhật tổng tiền khi chọn checkbox
-            });
+                    // Kiểm tra nếu `newSubtotal` từ server đã có thì dùng, nếu không thì tự tính lại
+                    let price = parseInt(dropdownItem.find(".sale_price").val()) || 0;
+                    // let totalPrice = price * newQty;
 
-            function toggleDeleteAllButton() {
-                if ($('.checkbox-input:checked').length > 0) {
-                    $('#btn-delete-all').removeClass('visually-hidden');
+                    dropdownItem.find("h6").html(
+                        newQty + " x " + price.toLocaleString("vi-VN") + "đ"
+                    );
+
+                    // console.log("✅ Dropdown cart đã cập nhật:", dropdownItem.html()); // Kiểm tra DOM có đổi chưa
                 } else {
-                    $('#btn-delete-all').addClass('visually-hidden');
+                    // console.log("❌ Không tìm thấy .drop-cart[data-id='" + cartItemId + "']");
                 }
             }
 
-            // Hàm AJAX cập nhật giỏ hàng
-            function updateCartQuantity(cartItemId, newQty, qtyInput) {
+            // Cập nhật tổng giá trị trong dropdown cart
+
+            function updateDropdownTotal() {
+                let selectedProducts = [];
+                let totalSum = 0;
+
+                $(".product-box-contain.product-item").each(function() {
+                    let row = $(this);
+                    let cartItemId = row.data("id");
+                    let qty = parseInt(row.find(".input-number").val()) || 1;
+                    let productId = row.data("product-id") || null;
+                    let productVariantId = row.data("product-variant-id") || null;
+                    let productName = row.find(".name_product").text().trim();
+                    let nameVariant = row.find(".selected-variation").text().trim() || null;
+                    let imageUrl = row.find(".product-image img").attr("src") || "";
+
+                    // Loại bỏ URL đầy đủ, chỉ giữ phần đường dẫn sau "/storage/"
+                    if (imageUrl.startsWith("http")) {
+                        let url = new URL(imageUrl);
+                        imageUrl = url.pathname.replace("/storage/", "").replace(/^\/+/, "");
+                    }
+                    // Lấy giá của sản phẩm gốc
+                    let originalPrice = parseInt(row.find(".price").val()) || 0;
+                    let salePrice = parseInt(row.find(".old_price").val()) || 0;
+
+                    // Lấy giá của biến thể
+                    let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
+                    let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
+
+                    let finalPrice, oldPrice;
+                    let finalPriceVariant, oldPriceVariant;
+
+                    // Xử lý giá cho sản phẩm gốc
+                    finalPrice = salePrice > 0 ? salePrice : originalPrice;
+                    oldPrice = salePrice > 0 ? originalPrice : null;
+
+                    // Xử lý giá cho sản phẩm biến thể (nếu có)
+                    finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
+                    oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
+
+                    selectedProducts.push({
+                        id: cartItemId,
+                        product_id: productId,
+                        product_variant_id: productVariantId,
+                        name: productName,
+                        name_variant: nameVariant,
+                        image: imageUrl,
+                        price: finalPrice, // Lưu giá của sản phẩm gốc
+                        old_price: oldPrice, // Lưu giá cũ của sản phẩm gốc
+                        price_variant: productVariantId ? finalPriceVariant : null,
+                        old_price_variant: productVariantId ? oldPriceVariant : null,
+                        quantity: productVariantId ? null : qty,
+                        quantity_variant: productVariantId ? qty : null,
+                    });
+
+                    totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
+                });
+
                 $.ajax({
-                    url: "{{ route('cart.update') }}", // Đặt route cập nhật giỏ hàng
+                    url: "{{ route('cart.saveSession') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selectedProducts: selectedProducts,
+                        total: totalSum
+                    },
+                    success: function(response) {
+                        let price = numberFormat(response.total)
+                        $(".total-dropdown-price").text(price);
+                    }
+                });
+            }
+
+            function updateDropdownTotal2(status) {
+                let totalDrop = $(".total-dropdown-price").text().replace('đ', '').trim();
+
+                // Loại bỏ tất cả dấu chấm (dùng regex) để có số nguyên đúng
+                let number = Number(totalDrop.replace(/\./g, ''));
+
+                let selectedProducts = [];
+                let selectedProducts2 = [];
+                let totalSum = 0;
+                let totalSum2 = 0;
+
+                $(".product-box-contain.product-item").each(function() {
+                    let row = $(this);
+                    let checked = row.find(".checkbox-input").prop('checked');
+
+                    if (checked) {
+                        let cartItemId = row.data("id");
+                        let qty = parseInt(row.find(".input-number").val()) || 1;
+                        let productId = row.data("product-id") || null;
+                        let productVariantId = row.data("product-variant-id") || null;
+                        let productName = row.find(".name_product").text().trim();
+                        let nameVariant = row.find(".selected-variation").text().trim() || null;
+                        let imageUrl = row.find(".product-image img").attr("src") || "";
+
+                        // Loại bỏ URL đầy đủ, chỉ giữ phần đường dẫn sau "/storage/"
+                        if (imageUrl.startsWith("http")) {
+                            let url = new URL(imageUrl);
+                            imageUrl = url.pathname.replace("/storage/", "").replace(/^\/+/, "");
+                        }
+                        // Lấy giá của sản phẩm gốc
+                        let originalPrice = parseInt(row.find(".price").val()) || 0;
+                        let salePrice = parseInt(row.find(".old_price").val()) || 0;
+
+                        // Lấy giá của biến thể
+                        let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
+                        let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
+
+                        let finalPrice, oldPrice;
+                        let finalPriceVariant, oldPriceVariant;
+
+                        // Xử lý giá cho sản phẩm gốc
+                        finalPrice = salePrice > 0 ? salePrice : originalPrice;
+                        oldPrice = salePrice > 0 ? originalPrice : null;
+
+                        // Xử lý giá cho sản phẩm biến thể (nếu có)
+                        finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
+                        oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
+
+                        selectedProducts.push({
+                            id: cartItemId,
+                            product_id: productId,
+                            product_variant_id: productVariantId,
+                            name: productName,
+                            name_variant: nameVariant,
+                            image: imageUrl,
+                            price: finalPrice, // Lưu giá của sản phẩm gốc
+                            old_price: oldPrice, // Lưu giá cũ của sản phẩm gốc
+                            price_variant: productVariantId ? finalPriceVariant : null,
+                            old_price_variant: productVariantId ? oldPriceVariant : null,
+                            quantity: productVariantId ? null : qty,
+                            quantity_variant: productVariantId ? qty : null,
+                        });
+
+                        totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
+                    }
+                });
+
+                $(".product-box-contain.product-item").each(function() {
+                    let row = $(this);
+                    let cartItemId = row.data("id");
+                    let qty = parseInt(row.find(".input-number").val()) || 1;
+                    let productId = row.data("product-id") || null;
+                    let productVariantId = row.data("product-variant-id") || null;
+                    let productName = row.find(".name_product").text().trim();
+                    let nameVariant = row.find(".selected-variation").text().trim() || null;
+                    let imageUrl = row.find(".product-image img").attr("src") || "";
+
+                    // Loại bỏ URL đầy đủ, chỉ giữ phần đường dẫn sau "/storage/"
+                    if (imageUrl.startsWith("http")) {
+                        let url = new URL(imageUrl);
+                        imageUrl = url.pathname.replace("/storage/", "").replace(/^\/+/, "");
+                    }
+                    // Lấy giá của sản phẩm gốc
+                    let originalPrice = parseInt(row.find(".price").val()) || 0;
+                    let salePrice = parseInt(row.find(".old_price").val()) || 0;
+
+                    // Lấy giá của biến thể
+                    let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
+                    let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
+
+                    let finalPrice, oldPrice;
+                    let finalPriceVariant, oldPriceVariant;
+
+                    // Xử lý giá cho sản phẩm gốc
+                    finalPrice = salePrice > 0 ? salePrice : originalPrice;
+                    oldPrice = salePrice > 0 ? originalPrice : null;
+
+                    // Xử lý giá cho sản phẩm biến thể (nếu có)
+                    finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
+                    oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
+
+                    selectedProducts2.push({
+                        id: cartItemId,
+                        product_id: productId,
+                        product_variant_id: productVariantId,
+                        name: productName,
+                        name_variant: nameVariant,
+                        image: imageUrl,
+                        price: finalPrice, // Lưu giá của sản phẩm gốc
+                        old_price: oldPrice, // Lưu giá cũ của sản phẩm gốc
+                        price_variant: productVariantId ? finalPriceVariant : null,
+                        old_price_variant: productVariantId ? oldPriceVariant : null,
+                        quantity: productVariantId ? null : qty,
+                        quantity_variant: productVariantId ? qty : null,
+                    });
+
+                    totalSum2 += (productVariantId ? finalPriceVariant : finalPrice) * qty;
+                    
+                });
+
+                $.ajax({
+                    url: "{{ route('cart.saveSession') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selectedProducts: selectedProducts,
+                        total: totalSum,
+                        type: 'price'
+                    },
+                    success: function(response) {
+                        let price = parseInt(response.total2) || 0; // Đảm bảo giá trị là số
+                        console.log("Status:", status, "Price:", price);
+
+                        let lastPrice = totalSum2;
+
+                        console.log("Last Price:", lastPrice);
+
+                        $(".total-dropdown-price").text(numberFormat(lastPrice));
+                    }
+                });
+            }
+
+            function numberFormat(x) {
+                let formatted = new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(x);
+
+                // Thay thế "VND" bằng "đ"
+                return formatted.replace('VND', 'đ');
+            }
+
+            // Hàm AJAX cập nhật giỏ hàng
+            function updateCartQuantity(cartItemId, newQty, qtyInput, data) {
+                $.ajax({
+                    url: "{{ route('cart.update') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -530,10 +767,18 @@
                         quantity: newQty
                     },
                     success: function(response) {
+                        console.log("Response từ server:", response);
                         if (response.success) {
-
                             qtyInput.closest("tr").find(".subtotal h5").text(response.newSubtotal);
-                            updateTotalPrice();
+                            updateTotalPrice(); // Cập nhật tổng tiền giỏ hàng
+                            updateDropdownCart(cartItemId, newQty, response
+                                .newSubtotal); // Cập nhật dropdown cart ngay lập tức
+                            if (data && data.type) {
+                                updateDropdownTotal2(data
+                                .status); // Cập nhật tổng tiền trong dropdown cart
+                            } else {
+                                updateDropdownTotal(); // Cập nhật tổng tiền trong dropdown cart
+                            }
                         }
                     },
                     error: function() {
@@ -547,16 +792,7 @@
                 });
             }
 
-            // tính tổng tiền
-            function updateIdsToDelete() {
-                let selectedIds = [];
-                $('.checkbox-input:checked').each(function() {
-                    selectedIds.push($(this).val());
-                });
-
-                $('#ids-to-delete').val(selectedIds.join(','));
-            }
-
+            // Cập nhật tổng tiền
             function updateTotalPrice() {
                 let totalSum = 0;
 
@@ -568,146 +804,111 @@
                     totalSum += price;
                 });
 
+                // Cập nhật tổng tiền trong giao diện
                 $(".summery-total .total").text(totalSum.toLocaleString("vi-VN") + "đ");
                 $(".summery-contain .total").text(totalSum.toLocaleString("vi-VN") + "đ");
             }
 
-            // --- Phân loại ---
-            $(".toggle-button").click(function(e) {
-                let $parent = $(this).closest(".variation-selection");
-                let $variationBox = $parent.find(".variation-container");
+            // Hàm lưu session giỏ hàng
+            function updateCartSession() {
 
-                $(".variation-container").not($variationBox).hide();
+                let selectedProducts = [];
+                let totalSum = 0;
 
-                let buttonOffset = $(this).offset();
-                let buttonHeight = $(this).outerHeight();
+                $(".checkbox-input:checked").each(function() {
+                    let row = $(this).closest("tr");
+                    let cartItemId = row.data("id");
+                    let qty = parseInt(row.find(".input-number").val()) || 1;
+                    let productId = row.data("product-id") || null;
+                    let productVariantId = row.data("product-variant-id") || null;
+                    let productName = row.find(".name_product").text().trim();
+                    let nameVariant = row.find(".selected-variation").text().trim() || null;
+                    let imageUrl = row.find(".product-image img").attr("src") || "";
 
-                $variationBox.css({
-                    "top": buttonOffset.top + buttonHeight + 5 + "px",
-                    "left": buttonOffset.left + "px",
-                    "position": "absolute",
-                    "z-index": "1000",
-                    "display": "block"
+                    // Loại bỏ URL đầy đủ, chỉ giữ phần đường dẫn sau "/storage/"
+                    if (imageUrl.startsWith("http")) {
+                        let url = new URL(imageUrl);
+                        imageUrl = url.pathname.replace("/storage/", "").replace(/^\/+/, "");
+                    }
+                    // Lấy giá của sản phẩm gốc
+                    let originalPrice = parseInt(row.find(".price").val()) || 0;
+                    let salePrice = parseInt(row.find(".old_price").val()) || 0;
+
+                    // Lấy giá của biến thể
+                    let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
+                    let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
+
+                    let finalPrice, oldPrice;
+                    let finalPriceVariant, oldPriceVariant;
+
+                    // Xử lý giá cho sản phẩm gốc
+                    finalPrice = salePrice > 0 ? salePrice : originalPrice;
+                    oldPrice = salePrice > 0 ? originalPrice : null;
+
+                    // Xử lý giá cho sản phẩm biến thể (nếu có)
+                    finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
+                    oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
+
+                    selectedProducts.push({
+                        id: cartItemId,
+                        product_id: productId,
+                        product_variant_id: productVariantId,
+                        name: productName,
+                        name_variant: nameVariant,
+                        image: imageUrl,
+                        price: finalPrice, // Lưu giá của sản phẩm gốc
+                        old_price: oldPrice, // Lưu giá cũ của sản phẩm gốc
+                        price_variant: productVariantId ? finalPriceVariant : null,
+                        old_price_variant: productVariantId ? oldPriceVariant : null,
+                        quantity: productVariantId ? null : qty,
+                        quantity_variant: productVariantId ? qty : null,
+                    });
+
+                    totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
                 });
 
-                e.stopPropagation();
-            });
+                console.log("Dữ liệu gửi lên:", selectedProducts);
+                console.log("Tổng tiền:", totalSum);
 
-            $(".product-variation").click(function() {
-                let $parent = $(this).closest(".variation-selection");
-                let type = $(this).data("type");
-                let value = $(this).data("value");
-
-                if (type === "size") {
-                    $parent.data("selectedSize", value);
-                    $parent.find("[data-type='size']").removeClass("product-variation--selected");
-                } else if (type === "color") {
-                    $parent.data("selectedColor", value);
-                    $parent.find("[data-type='color']").removeClass("product-variation--selected");
-                }
-
-                $(this).addClass("product-variation--selected");
-            });
-
-            $(".confirm-btn").click(function() {
-                let $parent = $(this).closest(".variation-selection");
-                let selectedSize = $parent.data("selectedSize") || "1 Chiếc 1cm";
-                let selectedColor = $parent.data("selectedColor") || "Bạc";
-
-                $parent.find(".selected-variation").text(`${selectedSize}, ${selectedColor}`);
-                $parent.find(".variation-container").hide();
-            });
-
-            $(".cancel-btn").click(function() {
-                $(this).closest(".variation-selection").find(".variation-container").hide();
-            });
-
-            $(document).click(function(event) {
-                if (!$(event.target).closest(".variation-selection").length) {
-                    $(".variation-container").hide();
-                }
-            });
-        });
-        
-
-        // lưu sesson
-        function updateCartSession() {
-            let selectedProducts = [];
-            let totalSum = 0;
-
-            $(".checkbox-input:checked").each(function() {
-                let row = $(this).closest("tr");
-                let cartItemId = row.data("id");
-                let qty = parseInt(row.find(".input-number").val()) || 1;
-                let productId = row.data("product-id") || null;
-                let productVariantId = row.data("product-variant-id") || null;
-                let productName = row.find(".name_product").text().trim();
-                let nameVariant = row.find(".selected-variation").text().trim() || null;
-                let imageUrl = row.find(".product-image img").attr("src") || "";
-
-                // Lấy giá của sản phẩm gốc
-                let originalPrice = parseInt(row.find(".price").val()) || 0;
-                let salePrice = parseInt(row.find(".old_price").val()) || 0;
-
-                // Lấy giá của biến thể
-                let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
-                let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
-
-                let finalPrice, oldPrice;
-                let finalPriceVariant, oldPriceVariant;
-
-                // Xử lý giá cho sản phẩm gốc
-                finalPrice = salePrice > 0 ? salePrice : originalPrice;
-                oldPrice = salePrice > 0 ? originalPrice : null;
-
-                // Xử lý giá cho sản phẩm biến thể (nếu có)
-                finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
-                oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
-
-                selectedProducts.push({
-                    id: cartItemId,
-                    product_id: productId,
-                    product_variant_id: productVariantId,
-                    name: productName,
-                    name_variant: nameVariant,
-                    image: imageUrl,
-                    price: finalPrice, // Lưu giá của sản phẩm gốc
-                    old_price: oldPrice, // Lưu giá cũ của sản phẩm gốc
-                    price_variant: productVariantId ? finalPriceVariant : null,
-                    old_price_variant: productVariantId ? oldPriceVariant : null,
-                    quantity: productVariantId ? null : qty,
-                    quantity_variant: productVariantId ? qty : null,
+                $.ajax({
+                    url: "{{ route('cart.saveSession') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selectedProducts: selectedProducts,
+                        total: totalSum
+                    },
+                    success: function(response) {
+                        console.log("Session updated!", response);
+                    },
                 });
+            }
 
-                totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
+
+            function toggleCheckoutButton() {
+                let hasCheckedItems = $(".checkbox-input:checked").length > 0;
+
+                if (hasCheckedItems) {
+                    $(".checkout-btn").removeClass("disabled"); // Bật nút
+                } else {
+                    $(".checkout-btn").addClass("disabled"); // Disable nếu không có sản phẩm nào
+                }
+            }
+            // Cập nhật session khi checkbox thay đổi
+            $(".checkbox-input").on("click", function() {
+                updateCartSession();
+                toggleCheckoutButton();
+                updateTotalPrice(); // Cập nhật tổng tiền ngay khi thay đổi checkbox
             });
 
-            console.log("Dữ liệu gửi lên:", selectedProducts);
-            console.log("Tổng tiền:", totalSum);
-
-            $.ajax({
-                url: "{{ route('cart.saveSession') }}",
-                type: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    selectedProducts: selectedProducts,
-                    total: totalSum
-                },
-                success: function(response) {
-                    console.log("Session updated!", response);
-                },
+            // Cập nhật session và tổng tiền khi chọn tất cả
+            $("#checkbox-table").on("click", function() {
+                $(".checkbox-input").prop("checked", $(this).prop("checked"));
+                updateCartSession(); // Cập nhật ngay lập tức khi chọn tất cả
+                toggleCheckoutButton();
+                updateTotalPrice(); // Cập nhật tổng tiền ngay khi chọn tất cả
             });
-        }
-
-
-        // Gọi hàm khi checkbox thay đổi
-        $(".checkbox-input").on("click", function() {
-            updateCartSession();
-        });
-
-        $("#checkbox-table").on("click", function() {
-            $(".checkbox-input").prop("checked", $(this).prop("checked"));
-            updateCartSession(); // Cập nhật ngay lập tức khi chọn tất cả
+            toggleCheckoutButton();
         });
     </script>
 @endpush

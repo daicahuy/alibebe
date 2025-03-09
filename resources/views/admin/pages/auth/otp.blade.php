@@ -24,6 +24,11 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="send-box pt-4">
+                                <h5>Bạn chưa có code? <a href="javascript:void(0)" id="resend-otp" class="theme-color fw-bold" onclick="resendOtp()" disabled>Gửi lại</a></h5>
+                                <span id="countdown">Chờ 60 giây để gửi lại OTP</span>
+                                
+                            </div>
                             <button class="btn btn-theme justify-content-center w-100" id="otp_btn" type="submit">
                                 <div> Xác nhận </div>
                             </button>
@@ -55,6 +60,71 @@
                     showConfirmButton: true
                 });
             @endif
+
+            let countdownTime = 60; // 60 seconds
+            let countdownInterval;
+
+            // Disable resend OTP initially and start countdown
+            $('#resend-otp').prop('disabled', true);
+            $('#countdown').text('Chờ '+countdownTime + ' giây để gửi lại OTP');
+
+            // Countdown function
+            function startCountdown() {
+                countdownInterval = setInterval(function() {
+                    countdownTime--;
+                    $('#countdown').text('Chờ '+countdownTime + ' giây để gửi lại OTP');
+                    
+                    // Enable resend OTP when countdown reaches 0
+                    if (countdownTime <= 0) {
+                        clearInterval(countdownInterval);
+                        $('#resend-otp').prop('disabled', false); // Enable resend OTP link
+                        $('#countdown').text('Bạn có thể gửi lại OTP.');
+                    }
+                }, 1000);
+            }
+
+            // Start countdown when page loads
+            startCountdown();
+
+            // Function to resend OTP
+            window.resendOtp = function() {
+                if ($('#resend-otp').prop('disabled')) {
+                    // If the resend OTP link is disabled, don't do anything
+                    return;
+                }
+
+                $.ajax({
+                    url: '{{ route('auth.admin.resendOtp') }}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công!',
+                            text: response.message,
+                            timer: 1500,
+                            showConfirmButton: true
+                        });
+                        // Restart countdown
+                        countdownTime = 60;
+                        $('#resend-otp').prop('disabled', true); // Disable the link again
+                        startCountdown();
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: 'Có lỗi xảy ra khi gửi lại mã OTP.',
+                            showConfirmButton: true
+                        });
+                    }
+                });
+            };
         });
     </script>
 @endpush
+
+
+

@@ -51,7 +51,7 @@ class AddressService
                 'string',
                 'max:20'
             ],
-            'id_default' => [
+            'is_default' => [
                 'nullable',
                 'integer',
                 Rule::in([0, 1])
@@ -72,13 +72,13 @@ class AddressService
             }
 
             // Xử lý dữ liệu địa chỉ
-            $id_default = request('id_default');
+            $is_default = request('is_default');
             $data = [
                 'user_id' => $userId,
                 'fullname' => request('fullname') ?: $userLogin->fullname,
                 'phone_number' => request('phone_number') ?: $userLogin->phone_number,
                 'address' => request('address'),
-                'id_default' => $id_default ?? 0
+                'is_default' => $is_default ?? 0
             ];
 
             // Tạo địa chỉ mới
@@ -86,8 +86,8 @@ class AddressService
 
             // Nếu địa chỉ mới là mặc định và đã có địa chỉ mặc định, thì cập nhật địa chỉ cũ
             $addressDefault = $this->accountRepository->getUserProfileData()->defaultAddress;
-            if ($address->id_default == 1 && $addressDefault) {
-                $addressDefault->update(['id_default' => 0]);
+            if ($address->is_default == 1 && $addressDefault) {
+                $addressDefault->update(['is_default' => 0]);
             }
 
             return [
@@ -113,7 +113,7 @@ class AddressService
     {
         try {
             $address = $this->userAddressRepository->findById($id);
-            if ($address->id_default === 1) {
+            if ($address->is_default === 1) {
                 return [
                     'status' => false,
                     'message' => 'Địa Chỉ Đang Là Mặc Định , Không Được Xóa !'
@@ -151,13 +151,13 @@ class AddressService
 
             $address = $this->userAddressRepository->findById($addressId);
 
-            if ($address->id_default !== 1) {
+            if ($address->is_default !== 1) {
                 $address->update([
-                    'id_default' => 1
+                    'is_default' => 1
                 ]);
 
                 $addressDefault->update([
-                    'id_default' => 0
+                    'is_default' => 0
                 ]);
             }
 
@@ -198,7 +198,7 @@ class AddressService
                 'string',
                 'max:20'
             ],
-            'id_default' => [
+            'is_default' => [
                 'nullable',
                 'integer',
                 Rule::in([0, 1])
@@ -216,22 +216,30 @@ class AddressService
             $addressDefault = $this->accountRepository->getUserProfileData()->defaultAddress;
 
             // Chuẩn bị dữ liệu cập nhật
-            $id_default = request('id_default');
+            $is_default = request('is_default');
+
+            if ($is_default == 0 && $addressDefault->is_default) {
+                return [
+                    'status' => false,
+                    'message' => 'Bạn Không Thể Tắt đi địa chỉ mặc định !'
+                ];
+            }
+
             $data = [
                 'user_id' => $userId,
                 'address' => request('address'),
                 'fullname' => request('fullname') ?: $userLogin->fullname,
                 'phone_number' => request('phone_number') ?: $userLogin->phone_number,
-                'id_default' => isset($id_default) ? $id_default : 0
+                'is_default' => isset($is_default) ? $is_default : 0
             ];
             // Cập nhật địa chỉ
             $address->update($data);
 
-            // Nếu địa chỉ mới là mặc định (id_default = 1)
-            if ($id_default == 1 && $address->id != $addressDefault->id) {
-                // Cập nhật tất cả các địa chỉ khác của người dùng thành không mặc định (id_default = 0)
+            // Nếu địa chỉ mới là mặc định (is_default = 1)
+            if ($is_default == 1 && $address->id != $addressDefault->id) {
+                // Cập nhật tất cả các địa chỉ khác của người dùng thành không mặc định (is_default = 0)
                 if ($addressDefault && $addressDefault->id !== $id) {
-                    $addressDefault->update(['id_default' => 0]);
+                    $addressDefault->update(['is_default' => 0]);
                 }
             }
 

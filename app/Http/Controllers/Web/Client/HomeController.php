@@ -23,7 +23,7 @@ class HomeController extends Controller
         $bestSellProductsToday = $this->HomeService->getBestSellerProductsToday();
         $topCategoriesInweek = $this->HomeService->topCategoriesInWeek();
         $bestSellingProducts = $this->HomeService->getBestSellingProduct();
-
+        // dd($bestSellingProducts);
         if($userId){
             $aiSuggestedProducts = $this->HomeService->getAIFakeSuggest($userId);
         }else{
@@ -38,4 +38,13 @@ class HomeController extends Controller
             'aiSuggestedProducts'
         ));
     }
+    public function header()  {
+        $categories = $this->HomeService->getAllCategories();
+        $categoryIds = collect();
+        foreach ($categories as $category) {
+            $categoryIds = $categoryIds->merge($category->getAllChildrenIds());
+        }
+        return view('client.layoutspartials.header',compact('categories','categoryIds'));
+    }
+    
 }

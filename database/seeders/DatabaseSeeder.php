@@ -20,11 +20,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->truncateAllTable();
-
-        // Fake User
         $this->call([
             UserSeeder::class,
+            UserAddressSeeder::class,
             CategorySeeder::class,
             BrandSeeder::class,
             TagSeeder::class,
@@ -33,37 +31,18 @@ class DatabaseSeeder extends Seeder
             PaymentSeeder::class,
             OrderStatusSeeder::class,
             ProductSeeder::class,
+            CategoryProductSeeder::class,
+            ProductAccessorySeeder::class,
+            ProductTagSeeder::class,
+            AttributeValueProductSeeder::class,
+            ProductGalleriesSeeder::class,
+            ProductVariantSeeder::class,
+            AttributeValueProductVariantSeeder::class,
+            ProductStockSeeder::class,
             OrderSeeder::class,
         ]);
 
-        // Fake User                -> OK
-        // Fake Categories          -> OK
-        // Fake Brands              -> OK
-        // Fake Tags                -> OK
-        // Fake Attributes          -> OK
-        // Fake Attribute Values    -> OK
-        // Fake Payments            -> OK
-        // Fake Order Status        -> OK  
-        // Fake Products               
-        // Fake Orders              
+        //comment -> loading
+        //coupon -> loading
     }
-
-    private function truncateAllTable()
-    {
-        Schema::disableForeignKeyConstraints();
-
-        $dbName = env('DB_DATABASE');
-        $tables = DB::table('information_schema.tables')
-            ->where('table_schema', $dbName)
-            ->pluck('TABLE_NAME');
-        
-        foreach ($tables as $tableName) {
-            if ($tableName !== 'migrations') {
-                DB::table($tableName)->truncate();
-            }
-        }
-
-        Schema::enableForeignKeyConstraints();
-    }
-
 }

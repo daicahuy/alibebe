@@ -38,7 +38,7 @@ class DetailProductService
     {
         $product = $this->productRepository->detailProduct($id, $columns);
 
-        $product->related_products = $this->productRepository->getRelatedProducts($product);
+        $product->relatedProducts = $this->productRepository->getRelatedProducts($product);
 
         $totalReviews = $product->reviews->count();
         $averageRating = $totalReviews > 0 ? round($product->reviews->avg('rating'), 1) : 0;
@@ -49,59 +49,57 @@ class DetailProductService
 
         // Lấy thuộc tính sản phẩm
         $product->attributes = $this->productRepository->getProductAttributes($product);
-
         return $product;
     }
     public function detailModal($id)
     {
         try {
             $product = $this->productRepository->detailModal($id) ?? 0;
-
+    
             if (!$product) {
                 throw new ModelNotFoundException('Không tìm thấy sản phẩm.');
             }
             $avgRating = $product->reviews->avg('rating');
-            // dd($product);
-            $productVariants = $product->productVariants->map(function ($variant) { //sản phẩm biến thể
+    
+            $productVariants = $product->productVariants->map(function ($variant) {
                 return [
-                    // 'sku' => $variant->sku,
-                    'id' => $variant->id, // id biến thể
+                    'id' => $variant->id,
                     'price' => $variant->price,
                     'sale_price' => $variant->sale_price,
+                    'display_price' => $variant->display_price, // **LẤY display_price TỪ REPOSITORY**
+                    'original_price' => $variant->original_price, // **LẤY original_price TỪ REPOSITORY**
                     'thumbnail' => Storage::url($variant->thumbnail),
-                    'attribute_values' => $variant->attributeValues->map(function ($attributeValue) { //bảng attribute_values (giá trị thuộc tính, xanh 4GB..)
+                    'attribute_values' => $variant->attributeValues->map(function ($attributeValue) {
                         return [
-                            'id' => $attributeValue->id, //id giá trị thuộc tính
-                            // 'attribute_id' => $attributeValue->attribute_id,//id liên kết thuộc tính
-                            'attribute_value' => $attributeValue->value,            //Giá trị thuộc tính 
-                            'attributes_name' => $attributeValue->attribute->name, //tên thuộc tính (table attributes)
-                            'attributes_slug' => $attributeValue->attribute->slug, //tên thuộc tính (table attributes)
+                            'id' => $attributeValue->id,
+                            'attribute_value' => $attributeValue->value,
+                            'attributes_name' => $attributeValue->attribute->name,
+                            'attributes_slug' => $attributeValue->attribute->slug,
                         ];
                     }),
-                    'product_stock' => $variant->productStock ? //hAS ONE :))))
-                         [
+                    'product_stock' => $variant->productStock ?
+                        [
                             "product_id" => $variant->productStock->product_id,
-                            'product_variant_id' => $variant->productStock->product_variant_id,            
-                            'stock' => $variant->productStock->stock, 
+                            'product_variant_id' => $variant->productStock->product_variant_id,
+                            'stock' => $variant->productStock->stock,
                         ] : [],
-                    
-
-
                 ];
             });
-            // dd($productVariants);
-
+    
             return [
-                'id' => $product->id, //id sản phẩm
+                'id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,
+                'display_price' => $product->display_price, // **LẤY display_price TỪ REPOSITORY**
+                'original_price' => $product->original_price, // **LẤY original_price TỪ REPOSITORY**
                 'thumbnail' => Storage::url($product->thumbnail),
-                'description' => $product->description,
+                'short_description' => $product->short_description,
                 'categories' => $product->categories->pluck('name')->implode(', '),
                 'brand' => $product->brand ? $product->brand->name : null,
-                // 'reviews' => $product->reviews ? $product->reviews : null,
                 'avgRating' => $avgRating,
                 'productVariants' => $productVariants,
+                'sold_count' => $product->sold_count,
+                'is_sale' => $product->is_sale,
             ];
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()], 500);

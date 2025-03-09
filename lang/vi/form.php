@@ -101,6 +101,8 @@ return [
     'comments' => 'Bình luận',
     'comment' => [
         'id' => 'ID',
+        'stt' => 'STT',
+        'sum_cm' => 'Tổng bình luận',
         'product_id' => 'ID sản phẩm',
         'user_id' => 'ID người dùng',
         'content' => 'Nội dung',
@@ -344,6 +346,7 @@ return [
         'user_id' => 'ID người dùng',
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
+        'import' => 'Nhập kho',
     ],
 
     'tags' => 'Thẻ',
@@ -390,7 +393,7 @@ return [
         'id' => 'ID',
         'user_id' => 'ID người dùng',
         'address' => 'Địa chỉ',
-        'id_default' => 'Mặc định',
+        'is_default' => 'Mặc định',
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
     ],

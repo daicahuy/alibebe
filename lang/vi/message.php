@@ -62,5 +62,15 @@ return [
     "shipping_fee" => "Phí vận chuyển",
     "discount" => "Giảm giá",
     "total_amount" => "Thành tiền",
-    "information" => "Thông tin"
+    "information" => "Thông tin",
+
+    //dashboard admin
+    'total_revenue' => 'Tổng doanh thu',
+    'total_orders_completed' => 'Tổng đơn hàng đã hoàn thành',
+    'total_products' => 'Tổng sản phẩm',
+    'total_customers' => 'Tổng khách hàng',
+    'revenue_and_orders' => 'Doanh thu và số lượng đơn hàng',
+    'top_customers' => 'Top khách hàng',
+    'top_selling_products' => 'Top sản phẩm bán chạy',
+    'orders_status' => 'Tình trạng đơn hàng'
 ];

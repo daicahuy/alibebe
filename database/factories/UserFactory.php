@@ -25,21 +25,64 @@ class UserFactory extends Factory
      * @return array<string, mixed>
      */
     public function definition(): array
-    {
-        $firstNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng'];
-        $middleNames = ['Văn', 'Thị', 'Hữu', 'Minh', 'Anh', 'Thành', 'Mỹ'];
-        $lastNames = ['Trinh', 'Huệ', 'Hoa', 'Quỳnh', 'Thắm', 'Duyên', 'Diệu', 'Nga', 'Thúy', 'Hường', 'Thu', 'Hà', 'Linh', 'My', 'Huy', 'Sơn', 'Mạnh', 'Quân', 'Tùng', 'Bảo', 'Ánh', 'Trung'];
-        
+    {   
         return [
-            'phone_number' => $this->faker->unique()->numerify('09########'),
-            'email' => $this->faker->unique()->userName() . '@gmail.com',
+            'google_id' => null,  
+            'facebook_id' => null,  
+            'phone_number' => $this->faker->numerify('09########'), 
+            'email' => $this->faker->unique()->safeEmail(),
             'password' => Hash::make('123456'),
-            'fullname' => $this->faker->randomElement($firstNames) . ' ' . $this->faker->randomElement($middleNames) . ' ' . $this->faker->randomElement($lastNames),
-            'gender' => UserGenderType::getRandomValue(),
-            'role' => UserRoleType::CUSTOMER,
-            'status' => UserStatusType::getRandomValue(),
-            'verified_at' => now(),
+            'fullname' => $this->faker->name(),
+            'avatar' => 'users/user_default', 
+            'gender' => $this->faker->randomElement([UserGenderType::MALE, UserGenderType::FEMALE, UserGenderType::OTHER]),
+            'birthday' => $this->faker->date(),  
+            'loyalty_points' => $this->faker->numberBetween(0, 1000),  
+            'role' => $this->faker->randomElement([  
+                UserRoleType::CUSTOMER,
+                UserRoleType::ADMIN,
+                UserRoleType::EMPLOYEE
+            ]),  
+            'status' => $this->faker->randomElement([  
+                UserStatusType::ACTIVE, 
+                UserStatusType::LOCK  
+            ]),  
+            'code_verified_email' => Str::random(50),  
+            'remember_token' => Str::random(10),  
+            'email_verified_at' => now(),  
+            'code_verified_at' => now(),  
         ];
+    }
+
+    public function admin(): Factory
+    {
+        return $this->state(function(array $attributes) {
+            return [
+                'fullname' => 'Admin',  
+                'role' => UserRoleType::ADMIN,
+                'email' => 'admin@gmail.com',  
+                'password' => Hash::make('123456'),
+                'status' => UserStatusType::ACTIVE
+            ];
+        });
+    }
+
+    public function employee(): Factory
+    {
+        return $this->state(function(array $attributes) {
+            return [
+                'role' => UserRoleType::EMPLOYEE,
+                'status' => UserStatusType::ACTIVE
+            ];
+        });
+    }
+
+    public function customer(): Factory
+    {
+        return $this->state(function(array $attributes) {
+            return [
+                'role' => UserRoleType::CUSTOMER
+            ];
+        });
     }
 
 }

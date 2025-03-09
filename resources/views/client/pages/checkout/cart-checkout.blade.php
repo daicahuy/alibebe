@@ -320,7 +320,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center">
-                                <input type="checkbox" id="id_default" name="id_default"
+                                <input type="checkbox" id="is_default" name="is_default"
                                     class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                 <label for="checkbox" class="ml-2 block text-sm text-gray-700">Đặt làm mặc định</label>
                             </div>
@@ -372,7 +372,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center">
-                                <input type="checkbox" id="id_default" name="id_default"
+                                <input type="checkbox" id="is_default" name="is_default"
                                     class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                 <label for="checkbox" class="ml-2 block text-sm text-gray-700">Đặt làm mặc định</label>
                             </div>
@@ -455,7 +455,11 @@
 @endpush
 
 @push('js')
-    <script></script>
+<script>
+    let sessionData = <?php echo json_encode(session('selectedProducts')); ?>;
+    console.log(sessionData); // Kiểm tra dữ liệu trên console
+</script>
+
 
     <script>
         async function openAddressEdit(id) {
@@ -470,11 +474,11 @@
                     $("#edit-address-modal #phone_number").val(dataEditAddress.phone_number)
                     $("#edit-address-modal #address").val(dataEditAddress.address)
                     $("#edit-address-modal #idAddress").val(id)
-                    if (dataEditAddress.id_default == 1) {
-                        $("#edit-address-modal #id_default").prop('checked', true).prop('disabled',
+                    if (dataEditAddress.is_default == 1) {
+                        $("#edit-address-modal #is_default").prop('checked', true).prop('disabled',
                             true); // Đánh dấu và vô hiệu hóa
                     } else {
-                        $("#edit-address-modal #id_default").prop('checked', false).prop('disabled',
+                        $("#edit-address-modal #is_default").prop('checked', false).prop('disabled',
                             false); // Bỏ đánh dấu và kích hoạt
                     }
 
@@ -706,7 +710,7 @@
                                     </div>
                                 </div>
                                     <div class="flex items-center space-x-2">
-                                        ${data.dataAddressOne.id_default == 1?"<div class='border border-red-500 text-red-500 px-2 py-1 rounded-md text-sm'>Mặc Định</div>":""}
+                                        ${data.dataAddressOne.is_default == 1?"<div class='border border-red-500 text-red-500 px-2 py-1 rounded-md text-sm'>Mặc Định</div>":""}
                                         <button id="open-modal" class="text-blue-500 text-sm">Thay Đổi</button>
                                     </div> 
                             `)
@@ -739,7 +743,7 @@
                 <div class="mt-4">
                             <div class="flex justify-between items-center">
                                 <div class="flex items-center">
-                                    <input type="radio" id="${address.id}" name="selected-address" value="${address.id}" class="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" ${address.id_default ? 'checked' : ''}>
+                                    <input type="radio" id="${address.id}" name="selected-address" value="${address.id}" class="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" ${address.is_default ? 'checked' : ''}>
                                     <div class="flex justify-between items-center">
                                         <div class="text-black font-medium">${address.fullname} (+84)</div>
                                         <div class="text-black">${address.phone_number}</div>
@@ -756,7 +760,7 @@
                                     ${address.address}
                                 </div>
                                 <div class="flex items-center space-x-2 mt-2">
-                                    ${address.id_default? `<div class="border border-red-500 text-red-500 px-2 py-1 rounded-md text-sm">${address.id_default == 1 ?"Mặc Định":""}</div>` :""}
+                                    ${address.is_default? `<div class="border border-red-500 text-red-500 px-2 py-1 rounded-md text-sm">${address.is_default == 1 ?"Mặc Định":""}</div>` :""}
                                     
                                     <div class="text-blue-500 text-sm">Địa chỉ lấy hàng</div>
                                 </div>
@@ -809,7 +813,7 @@
                                             </div>
                                             </div>
                                             <div class="flex items-center space-x-2">
-                                                ${data.dataEditAddress.id_default == 1?"<div class='border border-red-500 text-red-500 px-2 py-1 rounded-md text-sm'>Mặc Định</div>":""}
+                                                ${data.dataEditAddress.is_default == 1?"<div class='border border-red-500 text-red-500 px-2 py-1 rounded-md text-sm'>Mặc Định</div>":""}
                                                 <button id="open-modal" class="text-blue-500 text-sm">Thay Đổi</button>
                                             </div> 
                                     `)
@@ -839,11 +843,11 @@
                 const fullname = $("#add-address-modal #fullname").val();
                 const phone_number = $("#add-address-modal #phone_number").val();
                 const address = $("#add-address-modal #address").val();
-                const id_default = $("#add-address-modal #id_default").is(":checked") ?
+                const is_default = $("#add-address-modal #is_default").is(":checked") ?
                     1 :
                     0; // Lấy giá trị checkbox
 
-                // console.log(fullname, phone_number, address, id_default);
+                // console.log(fullname, phone_number, address, is_default);
                 // return;
 
                 $.ajax({
@@ -853,7 +857,7 @@
                         fullname: fullname,
                         phone_number: phone_number,
                         address: address,
-                        id_default: id_default,
+                        is_default: is_default,
                         user_id: dataUser.id
                     },
                     dataType: "json",
@@ -922,7 +926,7 @@
                 const phone_number = $("#edit-address-modal #phone_number").val();
                 const address = $("#edit-address-modal #address").val();
                 const idAddress = $("#edit-address-modal #idAddress").val();
-                const id_default = $("#edit-address-modal #id_default").is(":checked") ?
+                const is_default = $("#edit-address-modal #is_default").is(":checked") ?
                     1 :
                     0; // Lấy giá trị checkbox
 
@@ -935,7 +939,7 @@
                         fullname: fullname,
                         phone_number: phone_number,
                         address: address,
-                        id_default: id_default,
+                        is_default: is_default,
                         user_id: dataUser.id,
                         idAddress: idAddress
                     },

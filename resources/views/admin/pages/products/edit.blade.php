@@ -48,6 +48,12 @@
                                                 <span class="fs-6 fw-light">></span> {{ __('message.edit') }}
                                             </h5>
                                         </div>
+                                        <div>
+                                            <button class="align-items-center btn btn-theme d-flex" id="import-stock-btn">
+                                                <i class="ri-add-line"></i>
+                                                {{ __('form.stock_movement.import') }}
+                                            </button>
+                                        </div>
                                     </div>
                                     <form
                                         action="{{ route('admin.products.update', $product->id) }}"
@@ -293,7 +299,7 @@
                                                                                 placeholder="{{ __('form.enter_sale_price') }}"
                                                                                 class="form-control"
                                                                                 name="product[sale_price]"
-                                                                                value="{{ (int) $product->sale_price }}"
+                                                                                value="{{ $product->sale_price ? (int) $product->sale_price : '' }}"
                                                                                 {{ $product->isVariant() ? 'd-none' : '' }}
                                                                             >
                                                                             <span class="input-group-text">VNĐ</span>
@@ -395,7 +401,6 @@
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
-                                                                                {{-- @dd($product); --}}
                                                                                 @foreach ($product->productVariants as $index => $variant)
                                                                                     <tr class="variant">
                                                                                         <td class="sm-width form-group">
@@ -446,7 +451,7 @@
                                                                                                 type="number"
                                                                                                 name="product_variants[{{ $index }}][info][sale_price]"
                                                                                                 class="form-control"
-                                                                                                value="{{ (int) $variant->sale_price }}"
+                                                                                                value="{{ $variant->sale_price ? (int) $variant->sale_price : $variant->sale_price }}"
                                                                                             >
                                                                                             <div class="invalid-feedback"></div>
                                                                                         </td>
@@ -704,12 +709,143 @@
                                 </div>
                             </div>
                         </div>
+                        
                     </div>
                 </div>
 
             </div>
+
         </div>
+        
     </div>
+
+    {{-- MODAL --}}
+    @if ($product->isSingle())
+        <div class="modal fade" id="modal-import-stock" tabindex="-1" aria-hidden="true">
+            <div class="overlay">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body text-center">
+                            <h5 class="modal-title mb-5">Nhập kho</h5>
+                            <div class="row">
+                                <form id="form-import-stock" action="{{ route('api.stocks.importSingle') }}" method="POST">
+                                    @csrf
+                                    <input type="text" hidden value="{{ $product->id }}" name="id">
+                                    <input type="text" hidden value="{{ Auth::user()->id }}" name="user_id">
+                                    <div class="form-group align-items-center g-2 mb-4 row">
+                                        <label class="col-sm-3 form-label-title mb-0 text-start" for="icon">
+                                            Tên sản phẩm:
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <input type="text" name="stock" class="form-control disabled" value="{{ $product->name }}" disabled>
+                                            <div class="invalid-feedback text-start"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group align-items-center g-2 mb-4 row">
+                                        <label class="col-sm-3 form-label-title mb-0 text-start" for="icon">
+                                            Mã SKU:
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <input type="text" name="stock" class="form-control disabled" value="{{ $product->sku }}" disabled>
+                                            <div class="invalid-feedback text-start"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group align-items-center g-2 mb-4 row">
+                                        <label class="col-sm-3 form-label-title mb-0 text-start">
+                                            Số lượng:
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <input type="number" name="quantity" class="form-control">
+                                            <div class="invalid-feedback text-start"></div>
+                                        </div>
+                                    </div>
+                                    <div class="button-box justify-content-end">
+                                        <button class="btn btn-md btn-secondary fw-bold" id="btn-cancel-import-stock" type="button">
+                                            {{ __('message.cancel') }}
+                                        </button>
+                                        <button class="btn btn-md btn-theme fw-bold btn-action" type="submit">
+                                            Xác nhận
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="modal fade" id="modal-import-stock" tabindex="-1" aria-hidden="true">
+            <div class="overlay">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <form id="form-import-stock" action="{{ route('api.stocks.importVariant') }}" method="POST">
+                            <div class="modal-body text-center">
+                                <h5 class="modal-title mb-5">Nhập kho</h5>
+                                <div class="row mb-4">
+                                        @csrf
+                                        <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
+                                        <div class="form-group align-items-center g-2 mb-4 row">
+                                            <label class="col-sm-3 form-label-title mb-0" for="icon">
+                                                Tên sản phẩm:
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <input type="text" name="stock" class="form-control disabled" value="{{ $product->name }}" disabled>
+                                                <div class="invalid-feedback text-start"></div>
+                                            </div>
+                                        </div>
+                                        <table class="table all-package theme-table no-footer">
+                                            <thead>
+                                                <tr>
+                                                    <th>{{ __('form.product_variant.sku') }}
+                                                    <th>{{ __('form.product_variants') }}</th>
+                                                    </th>
+                                                    <th>{{ __('form.stock_movement.quantity') }}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($product->productVariants as $index => $variant)
+                                                    <tr class="variant">
+
+                                                        <td class="form-group">
+                                                            {{ $variant->sku }}
+                                                            <div class="invalid-feedback"></div>
+                                                        </td>
+
+                                                        <td class="form-group">
+                                                            <div>
+                                                                @foreach ($variant->attributeValues->pluck('value') as $combine)
+                                                                    {{ $combine . ($loop->last ? '' : ' | ') }}
+                                                                @endforeach
+                                                                <input type="hidden" value="{{ $variant->id }}" name="variants[{{ $index }}][id]">
+                                                            </div>
+                                                            <div class="invalid-feedback text-start"></div>
+                                                        </td>
+
+                                                        <td class="form-group">
+                                                            <input type="number" name="variants[{{ $index }}][quantity]" class="form-control">
+                                                            <div class="invalid-feedback text-start"></div>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                </div>
+                                <div class="button-box justify-content-end">
+                                    <button class="btn btn-md btn-secondary fw-bold" id="btn-cancel-import-stock" type="button">
+                                        {{ __('message.cancel') }}
+                                    </button>
+                                    <button class="btn btn-md btn-theme fw-bold btn-action" type="submit">
+                                        Xác nhận
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection
 
 
@@ -964,6 +1100,84 @@
 
                     }
                 });
+            })
+
+            $('#import-stock-btn').on('click', function() {
+                $('#modal-import-stock').modal('show');
+            })
+
+            $('#btn-cancel-import-stock').on('click', function() {
+                $('#modal-import-stock').modal('hide');
+            })
+
+            $('#form-import-stock').on('submit', function(e) {
+                e.preventDefault();
+
+                const data = new FormData($("#form-import-stock")[0]);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: "POST",
+                    data,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('#modal-import-stock').modal('hide');
+                        
+                        if (response.statusCode === 200) {
+                            Swal.fire({
+                                icon: "warning",
+                                html: response.message,
+                                focusConfirm: false,
+                                draggable: true,
+                            });
+                        } else if (response.statusCode === 201) {
+                            Swal.fire({
+                                title: response.message,
+                                icon: "success",
+                                draggable: true
+                            });
+    
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
+                        }
+                    },
+                    error: function(jqXHR) {
+                        if (jqXHR.status !== 422) {
+                            Swal.fire({
+                                icon: "error",
+                                title: jqXHR.responseJSON.message,
+                            });
+                            return
+                        }
+
+                        $("#form-import-stock .invalid-feedback").text("");
+                        $("#form-import-stock .is-invalid").removeClass("is-invalid");
+
+                        const errors = jqXHR.responseJSON.errors;
+                        console.log(errors);
+                        $.each(errors, function (key, message) {
+                            const parts = key.split('.');
+
+                            if (parts[0] === "variants") {
+                                key = parts.reduce((accumulator, currentItem) => `${accumulator}[${currentItem}]`);
+                            } else if (parts.length >= 2) {
+                                key = parts.reduce((accumulator, currentItem) => !isNaN(currentItem) ? `${accumulator}[]` : `${accumulator}[${currentItem}]`)
+                            }
+
+                            console.log(key);
+                            
+                            let inputField = $(`#form-import-stock [name="${key}"]`);
+
+                            if (inputField.length > 0) {
+                                inputField.addClass("is-invalid");
+                                inputField.closest('.form-group').find(".invalid-feedback").html(message);
+                            }
+                        })
+                    }
+                });
+                
             })
 
         });

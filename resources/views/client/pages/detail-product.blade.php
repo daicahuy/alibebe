@@ -157,7 +157,7 @@
                                 <h2 class="name">{{ $detail->name }}</h2>
                                 <div class="price-rating">
                                     <h2 class="theme-color price" id="productPrice">
-                                        @if ($detail->sale_price !== null)
+                                        @if ($detail->sale_price !== null && $detail->is_sale == 1)
                                             {{ number_format($detail->sale_price, 0, ',', '.') }} ₫
                                             <br><del class="text-content">{{ number_format($detail->price, 0, ',', '.') }}
                                                 ₫</del>
@@ -206,19 +206,20 @@
                                         <span id="productStock"></span>
                                     @else
                                         <span id="productStock">Số lượng tồn kho :
-                                            {{ $detail->productStock->stock }}</span>
+                                            {{ $detail->productStock->stock ?? 0 }}</span>
                                     @endif
                                 </div>
 
 
                                 <div class="time deal-timer product-deal-timer mx-md-0 mx-auto" id="clockdiv-1"
                                     @if ($detail->is_sale == 1 && $detail->sale_price_start_at && $detail->sale_price_end_at) data-start-date="{{ $detail->sale_price_start_at->timestamp }}"
-    data-end-date="{{ $detail->sale_price_end_at->timestamp }}"
-    @else
-    style="display: none;" @endif>
+                                     data-end-date="{{ $detail->sale_price_end_at->timestamp }}"
+                                    @else
+                                    style="display: none;" @endif>
                                     <div class="my-timer-product-title">
-                                        <h4 class="my-timer-promotion-message" id="promotion-message">Nhanh lên! Khuyến mạikết thúc vào</h4>
-                                            
+                                        <h4 class="my-timer-promotion-message" id="promotion-message">Nhanh lên! Khuyến
+                                            mạikết thúc vào</h4>
+
                                     </div>
                                     <ul>
                                         <li>
@@ -255,36 +256,42 @@
                                         </li>
                                     </ul>
                                 </div>
-
-                                <div class="note-box product-package">
-                                    <div class="cart_qty qty-box product-qty">
-                                        <div class="input-group">
-                                            <button type="button" class="qty-left-minus" data-type="minus" data-field="">
-                                                <i class="fa fa-minus"></i>
-                                            </button>
-                                            <input class="form-control input-number qty-input" type="text"
-                                                name="quantity" value="1">
-                                            <button type="button" class="qty-right-plus" data-type="plus"
-                                                data-field="">
-                                                <i class="fa fa-plus"></i>
-                                            </button>
+                                <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
+                                    @csrf
+                                    <input type="hidden" name="product_id" id="cartProductId">
+                                    <input type="hidden" name="product_variant_id" id="cartProductVariantId">
+                                    <div class="note-box product-package">
+                                        <div class="cart_qty qty-box product-qty">
+                                            <div class="input-group">
+                                                <button type="button" class="qty-left-minus" data-type="minus"
+                                                    data-field="">
+                                                    <i class="fa fa-minus"></i>
+                                                </button>
+                                                <input class="form-control input-number qty-input" type="text"
+                                                    name="quantity" value="1">
+                                                <button type="button" class="qty-right-plus" data-type="plus"
+                                                    data-field="">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <button onclick="location.href = 'cart.html';"
-                                        class="btn btn-md bg-dark cart-button text-white w-100">Add To Cart</button>
-                                </div>
+                                        <button type="submit" id="addToCartButton"
+                                            class="btn btn-md bg-dark cart-button text-white w-100">Thêm vào giỏ
+                                            hàng</button>
+                                    </div>
+                                </form>
+
 
                                 <div class="buy-box">
-                                    <a href="wishlist.html">
-                                        <i data-feather="heart"></i>
-                                        <span>Add To Wishlist</span>
-                                    </a>
+                                    <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
+                                        <a href="javascript:void(0);" class="notifi-wishlist wishlist-toggle"
+                                            data-product-id="{{ $detail->id }}">
+                                            <i data-feather="heart" class="wishlist-icon"></i>
+                                            <span>Add To Wishlist</span>
+                                        </a>
+                                    </li>
 
-                                    <a href="compare.html">
-                                        <i data-feather="shuffle"></i>
-                                        <span>Add To Compare</span>
-                                    </a>
                                 </div>
 
                                 <div class="payment-option">
@@ -346,36 +353,36 @@
                             <div class="related-box">
                                 <div class="related-image">
                                     <ul>
-                                        {{-- <li>
-                                            <div class="product-box product-box-bg wow fadeInUp">
-                                                <div class="product-image">
-                                                    <a href="#">
-                                                        <img src="{{ asset('storage/' . $detail->thumbnail) }}"
-                                                            class="img-fluid blur-up lazyload" alt="">
-                                                    </a>
-                                                </div>
-                                                <div class="product-detail">
-                                                    <a href="#">
-                                                        <h6 class="name">{{ $detail->name }}</h6>
-                                                    </a>
-
-                                                    <h5 class="sold text-content">
-                                                        <span
-                                                            class="theme-color price">{{ number_format($detail->sale_price, 0, ',', '.') }}
-                                                            ₫</span>
-                                                        <del>{{ number_format($detail->price, 0, ',', '.') }} ₫</del>
-                                                    </h5>
-                                                </div>
-                                            </div>
-                                        </li> --}}
                                         @foreach ($detail->productAccessories as $dk)
                                             <li>
                                                 <div class="product-box product-box-bg wow fadeInUp">
-                                                    <div class="product-image">
-                                                        <input type="checkbox" class="accessory-checkbox"
-                                                            data-price="{{ $dk->sale_price }}">
-                                                        <img src="{{ asset('storage/' . $dk->thumbnail) }}"
-                                                            class="img-fluid blur-up lazyload" alt="">
+                                                    <div class="product-header">
+                                                        <div class="product-image">
+                                                            <a href="{{route('products',$dk->id)}}">
+                                                                <img src="{{ asset('storage/' . $dk->thumbnail) }}"
+                                                                    class="img-fluid blur-up lazyload"
+                                                                    alt="{{ $dk->name }}">
+                                                            </a>
+
+                                                            <ul class="product-option">
+                                                                <a href="javascript:void(0)" data-bs-toggle="modal"
+                                                                    data-bs-target="#view" data-id={{ $dk->id }}>
+                                                                    <i data-feather="eye"></i>
+                                                                </a>
+                                                                <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                                    title="Compare">
+                                                                    <a href="compare.html">
+                                                                        <i data-feather="refresh-cw"></i>
+                                                                    </a>
+                                                                </li>
+                                                                <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                                    title="Wishlist">
+                                                                    <a href="wishlist.html" class="notifi-wishlist">
+                                                                        <i data-feather="heart"></i>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
                                                     </div>
                                                     <div class="product-detail">
                                                         <a href="#">
@@ -383,10 +390,15 @@
                                                         </a>
 
                                                         <h5 class="sold text-content">
-                                                            <span
-                                                                class="theme-color price">{{ number_format($dk->sale_price, 0, ',', '.') }}
-                                                                ₫</span>
-                                                            <del>{{ number_format($dk->price, 0, ',', '.') }} ₫</del>
+                                                            @if ($dk->sale_price == null)
+                                                                <del>{{ number_format($dk->price, 0, ',', '.') }} ₫</del>
+                                                            @else
+                                                                <span
+                                                                    class="theme-color price">{{ number_format($dk->sale_price, 0, ',', '.') }}
+                                                                    ₫</span>
+                                                                <br>
+                                                                <del>{{ number_format($dk->price, 0, ',', '.') }} ₫</del>
+                                                            @endif
                                                         </h5>
                                                     </div>
                                                 </div>
@@ -394,20 +406,6 @@
                                         @endforeach
                                     </ul>
                                 </div>
-
-                                {{-- <div class="bundle-list">
-                                    <ul>
-                                        <li class="content">
-                                            <h5>Tổng tiền:</h5>
-                                            <h4 class="theme-color">
-                                                <span id="total-price">0</span> ₫
-                                            </h4>
-                                            <button class="btn text-white theme-bg-color btn-md mt-sm-4 mt-3 fw-bold">
-                                                <i class="fa-solid fa-cart-shopping me-2"></i> Thêm vào giỏ hàng
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div> --}}
                             </div>
 
                         </div>
@@ -450,7 +448,7 @@
                             <div class="tab-pane fade show active" id="description" role="tabpanel">
                                 <div class="product-description">
                                     <div class="nav-desh">
-                                        <p>{{ $detail->description }}</p>
+                                        <p>{!! $detail->description !!}</p>
                                     </div>
                                 </div>
                             </div>
@@ -521,12 +519,12 @@
                                                             @endfor
                                                         </ul>
 
-                                                        <div class="review-title-2">
+                                                        {{-- <div class="review-title-2">
                                                             <h4 class="fw-bold">Đánh giá sản phẩm này</h4>
                                                             <p>Hãy cho những khách hàng khác biết suy nghĩ của bạn</p>
                                                             <button class="btn" type="button" data-bs-toggle="modal"
                                                                 data-bs-target="#writereview">Đánh giá</button>
-                                                        </div>
+                                                        </div> --}}
                                                     </div>
                                                 </div>
                                             </div>
@@ -732,12 +730,12 @@
             <div class="row">
                 <div class="col-12">
                     <div class="slider-6_1 product-wrapper">
-                        @foreach ($detail->related_products as $related)
+                        @foreach ($detail->relatedProducts as $related)
                             <div>
                                 <div class="product-box-3 wow fadeInUp">
                                     <div class="product-header">
                                         <div class="product-image">
-                                            <a href="#">
+                                            <a href="{{ route('products', $related->id) }}">
                                                 <img src="{{ asset('storage/' . $related->thumbnail) }}"
                                                     class="img-fluid blur-up lazyload" alt="{{ $related->name }}">
                                             </a>
@@ -753,8 +751,10 @@
                                                     </a>
                                                 </li>
                                                 <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                    <a href="wishlist.html" class="notifi-wishlist">
-                                                        <i data-feather="heart"></i>
+                                                    <a href="javascript:void(0);" class="notifi-wishlist wishlist-toggle"
+                                                        data-product-id="{{ $related->id }}">
+                                                        <i data-feather="heart" class="wishlist-icon"></i>
+                                                       
                                                     </a>
                                                 </li>
                                             </ul>
@@ -764,7 +764,7 @@
                                     <div class="product-footer">
                                         <div class="product-detail">
                                             <span class="span-name">{{ $related->brand->name }}</span>
-                                            <a href="#">
+                                            <a href="{{route('products',$related->id)}}">
                                                 <h5 class="name">{{ $related->name }}</h5>
                                             </a>
                                             <div class="product-rating mt-2">
@@ -779,12 +779,30 @@
                                                 <span>({{ number_format($related->average_rating, 1) }})</span>
                                             </div>
                                             <h5 class="price">
-                                                <span
-                                                    class="theme-color">{{ number_format($related->sale_price ?: $related->price, 0, ',', '.') }}
-                                                    ₫</span>
-                                                @if ($related->sale_price)
-                                                    <del>{{ number_format($related->price, 0, ',', '.') }} ₫</del>
+                                                @if ($related->productVariants->count() > 0)
+                                                @php
+                                                    // Lọc ra biến thể có sale_price > 1 và sắp xếp theo sale_price tăng dần
+                                                    $variant = $related->productVariants->where('sale_price', '>', 1)->sortBy('sale_price')->first();
+                                                    $variantPrice = $variant ? $variant->price : $related->price;
+                                                    $variantSalePrice = $variant ? $variant->sale_price : null;
+                                                    $isSale = $variant ? $related->is_sale : $related->is_sale;
+                                                @endphp
+                                            
+                                                @if ($isSale == 1 && $variantSalePrice !== null)
+                                                    {{ number_format($variantSalePrice, 0, ',', '.') }} ₫
+                                                    <br><del class="text-content">{{ number_format($variantPrice, 0, ',', '.') }} ₫</del>
+                                                @else
+                                                    {{ number_format($variantPrice, 0, ',', '.') }} ₫
                                                 @endif
+                                            @else
+                                                @if ($related->is_sale == 1 && $related->sale_price > 1)
+                                                    {{ number_format($related->sale_price, 0, ',', '.') }} ₫
+                                                    <br><del class="text-content">{{ number_format($related->price, 0, ',', '.') }} ₫</del>
+                                                @else
+                                                    {{ number_format($related->price, 0, ',', '.') }} ₫
+                                                @endif
+                                            @endif
+                                            
                                             </h5>
                                             <div class="add-to-cart-box bg-white">
                                                 <button class="btn btn-add-cart addcart-button">add </button>
@@ -897,7 +915,6 @@
 @endsection
 
 @section('modal')
-    <!-- Quick View Modal Box Start -->
     <div class="modal fade theme-modal view-modal" id="view" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-sm-down">
             <div class="modal-content">
@@ -923,7 +940,8 @@
                                     <ul class="rating">
 
                                     </ul>
-
+                                    {{-- <span class="ms-2">8 Reviews</span> --}}
+                                    <span class="ms-2 text-danger" id="prdSoldCount"></span>
                                 </div>
 
                                 <div class="product-stock">
@@ -943,6 +961,13 @@
                                         </div>
                                     </li>
 
+                                    {{-- <li>
+                                        <div class="brand-box">
+                                            <h5>Product Code:</h5>
+                                            <h6>W0690034</h6>
+                                        </div>
+                                    </li> --}}
+
                                     <li>
                                         <div class="brand-box">
                                             <h5>Category:</h5>
@@ -957,11 +982,18 @@
                                 </div>
 
                                 <div class="modal-button">
-                                    <button type="button" class="btn btn-md add-cart-button icon">Thêm vào giỏ
-                                        hàng</button>
-                                    <button onclick="location.href = 'product-left.html';"
-                                        class="btn theme-bg-color view-button icon text-white fw-bold btn-md">
-                                        View More Details</button>
+                                    <form id="addToCartFormModal" method="POST" action="{{ route('cart.add') }}">
+                                        @csrf
+                                        <input type="hidden" name="product_id" id="cartProductId">
+                                        <input type="hidden" name="product_variant_id" id="cartProductVariantId">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn btn-md add-cart-button icon">Thêm vào giỏ
+                                            hàng</button>
+                                    </form>
+
+                                    <a href="#"
+                                        class="xem-chi-tiet-button mb-3 btn theme-bg-color view-button icon text-white fw-bold btn-md ">Xem
+                                        chi tiết</a>
                                 </div>
                             </div>
                         </div>
@@ -970,50 +1002,12 @@
             </div>
         </div>
     </div>
-    <!-- Quick View Modal Box End -->
 @endsection
-
 @push('js')
     <script>
-        /// Sản phẩm liêm kết
+        //thêm vào giỏ hàng 
 
-        // document.addEventListener("DOMContentLoaded", function() {
-        //     const checkboxes = document.querySelectorAll(".accessory-checkbox");
-        //     const totalPriceEl = document.getElementById("total-price");
-        //     const addToCartBtn = document.getElementById("add-to-cart");
-        //     const mainProductPrice = parseFloat("{{ $detail->sale_price }}"); // Giá sản phẩm chính
-        //     let totalPrice = mainProductPrice;
 
-        //     // Hiển thị giá ban đầu
-        //     totalPriceEl.textContent = totalPrice.toLocaleString("vi-VN") + " ₫";
-
-        //     // Kiểm tra có checkbox nào được chọn không
-        //     function updateButtonState() {
-        //         let anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
-        //         addToCartBtn.disabled = !anyChecked; // Vô hiệu hóa nếu không có phụ kiện nào được chọn
-        //     }
-
-        //     // Xử lý sự kiện khi chọn checkbox
-        //     checkboxes.forEach(checkbox => {
-        //         checkbox.addEventListener("change", function() {
-        //             let price = parseFloat(this.dataset.price);
-
-        //             if (this.checked) {
-        //                 totalPrice += price;
-        //             } else {
-        //                 totalPrice -= price;
-        //             }
-
-        //             totalPriceEl.textContent = totalPrice.toLocaleString("vi-VN") + " ₫";
-        //             updateButtonState();
-        //         });
-        //     });
-
-        //     // Gọi lần đầu để kiểm tra trạng thái ban đầu của nút
-        //     updateButtonState();
-        // });
-
-        /////
 
 
         // Hàm định dạng giá tiền sang VNĐ
@@ -1027,16 +1021,38 @@
 
         $(document).ready(function() {
 
+            $('a.xem-chi-tiet-button').click(function(
+                e) { // Bắt sự kiện click trên nút "Xem chi tiết" (class 'xem-chi-tiet-button')
+                e.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ <a> (nếu có href)
+
+                const productId = $(this).data(
+                    'id'); // Lấy product ID từ thuộc tính `data-id` của nút "Xem chi tiết"
+
+
+                const productDetailPageUrl = `/products/${productId}`;
+
+                // Chuyển hướng trình duyệt đến trang chi tiết sản phẩm
+                window.location.href = productDetailPageUrl;
+            });
+
             // Khai báo biến toàn cục để lưu trữ variantMap
             let globalVariantMap = {};
 
             $('a[data-bs-target="#view"]').click(function() { // Bắt sự kiện  mở modal
-                const productId = $(this).data('id') // Lấy product ID từ thuộc tính `data-id` của thẻ `<a>`
 
+                const productId = $(this).data('id')
+
+                $('a.xem-chi-tiet-button').click(function(
+                    e) {
+                    e.preventDefault();
+
+
+                    const productDetailPageUrl = `/products/${productId}`;
+
+                    window.location.href = productDetailPageUrl;
+                });
 
                 $('#view').data('product-id', productId); // Lưu product_id vào data của modal #view
-                // loadProductDetails(productId);
-
 
                 $.ajax({
                     url: '/api/products/' +
@@ -1048,7 +1064,7 @@
                     ) {
                         // Cập nhật thông tin cơ bản của sản phẩm trong modal
                         $('#prdName').text(response.name)
-                        $('#prdDescription').text(response.description)
+                        $('#prdDescription').text(response.short_description)
                         $('#prdBrand').text(response.brand)
                         $('#prdCategories').text(response.categories)
 
@@ -1059,11 +1075,15 @@
                             Array.from({
                                     length: 5
                                 }, (_, i) => // Tạo mảng 5 phần tử để lặp qua 5 ngôi sao
-                                `<li><i data-feather="star" class="${i < avgRating ? 'fill' : ''}"></i></li>` // Tạo thẻ <li> chứa icon star, 
+                                `<li><i data-feather="star" class="${i < avgRating ? 'fill' : ''}"></i></li>` // Tạo thẻ <li> chứa icon star,
                             ).join('') // Chuyển mảng thành chuỗi HTML
                         )
                         feather
                             .replace() // loai lại idcon start
+
+                        // đã bán
+                        var soldCountText = "Đã bán (" + response.sold_count + ")";
+                        $('#prdSoldCount').text(soldCountText);
 
 
                         // Xử lý biến thể sản phẩm (Product Variants)
@@ -1135,18 +1155,18 @@
 
                                 // hiện thị select option
                                 attributesHtml += `
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>${sampleAttrValue ? sampleAttrValue.attributes_name : attrSlug.split('-').join(' ')}</label>
-                                            <select class="form-control variant-attribute"
-                                                data-attribute="${attrSlug}">
-                                                ${Array.from(valuesMap).map(([id, value]) =>
-                                                    `<option value="${id}">${value}</option>`
-                                                ).join('')}
-                                            </select>
-                                        </div>
-                                    </div>
-                                `;
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>${sampleAttrValue ? sampleAttrValue.attributes_name : attrSlug.split('-').join(' ')}</label>
+                                                    <select class="form-control variant-attribute"
+                                                        data-attribute="${attrSlug}">
+                                                            ${Array.from(valuesMap).map(([id, value]) =>
+                                                                `<option value="${id}">${value}</option>`
+                                                            ).join('')}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        `;
                             });
                             $('#productVariants').html(
                                 `<div class="row">${attributesHtml}</div>`)
@@ -1172,6 +1192,8 @@
                                 variantMap[
                                     key
                                 ] = { // Lưu thông tin biến thể vào variantMap, key là chuỗi ID thuộc tính
+                                    variant_id: variant
+                                        .id, // Thêm variant_id vào đây
                                     price: variant.price, // Giá biến thể
                                     thumbnail: variant
                                         .thumbnail, // Thumbnail biến thể
@@ -1191,7 +1213,7 @@
                                 curr // So sánh giá và trả về biến thể có giá thấp hơn
                             )
                             // cập nhật thông tin theo biến thể giá min
-                            updateProductInfo(lowestVariant) // Cập nhật giá và thumbnail 
+                            updateProductInfo(lowestVariant) // Cập nhật giá và thumbnail
                             setSelectedAttributes(lowestVariant.attribute_values) // selected
                             updateStockInfo(lowestVariant) // kho
 
@@ -1246,51 +1268,51 @@
                 })
             })
 
-            // Hàm cập nhật giá và thumbnail sản phẩm trong modal
 
             function updateProductInfo(variant) {
                 $('#prdPrice').text(formatPrice(variant.price))
                 $('#prdThumbnail').attr('src', variant.thumbnail)
             }
 
-            // Hàm chọn giá trị thuộc tính trong dropdown (dựa trên biến thể được chọn)
             function setSelectedAttributes(attributes) {
-                attributes.forEach(attr => { // Lặp qua mảng giá trị thuộc tính của biến thể
-                    const attrSlug = attr.attributes_slug // Định dạng tên thuộc tính
+                attributes.forEach(attr => {
+                    const attrSlug = attr.attributes_slug
                     $(`select[data-attribute="${attrSlug}"]`).val(attr
                         .id
-                    ) // Chọn option trong select dropdown có `data-attribute` tương ứng và `value` là ID giá trị thuộc tính
+                    )
                 })
             }
 
-            // Hàm lấy ID của các giá trị thuộc tính đã được chọn từ dropdown
             function getSelectedAttributes() {
-                const selected = [] // Khởi tạo mảng rỗng để lưu ID giá trị đã chọn
-                $('.variant-attribute').each(function() { // Lặp qua từng select dropdown `.variant-attribute`
-                    const val = $(this).val() // Lấy value (ID giá trị thuộc tính) của select dropdown
+                const selected = []
+                $('.variant-attribute').each(function() {
+                    const val = $(this).val()
                     if (val) selected.push(
-                        val) // Nếu có value (không phải option mặc định), thêm vào mảng `selected`
+                        val)
                 })
-                return selected // Trả về mảng ID giá trị thuộc tính đã chọn
+                return selected
             }
-            // Hàm cập nhật thông tin stock sản phẩm trong modal
-            function updateStockInfo(variant) { //  HÀM  ĐỂ CẬP NHẬT STOCK
+
+            function updateStockInfo(variant) {
                 const stock = variant.product_stock ? variant.product_stock.stock :
-                    0; // Lấy stock từ variant.product_stock
+                    0;
                 $('.product-stock span').text(
                     `Kho: ${stock}`);
             }
 
+
             // add to cart
 
-            $('.add-cart-button').click(function() {
+            $('.add-cart-button').click(function(event) {
+                // event.preventDefault(); **BỎ NGĂN CHẶN SUBMIT FORM MẶC ĐỊNH**
+
                 // Lấy product_id từ modal
                 const productId = $('#view').data('product-id');
 
                 // Kiểm tra xem sản phẩm có biến thể hay không
                 const hasVariants = $('#productVariants .variant-attribute').length > 0;
 
-                let cartData;
+                const addToCartForm = document.getElementById('addToCartFormModal'); // Lấy form
 
                 if (hasVariants) {
                     // Xử lý sản phẩm có biến thể
@@ -1299,62 +1321,108 @@
                     const selectedVariant = globalVariantMap[variantKey];
 
                     if (!selectedVariant) {
-                        alert('Vui lòng chọn đầy đủ thuộc tính sản phẩm');
+                        Swal.fire({ // **SWEETALERT2 ERROR MESSAGE**
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: 'Vui lòng chọn đầy đủ thuộc tính sản phẩm!',
+                            confirmButtonText: 'Đóng'
+                        });
                         return;
                     }
 
-                    // Lấy thông tin chi tiết về các biến thể đã chọn
-                    const variantDetails = [];
-                    $('.variant-attribute').each(function() {
-                        const $select = $(this);
-                        const attributeSlug = $select.data('attribute');
-                        const attributeName = $select.prev('label').text();
-                        const attributeValue = $select.find('option:selected').text();
+                    // **CẬP NHẬT INPUT HIDDEN product_variant_id TRONG FORM**
+                    addToCartForm.querySelector('#cartProductVariantId').value = selectedVariant.variant_id;
 
-                        variantDetails.push({
-                            attribute_name: attributeName,
-                            attribute_value: attributeValue
-                        });
-                    });
 
-                    cartData = {
-                        product_id: productId,
-                        product_variant_id: selectedVariant.variant_id,
-                        quantity: 1,
-                        variant_info: {
-                            price: selectedVariant.price,
-                            thumbnail: selectedVariant.thumbnail,
-                            details: variantDetails
-                        }
-                    };
                 } else {
                     // Xử lý sản phẩm không có biến thể
-                    cartData = {
-                        product_id: productId,
-                        quantity: 1,
-                        variant_info: {
-                            price: $('#prdPrice').text().replace(/[^\d]/g,
-                                ''), // Loại bỏ ký tự không phải số
-                            thumbnail: $('#prdThumbnail').attr('src')
-                        }
-                    };
+                    // **ĐẢM BẢO INPUT HIDDEN product_variant_id TRONG FORM ĐƯỢC XÓA/RỖNG**
+                    addToCartForm.querySelector('#cartProductVariantId').value =
+                        ''; // hoặc null, hoặc xóa thuộc tính value
                 }
-                // Log dữ liệu để kiểm tra
-                console.log('Cart Data:', cartData);
 
+                // **CẬP NHẬT INPUT HIDDEN product_id TRONG FORM**
+                addToCartForm.querySelector('#cartProductId').value = productId;
+
+
+                // **FORM SẼ ĐƯỢC SUBMIT ĐI (vì đã bỏ event.preventDefault())**
+                // KHÔNG CẦN AJAX NỮA - FORM SUBMIT MẶC ĐỊNH SẼ ĐƯỢC THỰC HIỆN
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Sản phẩm đã được thêm vào giỏ hàng!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
 
             });
         })
-
         //////
         // console.log(productVariants);
 
         //Chọn biến thể
 
         document.addEventListener('DOMContentLoaded', function() {
-            const attributeOptions = document.querySelectorAll('.option');
-            const
-                selectedAttributes = {}; // Object để lưu thuộc tính đã chọn, ví dụ: { "Bộ nhớ trong": "128GB", "Màu sắc": "Đen" }
+            const addToCartButton = document.getElementById('addToCartButton');
+            // console.log("Phần tử addToCartButton:", addToCartButton);
+
+            if (addToCartButton) {
+                addToCartButton.addEventListener('click', function(event) {
+                    // event.preventDefault(); // Ngăn chặn form submit mặc định
+
+                    // debugger;
+                    console.log("Nút 'Thêm vào giỏ hàng' đã được click!");
+
+                    // **LẤY DỮ LIỆU TỪ FORM VÀ CẬP NHẬT INPUT HIDDEN TRONG FORM**
+                    const addToCartForm = document.getElementById('addToCartForm'); // Lấy form
+                    const productId = "{{ $detail->id }}"; // Lấy product_id từ Blade
+                    let productVariantId = currentVariant ? currentVariant.id :
+                        null; // Lấy product_variant_id từ biến currentVariant (nếu có)
+                    const quantity = addToCartForm.querySelector('.qty-input')
+                        .value; // Lấy quantity từ input trong form
+
+                    // **[PHẦN THÊM MỚI] - TỰ ĐỘNG CHỌN BIẾN THỂ RẺ NHẤT NẾU CHƯA CHỌN VÀ CÓ BIẾN THỂ**
+                    if (!currentVariant && productVariants.length > 0) {
+                        currentVariant =
+                            defaultVariant; // Sử dụng biến thể mặc định rẻ nhất đã tìm ở DOMContentLoaded
+                        productVariantId = currentVariant.id; // Lấy ID của biến thể mặc định
+                        console.log('Tự động chọn biến thể rẻ nhất (mặc định):', currentVariant);
+
+                        // **Cập nhật lại input cartProductVariantId với ID biến thể mặc định**
+                        addToCartForm.querySelector('#cartProductVariantId').value = productVariantId;
+                    }
+
+                    // **CẬP NHẬT GIÁ TRỊ CHO CÁC INPUT HIDDEN TRONG FORM**
+                    addToCartForm.querySelector('#cartProductId').value = productId;
+                    addToCartForm.querySelector('#cartProductVariantId').value = productVariantId ||
+                        ''; // Gán giá trị hoặc chuỗi rỗng nếu null (hoặc đã được gán ở trên)
+                    addToCartForm.querySelector('.qty-input').value =
+                        quantity; // Cập nhật lại qty-input (mặc dù giá trị đã có, nhưng để đồng bộ)
+
+                    console.log('Input form đã được cập nhật với dữ liệu:');
+                    console.log('product_id:', productId);
+                    console.log('product_variant_id:', productVariantId);
+                    console.log('quantity:', quantity);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: 'Sản phẩm đã được thêm vào giỏ hàng!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+
+                });
+            } else {
+                console.error("LỖI: Không tìm thấy nút 'addToCartButton' trong DOM! Kiểm tra ID nút trong HTML.");
+            }
+
+
+            const productPriceDisplay = document.getElementById('productPrice');
+            const variantOptions = document.querySelectorAll('.option');
+            let selectedVariantAttributes = {};
+            let currentVariant =
+                null; // **Khai báo currentVariant ở phạm vi ngoài cùng (global scope trong DOMContentLoaded)**
             const productVariants = @json($detail->productVariants); // Lấy danh sách biến thể từ Blade
 
             let defaultVariant = null;
@@ -1369,17 +1437,15 @@
 
                     if (currentPrice < minPrice) {
                         return currentVariant;
-                    } else if (currentPrice === minPrice && !
-                        minVariant) { // Nếu giá bằng nhau và chưa có minVariant, chọn biến thể đầu tiên
+                    } else if (currentPrice === minPrice && !minVariant) {
                         return currentVariant;
                     } else {
-                        return minVariant ||
-                            currentVariant; // Nếu giá bằng nhau và đã có minVariant, giữ minVariant hiện tại, hoặc chọn currentVariant nếu minVariant chưa có
+                        return minVariant || currentVariant;
                     }
                 }, null);
 
                 if (defaultVariant) {
-                    console.log('Biến thể mặc định được chọn:', defaultVariant);
+                    console.log('Biến thể mặc định được chọn ban đầu (giá rẻ nhất):', defaultVariant);
                     // Chọn các option tương ứng với biến thể mặc định khi trang tải
                     defaultVariant.attribute_values.forEach(attrValue => {
                         const optionButton = document.querySelector(
@@ -1387,7 +1453,7 @@
                         );
                         if (optionButton) {
                             optionButton.classList.add('active');
-                            selectedAttributes[attrValue.attribute.name] = attrValue.value;
+                            selectedVariantAttributes[attrValue.attribute.name] = attrValue.value;
                         }
                     });
                     updateProductDisplay(defaultVariant); // Cập nhật hiển thị ban đầu với biến thể mặc định
@@ -1395,7 +1461,7 @@
             }
 
 
-            attributeOptions.forEach(option => {
+            variantOptions.forEach(option => {
                 option.addEventListener('click', function() {
                     // 1. Xóa active class khỏi các option khác trong cùng nhóm thuộc tính
                     const attributeGroupOptions = this.closest('.select-package').querySelectorAll(
@@ -1407,24 +1473,38 @@
                     // 3. Thu thập thuộc tính đã chọn
                     const attributeName = this.dataset.attributeName;
                     const attributeValue = this.dataset.attributeValue;
-                    selectedAttributes[attributeName] = attributeValue;
-                    console.log('Thuộc tính đã chọn:', selectedAttributes);
+                    selectedVariantAttributes[attributeName] = attributeValue;
+                    console.log('Thuộc tính biến thể đã chọn:', selectedVariantAttributes);
 
                     // 4. Tìm biến thể phù hợp
-                    const selectedVariant = findMatchingVariant(selectedAttributes,
+                    currentVariant = findMatchingVariant(selectedVariantAttributes,
                         productVariants);
 
-                    if (selectedVariant) {
-                        console.log('Biến thể phù hợp:', selectedVariant);
-                        updateProductDisplay(
-                            selectedVariant); // Cập nhật hiển thị với biến thể đã chọn
+                    if (currentVariant) {
+                        console.log('Biến thể phù hợp đã chọn:', currentVariant);
+                        updateProductDisplay(currentVariant);
+
+                        // **PHẦN THÊM MỚI - CẬP NHẬT INPUT cartProductVariantId KHI CHỌN BIẾN THỂ**
+                        const addToCartForm = document.getElementById('addToCartForm'); // Lấy form
+                        addToCartForm.querySelector('#cartProductVariantId').value = currentVariant
+                            .id; // Gán currentVariant.id vào input
+
+                        console.log('Input cartProductVariantId đã được cập nhật với ID biến thể:',
+                            currentVariant.id); // Log để kiểm tra
+
                     } else {
                         console.log('Không tìm thấy biến thể phù hợp');
-                        // Xử lý trường hợp không tìm thấy biến thể (ví dụ: thông báo cho người dùng)
                         document.getElementById('productStock').textContent =
                             ' Không có sẵn với lựa chọn này';
-                        document.getElementById('productPrice').textContent =
-                            'Liên hệ'; // Hoặc giá mặc định, tùy logic của bạn
+                        document.getElementById('productPrice').textContent = 'Liên hệ';
+                        // **NẾU KHÔNG TÌM THẤY BIẾN THỂ, CŨNG CẦN XÓA GIÁ TRỊ INPUT cartProductVariantId**
+                        const addToCartForm = document.getElementById(
+                            'addToCartForm'); // Lấy form lại (cho chắc chắn)
+                        addToCartForm.querySelector('#cartProductVariantId').value =
+                            ''; // Xóa giá trị input khi không có biến thể
+                        console.log(
+                            'Input cartProductVariantId đã được XÓA vì không có biến thể phù hợp.'
+                        ); // Log để kiểm tra
                     }
                 });
             });
@@ -1458,7 +1538,7 @@
             function updateProductDisplay(variant) {
                 const productPriceElement = document.getElementById('productPrice');
                 const productStockElement = document.getElementById('productStock');
-                const productImageElement = document.getElementById('productImage'); // Lấy element ảnh chính
+                const productImageElement = document.getElementById('productImage');
 
                 // Cập nhật giá (ưu tiên giá sale nếu có)
                 if (variant.sale_price !== null) {
@@ -1476,13 +1556,10 @@
                 }
 
                 // Cập nhật ảnh (nếu có thumbnail cho biến thể)
-                if (variant.thumbnail) { // Giả sử biến thể có trường 'thumbnail'
+                if (variant.thumbnail) {
                     productImageElement.src = "{{ asset('storage/') }}/" + variant.thumbnail;
                     productImageElement.dataset.zoomImage = "{{ asset('storage/') }}/" + variant.thumbnail;
-
-                    // (Tùy chọn) Cập nhật cả sidebar slider và gallery nếu cần, tương tự như cách bạn làm với thumbnail chính
                 } else {
-                    // Nếu biến thể không có thumbnail riêng, sử dụng lại thumbnail sản phẩm chính (hoặc ảnh mặc định)
                     productImageElement.src = "{{ asset('storage/' . $detail->thumbnail) }}";
                     productImageElement.dataset.zoomImage = "{{ asset('storage/' . $detail->thumbnail) }}";
                 }
@@ -1490,24 +1567,12 @@
 
 
             function formatPrice(price) {
-                return new Intl.NumberFormat('vi-VN').format(price); // Định dạng giá tiền Việt Nam
+                return new Intl.NumberFormat('vi-VN').format(price);
             }
+
+
         });
 
-
-        // document.addEventListener("DOMContentLoaded", function() {
-        //     document.querySelectorAll(".reply-btn").forEach(button => {
-        //         button.addEventListener("click", function() {
-        //             let commentId = this.getAttribute("data-comment-id");
-        //             let replyInput = document.getElementById("reply-input-" + commentId);
-        //             if (replyInput.style.display === "none") {
-        //                 replyInput.style.display = "block";
-        //             } else {
-        //                 replyInput.style.display = "none";
-        //             }
-        //         });
-        //     });
-        // });
 
         ///Bình luận
 
@@ -1791,7 +1856,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // --- Timer Javascript code ---
             const timerContainer = document.getElementById(
-            'clockdiv-1'); // Keep the ID the same if you want to target the existing div
+                'clockdiv-1'); // Keep the ID the same if you want to target the existing div
             if (timerContainer && timerContainer.dataset.startDate && timerContainer.dataset.endDate) {
                 const startTimeStamp = timerContainer.dataset.startDate;
                 const endTimeStamp = timerContainer.dataset.endDate;
@@ -1812,7 +1877,7 @@
                         promotionMessage = "Khuyến mại bắt đầu sau";
                     } else if (now >= endTime) {
                         timerContainer.innerHTML =
-                            "<div class='my-timer-product-title'><h4 class='my-timer-promotion-ended'>Khuyến mại đã kết thúc!</h4></div>";  
+                            "<div class='my-timer-product-title'><h4 class='my-timer-promotion-ended'>Khuyến mại đã kết thúc!</h4></div>";
                         return;
                     } else {
                         targetTime = endTime;
@@ -1849,13 +1914,13 @@
                         const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
 
                         timerContainer.querySelector('.my-timer-days-value').textContent = formatTime(
-                        days); // New class names
+                            days); // New class names
                         timerContainer.querySelector('.my-timer-hours-value').textContent = formatTime(
-                        hours); // New class names
+                            hours); // New class names
                         timerContainer.querySelector('.my-timer-minutes-value').textContent = formatTime(
-                        minutes); // New class names
+                            minutes); // New class names
                         timerContainer.querySelector('.my-timer-seconds-value').textContent = formatTime(
-                        seconds); // New class names
+                            seconds); // New class names
                     }
 
                     function formatTime(time) {
@@ -1866,6 +1931,61 @@
                     let timeInterval = setInterval(updateClock, 1000);
                 }
             }
+        });
+
+        $(document).on('click', '.wishlist-toggle', function(e) {
+            e.preventDefault();
+
+            var productId = $(this).data('product-id'); // Lấy product ID từ thuộc tính data-product-id
+            var icon = $(this).find('.wishlist-icon'); // Chỉ chọn icon trong element hiện tại
+
+            $.ajax({
+                url: `/account/wishlist/toggle/${productId}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                data: {
+                    product_id: productId
+                },
+                success: function(data) {
+                    if (data.result) {
+                        if (data.action === 'added') {
+                            icon.css('color', 'red'); // Đổi màu khi thêm vào wishlist
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã thêm!',
+                                text: 'Sản phẩm đã được thêm vào danh sách yêu thích!',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else if (data.action === 'removed') {
+                            icon.css('color', 'black'); // Đổi màu khi xóa khỏi wishlist
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã xóa!',
+                                text: 'Sản phẩm đã bị xóa khỏi danh sách yêu thích!',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: data.message ||
+                                'Có lỗi xảy ra, vui lòng thử lại!',
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: 'Có lỗi xảy ra, vui lòng thử lại!',
+                    });
+                }
+            });
         });
     </script>
     <!-- JSON chứa danh sách biến thể sản phẩm -->

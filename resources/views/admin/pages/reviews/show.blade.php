@@ -190,7 +190,7 @@
                     </h6>
 
                     <a href="#" class="text-primary flex justify-content-end"
-                        onclick="showReview(event, 'review{{ $review->id }}')">Chi Tiết</a>
+                        onclick="showReview(event, 'review{{ $review->id }}')">Xem ảnh & video</a>
                 </div>
 
                 <div id="review{{ $review->id }}" class="review-card hidden border border-primary p-3">
@@ -215,11 +215,6 @@
                                     class="rounded-lg shadow-md hover:scale-105 transition-transform duration-300 h-32 w-32 object-contain cursor-pointer border">
                             @endif
                         @endforeach
-                    </div>
-
-                    <div class="mt-3">
-                        <h5 class="fw-bold">Nhận xét đánh giá:</h5>
-                        <span class="mt-3 fst-italic">" {{ $review->review_text }} "</span>
                     </div>
                 </div>
             @endforeach

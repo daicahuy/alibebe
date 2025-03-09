@@ -1,6 +1,9 @@
 <!-- latest jquery-->
 <script src="{{ asset('/theme/admin/assets/js/jquery-3.6.0.min.js') }}"></script>
 
+<!-- Sweat Alert 2 JS -->
+<script src="{{ asset('theme/admin/assets/js/sweetalert2.all.min.js') }}"></script>
+
 <!-- jquery ui-->
 <script src="{{ asset('/theme/client/assets/js/jquery-ui.min.js') }}"></script>
 
@@ -15,6 +18,8 @@
 
 <!-- Lazyload Js -->
 <script src="{{ asset('/theme/client/assets/js/lazysizes.min.js') }}"></script>
+<script src="{{ asset('theme/client/assets/js/table-column-remove.js') }}"></script>
+
 
 <!-- Slick js-->
 <script src="{{ asset('/theme/client/assets/js/slick/slick.js') }}"></script>

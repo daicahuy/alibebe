@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class OrderItem extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     public $timestamps = false;
 
     protected $fillable = [

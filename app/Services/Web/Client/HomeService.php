@@ -75,13 +75,22 @@ class HomeService
                 'name' => $product->name,
                 'price' => $product->price,
                 'thumbnail' => Storage::url($product->thumbnail),
-                'description' => $product->description,
+                'short_description' => $product->short_description,
                 'categories' => $product->categories->pluck('name')->implode(', '),
                 'brand' => $product->brand ? $product->brand->name : null,
+                'sold_count' => $product->sold_count, // số lượng đã bán
+                'stock_quantity' => $product->stock_quantity, // số lượng tồn kho
                 'productVariants' => $productVariants,
             ];
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()], 500);
         }
     }
+
+    public function getAllCategories() {
+        return $this->categoryRepo->getAllCategories();
+    }
+
+    
+    
 };

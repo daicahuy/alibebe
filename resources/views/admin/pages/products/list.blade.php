@@ -59,6 +59,13 @@
                                         type="button" id="btn-move-to-trash-all">
                                         {{ __('message.move_to_trash') }}
                                     </button>
+                                    <a href="{{ route('admin.products.hidden') }}"
+                                        class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
+                                        <i class="ri-folder-forbid-fill"></i>
+                                        {{ __('message.hidden') }}
+                                        <span
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $countHidden ?? 0 }}</span>
+                                    </a>
                                     <a href="{{ route('admin.products.trash') }}"
                                         class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
                                         <i class="ri-delete-bin-line"></i>
@@ -187,7 +194,7 @@
                                                         <span class="text-muted">Không có danh mục</span>
                                                     @endif
                                                 </td>
-                                                <td class="cursor-pointer">{{  $product->price_range}} </td>
+                                                <td class="cursor-pointer">{{ $product->price_range }} </td>
                                                 <td class="cursor-pointer">{{ $product->stock_quantity }}</td>
                                                 <td class="cursor-pointer">
                                                     @if ($product->stock_quantity > 10)
@@ -217,12 +224,12 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.products.show', $product->id) }}" class="btn-detail"><i
-                                                                    class="ri-eye-line"></i></a>
+                                                            <a href="{{ route('admin.products.show', $product->slug) }}"
+                                                                class="btn-detail"><i class="ri-eye-line"></i></a>
                                                         </li>
                                                         <li>
-                                                            <a href="" class="btn-edit"><i
-                                                                    class="ri-pencil-line"></i></a>
+                                                            <a href="{{ route('admin.products.edit', $product->slug) }}"
+                                                                class="btn-edit"><i class="ri-pencil-line"></i></a>
                                                         </li>
                                                         <li>
                                                             <form action="{{ route('admin.products.delete', $product) }}"

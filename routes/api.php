@@ -6,7 +6,9 @@ use App\Http\Controllers\Api\AttributeValueController;
 use App\Http\Controllers\api\AuthCustomerApiController;
 use App\Http\Controllers\api\AuthCustomerController;
 use App\Http\Controllers\Api\BrandController;
+use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CompareController;
 use App\Http\Controllers\api\CouponApiController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
@@ -17,11 +19,14 @@ use App\Http\Controllers\api\UserAddressController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Api\ListCategoryController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\StockController;
 use App\Http\Controllers\Web\Admin\AccountController;
+use App\Http\Controllers\Web\Admin\CommentController;
 use App\Http\Controllers\Web\Client\AccountController as ClientAccountController;
 use App\Http\Controllers\Web\Client\DetailProductController;
 
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,6 +44,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('/cart/update', [CartItemController::class, 'update'])->middleware('web')->name('cart.update');
+Route::post('/cart/save-session', [CartItemController::class, 'saveSession'])->middleware('web')->name('cart.saveSession');
+Route::get('/comments/{commentId}/replies', [CommentController::class, 'getCommentReplies'])->name('comments.replies');
+Route::delete('/comments/{id}', [CommentController::class, 'deleteComment'])->name('comments.delete');
+Route::delete('/comment-replies/{id}', [CommentController::class, 'deleteReply'])->name('comment-replies.delete');
 
 Route::get('/productListCate/{id}', [ListCategoryController::class, 'detailModal']);
 Route::get('/products/{id}', [DetailProductController::class, 'getProductDetail']);
@@ -169,3 +179,25 @@ Route::prefix('/products')
         Route::put('/variant/{id}', [ProductController::class, 'updateVariant'])->name('updateVariant')->where(['id' => '[0-9]+']);
     });
 
+// STOCK
+Route::prefix('stocks')
+    ->name('api.stocks.')
+    ->group(function () {
+        Route::post('/import-single', [StockController::class, 'importSingle'])->name('importSingle');
+        Route::post('/import-variant', [StockController::class, 'importVariant'])->name('importVariant');
+    });
+
+// compare
+Route::prefix('compare')
+    ->name('api.compare.')
+    // ->middleware(StartSession::class)
+    ->group(function () {
+        Route::post('/add-with-check/{productId}', [CompareController::class, 'addTocompareWithCheck'])->name('add.with.check');
+        Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
+        // Route::get('/get-compare-products',[CompareController::class,'getComparedProducts'])->name('get_compared_products');
+        // Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
+        // Route::post('/remove/{productId}', [CompareController::class, 'removeFromCompare'])->name('remove'); 
+        // Route::get('/count', [CompareController::class, 'getCompareCount'])->name('count'); 
+        // Route::get('/products', [CompareController::class, 'getComparedProducts'])->name('products'); // Route lấy danh sách sản phẩm so sánh 
+        // Route::post('/clear', [CompareController::class, 'clearCompareSession'])->name('clear'); 
+    });

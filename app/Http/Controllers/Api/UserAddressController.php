@@ -17,7 +17,7 @@ class UserAddressController extends Controller
 
 
         try {
-            $listAddressByUser = UserAddress::query()->with('user')->where('user_id', $id)->orderBy('id_default', 'desc')->get();
+            $listAddressByUser = UserAddress::query()->with('user')->where('user_id', $id)->orderBy('is_default', 'desc')->get();
 
             return response()->json(['status' => Response::HTTP_OK, 'dataAddress' => $listAddressByUser]);
         } catch (\Throwable $th) {
@@ -62,8 +62,8 @@ class UserAddressController extends Controller
                 return ['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errors' => $validator->errors()->toArray()];
             } else {
                 DB::transaction(function () use ($data) {
-                    if ($data["id_default"] == 1) {
-                        UserAddress::query()->where("id_default", 1)->update(["id_default" => 0]);
+                    if ($data["is_default"] == 1) {
+                        UserAddress::query()->where("is_default", 1)->update(["is_default" => 0]);
                     }
 
                     UserAddress::query()->create($data);
@@ -94,7 +94,7 @@ class UserAddressController extends Controller
 
     public function getDataAddressOne($id)
     {
-        $dataAddressOne = UserAddress::query()->where("user_id", $id)->where('id_default', 1)->first();
+        $dataAddressOne = UserAddress::query()->where("user_id", $id)->where('is_default', 1)->first();
 
         return response()->json(['status' => Response::HTTP_OK, 'dataAddressOne' => $dataAddressOne]);
     }
@@ -130,11 +130,11 @@ class UserAddressController extends Controller
                 return ['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errors' => $validator->errors()->toArray()];
             } else {
                 DB::transaction(function () use ($data) {
-                    if ($data["id_default"] == 1) {
-                        UserAddress::query()->where("id_default", 1)->update(["id_default" => 0]);
+                    if ($data["is_default"] == 1) {
+                        UserAddress::query()->where("is_default", 1)->update(["is_default" => 0]);
                     }
 
-                    UserAddress::query()->where("id", $data["idAddress"])->update(["phone_number" => $data["phone_number"], "fullname" => $data["fullname"], "address" => $data["address"], "id_default" => $data["id_default"]]);
+                    UserAddress::query()->where("id", $data["idAddress"])->update(["phone_number" => $data["phone_number"], "fullname" => $data["fullname"], "address" => $data["address"], "is_default" => $data["is_default"]]);
                 });
                 // UserAddress::query()->create($data);
 
