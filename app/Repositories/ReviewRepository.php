@@ -5,16 +5,18 @@ namespace App\Repositories;
 use App\Models\Order;
 use App\Models\Review;
 
-class ReviewRepository extends BaseRepository {
-    
+class ReviewRepository extends BaseRepository
+{
+
     public function getModel()
     {
         return Review::class;
     }
-    public function getAllReviews(){
-        $start = $this->model->select('id','rating')->get();
+    public function getAllReviews()
+    {
+        $start = $this->model->select('id', 'rating')->distinct('rating')->orderBy('rating', 'DESC')->get();
         return $start;
-     }
+    }
     public function getReviewProducts($search = null, $startDate = null, $endDate = null)
     {
         $query = Review::selectRaw('
@@ -49,31 +51,31 @@ class ReviewRepository extends BaseRepository {
         $query = Review::where('product_id', $productId)
             ->where('is_active', 1)
             ->with(['user:id,fullname', 'reviewMultimedia:id,review_id,file,file_type']);
-    
+
         if (!empty($filters['search'])) {
             $query->where('review_text', 'LIKE', '%' . $filters['search'] . '%');
         }
-    
+
         if (!empty($filters['rating'])) {
             $query->where('rating', $filters['rating']);
         }
-    
+
         if (!empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
         if (!empty($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
-    
+
         if (!empty($filters['sort']) && $filters['sort'] == 'oldest') {
             $query->orderBy('created_at', 'asc');
         } else {
             $query->orderBy('created_at', 'desc');
         }
-    
+
         // Debug query SQL
         // dd($query->toSql(), $query->getBindings());
-    
+
         return $query->get();
     }
 
@@ -81,14 +83,14 @@ class ReviewRepository extends BaseRepository {
     {
         return Review::create($data);
     }
-    
+
     public function getTotalReviews($productId)
     {
         return Review::where('product_id', $productId)
             ->where('is_active', 1)
             ->count();
     }
-    
+
     public function userHasPurchasedProduct($userId, $productId)
     {
         return Order::where('user_id', $userId)

@@ -141,6 +141,8 @@ class ListCategoriesService
                 'productVariants' => $productVariants,
                 'sold_count' => $product->sold_count,
                 'is_sale' => $product->is_sale,
+                'stock' => $product->stock,
+
             ];
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()], 500);

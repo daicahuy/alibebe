@@ -101,6 +101,7 @@ END');
             'short_description',
             'views',
             'type',
+            'slug',
             $soldCountSubQuery
         )->where('is_active', 1);
 
@@ -310,7 +311,7 @@ END');
                 $q->where('is_active', 1)->orderBy('price', 'ASC')->select('product_id', 'price');
             }
         ]);
-        $products = $query->paginate($perpage)->appends(['sort_by' => $sortBy]); // Lưu  $products
+        $products = $query->paginate($perpage)->appends($filters); // Lưu  $products
         // dd($products);
         return $products;
     }
@@ -960,7 +961,7 @@ END');
         // Giá hiển thị (display_price) - RAW SQL expression (GIỮ NGUYÊN cho sản phẩm GỐC)
         $priceFiled = DB::raw('
         CASE
-            WHEN products.type = 1 THEN (  -- Sản phẩm biến thể
+            WHEN products.type = 1 THEN (  
                 SELECT
                     CASE
                         WHEN EXISTS (SELECT 1 FROM product_variants WHERE product_variants.product_id = products.id AND product_variants.sale_price > 0) THEN
@@ -974,7 +975,7 @@ END');
                 FROM product_variants
                 WHERE product_variants.product_id = products.id AND product_variants.price > 0
             )
-            ELSE  -- Sản phẩm đơn (type != 1)
+            ELSE  
                 CASE
                     WHEN products.is_sale = 1 THEN
                         CASE
@@ -989,7 +990,7 @@ END');
         // Giá gốc (original_price) - RAW SQL expression (GIỮ NGUYÊN cho sản phẩm GỐC)
         $originalPriceFiled = DB::raw('
         CASE
-            WHEN products.type = 1 THEN ( -- Sản phẩm biến thể
+            WHEN products.type = 1 THEN ( 
                 SELECT
                     CASE
                         WHEN COUNT(*) > 0 THEN MAX(product_variants.price)
@@ -998,7 +999,7 @@ END');
                 FROM product_variants
                 WHERE product_variants.product_id = products.id AND product_variants.price > 0
             )
-            ELSE products.price -- Sản phẩm đơn
+            ELSE products.price 
         END');
 
         $soldCountSubQuerySql = '(SELECT COALESCE(SUM(order_items.quantity),0)
@@ -1009,11 +1010,30 @@ END');
         WHERE order_items.product_id = products.id
         AND order_statuses.name = "Hoàn thành")';
 
+        //  product_stock CHO CẢ HAI TYPE
+        $stockField = DB::raw('
+    CASE
+        WHEN products.type = 0 THEN ( 
+            SELECT COALESCE(SUM(ps.stock), 0)
+            FROM product_stocks ps
+            WHERE ps.product_id = products.id 
+        )
+        WHEN products.type = 1 THEN (  
+            SELECT COALESCE(SUM(ps.stock), 0)
+            FROM product_variants pv
+            LEFT JOIN product_stocks ps ON pv.id = ps.product_variant_id
+            WHERE pv.product_id = products.id 
+        )
+        ELSE 0 -- Trường hợp khác (nếu có type khác) - trả về 0 hoặc tùy chỉnh
+    END');
+
+
         return $this->model->selectRaw("
             products.*,
             {$soldCountSubQuerySql} as sold_count,
             " . $priceFiled->getValue(DB::connection()->getQueryGrammar()) . " as display_price,
-            " . $originalPriceFiled->getValue(DB::connection()->getQueryGrammar()) . " as original_price
+            " . $originalPriceFiled->getValue(DB::connection()->getQueryGrammar()) . " as original_price,
+            " . $stockField->getValue(DB::connection()->getQueryGrammar()) . " as stock
         ")
             ->with([
                 'categories',
@@ -1048,4 +1068,30 @@ END');
             ])
             ->find($id);
     }
+
+
+    // compare - Mạnh
+    public function getByid($productId)
+    {
+        $product = $this->model->with('categories')->findOrFail($productId);
+        return $product;
+    }
+
+    public function getByIds($productIds)
+    {
+        if (empty($productIds)) {
+            return collect([]);
+        }
+        $products = $this->model->whereIn('id', $productIds)->get();
+        return $products;
+    }
+
+    public function getProductsWithDetailsByIds(array $productIds, array $with = [])
+    {
+        return $this->model->with($with)
+            ->whereIn('id', $productIds)
+            ->where('is_active',1)
+            ->get();
+    }
+
 }

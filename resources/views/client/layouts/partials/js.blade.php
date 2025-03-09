@@ -18,6 +18,8 @@
 
 <!-- Lazyload Js -->
 <script src="{{ asset('/theme/client/assets/js/lazysizes.min.js') }}"></script>
+<script src="{{ asset('theme/client/assets/js/table-column-remove.js') }}"></script>
+
 
 <!-- Slick js-->
 <script src="{{ asset('/theme/client/assets/js/slick/slick.js') }}"></script>

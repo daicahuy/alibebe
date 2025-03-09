@@ -156,6 +156,43 @@
                                     </a>
                                 </li>
                                 <li class="right-side">
+                                    <a href="{{ route('compare.page') }}"
+                                        class="btn p-0 position-relative header-compare">
+                                        <i data-feather="refresh-cw"></i>
+                                        <span
+                                            class="position-absolute top-0 start-100 translate-middle badge-compare">0
+                                        </span>
+                                    </a>
+                                </li>
+                                <style>
+                                    .header-compare .badge-compare {
+                                        /* Selector CSS cho badge của nút Compare */
+                                        width: 18px;
+                                        height: 18px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        background-color: #ff7272;
+                                        /* Màu nền đỏ (giống Wishlist badge) */
+                                        color: #fff;
+                                        /* Màu chữ trắng (giống Wishlist badge) */
+                                        font-size: 12px;
+                                        padding: 0;
+                                        border-radius: 2px;
+                                        position: absolute !important;
+                                        top: 0 !important;
+                                        left: 100% !important;
+                                        -webkit-transform: translate(-50%, -50%) !important;
+                                        transform: translate(-50%, -50%) !important;
+                                    }
+
+                                    .btn .badge-compare {
+                                        /* Áp dụng thêm nếu badge nằm trong button (có thể cần hoặc không) */
+                                        position: relative;
+                                        top: -1px;
+                                    }
+                                </style>
+                                <li class="right-side">
                                     <a href="wishlist.html" class="btn p-0 position-relative header-wishlist">
                                         <i data-feather="heart"></i>
                                     </a>
@@ -329,26 +366,29 @@
                             </div>
 
                             <ul class="category-list">
-                                @foreach($categories as $category)
+                                @foreach ($categories as $category)
                                     <li class="onhover-category-list">
                                         <a href="{{ route('categories', $category->slug) }}" class="category-name">
-                                            <img src="{{ Storage::url($category->icon) }}" alt="{{ $category->name }}">
+                                            <img src="{{ Storage::url($category->icon) }}"
+                                                alt="{{ $category->name }}">
                                             <h6>{{ $category->name }}</h6>
                                             <i class="fa-solid fa-angle-right"></i>
                                         </a>
-                            
-                                        @if($category->categories->count() > 0)
-                                        <div class="onhover-category-box">
-                                            <ul class="list-unstyled d-flex flex-column gap-2 align-items-start m-0 p-0">
-                                                @foreach($category->categories as $subCategory)
-                                                    <li>
-                                                        <a href="{{ route('categories', $subCategory->slug) }}" class="text-decoration-none text-dark px-2 py-1 d-block">
-                                                            {{ $subCategory->name }}
-                                                        </a>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
+
+                                        @if ($category->categories->count() > 0)
+                                            <div class="onhover-category-box">
+                                                <ul
+                                                    class="list-unstyled d-flex flex-column gap-2 align-items-start m-0 p-0">
+                                                    @foreach ($category->categories as $subCategory)
+                                                        <li>
+                                                            <a href="{{ route('categories', $subCategory->slug) }}"
+                                                                class="text-decoration-none text-dark px-2 py-1 d-block">
+                                                                {{ $subCategory->name }}
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
                                         @endif
                                     </li>
                                 @endforeach
@@ -367,7 +407,7 @@
                                 <div class="offcanvas-body">
                                     <ul class="navbar-nav">
                                         <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="{{ route('index')}}"
+                                            <a class="nav-link dropdown-toggle" href="{{ route('index') }}"
                                                 data-bs-toggle="dropdown">Home</a>
 
                                             {{-- <ul class="dropdown-menu">
