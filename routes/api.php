@@ -7,6 +7,7 @@ use App\Http\Controllers\api\AuthCustomerController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CompareController;
 use App\Http\Controllers\api\CouponApiController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\Web\Client\AccountController as ClientAccountController
 use App\Http\Controllers\Web\Client\DetailProductController;
 
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -170,7 +172,22 @@ Route::prefix('/products')
 // STOCK
 Route::prefix('stocks')
     ->name('api.stocks.')
-    ->group(function() {
+    ->group(function () {
         Route::post('/import-single', [StockController::class, 'importSingle'])->name('importSingle');
         Route::post('/import-variant', [StockController::class, 'importVariant'])->name('importVariant');
+    });
+
+// compare
+Route::prefix('compare')
+    ->name('api.compare.')
+    // ->middleware(StartSession::class)
+    ->group(function () {
+        Route::post('/add-with-check/{productId}', [CompareController::class, 'addTocompareWithCheck'])->name('add.with.check');
+        Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
+        // Route::get('/get-compare-products',[CompareController::class,'getComparedProducts'])->name('get_compared_products');
+        // Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
+        // Route::post('/remove/{productId}', [CompareController::class, 'removeFromCompare'])->name('remove'); 
+        // Route::get('/count', [CompareController::class, 'getCompareCount'])->name('count'); 
+        // Route::get('/products', [CompareController::class, 'getComparedProducts'])->name('products'); // Route lấy danh sách sản phẩm so sánh 
+        // Route::post('/clear', [CompareController::class, 'clearCompareSession'])->name('clear'); 
     });

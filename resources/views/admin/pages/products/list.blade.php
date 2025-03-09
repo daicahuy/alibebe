@@ -194,7 +194,7 @@
                                                         <span class="text-muted">Không có danh mục</span>
                                                     @endif
                                                 </td>
-                                                <td class="cursor-pointer">{{  $product->price_range}} </td>
+                                                <td class="cursor-pointer">{{ $product->price_range }} </td>
                                                 <td class="cursor-pointer">{{ $product->stock_quantity }}</td>
                                                 <td class="cursor-pointer">
                                                     @if ($product->stock_quantity > 10)
@@ -224,12 +224,12 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.products.show', $product->slug) }}" class="btn-detail"><i
-                                                                    class="ri-eye-line"></i></a>
+                                                            <a href="{{ route('admin.products.show', $product->slug) }}"
+                                                                class="btn-detail"><i class="ri-eye-line"></i></a>
                                                         </li>
                                                         <li>
-                                                            <a href="{{ route('admin.products.edit', $product->slug) }}" class="btn-edit"><i
-                                                                    class="ri-pencil-line"></i></a>
+                                                            <a href="{{ route('admin.products.edit', $product->slug) }}"
+                                                                class="btn-edit"><i class="ri-pencil-line"></i></a>
                                                         </li>
                                                         <li>
                                                             <form action="{{ route('admin.products.delete', $product) }}"

@@ -28,7 +28,6 @@ class ProductRepository extends BaseRepository
         $query = $this->model->query();
         //  giá sản phẩm thường và biến thể
 
-        // Giá hiển thị cho sản phẩm thường và biến thể
         $priceFiled = DB::raw('
 CASE
     WHEN products.type = 1 THEN (  -- Sản phẩm biến thể
@@ -101,7 +100,8 @@ END');
             'short_description',
             'views',
             'type',
-            $soldCountSubQuery
+            'slug',
+            // $soldCountSubQuery
         )->where('is_active', 1);
 
 
@@ -140,16 +140,7 @@ END');
                 $maxPrice = $filters['max_price'];
 
 
-                // $query->where(function ($q) use ($minPrice, $maxPrice) {
-                //     $q->where('type', 0)
-                //         ->whereBetween('price', [$minPrice, $maxPrice])
-                //         ->orWhere(function ($q) use ($minPrice, $maxPrice) {
-                //             $q->where('type', 1)
-                //                 ->whereHas('productVariants', function ($variantQuery) use ($minPrice, $maxPrice) {
-                //                     $variantQuery->whereBetween('price', [$minPrice, $maxPrice]);
-                //                 });
-                //         });
-                // });
+
                 $query->where(function ($q) use ($minPrice, $maxPrice) {
                     // Type  = 0
                     $q->where(function ($q) use ($minPrice, $maxPrice) {
@@ -277,13 +268,7 @@ END');
                 break;
             case 'sellWell':
                 $query->orderByDesc(function ($query) {
-                    $query->selectRaw('COALESCE(SUM(order_items.quantity),0)')
-                        ->from('order_items')
-                        ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                        ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
-                        ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
-                        ->whereColumn('order_items.product_id', 'products.id')
-                        ->where('order_statuses.name', '=', 'Hoàn thành');
+                    $query->selectRaw('(' . (new Product)->getSoldQuantitySubQuery() . ')'); // Sử dụng subquery từ Model Product
                 });
                 break;
             case 'manyViews':
@@ -310,7 +295,7 @@ END');
                 $q->where('is_active', 1)->orderBy('price', 'ASC')->select('product_id', 'price');
             }
         ]);
-        $products = $query->paginate($perpage)->appends(['sort_by' => $sortBy]); // Lưu  $products
+        $products = $query->paginate($perpage)->appends($filters); // Lưu  $products
         // dd($products);
         return $products;
     }
@@ -1173,24 +1158,24 @@ END');
                     $q->join('products', 'products.id', '=', 'product_variants.product_id')
                         ->orderBy('product_variants.price', 'ASC')
                         ->selectRaw("
-                        product_variants.*,
-                        product_variants.is_active,
-                        -- **CHỈNH SỬA LOGIC GIÁ CHO BIẾN THỂ: Tham chiếu bảng `product_variants` (alias `pv`)**
-                        CASE
-                            -- **Giá hiển thị (display_price) cho BIẾN THỂ**
-                            WHEN product_variants.sale_price > 0 THEN  -- Nếu biến thể có giá sale
-                                product_variants.sale_price -- Sử dụng giá sale của biến thể
-                            ELSE
-                                product_variants.price -- Ngược lại dùng giá gốc của biến thể
-                        END as display_price,
-                        CASE
-                            -- **Giá gốc (original_price) cho BIẾN THỂ**
-                            WHEN product_variants.price > 0 THEN -- Nếu biến thể có giá gốc
-                                product_variants.price -- Sử dụng giá gốc của biến thể
-                            ELSE
-                                0 -- Trường hợp không có giá gốc (có thể tùy chỉnh)
-                        END as original_price
-                    ");
+                product_variants.*,
+                product_variants.is_active,
+                -- **CHỈNH SỬA LOGIC GIÁ CHO BIẾN THỂ: Tham chiếu bảng `product_variants` (alias `pv`)**
+                CASE
+                  -- **Giá hiển thị (display_price) cho BIẾN THỂ**
+                  WHEN product_variants.sale_price > 0 THEN -- Nếu biến thể có giá sale
+                    product_variants.sale_price -- Sử dụng giá sale của biến thể
+                  ELSE
+                    product_variants.price -- Ngược lại dùng giá gốc của biến thể
+                END as display_price,
+                CASE
+                  -- **Giá gốc (original_price) cho BIẾN THỂ**
+                  WHEN product_variants.price > 0 THEN -- Nếu biến thể có giá gốc
+                    product_variants.price -- Sử dụng giá gốc của biến thể
+                  ELSE
+                    0 -- Trường hợp không có giá gốc (có thể tùy chỉnh)
+                END as original_price
+              ");
                 },
                 'productVariants.attributeValues.attribute',
                 'productVariants.productStock'
@@ -1198,5 +1183,29 @@ END');
             ->find($id);
     }
 
+
+    // compare - Mạnh
+    public function getByid($productId)
+    {
+        $product = $this->model->with('categories')->findOrFail($productId);
+        return $product;
+    }
+
+    public function getByIds($productIds)
+    {
+        if (empty($productIds)) {
+            return collect([]);
+        }
+        $products = $this->model->whereIn('id', $productIds)->get();
+        return $products;
+    }
+
+    public function getProductsWithDetailsByIds(array $productIds, array $with = [])
+    {
+        return $this->model->with($with)
+            ->whereIn('id', $productIds)
+            ->where('is_active', 1)
+            ->get();
+    }
 
 }
