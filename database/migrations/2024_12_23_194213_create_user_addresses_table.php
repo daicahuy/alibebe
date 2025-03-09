@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->string('address', 255)->nullable();
             $table->string('phone_number', 20)->nullable();
             $table->string('fullname', 100)->nullable(); //khắc phục tạm
-            $table->boolean('id_default')->default(false);
+            $table->boolean('is_default')->default(false);
             $table->timestamps();
         });
     }

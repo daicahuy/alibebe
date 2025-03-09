@@ -348,6 +348,7 @@ END');
                 DB::raw('SUM(order_items.quantity + COALESCE(order_items.quantity_variant, 0)) as total_sold'),
                 DB::raw('ROUND(COALESCE(AVG(reviews.rating), 0), 1) as average_rating'),
                 DB::raw('COUNT(DISTINCT reviews.id) as total_reviews'),
+                DB::raw('products.views as views_count') ,// Thêm lượt xem
                 DB::raw('COALESCE(ps.total_stock, 0) as stock_quantity')
             )
             ->groupBy(
@@ -357,7 +358,8 @@ END');
                 'products.sale_price',
                 'products.thumbnail',
                 'products.is_active',
-                'ps.total_stock'
+                'ps.total_stock',
+                'products.views'
             )
             ->orderByDesc('total_sold')
             ->limit(24)
@@ -365,60 +367,62 @@ END');
     }
 
     public function getBestSellingProducts()
-    {
-        return DB::table('order_items')
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->join('order_order_status', function ($join) {
-                $join->on('orders.id', '=', 'order_order_status.order_id')
-                    ->where('order_order_status.order_status_id', '=', 6);
-            })
-            ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->leftJoin('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
-            ->leftJoin('attribute_value_product_variant', 'product_variants.id', '=', 'attribute_value_product_variant.product_variant_id')
-            ->leftJoin('attribute_values', 'attribute_value_product_variant.attribute_value_id', '=', 'attribute_values.id')
-            ->select(
-                DB::raw('IFNULL(product_variants.id, products.id) as product_id'),
-                DB::raw('IFNULL(CONCAT(products.name, " - ", GROUP_CONCAT(attribute_values.value SEPARATOR ", ")), products.name) as product_name'),
-                DB::raw('IFNULL(product_variants.price, products.price) as price'),
-                DB::raw('IFNULL(
-                    CASE 
-                        WHEN product_variants.thumbnail LIKE "http%" THEN product_variants.thumbnail
-                        ELSE CONCAT("/storage/", product_variants.thumbnail) 
-                    END,
-                    CASE 
-                        WHEN products.thumbnail LIKE "http%" THEN products.thumbnail
-                        ELSE CONCAT("/storage/", products.thumbnail) 
-                    END
-                ) as thumbnail'),
-                DB::raw('SUM(order_items.quantity) as total_sold')
-            )
-            ->groupBy('product_id', 'products.name', 'price', 'thumbnail')
-            ->orderByDesc('total_sold')
-            ->limit(24)
-            ->get();
-    }
+{
+    return DB::table('order_items')
+        ->join('orders', 'order_items.order_id', '=', 'orders.id')
+        ->join('order_order_status', function ($join) {
+            $join->on('orders.id', '=', 'order_order_status.order_id')
+                ->where('order_order_status.order_status_id', '=', 6);
+        })
+        ->join('products', 'order_items.product_id', '=', 'products.id')
+        ->leftJoin('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
+        ->leftJoin('attribute_value_product_variant', 'product_variants.id', '=', 'attribute_value_product_variant.product_variant_id')
+        ->leftJoin('attribute_values', 'attribute_value_product_variant.attribute_value_id', '=', 'attribute_values.id')
+        ->select(
+            DB::raw('IFNULL(product_variants.id, products.id) as product_id'),
+            DB::raw('IFNULL(CONCAT(products.name, " - ", GROUP_CONCAT(attribute_values.value SEPARATOR ", ")), products.name) as product_name'),
+            DB::raw('IFNULL(product_variants.price, products.price) as price'),
+            DB::raw('IFNULL(
+                CASE 
+                    WHEN product_variants.thumbnail LIKE "http%" THEN product_variants.thumbnail
+                    ELSE CONCAT("/storage/", product_variants.thumbnail) 
+                END,
+                CASE 
+                    WHEN products.thumbnail LIKE "http%" THEN products.thumbnail
+                    ELSE CONCAT("/storage/", products.thumbnail) 
+                END
+            ) as thumbnail'),
+            DB::raw('SUM(order_items.quantity) as total_sold'),
+            DB::raw('products.views as views_count') // Thêm lượt xem
+        )
+        ->groupBy('product_id', 'products.name', 'price', 'thumbnail', 'products.views')
+        ->orderByDesc('total_sold')
+        ->limit(24)
+        ->get();
+}
 
 
-    public function getPopularProducts()
-    {
-        return DB::table('order_items')
-            ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->leftJoin('reviews', 'reviews.product_id', '=', 'products.id')
-            ->select(
-                'products.id',
-                'products.thumbnail',
-                'products.price',
-                'products.sale_price',
-                'products.name',
-                DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
-                DB::raw('SUM(order_items.quantity) as total_sold'),
-            )
-            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price')
-            ->orderByDesc('total_sold')
-            ->limit(24)
-            ->get();
-    }
 
+public function getPopularProducts()
+{
+    return DB::table('order_items')
+        ->join('products', 'order_items.product_id', '=', 'products.id')
+        ->leftJoin('reviews', 'reviews.product_id', '=', 'products.id')
+        ->select(
+            'products.id',
+            'products.thumbnail',
+            'products.price',
+            'products.sale_price',
+            'products.name',
+            DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
+            DB::raw('SUM(order_items.quantity) as total_sold'),
+            DB::raw('products.views as views_count') // Thêm lượt xem
+        )
+        ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price', 'products.views')
+        ->orderByDesc('total_sold')
+        ->limit(24)
+        ->get();
+}
     public function getUserRecommendations($userId)
     {
         // Lấy danh sách sản phẩm người dùng đã mua
@@ -450,6 +454,8 @@ END');
                 'products.sale_price',
                 DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
                 DB::raw('COUNT(oi2.product_id) as frequency'),
+                DB::raw('products.views as views_count'),
+                DB::raw('SUM(oi2.quantity + COALESCE(oi2.quantity_variant, 0)) as total_sold'),
             )
             ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price')
             ->orderByDesc('frequency')
@@ -842,11 +848,9 @@ END');
             ->with(
                 [
                     'productVariants' => function ($query) {
-                        $query->with([
-                            'attributeValues' => function ($query) {
-                                $query->with('attribute');
-                            }
-                        ]);
+                        $query->where('is_active', 1)->with(['attributeValues' => function ($query) {
+                            $query->with('attribute');
+                        }]);
                     },
                     'attributeValues' => function ($query) {
                         $query->whereHas('attribute', function ($q) {
@@ -889,71 +893,100 @@ END');
 
     public function getRelatedProducts(Product $product, int $limit = 6)
     {
-        // Hàm này lấy giá đại diện của sản phẩm, tìm giá sale_price NHỎ NHẤT trong tất cả biến thể,
-        // sau đó fallback về sale_price của sản phẩm chính, rồi đến price của sản phẩm chính.
-        $getProductRepresentativePrice = function (Product $prod) {
-            $minVariantPrice = null; // Khởi tạo giá biến thể nhỏ nhất là null
+        $comparePrice = $this->getProductRepresentativePrice($product);
+        $relatedProducts = collect();
 
-            // Duyệt qua tất cả biến thể của sản phẩm
-            foreach ($prod->productVariants as $variant) {
-                if ($variant->sale_price > 0) {
-                    if ($minVariantPrice === null || $variant->sale_price < $minVariantPrice) {
-                        $minVariantPrice = $variant->sale_price; // Cập nhật giá nhỏ nhất nếu tìm thấy giá nhỏ hơn
-                    }
-                }
-            }
-
-            // Nếu tìm thấy giá biến thể nhỏ nhất hợp lệ, trả về nó
-            if ($minVariantPrice !== null) {
-                return $minVariantPrice;
-            }
-
-            // Nếu không có giá biến thể hợp lệ, fallback về giá của sản phẩm chính
-            if ($prod->sale_price > 0) {
-                return $prod->sale_price;
-            }
-            return $prod->price > 0 ? $prod->price : 1; // Fallback cuối cùng
-        };
-
-        // Lấy giá đại diện của sản phẩm hiện tại để so sánh
-        $comparePrice = $getProductRepresentativePrice($product);
-
-        $relatedProducts = Product::with('reviews', 'productVariants') // Load thêm 'variants' relationship
+        // **Bước 1: Tìm sản phẩm TƯƠNG TỰ THEO GIÁ, CÙNG BRAND và CÙNG CATEGORY (mở rộng thêm parent_id nếu không đủ)**
+        $relatedByPriceBrandCategory = Product::with('reviews', 'productVariants', 'categories')
             ->where('id', '!=', $product->id)
             ->where('is_active', 1)
-            ->whereBetween(
-                'sale_price', // Vẫn filter ban đầu trên 'sale_price' của bảng 'products'
-                [
-                    $comparePrice * 0.8,
-                    $comparePrice * 1.2
-                ]
-            )
-            ->whereHas('categories', function ($query) use ($product) {
-                $query->whereIn('category_id', $product->categories->pluck('id'));
+            // ->where('brand_id', $product->brand_id)
+            ->where(function ($query) use ($product) {
+                $categoryIds = $product->categories->pluck('id');
+                $parentCategoryIds = Category::whereIn('parent_id', $categoryIds)->pluck('id');
+                $allRelatedCategoryIds = $categoryIds->merge($parentCategoryIds)->unique();
+                $query->whereHas('categories', function ($categoryQuery) use ($allRelatedCategoryIds) {
+                    $categoryQuery->whereIn('category_id', $allRelatedCategoryIds);
+                });
             })
-            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $comparePrice]) // Vẫn sort ban đầu trên 'price' của bảng 'products'
-            ->limit($limit)
+            ->where(function ($query) use ($comparePrice) {
+                $query->whereHas('productVariants', function ($variantQuery) use ($comparePrice) {
+                    $variantQuery->whereBetween('sale_price', [$comparePrice * 0.8, $comparePrice * 1.2])
+                        ->where('is_active', 1);
+                })
+                    ->orWhere(function ($productQuery) use ($comparePrice) {
+                        $productQuery->whereBetween('sale_price', [$comparePrice * 0.8, $comparePrice * 1.2])
+                            ->where('is_sale', 1);
+                    })
+                    ->orWhere(function ($productQuery) use ($comparePrice) {
+                        $productQuery->whereBetween('price', [$comparePrice * 0.8, $comparePrice * 1.2])
+                            ->where('is_sale', 0);
+                    });
+            })
+            ->orderByRaw('brand_id = ? DESC, ABS(price - ?) ASC', [$product->brand_id, $comparePrice])
+            ->limit($limit * 2)
             ->get();
-
-        // Lọc lại và sắp xếp sản phẩm dựa trên giá ĐẠI DIỆN (bao gồm giá biến thể nhỏ nhất)
-        $relatedProducts = $relatedProducts->filter(function ($relatedProduct) use ($comparePrice, $getProductRepresentativePrice) {
-            $relatedProductPrice = $getProductRepresentativePrice($relatedProduct);
-            return $relatedProductPrice >= $comparePrice * 0.8 && $relatedProductPrice <= $comparePrice * 1.2; // Lọc lại theo khoảng giá đại diện
-        })->sortBy(function ($relatedProduct) use ($comparePrice, $getProductRepresentativePrice) {
-            $relatedProductPrice = $getProductRepresentativePrice($relatedProduct);
-            return [$relatedProduct->brand_id != $relatedProduct->brand_id, abs($relatedProductPrice - $comparePrice)]; // Sắp xếp lại, vẫn ưu tiên brand và độ lệch giá
-        });
-
-        $relatedProducts = $relatedProducts->take($limit); // Giới hạn lại số lượng sau lọc và sắp xếp
+        $relatedProducts = $relatedProducts->concat($relatedByPriceBrandCategory);
+        Log::info('Step 1 Related Products Count: ' . $relatedProducts->count());
 
 
-        // Tính số sao (không thay đổi)
-        foreach ($relatedProducts as $relatedProduct) { // Changed to foreach for Laravel Collection
+
+        if ($relatedProducts->count() < $limit) {
+            Log::info('Count before Step 2 Check: ' . $relatedProducts->count());
+            Log::info('Entering Step 2');
+            // **Bước 2: Nếu chưa đủ sản phẩm, tìm thêm theo DANH MỤC (Ưu tiên thứ ba) - ĐÃ SỬA ĐỔI**
+            $productCategoryIds = $product->categories->pluck('id');
+            $relatedByCategory = Product::with('reviews', 'productVariants', 'categories')
+                ->where('id', '!=', $product->id)
+                ->where('is_active', 1)
+                ->whereHas('categories', function ($query) use ($productCategoryIds) { // Chỉ tìm theo categoryIds
+                    $query->whereIn('category_product.category_id', $productCategoryIds);
+                })
+                ->limit($limit - $relatedProducts->count()) // Chỉ lấy số lượng còn thiếu
+                ->get();
+
+            $relatedProducts = $relatedProducts->concat($relatedByCategory); // Gộp kết quả danh mục vào
+        }
+
+
+        // **Bước 3: Tính số sao đánh giá và Giới hạn số lượng cuối cùng (giữ nguyên)**
+        $relatedProducts = $relatedProducts->unique('id')->take($limit);
+        foreach ($relatedProducts as $relatedProduct) {
             $averageRating = $relatedProduct->reviews->avg('rating') ?? 0;
             $relatedProduct->average_rating = number_format($averageRating, 1);
         }
 
-        return $relatedProducts->values(); // Return as a numerically indexed collection, if needed
+        $relatedProducts = $relatedProducts->unique('id')->take($limit);
+        foreach ($relatedProducts as $relatedProduct) {
+            $averageRating = $relatedProduct->reviews->avg('rating') ?? 0;
+            $relatedProduct->average_rating = number_format($averageRating, 1);
+            $relatedProduct->representative_price = $this->getProductRepresentativePrice($relatedProduct);
+        }
+
+        return $relatedProducts->values();
+    }
+
+
+    private function getProductRepresentativePrice(Product $prod)
+    {
+        $minVariantPrice = null;
+
+        foreach ($prod->productVariants as $variant) {
+            if ($variant->sale_price > 0) {
+                if ($minVariantPrice === null || $variant->sale_price < $minVariantPrice) {
+                    $minVariantPrice = $variant->sale_price;
+                }
+            }
+        }
+
+        if ($minVariantPrice !== null) {
+            return $minVariantPrice;
+        }
+
+        if ($prod->sale_price > 0) {
+            return $prod->sale_price;
+        }
+        return $prod->price > 0 ? $prod->price : 1;
     }
 
     public function detailModal($id)
@@ -1001,7 +1034,9 @@ END');
             )
             ELSE products.price 
         END');
-
+        $stockQuantitySubQuerySql = '(SELECT COALESCE(SUM(stock),0)
+            FROM product_stocks
+            WHERE product_stocks.product_id = products.id)';
         $soldCountSubQuerySql = '(SELECT COALESCE(SUM(order_items.quantity),0)
         FROM order_items
         JOIN orders ON order_items.order_id = orders.id
@@ -1031,6 +1066,7 @@ END');
         return $this->model->selectRaw("
             products.*,
             {$soldCountSubQuerySql} as sold_count,
+            {$stockQuantitySubQuerySql} as stock_quantity,
             " . $priceFiled->getValue(DB::connection()->getQueryGrammar()) . " as display_price,
             " . $originalPriceFiled->getValue(DB::connection()->getQueryGrammar()) . " as original_price,
             " . $stockField->getValue(DB::connection()->getQueryGrammar()) . " as stock

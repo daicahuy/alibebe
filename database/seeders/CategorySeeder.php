@@ -17,7 +17,7 @@ class CategorySeeder extends Seeder
     }
 
     public function fakeCategory()
-    {  
+    {
 
         $categories = [
             [
@@ -123,7 +123,6 @@ class CategorySeeder extends Seeder
         ];
 
         DB::table('categories')->insert($categories);
-
 
     }
 }

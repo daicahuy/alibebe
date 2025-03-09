@@ -37,8 +37,8 @@ class OrderCustomerControllerApi extends Controller
 
             if (!$userCheckVerify->email_verified_at) {
                 return redirect('/cart-checkout')->with('error', "Xác minh tài khoản trước khi mua hàng!");
-
             }
+
             if ($couponCode) {
                 $coupon = Coupon::where('code', $couponCode)->lockForUpdate()->first();
 

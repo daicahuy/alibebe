@@ -13,10 +13,10 @@ class OrderStatusSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->realOrderStatus();
+        $this->orderStatus();
     }
 
-    public function realOrderStatus()
+    public function orderStatus()
     {
         
         $statuses = [

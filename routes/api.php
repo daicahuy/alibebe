@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AttributeValueController;
 use App\Http\Controllers\api\AuthCustomerApiController;
 use App\Http\Controllers\api\AuthCustomerController;
 use App\Http\Controllers\Api\BrandController;
+use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CompareController;
 use App\Http\Controllers\api\CouponApiController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Api\ListCategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\StockController;
 use App\Http\Controllers\Web\Admin\AccountController;
+use App\Http\Controllers\Web\Admin\CommentController;
 use App\Http\Controllers\Web\Client\AccountController as ClientAccountController;
 use App\Http\Controllers\Web\Client\DetailProductController;
 
@@ -41,6 +43,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('/cart/update', [CartItemController::class, 'update'])->middleware('web')->name('cart.update');
+Route::post('/cart/save-session', [CartItemController::class, 'saveSession'])->middleware('web')->name('cart.saveSession');
+Route::get('/comments/{commentId}/replies', [CommentController::class, 'getCommentReplies'])->name('comments.replies');
+Route::delete('/comments/{id}', [CommentController::class, 'deleteComment'])->name('comments.delete');
+Route::delete('/comment-replies/{id}', [CommentController::class, 'deleteReply'])->name('comment-replies.delete');
 
 Route::get('/productListCate/{id}', [ListCategoryController::class, 'detailModal']);
 Route::get('/products/{id}', [DetailProductController::class, 'getProductDetail']);

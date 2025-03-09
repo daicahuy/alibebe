@@ -201,20 +201,30 @@
                                     <div class="onhover-dropdown header-badge">
                                         <button type="button" class="btn p-0 position-relative header-wishlist">
                                             <a href="{{ route('cart') }}"><i data-feather="shopping-cart"></i></a>
-                                            <span class="position-absolute top-0 start-100 translate-middle badge">2
+                                            <span
+                                                class="position-absolute top-0 start-100 translate-middle badge">{{ auth()->check() ? $cartItems->count() : 0 }}
                                                 <span class="visually-hidden">unread messages</span>
                                             </span>
                                         </button>
 
                                         <div class="onhover-div">
                                             <ul class="cart-list">
+                                                @if (!auth()->check() || $cartItems->isEmpty())
+                                                    <tr>
+                                                        <td colspan="7" class="text-center">
+                                                            <strong>Bạn chưa thêm sản phẩm vào giỏ hàng</strong>
+                                                        </td>
+                                                    </tr>
+                                                @endif
                                                 @php
                                                     $totalSum = 0; // Khởi tạo tổng tiền giỏ hàng
                                                 @endphp
 
                                                 @foreach ($cartItems as $cartItem)
                                                     <li class="product-box-contain">
-                                                        <div class="drop-cart">
+                                                        <div class="drop-cart" data-id="{{ $cartItem->id }}"
+                                                            data-product-id="{{ $cartItem->product->id ?? '' }}"
+                                                            data-product-variant-id="{{ $cartItem->productVariant->id ?? '' }}">
                                                             @php
                                                                 // Kiểm tra nếu có productVariant thì lấy ảnh từ productVariant, nếu không thì lấy ảnh từ product
                                                                 $thumbnail =
@@ -229,27 +239,75 @@
 
                                                             <div class="drop-contain">
                                                                 <a href="product-left-thumbnail.html">
-                                                                    <h5>{{ $cartItem->productVariant->product->name ?? $cartItem->product->name }}
+                                                                    <h5>{{ Str::limit($cartItem->productVariant->product->name ?? $cartItem->product->name, 20, '...') }}
                                                                     </h5>
                                                                 </a>
-
+                                                                <div>
+                                                                    Phân loại hàng:
+                                                                    <span class="selected-variation">
+                                                                        @if ($cartItem->productVariant)
+                                                                            @foreach ($cartItem->productVariant->attributeValues as $attributeValue)
+                                                                                {{ $attributeValue->value }}{{ !$loop->last ? ', ' : '' }}
+                                                                            @endforeach
+                                                                        @else
+                                                                            Không có phân loại
+                                                                        @endif
+                                                                    </span>
+                                                                </div>
                                                                 @php
-                                                                    // Lấy giá ưu tiên sale_price, nếu không có thì lấy price
+                                                                    // Lấy giá gốc từ product hoặc productVariant
                                                                     $price =
-                                                                        $cartItem->productVariant->sale_price ??
-                                                                        ($cartItem->productVariant->price ??
-                                                                            $cartItem->product->price);
-                                                                    $sumOnePrd = $cartItem->quantity * $price;
-                                                                    $totalSum += $sumOnePrd; // Cộng dồn vào tổng tiền giỏ hàng
+                                                                        $cartItem->productVariant->price ??
+                                                                        $cartItem->product->price;
+
+                                                                    // Kiểm tra nếu sản phẩm có biến thể
+                                                                    $salePrice = null;
+                                                                    if ($cartItem->productVariant?->sale_price > 0) {
+                                                                        $salePrice =
+                                                                            $cartItem->productVariant->sale_price;
+                                                                    } elseif ($cartItem->product?->sale_price > 0) {
+                                                                        $salePrice = $cartItem->product->sale_price;
+                                                                    } else {
+                                                                        $salePrice = $price; // Nếu không có giảm giá, salePrice bằng giá gốc
+                                                                    }
+
+                                                                    // Tính tiền tiết kiệm
+                                                                    $saving = $price - $salePrice;
+
+                                                                    // Tính tổng tiền sản phẩm
+                                                                    $sumOnePrd = $cartItem->quantity * $salePrice;
+                                                                    $totalSum += $sumOnePrd;
                                                                 @endphp
-
-                                                                <h6><span>{{ $cartItem->quantity }} x</span>
-                                                                    {{ number_format($price, 0, ',', '.') }}đ
+                                                                <input type="hidden" class="price"
+                                                                    value="{{ $cartItem->product->price ?? $cartItem->productVariant->product->price }}">
+                                                                <input type="hidden" class="old_price"
+                                                                    value="{{ $cartItem->product?->sale_price ?? $cartItem->productVariant?->product->sale_price }}">
+                                                                <input type="hidden" class="price_variant"
+                                                                    value="{{ $cartItem->productVariant?->price > 0 ? $cartItem->productVariant->price : null }}">
+                                                                <input type="hidden" class="old_price_variant"
+                                                                    value="{{ $cartItem->productVariant?->sale_price > 0 ? $cartItem->productVariant->sale_price : null }}">
+                                                                <h6><span class="input-number" name="quantity"
+                                                                        data-max-stock="{{ $cartItem->productVariant?->productStock?->stock ?? ($cartItem->product?->productStock?->stock ?? 1) }}">{{ $cartItem->quantity }}
+                                                                        </span>x
+                                                                    {{ number_format($salePrice, 0, ',', '.') }}đ
+                                                                    @if ($salePrice < $price)
+                                                                        <del
+                                                                            class="text-content">{{ number_format($price, 0, ',', '.') }}đ</del>
+                                                                    @endif
                                                                 </h6>
+                                                                <input type="hidden" class="sale_price" value="{{ $salePrice }}" >
 
-                                                                <button class="close-button close_button">
-                                                                    <i class="fa-solid fa-xmark"></i>
-                                                                </button>
+
+                                                                <form method="POST"
+                                                                    action="{{ route('cart.delete') }}">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <input type="hidden" name="id"
+                                                                        value="{{ $cartItem->id }}">
+                                                                    <button class="close-button close_button">
+                                                                        <i class="fa-solid fa-xmark"></i>
+                                                                    </button>
+                                                                </form>
                                                             </div>
                                                         </div>
                                                     </li>
@@ -259,14 +317,16 @@
 
                                             <div class="price-box">
                                                 <h5>Tổng cộng :</h5>
-                                                <h4 class="theme-color fw-bold">
-                                                    {{ number_format($totalSum, 0, ',', '.') }}đ</h4>
+                                                <h4 class="theme-color fw-bold total-dropdown-price">
+                                                    {{ number_format($totalSum, 0, ',', '.') }}đ
+                                                </h4>
                                             </div>
+
 
                                             <div class="button-group">
                                                 {{-- <a href="{{ route('cart', ['user' => auth()->id()]) }}"
                                                     class="btn btn-sm cart-button">Giỏ hàng</a> --}}
-                                                <a href="checkout.html"
+                                                <a href="{{ route('cartCheckout') }}"
                                                     class="btn btn-sm cart-button theme-bg-color
                                                 text-white">Thanh
                                                     toán</a>
@@ -279,6 +339,13 @@
                                         <div class="delivery-icon">
                                             <i data-feather="user"></i>
                                         </div>
+
+                                        @auth
+                                            <div class="delivery-detail">
+                                                <h6>{{ __('message.hello') }},</h6>
+                                                <h5> {{ Str::limit(Auth::user()->fullname, 10, '...') }}</h5>
+                                            </div>
+                                        @endauth
 
                                     </div>
 
@@ -955,4 +1022,86 @@
             }, 1000);
         }
     </script>
+    <script>
+     function updateCartSessionForHeader() {
+    console.log("⚡ Hàm updateCartSessionForHeader() được gọi");
+
+    let selectedProducts = [];
+    let totalSum = 0;
+
+    $(".drop-cart").each(function() {
+        let row = $(this);
+        let cartItemId = row.data("id");
+        let qty = parseInt(row.find(".input-number").text()) || 1;
+        let productId = row.data("product-id") || null;
+        let productVariantId = row.data("product-variant-id") || null;
+        let productName = row.find("h5").text().trim();
+        let nameVariant = row.find(".selected-variation").text().trim() || null;
+        let imageUrl = row.find(".drop-image img").attr("src") || "";
+
+        if (imageUrl.startsWith("http")) {
+            let url = new URL(imageUrl);
+            imageUrl = url.pathname.replace("/storage/", "").replace(/^\/+/, "");
+        }
+
+        let originalPrice = parseInt(row.find(".price").val()) || 0;
+        let salePrice = parseInt(row.find(".old_price").val()) || 0;
+        let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
+        let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
+
+        let finalPrice = salePrice > 0 ? salePrice : originalPrice;
+        let oldPrice = salePrice > 0 ? originalPrice : null;
+
+        let finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
+        let oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
+
+        selectedProducts.push({
+            id: cartItemId,
+            product_id: productId,
+            product_variant_id: productVariantId,
+            name: productName,
+            name_variant: nameVariant,
+            image: imageUrl,
+            price: finalPrice,
+            old_price: oldPrice,
+            price_variant: productVariantId ? finalPriceVariant : null,
+            old_price_variant: productVariantId ? oldPriceVariant : null,
+            quantity: productVariantId ? null : qty,
+            quantity_variant: productVariantId ? qty : null,
+        });
+
+        totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
+    });
+
+    console.log("📤 Dữ liệu gửi lên server:", selectedProducts);
+    console.log("📤 Tổng tiền gửi lên server:", totalSum);
+
+    $.ajax({
+    url: "{{ route('cart.saveSession') }}",
+    type: "POST",
+    data: {
+        _token: "{{ csrf_token() }}",
+        selectedProducts: selectedProducts,
+        total: totalSum
+    },
+    success: function(response) {
+        console.log("✅ Giỏ hàng header cập nhật thành công!", response);
+    },
+    error: function(xhr, status, error) {
+        console.log("❌ Lỗi khi cập nhật giỏ hàng:", xhr.responseText);
+    }
+});
+
+}
+$(document).ready(function () {
+    $(".button-group .cart-button.theme-bg-color").on("click", function () {
+        console.log("⚡ Nút Thanh toán được click");
+        updateCartSessionForHeader();
+    });
+});
+
+
+
+    </script>
+ 
 @endpush

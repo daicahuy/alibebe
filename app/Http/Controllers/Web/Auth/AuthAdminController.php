@@ -85,7 +85,7 @@ class AuthAdminController extends Controller
         if (!$user) {
             return back()->withErrors(['email' => 'Email không tồn tại!']);
         }
-       // Tạo mã OTP ngẫu nhiên 6 số
+       // Tạo mã OTP ngẫu nhiên 5 số
        $otp = rand(10000, 99999);
 
        // Lưu OTP vào session (thời gian sống 5 phút)
@@ -186,4 +186,35 @@ class AuthAdminController extends Controller
 
         return redirect()->route('auth.admin.showFormLogin');
     }
+    public function resendOtp(Request $request)
+    {
+        // Lấy email từ session đã lưu trước đó
+        $email = session('otp_email');
+        
+        // Kiểm tra nếu không có email trong session
+        if (!$email) {
+            return back()->withErrors(['email' => 'Không tìm thấy email để gửi lại mã OTP.']);
+        }
+    
+        // Tạo lại mã OTP mới (5 chữ số ngẫu nhiên)
+        $otp = rand(10000, 99999);
+    
+        // Cập nhật lại mã OTP và thời gian hết hạn trong session (5 phút)
+        session(['otp' => $otp, 'otp_expire' => now()->addMinutes(5)]);
+    
+        // Gửi lại OTP qua email
+        try {
+            Mail::raw("Mã OTP của bạn là: $otp", function ($message) use ($email) {
+                $message->to($email)
+                        ->subject('Mã OTP xác thực');
+            });
+    
+            // Trả về thông báo thành công
+            return redirect()->route('auth.admin.showFormOtp')->with('message', 'Mã OTP đã được gửi lại!');
+        } catch (\Exception $e) {
+            // Nếu có lỗi khi gửi email
+            return back()->withErrors(['email' => 'Đã xảy ra lỗi khi gửi lại mã OTP.']);
+        }
+    }
+    
 }

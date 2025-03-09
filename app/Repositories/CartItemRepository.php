@@ -20,7 +20,7 @@ class CartItemRepository extends BaseRepository
     {
         return CartItem::with([
             'productVariant.productStock', 
-        'product.productStock',
+            'product.productStock',
             'productVariant.product.productStock',
             'productVariant.attributeValues.attribute'
         ])->where('user_id', auth()->id())->get();
