@@ -173,18 +173,6 @@ class ProductService
             
             DB::commit();
 
-            if (isset($data['product']['thumbnail']) && $oldThumbnail && Storage::exists($oldThumbnail)) {
-                Storage::delete($oldThumbnail);
-            }
-
-            if (isset($data['product_galleries'])) {
-                foreach ($oldGalleries as $gallery) {
-                    if ($gallery->image && Storage::exists($gallery->image)) {
-                        Storage::delete($gallery->image);
-                    }
-                }
-            }
-
             return ['success' => true, 'message' => 'Cập nhật sản phẩm thành công !'];
         }
         catch (\Throwable $e) {
@@ -255,26 +243,6 @@ class ProductService
             }
 
             DB::commit();
-
-            if (isset($data['product']['thumbnail']) && $oldThumbnail && Storage::exists($oldThumbnail)) {
-                Storage::delete($oldThumbnail);
-            }
-
-            if (isset($data['product_galleries'])) {
-                foreach ($oldGalleries as $gallery) {
-                    if ($gallery->image && Storage::exists($gallery->image)) {
-                        Storage::delete($gallery->image);
-                    }
-                }
-            }
-
-            if (!empty($dataVariantThumnailsUpdate)) {
-                foreach ($oldVariantThumbnails as $variantId => $thumbnail) {
-                    if (in_array($variantId, $dataVariantThumnailsUpdate) && $thumbnail && Storage::exists($thumbnail)) {
-                        Storage::delete($thumbnail);
-                    }
-                }
-            }
 
             return ['success' => true, 'message' => 'Cập nhật sản phẩm thành công !'];
         }

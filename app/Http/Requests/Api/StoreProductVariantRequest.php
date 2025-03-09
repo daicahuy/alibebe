@@ -108,6 +108,12 @@ class StoreProductVariantRequest extends FormRequest
     {
         $data = parent::validated();
         $data['product']['slug'] = Str::slug($data['product']['name']);
+
+        if (isset($data['product']['is_sale']) && $data['product']['is_sale'] == null) {
+            $data['product']['sale_price_start_at'] = null;
+            $data['product']['sale_price_end_at'] = null;
+        }
+        
         return $data;
     }
 }
