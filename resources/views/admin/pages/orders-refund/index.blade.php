@@ -113,9 +113,8 @@
                     <div class="modal-body text-center">
                         <div class="modal-content" id="modalConfirm">
                             <div class="modal-header">
-                                <h3 class="mb-1 fw-semibold">Hoàn hàng</h3><app-button _nghost-ng-c894478421=""><button
-                                        _ngcontent-ng-c894478421="" fdprocessedid="b2b4oc" class="btn btn-close"
-                                        id="payout_close_btn" type="submit">
+                                <h3 class="mb-1 fw-semibold">Hoàn hàng</h3><app-button><button fdprocessedid="b2b4oc"
+                                        class="btn btn-close" id="payout_close_btn" type="submit">
                                     </button></app-button>
                             </div>
                             <div class="modal-body">
@@ -124,39 +123,34 @@
                                         <tbody><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Lý do </td>
-                                                <td class="text-start"> The product received was significantly different
-                                                    from the description.
-                                                    It did not meet my expectations, and I believe I should be refunded for
-                                                    this misleading
-                                                    purchase. </td>
+                                                <td class="text-start" id="reason"></td>
                                             </tr><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Hình ảnh</td>
-                                                <td class="text-start"><img
-                                                        src="https://phongvu.vn/cong-nghe/wp-content/uploads/2024/09/130-hinh-nen-may-tinh-4k-6-1024x640.jpg"
-                                                        alt="" class="thumbnail-image"
+                                                <td class="text-start"><img src="" alt=""
+                                                        id="reason-thumbnail-image" class="thumbnail-image"
                                                         style="width: 50px; height: 50px;"></td>
                                             </tr><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Giá trị hoàn</td>
-                                                <td class="text-start"> $12.60 </td>
+                                                <td class="text-start" id="total_amount"></td>
                                             </tr><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Tên người thụ hưởng </td>
-                                                <td class="text-start"></td>
+                                                <td class="text-start" id="user_bank_name"></td>
                                             </tr><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Tên ngân hàng </td>
-                                                <td class="text-start"></td>
+                                                <td class="text-start"id="bank_name"></td>
                                             </tr><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Số tài khoản </td>
-                                                <td class="text-start"></td>
+                                                <td class="text-start" id="bank_account"></td>
                                             </tr><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Trạng thái</td>
                                                 <td class="text-start">
-                                                    <div class="status-pending"><span>PENDING</span></div>
+                                                    <div class="status-pending"><span id="status"></span></div>
                                                 </td>
                                             </tr><!---->
 
@@ -166,21 +160,22 @@
                                 <div class="mt-2">
 
                                     <div class="form-floating">
-                                        <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
+                                        <textarea class="form-control" placeholder="Leave a comment here" id="admin_reason" style="height: 100px"></textarea>
                                         <label for="floatingTextarea2">Lý do từ chối</label>
                                     </div>
                                 </div>
                                 <div class="mt-2">
-                                    <div class="button-box"><app-button _nghost-ng-c894478421=""><button
-                                                _ngcontent-ng-c894478421="" class="btn btn-md  fw-bold"
-                                                style="background-color: red; color: #fff;" id="withdrawal_rejected_btn"
-                                                type="submit" fdprocessedid="hbnu3">
-                                                <div _ngcontent-ng-c894478421=""> Reject </div>
-                                            </button></app-button><app-button _nghost-ng-c894478421=""><button
-                                                _ngcontent-ng-c894478421="" class="btn btn-md btn-theme fw-bold"
-                                                id="withdrawal_approved_btn" type="submit" fdprocessedid="qq0uf9">
-                                                <div _ngcontent-ng-c894478421=""> Approve </div>
-                                            </button></app-button></div><!---->
+                                    <div class="button-box"><app-button><button class="btn btn-md  fw-bold"
+                                                style="background-color: red; color: #fff;" disabled
+                                                id="withdrawal_rejected_btn" type="submit" fdprocessedid="hbnu3">
+                                                <div> Từ chối </div>
+                                            </button></app-button>
+                                        <app-button>
+                                            <button class="btn btn-md btn-theme fw-bold" id="withdrawal_approved_btn"
+                                                type="submit" fdprocessedid="qq0uf9">
+                                                <div> Đông ý </div>
+                                            </button></app-button>
+                                    </div><!---->
                                 </div><!---->
                             </div>
                         </div>
@@ -229,14 +224,24 @@
                 }
             }
 
-            $("#btn-close-modal-img").on("click", function() {
-                $("#imageModal").modal('hide');
+            function renderHtmlModalOrderRefund(dataOrderRefund) {
 
-            })
-            $("#btn-cancel-modal-img").on("click", function() {
-                $("#imageModal").modal('hide');
+                const imageUrl =
+                    `{{ Storage::url('${dataOrderRefund.reason_image}') }}`; //Laravel Blade syntax
+                //Chuyển đổi thành Javascript string
+                const jsImageUrl = imageUrl.replace(/\{\{\s*|\s*\}\}/g, '');
+                $("#modalConfirm #reason-thumbnail-image").attr("src",
+                    jsImageUrl);
+                $("#modalConfirm #reason").text(dataOrderRefund.reason)
+                $("#modalConfirm #total_amount").text(`${formatCurrency(dataOrderRefund.total_amount)}đ`)
+                $("#modalConfirm #user_bank_name").text(dataOrderRefund.user_bank_name)
+                $("#modalConfirm #bank_name").text(dataOrderRefund.bank_name)
+                $("#modalConfirm #bank_account").text(dataOrderRefund.bank_account)
+                $("#modalConfirm #status").text(dataOrderRefund.status)
+                $("#modalConfirm #admin_reason").val(dataOrderRefund.admin_reason ? dataOrderRefund.admin_reason :
+                    "")
 
-            })
+            }
 
             $('.thumbnail-image').on('click', function() {
                 console.log('Image');
@@ -244,6 +249,19 @@
                 $('#modalImage').attr('src', imageSrc); // Đặt src cho hình ảnh phóng to
                 $('#imageModal').modal('show'); // Hiển thị modal hình ảnh
             });
+
+            $("#btn-close-modal-img, #btn-cancel-modal-img").on("click", function(event) {
+                event.preventDefault(); // Ngăn hành động mặc định
+                $("#imageModal").modal("hide"); // Chỉ đóng imageModal
+            });
+            $("#imageModal").on("hidden.bs.modal", function(event) {
+                if ($("#modalConfirm").hasClass("show")) {
+                    $("body").addClass("modal-open"); // Giữ trạng thái cuộn của modalConfirm
+                }
+            });
+
+
+
 
 
 
@@ -255,7 +273,7 @@
                     dataType: 'json',
                     success: function(response) {
                         if (response.status == 200) {
-                            // renderHtmlModalOrderRefund(response.dataOrderRefund)
+                            renderHtmlModalOrderRefund(response.dataOrderRefund)
 
                         } else {
                             alert('Something error happened');
@@ -323,11 +341,31 @@
 
                         $('#modalConfirm').modal('show'); // Hiển thị modal
                     });
+
+
+
+
+
+                    $('#admin_reason').on('input', function() {
+                        const reason = $(this).val()
+                            .trim(); // Lấy giá trị trong textarea và loại bỏ khoảng trắng
+                        const rejectButton = $('#withdrawal_rejected_btn'); // Nút "Từ chối"
+
+                        if (reason.length > 0) {
+                            // Nếu lý do từ chối không trống, bật nút "Từ chối"
+                            rejectButton.prop('disabled', false);
+                        } else {
+                            // Nếu lý do từ chối trống, disable nút "Từ chối"
+                            rejectButton.prop('disabled', true);
+                        }
+                    });
+
                 }
             }
 
-            $('#payout_close_btn').on('click', function() {
-                $('#modalConfirm').modal('hide'); // Hiển thị modal
+            $('#payout_close_btn').on('click', function(event) {
+                event.stopPropagation();
+                $('#modalConfirm').modal('hide');
 
             })
 

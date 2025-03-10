@@ -15,7 +15,8 @@ return new class extends Migration {
             $table->bigInteger('order_id')->unsigned();
             $table->bigInteger('user_id')->unsigned();
             $table->decimal('total_amount', 12, 2);
-            $table->string('bank_account')->nullable();
+            $table->string('bank_account', 255)->nullable();
+            $table->string('user_bank_name', 255)->nullable();
             $table->string('bank_name', 100)->nullable();
             $table->text('reason');
             $table->text('reason_image');
