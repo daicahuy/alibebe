@@ -17,12 +17,12 @@ class AttributeValueProductVariantSeeder extends Seeder
     public function run(): void
     {   
         $attributeValues = [
-            [33, 9],
-            [33, 8],
-            [34, 9],
-            [34, 8],
-            [35, 9],
-            [35, 8],
+            [33, 4],
+            [33, 5],
+            [34, 4],
+            [34, 5],
+            [35, 4],
+            [35, 5],
         ];
 
         $products = Product::query()->where('type', 1)->get();
