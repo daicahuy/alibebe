@@ -19,13 +19,40 @@ class CartItemRepository extends BaseRepository
     public function getAllCartItem()
     {
         return CartItem::with([
-            'productVariant.productStock', 
+            'productVariant.productStock',
             'product.productStock',
             'productVariant.product.productStock',
             'productVariant.attributeValues.attribute'
-        ])->where('user_id', auth()->id())->get();
-        
+        ])
+        ->where('user_id', auth()->id())
+        ->where(function ($query) {
+            // Điều kiện cho sản phẩm đơn (không có biến thể)
+            $query->whereNull('product_variant_id')
+                  ->whereHas('product', function ($q) {
+                      $q->where('is_active', 1);
+                  })
+                  ->whereHas('product.productStock', function ($q) {
+                      $q->whereColumn('stock', '>=', 'cart_items.quantity');
+                  });
+        })
+        ->orWhere(function ($query) {
+            // Điều kiện cho sản phẩm có biến thể
+            $query->whereNotNull('product_variant_id')
+                  ->whereHas('product', function ($q) {
+                      $q->where('is_active', 1);
+                  })
+                  ->whereHas('productVariant', function ($q) {
+                      $q->where('is_active', 1);
+                  })
+                  ->whereHas('productVariant.productStock', function ($q) {
+                      $q->whereColumn('stock', '>=', 'cart_items.quantity');
+                  });
+        })
+        ->get();
     }
+    
+    
+    
     public function addToCart($data)
     {
         $userId = Auth::id();
