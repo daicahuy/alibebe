@@ -24,11 +24,12 @@ class HomeController extends Controller
         $topCategoriesInweek = $this->HomeService->topCategoriesInWeek();
         $bestSellingProducts = $this->HomeService->getBestSellingProduct();
         // dd($bestSellingProducts);
-        if($userId){
-            $aiSuggestedProducts = $this->HomeService->getAIFakeSuggest($userId);
-        }else{
-            $aiSuggestedProducts = $this->HomeService->getTrendingProduct();
+        $aiSuggestedProducts = $userId ? $this->HomeService->getAIFakeSuggest($userId) : $this->HomeService->getTrendingProduct();
+
+        if ($aiSuggestedProducts->isEmpty()) {
+            $aiSuggestedProducts = $this->getPopularProducts(); // Nếu AI không gợi ý được, lấy sản phẩm phổ biến
         }
+
         return view('client.pages.index',
             compact('categories',
             'trendingProducts',

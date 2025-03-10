@@ -439,28 +439,28 @@ END');
             ->get();
     }
 
-    public function getPopularProducts()
-    {
-        return DB::table('order_items')
-            ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id') // Lấy thông tin biến thể
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->join('order_order_status', function ($join) {
-                $join->on('orders.id', '=', 'order_order_status.order_id')
-                    ->where('order_order_status.order_status_id', 6); // Chỉ tính đơn hàng Hoàn thành
-            })
-            ->leftJoin('reviews', function ($join) {
-                $join->on('reviews.product_id', '=', 'products.id')
-                    ->where('reviews.is_active', 1);
-            })
-            ->select(
-                'products.id',
-                'products.thumbnail',
-                DB::raw('COALESCE(product_variants.price, products.price) as price'), // Lấy giá sản phẩm hoặc biến thể
-                DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'), // Lấy giá khuyến mãi
-                'products.name',
-                DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
-                DB::raw('
+  public function getPopularProducts()
+{
+    $popularProducts = DB::table('order_items')
+        ->join('products', 'order_items.product_id', '=', 'products.id')
+        ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id') // Lấy thông tin biến thể
+        ->join('orders', 'order_items.order_id', '=', 'orders.id')
+        ->join('order_order_status', function ($join) {
+            $join->on('orders.id', '=', 'order_order_status.order_id')
+                ->where('order_order_status.order_status_id', 6); // Chỉ tính đơn hàng Hoàn thành
+        })
+        ->leftJoin('reviews', function ($join) {
+            $join->on('reviews.product_id', '=', 'products.id')
+                ->where('reviews.is_active', 1);
+        })
+        ->select(
+            'products.id',
+            'products.thumbnail',
+            DB::raw('COALESCE(product_variants.price, products.price) as price'),
+            DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'),
+            'products.name',
+            DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
+            DB::raw('
                 SUM(
                     CASE 
                         WHEN order_items.product_variant_id IS NOT NULL 
@@ -468,23 +468,44 @@ END');
                         ELSE order_items.quantity 
                     END
                 ) as total_sold
-            '), // Cách tính mới cho số lượng bán
-                DB::raw('products.views as views_count')
-            )
-            ->groupBy(
+            '),
+            DB::raw('products.views as views_count')
+        )
+        ->groupBy(
+            'products.id',
+            'products.name',
+            'products.thumbnail',
+            'product_variants.price',
+            'product_variants.sale_price',
+            'products.price',
+            'products.sale_price',
+            'products.views'
+        )
+        ->orderByDesc('total_sold')
+        ->limit(12)
+        ->get();
+
+    // Nếu không có sản phẩm nào bán thành công, lấy sản phẩm mới nhất hoặc có nhiều lượt xem nhất
+    if ($popularProducts->isEmpty()) {
+        return DB::table('products')
+            ->select(
                 'products.id',
                 'products.name',
                 'products.thumbnail',
-                'product_variants.price',
-                'product_variants.sale_price', // Group giá của biến thể
-                'products.price',
-                'products.sale_price',
-                'products.views'
+                DB::raw('COALESCE(products.price, 0) as price'),
+                DB::raw('COALESCE(products.sale_price, 0) as sale_price'),
+                DB::raw('0 as average_rating'),
+                DB::raw('0 as total_sold'),
+                DB::raw('products.views as views_count')
             )
-            ->orderByDesc('total_sold')
+            ->orderByDesc('products.created_at') // Lấy sản phẩm mới nhất
             ->limit(12)
             ->get();
     }
+
+    return $popularProducts;
+}
+
     public function getUserRecommendations($userId)
     {
         // Lấy danh sách sản phẩm hoặc biến thể mà user đã mua trong các đơn hoàn thành
