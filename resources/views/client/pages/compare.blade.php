@@ -245,28 +245,7 @@
                                             <span class="text-content">(50 Raring)</span>
                                         </div>
                                     </td>
-                                    <td>
-                                        <div class="compare-rating">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span class="text-content">(30 Raring)</span>
-                                        </div>
-                                    </td>
+
                                 </tr>
 
                                 <tr>
@@ -274,7 +253,7 @@
                                     <td class="text-content">5.00kg</td>
                                     <td class="text-content">1.00kg</td>
                                     <td class="text-content">0.75kg</td>
-                                    <td class="text-content">0.50kg</td>
+
                                 </tr>
 
                                 <tr>
@@ -292,10 +271,12 @@
 
                                     @foreach ($productsData as $product)
                                         <td>
-                                            <button type="button" class="remove-compare-button"
+                                            <button type="button"
+                                                class="btn btn-success w-100 d-flex align-items-center justify-content-center remove-compare-button"
                                                 data-product-id="{{ $product['id'] }}">
                                                 <i class="fa-solid fa-trash-can me-2"></i> Remove
                                             </button>
+
                                         </td>
                                     @endforeach
                                 </tr>
@@ -336,113 +317,121 @@
 @endsection
 @push('js')
     <script>
-        // **ĐẢM BẢO RẰNG CÁC FUNCTIONS NÀY ĐƯỢC ĐỊNH NGHĨA TRƯỚC**
-        function getCompareListFromCookie() {
-            let cookieValue = document.cookie.split('; ').find(row => row.startsWith(
-                'compare_list=')); // Thay 'compareList=' thành 'compare_list='
-            let compareList = [];
+        // Xử lý sự kiện xóa sản phẩm
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sự kiện click cho nút xóa
+            document.querySelectorAll('.remove-compare-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const productId = this.dataset.productId;
 
-            if (cookieValue) {
-                cookieValue = cookieValue.substring('compare_list='
-                    .length); // Thay 'compareList='.length thành 'compare_list='.length
-                try {
-                    compareList = JSON.parse(cookieValue) || [];
-                } catch (e) {
-                    console.error("[getCompareListFromCookie] Error parsing JSON:", e);
-                    compareList = [];
-                }
-            }
-            return compareList;
-        }
-
-        function setCompareListCookie(compareList) {
-            const cookieName = 'compare_list'; // Thay 'compareList' thành 'compare_list'
-            const cookieValue = JSON.stringify(compareList);
-            const expirationDays = 30;
-            const expirationDate = new Date();
-            expirationDate.setDate(expirationDate.getDate() + expirationDays);
-            const cookieString = `${cookieName}=${cookieValue}; expires=${expirationDate.toUTCString()}; path=/`;
-
-            document.cookie = cookieString;
-            console.log("[setCompareListCookie] Cookie set:", cookieString);
-        }
-
-        function updateCompareListUI(compareList) { // **ĐỊNH NGHĨA updateCompareListUI**
-            // (Code để cập nhật giao diện người dùng hiển thị danh sách so sánh mới - ví dụ: cập nhật số lượng sản phẩm trong giỏ so sánh, v.v.)
-            console.log("[updateCompareListUI] UI updated with compareList:", compareList);
-            // Ví dụ: Cập nhật số lượng sản phẩm trong badge giỏ so sánh (nếu có)
-            const compareCountElement = document.querySelector(
-                '.compare-count'); // Selector có thể khác tùy theo HTML của bạn
-            if (compareCountElement) {
-                compareCountElement.textContent = compareList.length;
-            }
-        }
+                    // Gọi hàm xóa và xử lý reload
+                    removeFromCompareCookie(productId);
 
 
-        function removeProductFromCompare(productId) {
-            console.log("[removeProductFromCompare] Function called for productId:", productId);
-            let compareList = getCompareListFromCookie();
-            console.log("[removeProductFromCompare] Current compareList:", compareList);
-
-            // **CHUYỂN ĐỔI productId SANG KIỂU NUMBER**
-            const productIdNumber = parseInt(productId, 10); // Chuyển productId sang số nguyên cơ số 10
-            console.log("[removeProductFromCompare] Converted productId to Number:", productIdNumber, "Type:",
-                typeof productIdNumber); // Log giá trị và kiểu sau khi chuyển đổi
-
-
-            const indexToRemove = compareList.indexOf(productIdNumber); // Sử dụng productIdNumber (kiểu số) trong indexOf
-
-            if (indexToRemove > -1) {
-                compareList.splice(indexToRemove, 1);
-                console.log("[removeProductFromCompare] Product ID removed at index:", indexToRemove, "New compareList:",
-                    compareList);
-
-                // Gọi API backend để xóa sản phẩm và cập nhật cookie (NON-ENCRYPTED)
-                fetch('/compare/remove-product/' + productId, { // Thay '/compare/remove/' bằng route path thực tế của bạn
-                        method: 'POST',
-
-                        // body: JSON.stringify({ productId: productId }) // (Không cần body vì productId đã ở URL)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.status === 'success') {
-                            console.log(
-                                "[removeProductFromCompare] Product removed successfully from backend cookie. New compareList from response:",
-                                data.compareList);
-
-                            setCompareListCookie(data.compareList);
-                            updateCompareListUI(data.compareList);
-                            // (Có thể thêm logic thông báo thành công nếu cần)
-                        } else {
-                            console.error("[removeProductFromCompare] Error removing product from backend cookie:", data
-                                .message);
-                            // (Xử lý lỗi nếu cần - ví dụ: hiển thị thông báo lỗi cho người dùng)
-                        }
-                    })
-                    .catch(error => {
-                        console.error("[removeProductFromCompare] Fetch error:", error);
-                        // (Xử lý lỗi fetch nếu cần - ví dụ: hiển thị thông báo lỗi chung)
-                    });
-
-
-            } else {
-                console.warn("[removeProductFromCompare] Product ID not found in compareList:", productId, "Compare List:",
-                    compareList); // Thêm log compareList vào đây để debug thêm
-            }
-        }
-
-        // **ĐẢM BẢO ĐOẠN CODE NÀY ĐẶT SAU KHI removeProductFromCompare ĐÃ ĐƯỢC ĐỊNH NGHĨA**
-        document.querySelectorAll('.remove-compare-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const productId = this.dataset.productId;
-                removeProductFromCompare(
-                    productId); // **removeProductFromCompare ĐÃ ĐƯỢC ĐỊNH NGHĨA Ở TRÊN**
+                });
             });
         });
+
+        // Hàm xóa cookie
+        function removeFromCompareCookie(productId) {
+            let compareList = getCompareListFromCookie();
+            const index = compareList.findIndex(id => id.toString() === productId.toString());
+
+
+            if (index > -1) {
+                compareList.splice(index, 1);
+                console.log('Danh sách trước khi xóa:', compareList);
+                console.log('ID cần xóa:', productId);
+                if (compareList.length === 0) {
+                    deleteCookie(compareCookieName);
+                } else {
+                    setCookie(compareCookieName, JSON.stringify(compareList), 30);
+                }
+                updateCompareCountBadgeCookie();
+                // Thông báo thành công
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã xóa!',
+                    text: 'Sản phẩm đã được xóa khỏi so sánh',
+                    timer: 1500
+                }).then(() => {
+                    // Reload trang sau khi SweetAlert đóng
+                    window.location.reload(true);
+                });
+            }
+        }
+
+
+        // comapre cookie
+        const compareCookieName = 'compare_list'; // Tên cookie để lưu danh sách so sánh
+
+        // Hàm lấy cookie theo tên
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Hàm set cookie
+        function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        // Hàm xóa cookie
+        function deleteCookie(name) {
+            document.cookie = name + '=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+        }
+
+        // Hàm lấy danh sách sản phẩm so sánh từ cookie
+        function getCompareListFromCookie() {
+            let compareListCookie = getCookie(compareCookieName);
+            return compareListCookie ? JSON.parse(compareListCookie) : [];
+        }
+
+        // Hàm thêm sản phẩm vào so sánh (lưu vào cookie)
+        function addProductToCompareCookie(productId) {
+            let compareListCookie = getCookie(compareCookieName);
+            let compareList = compareListCookie ? JSON.parse(compareListCookie) : [];
+
+            if (!compareList.includes(productId)) { // Kiểm tra sản phẩm đã có trong list chưa
+                compareList.push(productId); // Thêm sản phẩm vào list
+                setCookie(compareCookieName, JSON.stringify(compareList),
+                    30); // Lưu lại vào cookie (JSON string, hết hạn sau 30 ngày)
+                updateCompareCountBadgeCookie(); // Cập nhật badge số lượng
+            }
+        }
+        // Hàm cập nhật badge số lượng sản phẩm so sánh (dùng jQuery)
+        function updateCompareCountBadgeCookie() {
+            const compareCount = getCompareListFromCookie().length; // Đếm số lượng từ cookie
+            $('.header-compare .badge-compare').text(compareCount); // Cập nhật text badge
+            if (compareCount > 0) {
+                $('.header-compare .badge-compare').show(); // Hiển thị badge nếu có sản phẩm
+            } else {
+                $('.header-compare .badge-compare').hide(); // Ẩn badge nếu không có sản phẩm
+            }
+        }
+
+
+        function updateCompareCount() {
+            updateCompareCountBadgeCookie(); // GỌI HÀM CẬP NHẬT BADGE DỰA TRÊN COOKIE TRỰC TIẾP
+        }
+        updateCompareCount();
     </script>
 @endpush
