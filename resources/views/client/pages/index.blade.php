@@ -236,7 +236,7 @@
                                     @foreach ($trendingProducts->take(10) as $trendingProduct)
                                         <li>
                                             <div class="offer-product">
-                                                <a href="{{ route('categories', ['category' => $trendingProduct->id]) }}"
+                                                <a href="{{ route('products', ['product' => $trendingProduct->id]) }}"
                                                     class="offer-image">
                                                     <img src="{{ Storage::url($trendingProduct->thumbnail) }}"
                                                         class="blur-up lazyload" alt="">
@@ -244,7 +244,7 @@
 
                                                 <div class="offer-detail">
                                                     <div>
-                                                        <a href="{{ route('categories', ['category' => $trendingProduct->id]) }}"
+                                                        <a href="{{ route('products', ['product' => $trendingProduct->id]) }}"
                                                             class="text-title">
                                                             <h6 class="name">{{ $trendingProduct->name }}</h6>
                                                         </a>
