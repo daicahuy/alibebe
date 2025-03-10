@@ -236,7 +236,7 @@
                                     @foreach ($trendingProducts->take(10) as $trendingProduct)
                                         <li>
                                             <div class="offer-product">
-                                                <a href="{{ route('categories', ['category' => $trendingProduct->id]) }}"
+                                                <a href="{{ route('products', ['product' => $trendingProduct->id]) }}"
                                                     class="offer-image">
                                                     <img src="{{ Storage::url($trendingProduct->thumbnail) }}"
                                                         class="blur-up lazyload" alt="">
@@ -244,7 +244,7 @@
 
                                                 <div class="offer-detail">
                                                     <div>
-                                                        <a href="{{ route('categories', ['category' => $trendingProduct->id]) }}"
+                                                        <a href="{{ route('products', ['product' => $trendingProduct->id]) }}"
                                                             class="text-title">
                                                             <h6 class="name">{{ $trendingProduct->name }}</h6>
                                                         </a>
@@ -464,13 +464,15 @@
                                                     </a>
 
                                                     <h5 class="sold text-content">
-                                                        <span
-                                                            class="theme-color price">{{ number_format($aiSuggest->sale_price ?? $aiSuggest->price) }}
-                                                            ₫</span>
-                                                        @if ($aiSuggest->sale_price)
+                                                        <span class="theme-color price">
+                                                            {{ number_format($aiSuggest->sale_price > 0 ? $aiSuggest->sale_price : $aiSuggest->price) }} ₫
+                                                        </span>
+                                                    
+                                                        @if (!is_null($aiSuggest->sale_price) && $aiSuggest->sale_price > 0 && $aiSuggest->sale_price != $aiSuggest->price)
                                                             <del>{{ number_format($aiSuggest->price) }} ₫</del>
                                                         @endif
                                                     </h5>
+                                                    
 
                                                     <div class="product-rating mt-sm-2 mt-1">
                                                         <ul class="rating">
@@ -481,13 +483,17 @@
                                                                 </li>
                                                             @endfor
                                                         </ul>
-                                                        <span
-                                                            class="text-muted ms-2">({{ number_format($aiSuggest->average_rating, 1) }})</span>
+                                                        <span class="text-muted ms-2">({{ number_format($aiSuggest->average_rating, 1) }})</span>
                                                     </div>
+                                                    
                                                     <div class="d-flex justify-content-between mt-sm-2 mt-1">
                                                         <h6 class="unit">Lượt xem: {{ $aiSuggest->views_count }}</h6>
-                                                        <h6 class="unit">Đã Bán: {{ $aiSuggest->total_sold }}</h6>
+                                                    
+                                                        @if (isset($aiSuggest->total_sold)) 
+                                                            <h6 class="unit">Đã Bán: {{ $aiSuggest->total_sold }}</h6>
+                                                        @endif
                                                     </div>
+                                                    
                                                     <div class="add-to-cart-box">
                                                         <a href="javascript:void(0)" data-bs-toggle="modal"
                                                             data-bs-target="#view" data-id={{ $aiSuggest->id }}
@@ -505,26 +511,26 @@
                     </div>
 
 
-                    <div class="section-t-space">
+                    {{-- <div class="section-t-space">
                         <div class="banner-contain">
                             <img src="{{ asset('theme/client/assets/images/product/bia1.png') }}"
                                 class="bg-img blur-up lazyload" alt="">
-                            {{-- <div class="banner-details p-center p-4 text-white text-center">
+                            <div class="banner-details p-center p-4 text-white text-center">
                                 <div>
                                     <h3 class="lh-base fw-bold offer-text">Get $3 Cashback! Min Order of $30</h3>
                                     <h6 class="coupon-code">Use Code : GROCERY1920</h6>
                                 </div>
-                            </div> --}}
+                            </div>
                         </div>
-                    </div>
+                    </div> --}}
 
-                    <div class="section-t-space section-b-space">
+                    {{-- <div class="section-t-space section-b-space">
                         <div class="row g-md-4 g-3">
                             <div class="col-xxl-8 col-xl-12 col-md-7">
                                 <div class="banner-contain hover-effect">
                                     <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
                                         class="bg-img blur-up lazyload" alt="">
-                                    {{-- <div class="banner-details p-center-left p-4">
+                                    <div class="banner-details p-center-left p-4">
                                         <div>
                                             <h2 class="text-kaushan fw-normal theme-color">Get Ready To</h2>
                                             <h3 class="mt-2 mb-3">TAKE ON THE DAY!</h3>
@@ -535,7 +541,7 @@
                                                 class="btn btn-animation btn-sm mend-auto">Mua Ngay <i
                                                     class="fa-solid fa-arrow-right icon"></i></button>
                                         </div>
-                                    </div> --}}
+                                    </div>
                                 </div>
                             </div>
 
@@ -543,17 +549,17 @@
                                 <a href="shop-left-sidebar.html" class="banner-contain hover-effect h-100">
                                     <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
                                         class="bg-img blur-up lazyload" alt="">
-                                    {{-- <div class="banner-details p-center-left p-4 h-100">
+                                    <div class="banner-details p-center-left p-4 h-100">
                                         <div>
                                             <h2 class="text-kaushan fw-normal text-danger">20% Off</h2>
                                             <h3 class="mt-2 mb-2 theme-color">SUMMRY</h3>
                                             <h3 class="fw-normal product-name text-title">Product</h3>
                                         </div>
-                                    </div> --}}
+                                    </div>
                                 </a>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div class="title d-block">
                         <div>
