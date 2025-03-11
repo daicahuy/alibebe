@@ -489,6 +489,7 @@
 @push('js_library')
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.2/jquery.twbsPagination.min.js"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 @endpush
 
 @push('js')
@@ -583,33 +584,33 @@
             const orderStatuses = [{
                     id: 1,
                     name: "Chờ xử lý",
-                    next: [2, 7]
+                    next: [1, 2, 7]
                 },
                 {
                     id: 2,
                     name: "Đang xử lý",
-                    next: [3, 7]
+                    next: [2, 3, 7]
                 },
                 {
                     id: 3,
                     name: "Đang giao hàng",
-                    next: [4, 5, 7],
+                    next: [3, 4, 5, 7],
                     unnextList: [5, 7]
                 },
                 {
                     id: 4,
                     name: "Đã giao hàng",
-                    next: [6, 7]
+                    next: [4, 6, 7]
                 },
                 {
                     id: 5,
                     name: "Giao hàng thất bại",
-                    next: [7]
+                    next: [5, 7]
                 },
                 {
                     id: 6,
                     name: "Hoàn thành",
-                    next: [7]
+                    next: [6, 7]
                 },
                 {
                     id: 7,
@@ -685,7 +686,16 @@
                     orders.forEach(order => {
                         const currentStatusId = order.order_statuses[0].pivot.order_status_id;
                         const selectId = `select_status_${order.id}`;
+                        Pusher.logToConsole = true;
 
+                        var pusher = new Pusher('14773cf491b61b0bc6e2', {
+                            cluster: 'ap1'
+                        });
+
+                        var channel = pusher.subscribe('order-status.' + order.id);
+                        channel.bind('event-change-status', function(data) {
+                            fetchOrders(true)
+                        });
                         let selectHtml =
                             `<select class="font-serif form-select form-select-sm orderStatus" id="${selectId}">`;
                         orderStatuses.forEach(status => {
@@ -744,16 +754,16 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                        <div class="status-pending">
-                                        <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                        </div>
-                                        </div>
+                                                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                        <div class="status-pending">
+                                                                        <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                        </div>
+                                                                        </div>
 
 
-                                        ` : `
+                                                                        ` : `
 
-                                        `}
+                                                                        `}
                                         <li>
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
@@ -1041,24 +1051,28 @@
             });
 
             $('#orderTable').on('change', '.orderStatus', function() {
+                const currentValue = $('#orderTable .orderStatus').val();
+
+                if (!confirm('Bạn có chắc chắn muốn thay đổi trạng thái không?')) {
+                    $('#orderTable .orderStatus').val(currentValue);
+
+                }
 
                 const selectedValue = parseInt($(this).val());
-                //  Lấy idOrder.  Giả sử idOrder nằm trong thuộc tính data-id của hàng tương ứng.
                 const idOrder = $(this).closest('tr').data('id');
 
-                if (selectedValue === 4) { // Nếu chọn "Đã giao hàng" (id 4)
+                if (selectedValue === 4) {
 
                     $("#modalUpload .hiddenIDOrderUpload").val(idOrder);
 
                     $('#modalUpload').modal(
-                        'show'); // Hiển thị modal và lưu orderId
+                        'show');
                     $(this).val($(this).data(
-                        'previous-value')); //Set lại giá trị cũ, tránh cập nhật trạng thái sớm
-                    return; // Dừng thực thi tiếp
+                        'previous-value'));
+                    return;
                 }
 
 
-                //  Xử lý selectedValue và idOrder ở đây. Ví dụ: gửi lên server bằng AJAX
                 $.ajax({
                     url: '{{ route('api.orders.changeStatusOrder') }}',
                     type: 'POST',

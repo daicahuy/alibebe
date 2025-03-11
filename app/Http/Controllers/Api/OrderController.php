@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\OrderStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\ProductStock;
@@ -25,6 +26,12 @@ class OrderController extends Controller
     public function __construct(OrderService $orderService)
     {
         $this->orderService = $orderService;
+    }
+
+    public function testChange($id)
+    {
+        event(new OrderStatusUpdated($id, 1));
+
     }
 
     public function index(Request $request)
@@ -161,9 +168,8 @@ class OrderController extends Controller
 
             DB::beginTransaction();
 
-
             $orderArray = $order->toArray();
-            if ($orderArray['order_statuses'][0]['id'] == 1) {
+            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 7) {
 
                 foreach ($orderArray['order_items'] as $key => $value) {
                     if ($value['product_variant_id']) {
@@ -191,7 +197,9 @@ class OrderController extends Controller
                 $this->orderService->changeNoteStatusOrder($idOrder, $note);
 
             } else {
+
                 $this->orderService->changeStatusOrder($idOrder, $idStatus);
+                event(new OrderStatusUpdated($idOrder, $idStatus));
             }
 
 
@@ -220,7 +228,7 @@ class OrderController extends Controller
             $customerCheck = $request->input("customer_check");
 
             $this->orderService->updateOrderStatusWithUserCheck($idOrder, $idStatus, $customerCheck);
-
+            event(new OrderStatusUpdated($idOrder, $idStatus));
 
 
             return response()->json([
@@ -257,6 +265,7 @@ class OrderController extends Controller
             }
 
             $this->orderService->updateConfirmCustomer($data["note"], $data["employee_evidence"], $idOrder);
+            event(new OrderStatusUpdated($idOrder, 4));
 
 
 

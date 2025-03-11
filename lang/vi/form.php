@@ -226,7 +226,7 @@ return [
         'processing' => 'Đang xử lý',
         'shipping' => 'Đang giao hàng',
         'delivered' => 'Đã giao hàng',
-        'failed delivery' => 'Giao hàng thất bại',
+        'failed_delivery' => 'Giao hàng thất bại',
         'completed' => 'Hoàn thành',
         'cancel' => 'Đã hủy',
     ],
