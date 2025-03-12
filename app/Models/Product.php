@@ -160,6 +160,7 @@ class Product extends Model
                     END as total_sold
                 ')
             )
+            ->where('products.is_active','=','1')
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
             ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')

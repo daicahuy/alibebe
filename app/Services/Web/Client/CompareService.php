@@ -6,8 +6,9 @@ use App\Repositories\ProductRepository;
 use Cookie;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Log;
-use Storage;
+
 class CompareService
 {
     protected ProductRepository $productRepo;
@@ -25,7 +26,7 @@ class CompareService
             ['attributeValues.attribute', 'productVariants.attributeValues.attribute'],
         );
         $productsData = [];
-
+        // dd( $productIds);
         foreach ($products as $product) {
             $productData = [
                 'id' => $product->id,

@@ -381,6 +381,7 @@ END');
             ->whereHas('orderItems.order.orderStatuses', function ($query) {
                 $query->where('order_status_id', 6); // Chỉ lấy các đơn hàng đã hoàn thành
             })
+            ->where('products.is_active', 1)
             ->leftJoin('order_items', function ($join) {
                 $join->on('products.id', '=', 'order_items.product_id');
             })
@@ -411,6 +412,7 @@ END');
     public function getPopularProducts()
     {
         $popularProducts = Product::with(['categories:name'])
+        ->where('products.is_active', 1)
     ->join('order_items', 'order_items.product_id', '=', 'products.id')
     ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id')
     ->join('orders', 'order_items.order_id', '=', 'orders.id')
@@ -457,6 +459,7 @@ END');
         // Nếu không có sản phẩm nào bán thành công, lấy sản phẩm mới nhất hoặc có nhiều lượt xem nhất
         if ($popularProducts->isEmpty()) {
             return DB::table('products')
+            ->where('products.is_active', 1)
                 ->select(
                     'products.id',
                     'products.name',
@@ -476,72 +479,79 @@ END');
     }
 
     public function getUserRecommendations($userId)
-    {
-        // Lấy danh sách sản phẩm hoặc biến thể mà user đã mua trong các đơn hoàn thành
-        $purchasedProducts = Order::where('user_id', $userId)
-            ->whereHas('orderStatuses', function ($query) {
-                $query->where('order_status_id', 6); // Chỉ lấy đơn hoàn thành
-            })
-            ->with('orderItems')
-            ->get()
-            ->pluck('orderItems.*.product_id')
-            ->flatten()
-            ->unique()
-            ->toArray();
-
-        // Nếu chưa mua sản phẩm nào => gợi ý sản phẩm phổ biến
-        if (empty($purchasedProducts)) {
-            return $this->getPopularProducts();
-        }
-
-        // Truy vấn sản phẩm gợi ý dựa trên lịch sử mua hàng
-        $suggestedProducts = OrderItem::whereHas('order', function ($query) {
-            $query->whereHas('orderStatuses', function ($q) {
-                $q->where('order_status_id', 6); // Chỉ lấy từ đơn hàng Hoàn thành
-            });
+{
+    // Lấy danh sách sản phẩm hoặc biến thể mà user đã mua trong các đơn hoàn thành
+    $purchasedProducts = Order::where('user_id', $userId)
+        ->whereHas('orderStatuses', function ($query) {
+            $query->where('order_status_id', 6); // Chỉ lấy đơn hoàn thành
         })
-            ->whereIn('order_id', function ($query) use ($purchasedProducts) {
-                $query->select('order_id')
-                    ->from('order_items')
-                    ->whereIn('product_id', $purchasedProducts);
-            })
-            ->whereNotIn('product_id', $purchasedProducts)
-            ->with([
-                'product' => function ($query) {
-                    $query->with([
-                        'productVariants',
-                        'reviews' => function ($q) {
-                            $q->where('is_active', 1);
-                        },
-                        'categories' // Thêm danh mục
-                    ]);
-                }
-            ])
-            ->select(
-                'product_id',
-                DB::raw('COUNT(product_id) as frequency')
-            )
-            ->groupBy('product_id')
-            ->orderByDesc('frequency')
-            ->limit(12)
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'id' => $item->product->id,
-                    'name' => $item->product->name,
-                    'thumbnail' => $item->product->thumbnail,
-                    'price' => $item->product->productVariants->isNotEmpty() ? $item->product->productVariants->first()->price : $item->product->price,
-                    'sale_price' => $item->product->productVariants->isNotEmpty() ? $item->product->productVariants->first()->sale_price : $item->product->sale_price,
-                    'average_rating' => $item->product->reviews->avg('rating') ?? 0,
-                    'views_count' => $item->product->views,
-                    'total_sold' => $item->product->orderItems->sum('quantity'),
-                    'categories' => $item->categories->pluck('name')->toArray(),
-                ];
-            });
+        ->whereHas('orderItems.product', function ($query) {
+            $query->where('is_active', 1); // Chỉ lấy sản phẩm đang hoạt động
+        })
+        ->with('orderItems')
+        ->get()
+        ->pluck('orderItems.*.product_id')
+        ->flatten()
+        ->unique()
+        ->toArray();
 
-        // Nếu không tìm thấy sản phẩm => gợi ý sản phẩm phổ biến
-        return $suggestedProducts->isNotEmpty() ? $suggestedProducts : $this->getPopularProducts();
+    // Nếu chưa mua sản phẩm nào => gợi ý sản phẩm phổ biến
+    if (empty($purchasedProducts)) {
+        return $this->getPopularProducts();
     }
+
+    // Truy vấn sản phẩm gợi ý dựa trên lịch sử mua hàng
+    $suggestedProducts = OrderItem::whereHas('order', function ($query) {
+        $query->whereHas('orderStatuses', function ($q) {
+            $q->where('order_status_id', 6); // Chỉ lấy từ đơn hàng Hoàn thành
+        });
+    })
+        ->whereIn('order_id', function ($query) use ($purchasedProducts) {
+            $query->select('order_id')
+                ->from('order_items')
+                ->whereIn('product_id', $purchasedProducts);
+        })
+        ->whereNotIn('product_id', $purchasedProducts)
+        ->whereHas('product', function ($query) {
+            $query->where('is_active', 1); // Chỉ lấy sản phẩm đang hoạt động
+        })
+        ->with([
+            'product' => function ($query) {
+                $query->with([
+                    'productVariants',
+                    'reviews' => function ($q) {
+                        $q->where('is_active', 1);
+                    },
+                    'categories' // Thêm danh mục
+                ]);
+            }
+        ])
+        ->select(
+            'product_id',
+            DB::raw('COUNT(product_id) as frequency')
+        )
+        ->groupBy('product_id')
+        ->orderByDesc('frequency')
+        ->limit(12)
+        ->get()
+        ->map(function ($item) {
+            return [
+                'id' => $item->product->id,
+                'name' => $item->product->name,
+                'thumbnail' => $item->product->thumbnail,
+                'price' => $item->product->productVariants->isNotEmpty() ? $item->product->productVariants->first()->price : $item->product->price,
+                'sale_price' => $item->product->productVariants->isNotEmpty() ? $item->product->productVariants->first()->sale_price : $item->product->sale_price,
+                'average_rating' => $item->product->reviews->avg('rating') ?? 0,
+                'views_count' => $item->product->views,
+                'total_sold' => $item->product->orderItems->sum('quantity'),
+                'categories' => $item->product->categories->pluck('name')->toArray(),
+            ];
+        });
+
+    // Nếu không tìm thấy sản phẩm => gợi ý sản phẩm phổ biến
+    return $suggestedProducts->isNotEmpty() ? $suggestedProducts : $this->getPopularProducts();
+}
+
 
 
 
