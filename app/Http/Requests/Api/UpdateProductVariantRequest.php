@@ -36,8 +36,8 @@ class UpdateProductVariantRequest extends FormRequest
             'product.thumbnail'                         =>    ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'product.type'                              =>    ['nullable', Rule::in([ProductType::SINGLE, ProductType::VARIANT])],
             'product.sku'                               =>    ['required', Rule::unique('products', 'sku')->ignore($this->route('id')), Rule::unique('product_variants', 'sku')],
-            'product.sale_price_start_at'               =>    ['nullable', 'sometimes', 'required_with:product.sale_price', 'date'],
-            'product.sale_price_end_at'                 =>    ['nullable', 'sometimes', 'required_with:product.sale_price', 'date', 'after:product.sale_price_start_at'],
+            'product.sale_price_start_at'               =>    ['nullable', 'sometimes', 'required_with:product.is_sale', 'date'],
+            'product.sale_price_end_at'                 =>    ['nullable', 'sometimes', 'required_with:product.is_sale', 'date', 'after:product.sale_price_start_at'],
             'product.is_sale'                           =>    ['nullable', Rule::in([0, 1]) ],
             'product.is_featured'                       =>    ['nullable', Rule::in([0, 1]) ],
             'product.is_trending'                       =>    ['nullable', Rule::in([0, 1]) ],
@@ -125,6 +125,11 @@ class UpdateProductVariantRequest extends FormRequest
 
         foreach ($data['product_variants'] as $index => $variant) {
             $data['product_variants'][$index]['info']['is_active'] ??= 0;
+        }
+
+        if (isset($data['product']['is_sale']) && $data['product']['is_sale'] == null) {
+            $data['product']['sale_price_start_at'] = null;
+            $data['product']['sale_price_end_at'] = null;
         }
 
         return $data;

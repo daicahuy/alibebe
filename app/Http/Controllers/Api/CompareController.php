@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Repositories\ProductRepository;
 use App\Services\Web\Client\CompareService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Log;
 
 class CompareController extends Controller
@@ -18,6 +18,8 @@ class CompareController extends Controller
         $this->compareService = $compareService;
     }
 
+
+    // add compare 
     public function addToCompareWithCheck(Request $request, $productId)
     {
         $compareList = $request->compareList ?? [];
@@ -78,101 +80,11 @@ class CompareController extends Controller
     }
 
 
-    // add queue
-//     public function addToCompare(Request $request, $productId)
-// {
-//     $this->compareService->addProductToCompareList($productId);
-//     return response()->json([
-//         'status' => 'success',
-//         'compareList' => $this->compareService->getCompareList()
-//     ]);
-// }
 
-// public function removeFromCompare(Request $request, $productId)
-// {
-//     $this->compareService->removeProductFromCompareList($productId);
-//     return response()->json([
-//         'status' => 'success',
-//         'compareList' => $this->compareService->getCompareList()
-//     ]);
-// }
 
-    
 
-    // public function getComparedProducts(Request $request)
-    // {
-    //     $compareListCookie = $_COOKIE['compare_list'] ?? null;
-    //     $compareList = $compareListCookie ? json_decode($compareListCookie) : [];
 
-    //     if (empty($compareList)) {
-    //         return view('client.pages.compare.compare', ['productsData' => [], 'isEmpty' => true]);
-    //     }
 
-    //     $productsData = $this->compareService->getComparedProductsData($compareList);
-    //     dd($productsData);
-    //     // **Controller có thể không cần format dữ liệu thêm nữa, Service đã trả về cấu trúc phù hợp**
-
-    //     return view('client.pages.compare', [
-    //         'productsData' => $productsData,
-    //         'isEmpty' => false,
-    //     ]);
-
-    // }
-    // public function addToCompare(Request $request, $productId)
-    // {
-    //     \Log::info('[CompareController::addToCompare] START', ['productId' => $productId, 'request' => $request->all()]); // Log đầu method
-
-    //     try {
-    //         $count = $this->compareService->addProductToCompare($productId);
-    //         \Log::info('[CompareController::addToCompare] SUCCESS', ['count' => $count]); // Log thành công
-    //         return response()->json(['count' => $count], 200);
-    //     } catch (\Throwable $th) {
-    //         \Log::error('[CompareController::addToCompare] ERROR', ['message' => $th->getMessage(), 'productId' => $productId, 'trace' => $th->getTraceAsString()]); // Log lỗi chi tiết
-    //         return response()->json(['message' => $th->getMessage()], 400);
-    //     }
-    // }
-
-    // public function removeFromCompare(Request $request, $productId)
-    // {
-    //     \Log::info('[CompareController::removeFromCompare] START', ['productId' => $productId, 'request' => $request->all()]); // Log đầu method
-
-    //     $count = $this->compareService->removeProductFromCompare($productId);
-    //     \Log::info('[CompareController::removeFromCompare] END', ['count' => $count]); // Log kết thúc
-    //     return response()->json(['count' => $count], 200);
-    // }
-
-    // public function getCompareCount()
-    // {
-    //     \Log::info('[CompareController::getCompareCount] START'); // Log đầu method
-
-    //     $count = $this->compareService->getCompareCount();
-    //     \Log::info('[CompareController::getCompareCount] END', ['count' => $count]); // Log kết thúc
-    //     return response()->json(['count' => $count], 200);
-    // }
-
-    // public function getComparedProducts()
-    // {
-    //     try {
-    //         \Log::info('[CompareController::getComparedProducts] START');
-    //         $products = $this->compareService->getComparedProducts();
-    //         \Log::info('[CompareController::getComparedProducts] END', ['product_count' => count($products)]);
-    //         return response()->json(['products' => $products], 200);
-    //     } catch (\Exception $e) {
-    //         \Log::error('[CompareController::getComparedProducts] ERROR', [
-    //             'message' => $e->getMessage(),
-    //             'trace' => $e->getTraceAsString()
-    //         ]);
-    //         return response()->json(['error' => 'Internal Server Error'], 500);
-    //     }
-    // }
-
-    // public function clearCompareSession()
-    // {
-    //     \Log::info('[CompareController::clearCompareSession] START'); // Log đầu method
-
-    //     $this->compareService->clearCompareSession();
-    //     \Log::info('[CompareController::clearCompareSession] END'); // Log kết thúc
-    //     return response()->json(['message' => 'Đã xóa'], 200);
-    // }
+   
 
 }

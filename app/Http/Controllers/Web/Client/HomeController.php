@@ -3,15 +3,18 @@
 namespace App\Http\Controllers\Web\Client;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\WishlistRepository;
 use App\Services\Web\Client\HomeService;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
     protected HomeService $HomeService;
-    public function __construct(HomeService $HomeService)
+    protected WishlistRepository $wishlistRepository;
+    public function __construct(HomeService $HomeService, WishlistRepository $wishlistRepository)
     {
         $this->HomeService = $HomeService;
+        $this->wishlistRepository = $wishlistRepository;
     }
     public function index()
     {
@@ -24,18 +27,23 @@ class HomeController extends Controller
         $topCategoriesInweek = $this->HomeService->topCategoriesInWeek();
         $bestSellingProducts = $this->HomeService->getBestSellingProduct();
         // dd($bestSellingProducts);
-        if($userId){
-            $aiSuggestedProducts = $this->HomeService->getAIFakeSuggest($userId);
-        }else{
-            $aiSuggestedProducts = $this->HomeService->getTrendingProduct();
+        $wishlistProductIds = $this->wishlistRepository->getWishlistForUserLogin()
+        ->pluck('product_id')
+        ->toArray();
+        $aiSuggestedProducts = $userId ? $this->HomeService->getAIFakeSuggest($userId) : $this->HomeService->getTrendingProduct();
+
+        if ($aiSuggestedProducts->isEmpty()) {
+            $aiSuggestedProducts = $this->getPopularProducts(); // Nếu AI không gợi ý được, lấy sản phẩm phổ biến
         }
+
         return view('client.pages.index',
             compact('categories',
             'trendingProducts',
             'bestSellProductsToday',
             'topCategoriesInweek',
             'bestSellingProducts',
-            'aiSuggestedProducts'
+            'aiSuggestedProducts',
+            'wishlistProductIds'
         ));
     }
     public function header()  {

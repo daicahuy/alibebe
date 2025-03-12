@@ -292,7 +292,7 @@
                                                                                 name="product[sale_price_start_at]"
                                                                                 id="start_date_input"
                                                                                 class="form-control form-date">
-                                                                            <button type="button" id="startDatePickerBtn"
+                                                                            <button type="button"
                                                                                 class="btn btn-outline-secondary">
                                                                                 <i class="ri-calendar-line"></i>
                                                                             </button>
@@ -311,7 +311,7 @@
                                                                                 name="product[sale_price_end_at]"
                                                                                 id="end_date_input"
                                                                                 class="form-control form-date">
-                                                                            <button type="button" id="startDatePickerBtn"
+                                                                            <button type="button"
                                                                                 class="btn btn-outline-secondary">
                                                                                 <i class="ri-calendar-line"></i>
                                                                             </button>
@@ -608,8 +608,7 @@
 @push('js')
     <script>
         $(document).ready(function() {
-
-            $('#start-date-div, #end-date-div').hide();
+            
             $(".form-date").flatpickr({
                 dateFormat: "Y-m-d"
             });

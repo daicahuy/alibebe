@@ -25,7 +25,7 @@ class StoreStockProductVariantRequest extends FormRequest
         return [
             'user_id' => ['required', Rule::exists('users', 'id')],
             'variants' => ['required', 'array', 'min:1'],
-            'variants.*.id' => ['required', Rule::exists('products', 'id')],
+            'variants.*.id' => ['required', Rule::exists('product_variants', 'id')],
             'variants.*.quantity' => ['nullable', 'numeric', 'integer', 'gt:0'],
         ];
     }
