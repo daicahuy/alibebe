@@ -83,51 +83,80 @@ class HomeService
         return $this->productRepository->getUserRecommendations($userId);
     }
     public function detailModal($id)
-    {
-        try {
-            $product = $this->productRepository->detailModal($id);
+{
+    try {
+        $product = $this->productRepository->detailModal($id);
 
-            if (!$product) {
-                throw new ModelNotFoundException('Không tìm thấy sản phẩm.');
-            }
-            // dd($product);
-            $productVariants = $product->productVariants->map(function ($variant) { //sản phẩm biến thể
-                return [
-                    // 'sku' => $variant->sku,
-                    'id' => $variant->id, // id biến thể
-                    'price' => $variant->price,
-                    'sale_price' => $variant->sale_price,
-                    'thumbnail' => Storage::url($variant->thumbnail),
-                    'attribute_values' => $variant->attributeValues->map(function ($attributeValue) { //bảng attribute_values (giá trị thuộc tính, xanh 4GB..)
-                        return [
-                            'id' => $attributeValue->id, //id giá trị thuộc tính
-                            // 'attribute_id' => $attributeValue->attribute_id,//id liên kết thuộc tính
-                            'attribute_value' => $attributeValue->value,            //Giá trị thuộc tính 
-                            'attributes_name' => $attributeValue->attribute->name, //tên thuộc tính (table attributes)
-                        ];
-                    }),
+        if (!$product) {
+            throw new ModelNotFoundException('Không tìm thấy sản phẩm.');
+        }
 
+        $avgRating = $product->reviews->avg('rating');
 
-                ];
-            });
-            // dd($productVariants);
+        // 🟢 Lấy tồn kho của sản phẩm thường
+        $stockQuantity = optional($product->productStock)->stock ?? 0;
+
+        // 🟢 Lấy số lượng đã bán của sản phẩm thường (không phải biến thể)
+        $productSoldCount = DB::table('order_items')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+            ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
+            ->where('order_items.product_id', $product->id) // 🟢 Lọc theo product_id
+            ->whereNull('order_items.product_variant_id') // 🟢 Chỉ lấy sản phẩm thường (không có biến thể)
+            ->where('order_statuses.name', 'Hoàn thành')
+            ->sum('order_items.quantity');
+
+        // 🟢 Xử lý sold_count cho từng biến thể trong Service
+        $productVariants = $product->productVariants->map(function ($variant) {
+            // Tính số lượng đã bán của biến thể
+            $soldCount = DB::table('order_items')
+                ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+                ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
+                ->where('order_items.product_variant_id', $variant->id)  // Lọc theo product_variant_id
+                ->where('order_statuses.name', 'Hoàn thành') // Kiểm tra trạng thái 'Hoàn thành'
+                ->sum('order_items.quantity');
 
             return [
-                'id' => $product->id, //id sản phẩm
-                'name' => $product->name,
-                'price' => $product->price,
-                'thumbnail' => Storage::url($product->thumbnail),
-                'short_description' => $product->short_description,
-                'categories' => $product->categories->pluck('name')->implode(', '),
-                'brand' => $product->brand ? $product->brand->name : null,
-                'sold_count' => $product->sold_count, // số lượng đã bán
-                'stock_quantity' => $product->stock_quantity, // số lượng tồn kho
-                'productVariants' => $productVariants,
+                'id' => $variant->id,
+                'price' => $variant->price,
+                'sale_price' => $variant->sale_price,
+                'display_price' => $variant->display_price,
+                'thumbnail' => Storage::url($variant->thumbnail),
+                'attribute_values' => $variant->attributeValues->map(function ($attributeValue) {
+                    return [
+                        'id' => $attributeValue->id,
+                        'attribute_value' => $attributeValue->value,
+                        'attributes_name' => $attributeValue->attribute->name,
+                    ];
+                }),
+                'product_stock' => $variant->productStock ? [
+                    'stock' => $variant->productStock->stock,
+                ] : ['stock' => 0],
+                'sold_count' => $soldCount,  // 🟢 Đã sửa để lấy số lượng đã bán của biến thể
             ];
-        } catch (\Throwable $th) {
-            return response()->json(['error' => $th->getMessage()], 500);
-        }
+        });
+
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => $product->price,
+            'display_price' => $product->display_price,
+            'original_price' => $product->original_price,
+            'thumbnail' => Storage::url($product->thumbnail),
+            'short_description' => $product->short_description,
+            'categories' => $product->categories->pluck('name')->implode(', '),
+            'brand' => $product->brand ? $product->brand->name : null,
+            'avgRating' => $avgRating,
+            'productVariants' => $productVariants,
+            'sold_count' => $productSoldCount, // 🟢 Số lượng đã bán của sản phẩm thường (không tính biến thể)
+            'is_sale' => $product->is_sale,
+            'stock_quantity' => $stockQuantity, // 🟢 Trả về tồn kho sản phẩm thường
+        ];
+    } catch (\Throwable $th) {
+        return response()->json(['error' => $th->getMessage()], 500);
     }
+}
 
     public function getAllCategories()
     {
