@@ -22,6 +22,7 @@ return new class extends Migration {
             $table->decimal('price', 11, 2)->nullable();
             $table->decimal('old_price', 11, 2)->nullable();
             $table->decimal('old_price_variant', 11, 2)->nullable();
+
             $table->unsignedSmallInteger('quantity')->nullable();
             $table->string('name_variant')->nullable();
             $table->jsonb('attributes_variant')->nullable();

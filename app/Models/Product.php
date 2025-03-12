@@ -134,8 +134,8 @@ class Product extends Model
     public function scopeTrending($query)
     {
         return $query->leftJoin('order_items', function ($join) {
-            $join->on('products.id', '=', 'order_items.product_id');
-        })
+                $join->on('products.id', '=', 'order_items.product_id');
+            })
             ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id') // Lấy thông tin biến thể
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->join('order_order_status', function ($join) {
@@ -151,18 +151,21 @@ class Product extends Model
                 'products.name',
                 'products.thumbnail',
                 DB::raw('COALESCE(product_variants.price, products.price) as price'), // Lấy giá sản phẩm hoặc biến thể
-                DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'), // Lấy giá khuyến mãi
+                DB::raw('COALESCE(NULLIF(product_variants.sale_price, 0), NULLIF(products.sale_price, 0), products.price) as sale_price'), // Nếu sale_price = 0 hoặc NULL, lấy price
                 'products.created_at',
                 DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
                 DB::raw('
-                SUM(
                     CASE 
-                        WHEN order_items.product_variant_id IS NOT NULL 
-                        THEN order_items.quantity_variant
-                        ELSE order_items.quantity 
-                    END
-                ) as total_sold
-            ') // Cách tính số lượng bán mới
+                        WHEN COUNT(order_items.id) = 0 THEN NULL
+                        ELSE SUM(
+                            CASE 
+                                WHEN order_items.product_variant_id IS NOT NULL 
+                                THEN order_items.quantity_variant
+                                ELSE order_items.quantity 
+                            END
+                        )
+                    END as total_sold
+                ') // Nếu sản phẩm chưa bán lần nào thì total_sold = NULL để ẩn
             )
             ->groupBy(
                 'products.id',
@@ -177,7 +180,7 @@ class Product extends Model
             ->orderByDesc('total_sold')
             ->limit(12);
     }
-
+    
 
 
 

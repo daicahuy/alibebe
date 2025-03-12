@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\ApiRefundOrderController;
 use App\Http\Controllers\Api\AttributeController;
 use App\Http\Controllers\Api\AttributeValueController;
 use App\Http\Controllers\api\AuthCustomerApiController;
@@ -77,6 +78,15 @@ Route::prefix('/attributes')
             ->group(function () {
                 Route::put('/{attributeValue}', 'update')->name('update');
             });
+    });
+
+
+Route::prefix('/refund-orders')
+    ->name('api.refund-orders.')
+    ->group(function () {
+        Route::get('/list', [ApiRefundOrderController::class, 'index'])->name('index');
+        Route::get('/{id}', [ApiRefundOrderController::class, 'getDataOrderRefund'])->name('getDataOrderRefund');
+
     });
 
 Route::prefix('/orders')
@@ -183,7 +193,8 @@ Route::prefix('compare')
     // ->middleware(StartSession::class)
     ->group(function () {
         Route::post('/add-with-check/{productId}', [CompareController::class, 'addTocompareWithCheck'])->name('add.with.check');
-        Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
+        // Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
+
         // Route::get('/get-compare-products',[CompareController::class,'getComparedProducts'])->name('get_compared_products');
         // Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
         // Route::post('/remove/{productId}', [CompareController::class, 'removeFromCompare'])->name('remove'); 

@@ -31,54 +31,8 @@
                                     <span class="fs-6 fw-light">></span> Product
                                 </h5>
                             </div>
-                            {{-- <div>
-                                <a class="align-items-center btn btn-theme d-flex" href="{{ route('admin.brands.create') }}">
-                                    <i class="ri-add-line"></i>
-                                    {{ __('message.add') . ' ' . __('form.brands') }}
-                                </a>
-                            </div> --}}
+                           
                         </div>
-
-                        {{-- <!-- HEADER TABLE -->
-                        <div class="show-box">
-                            <div class="selection-box"><label>{{ __('message.show') }} :</label>
-                                <select class="form-control" id="per_page">
-                                    <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
-                                    <option value="30" {{ request('per_page') == 30 ? 'selected' : '' }}>30</option>
-                                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                                    <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                                </select>
-                                <label>{{ __('message.items_per_page') }}</label>
-                                <form action="{{ route('admin.brands.destroy') }}" method="POST" id="delete-all-form">
-                                    @csrf
-                                    @method('DELETE')
-                                    <input type="hidden" name="ids" id="ids-to-delete" value="">
-                                    <button
-                                        class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2 visually-hidden"
-                                        id="btn-delete-all">
-                                        {{ __('message.delete_all') }}
-                                    </button>
-                                </form>
-                                <a href="{{ route('admin.brands.hidden') }}"
-                                    class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2">
-                                    Ẩn
-                                </a>
-
-                            </div>
-                            <div class="datepicker-wrap">
-
-                            </div>
-
-                            <form action="{{ route('admin.brands.index') }}" method="GET">
-                                <div class="table-search">
-                                    <label for="role-search" class="form-label">{{ __('message.search') }} :</label>
-                                    <input type="search" class="form-control" name="_keyword"
-                                        value="{{ request('_keyword') }}" placeholder="Tìm kiếm theo tên ">
-                                </div>
-                            </form>
-
-                        </div>
-                        <!-- END HEADER TABLE --> --}}
 
                         <!-- START TABLE -->
                         <div>
@@ -147,11 +101,12 @@
                                                                 <input type="checkbox" id="status-{{ $product->id }}"
                                                                     value="1" data-id="{{ $product->id }}"
                                                                     class="update-status"
-                                                                    {{ $product->is_active ? 'checked' : '' }}>
+                                                                    {{ $product->is_active ? 'checked' : '' }} disabled>
                                                                 <span class="switch-state"></span>
                                                             </label>
                                                         </div>
                                                     </td>
+                                                    
                                                     <td class="cursor-pointer sm-width">
                                                         <img alt="image" class="tbl-image "
                                                             style="max-height: 200px; object-fit: contain;"
@@ -190,16 +145,12 @@
                             </div>
                         </div>
                         <!-- END TABLE -->
-
-
-                        <!-- START PAGINATION -->
-                        <div class="custom-pagination">
-                            {{ $products->appends(request()->query())->links() }}
-                        </div>
-                        <!-- END PAGINATIOn -->
-
                     </div>
-
+                      <!-- START PAGINATION -->
+                        <div class="custom-pagination">
+                         {{ $products->appends(request()->query())->links() }}
+                        </div>
+                    <!-- END PAGINATIOn -->
                 </div>
             </div>
         </div>

@@ -72,5 +72,7 @@ return [
     'revenue_and_orders' => 'Doanh thu và số lượng đơn hàng',
     'top_customers' => 'Top khách hàng',
     'top_selling_products' => 'Top sản phẩm bán chạy',
-    'orders_status' => 'Tình trạng đơn hàng'
+    'orders_status' => 'Tình trạng đơn hàng',
+    'from' => 'Từ',
+    'to' => 'Đến',
 ];

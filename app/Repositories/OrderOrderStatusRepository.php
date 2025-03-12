@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\HistoryOrderStatus;
+use App\Models\Order;
 use App\Models\OrderOrderStatus;
 use DB;
 
@@ -16,6 +17,10 @@ class OrderOrderStatusRepository extends BaseRepository
 
     public function changeStatusOrder($idOrder, int $idStatus)
     {
+
+
+
+
         return DB::transaction(function () use ($idOrder, $idStatus) {
             if (is_array($idOrder)) {
                 foreach ($idOrder as $orderId) {

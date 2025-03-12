@@ -604,6 +604,7 @@
                             status_id: 7
                         },
                         success: function(response) {
+
                             if (response.status == 200) {
                                 fetchOrders();
                             }

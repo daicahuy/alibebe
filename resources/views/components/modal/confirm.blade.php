@@ -24,7 +24,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-body text-center">
-                    <h5 class="modal-title mb-5">{{ $title }} ?</h5>
+                    <h5 class="modal-title mb-5">{{ $title }} </h5>
                     <div class="row">
                         {{ $slot }}
                     </div>
