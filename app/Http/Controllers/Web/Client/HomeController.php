@@ -35,7 +35,7 @@ class HomeController extends Controller
         if ($aiSuggestedProducts->isEmpty()) {
             $aiSuggestedProducts = $this->getPopularProducts(); // Nếu AI không gợi ý được, lấy sản phẩm phổ biến
         }
-
+        
         return view('client.pages.index',
             compact('categories',
             'trendingProducts',

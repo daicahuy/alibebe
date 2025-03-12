@@ -133,26 +133,19 @@ class Product extends Model
     }
     public function scopeTrending($query)
     {
-        return $query->leftJoin('order_items', function ($join) {
-                $join->on('products.id', '=', 'order_items.product_id');
-            })
-            ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id') // Lấy thông tin biến thể
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->join('order_order_status', function ($join) {
-                $join->on('orders.id', '=', 'order_order_status.order_id')
-                    ->where('order_order_status.order_status_id', 6); // Chỉ lấy đơn hàng hoàn thành
-            })
-            ->leftJoin('reviews', function ($join) {
-                $join->on('reviews.product_id', '=', 'products.id')
-                    ->where('reviews.is_active', 1);
-            })
+        return $query->with([
+                'productVariants', 
+                'reviews' => function ($query) {
+                    $query->where('is_active', 1);
+                },
+                'orderItems.order.orderStatuses' => function ($query) {
+                    $query->where('order_status_id', 6); // Chỉ lấy đơn hàng hoàn thành
+                }
+            ])
             ->select(
-                'products.id',
-                'products.name',
-                'products.thumbnail',
-                DB::raw('COALESCE(product_variants.price, products.price) as price'), // Lấy giá sản phẩm hoặc biến thể
-                DB::raw('COALESCE(NULLIF(product_variants.sale_price, 0), NULLIF(products.sale_price, 0), products.price) as sale_price'), // Nếu sale_price = 0 hoặc NULL, lấy price
-                'products.created_at',
+                'products.*',
+                DB::raw('COALESCE(product_variants.price, products.price) as price'),
+                DB::raw('COALESCE(NULLIF(product_variants.sale_price, 0), NULLIF(products.sale_price, 0), products.price) as sale_price'),
                 DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
                 DB::raw('
                     CASE 
@@ -165,8 +158,13 @@ class Product extends Model
                             END
                         )
                     END as total_sold
-                ') // Nếu sản phẩm chưa bán lần nào thì total_sold = NULL để ẩn
+                ')
             )
+            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+            ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+            ->leftJoin('reviews', 'reviews.product_id', '=', 'products.id')
             ->groupBy(
                 'products.id',
                 'products.name',
@@ -181,9 +179,7 @@ class Product extends Model
             ->limit(12);
     }
     
-
-
-
+    
     public function getTotalStockQuantityAttribute()
     {
         // Kiểm tra loại sản phẩm (type)
