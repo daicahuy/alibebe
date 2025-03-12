@@ -672,7 +672,33 @@
                 });
             }
 
-            // Hàm render dữ liệu vào bảng
+            function debounce(func, delay) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
+
+            let changedOrderIds = [];
+            let debounceTimer;
+
+            function handleStatusChange(orderId) {
+
+                if (!changedOrderIds.includes(orderId)) {
+                    changedOrderIds.push(orderId);
+                }
+
+
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+
+                    fetchOrders(true);
+                    changedOrderIds = [];
+                }, 1000);
+            }
+
+
             function renderTable(orders, totalPages) {
                 $("#orderTable tbody").empty();
 
@@ -694,10 +720,10 @@
 
                         var channel = pusher.subscribe('order-status.' + order.id);
                         channel.bind('event-change-status', function(data) {
-                            fetchOrders(true)
+                            handleStatusChange(data.orderId)
                         });
                         let selectHtml =
-                            `<select class="font-serif form-select form-select-sm orderStatus" id="${selectId}">`;
+                            `<select class="font-serif form-select form-select-sm orderStatus" data-order-id="${order.id}" id="${selectId}">`;
                         orderStatuses.forEach(status => {
                             const currentStatus = orderStatuses.find(s => s.id === currentStatusId);
                             const disabled = !currentStatus.next.includes(status.id) && status
@@ -783,11 +809,10 @@
 
                     $('.status-pending span').on("click", function() {
                         const orderId = $(this).data(
-                            'configorder'); // Lấy orderId từ thuộc tính data-configOrder
-                        // Thêm mã để xử lý orderId nếu cần (ví dụ, gửi lên server)
+                            'configorder');
                         callApiGetOrderOrderStatus(orderId);
 
-                        $('#modalConfirm').modal('show'); // Hiển thị modal
+                        $('#modalConfirm').modal('show');
                     });
                 }
             }
@@ -803,7 +828,7 @@
                     success: function(response) {
                         console.log(response.data[0])
                         const imageUrl =
-                            `{{ Storage::url('${response.data[0].employee_evidence}') }}`; //Laravel Blade syntax
+                            `{{ Storage::url('${response.data[0].employee_evidence}') }}`;
                         //Chuyển đổi thành Javascript string
                         const jsImageUrl = imageUrl.replace(/\{\{\s*|\s*\}\}/g, '');
                         $("#modalConfirm #img-checkout-order").attr("src",
@@ -842,7 +867,7 @@
                             $('#checkbox-table').prop('checked', false);
                             $('#select-change-status-items').empty();
                             $("#count_selected_item").text(``)
-                            $('.btn-download-all').addClass('active');
+                            // $('.btn-download-all').addClass('active');
                             $('#selected-category-ids').val('');
                             fetchOrders(true);
                             toggleBulkActionButton();
@@ -903,8 +928,17 @@
 
                     // Gọi hàm để thiết lập trạng thái ban đầu
                     updateSelectStatus();
-                    $('#select_status_list').on("change", function() {
+                    let previousValuesOrderList;
 
+                    // Sự kiện focus để lưu giá trị trước đó
+                    $('#select_status_list').on('focus', function() {
+                        previousValuesOrderList = $(this).val(); // Lưu giá trị hiện tại vào object
+                    });
+                    $('#select_status_list').on("change", function() {
+                        if (!confirm('Bạn có chắc chắn muốn thay đổi trạng thái không?')) {
+                            $('#select_status_list').val(previousValuesOrderList);
+                            return;
+                        }
                         const selectedStatusChangeList = $(this).val();
                         console.log("selectedIds", selectedIds)
                         callApiChangeStatusListOrder(selectedIds, selectedStatusChangeList);
@@ -1050,12 +1084,21 @@
                 fetchOrders();
             });
 
+            let previousValuesOrder = {};
+
+            // Sự kiện focus để lưu giá trị trước đó
+            $('#orderTable').on('focus', '.orderStatus', function() {
+                const orderId = $(this).data('order-id'); // Lấy ID đơn hàng từ data attribute
+                previousValuesOrder[orderId] = $(this).val(); // Lưu giá trị hiện tại vào object
+            });
+
+
             $('#orderTable').on('change', '.orderStatus', function() {
-                const currentValue = $('#orderTable .orderStatus').val();
+                const orderId = $(this).data('order-id');
 
                 if (!confirm('Bạn có chắc chắn muốn thay đổi trạng thái không?')) {
-                    $('#orderTable .orderStatus').val(currentValue);
-
+                    $(this).val(previousValuesOrder[orderId]); // Khôi phục giá trị trước đó
+                    return;
                 }
 
                 const selectedValue = parseInt($(this).val());
@@ -1086,7 +1129,7 @@
                             $('#checkbox-table').prop('checked', false);
                             $('#select-change-status-items').empty();
                             $("#count_selected_item").text(``)
-                            $('.btn-download-all').addClass('active');
+                            // $('.btn-download-all').addClass('active');
                             $('#selected-category-ids').val('');
                             toggleBulkActionButton();
                         }

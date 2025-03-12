@@ -28,11 +28,6 @@ class OrderController extends Controller
         $this->orderService = $orderService;
     }
 
-    public function testChange($id)
-    {
-        event(new OrderStatusUpdated($id, 1));
-
-    }
 
     public function index(Request $request)
     {
@@ -199,7 +194,15 @@ class OrderController extends Controller
             } else {
 
                 $this->orderService->changeStatusOrder($idOrder, $idStatus);
-                event(new OrderStatusUpdated($idOrder, $idStatus));
+                if (is_array($idOrder)) {
+                    foreach ($idOrder as $key => $value) {
+                        # code...
+                        event(new OrderStatusUpdated($value, $idStatus));
+                    }
+                } else {
+                    event(new OrderStatusUpdated($idOrder, $idStatus));
+
+                }
             }
 
 

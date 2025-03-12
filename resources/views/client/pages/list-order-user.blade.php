@@ -268,6 +268,23 @@
                 $('#pagination').twbsPagination('destroy');
                 fetchOrders();
             });
+            let changedOrderIds = [];
+            let debounceTimer;
+
+            function handleStatusChange(orderId) {
+
+                if (!changedOrderIds.includes(orderId)) {
+                    changedOrderIds.push(orderId);
+                }
+
+
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+
+                    fetchOrders();
+                    changedOrderIds = [];
+                }, 1000);
+            }
 
             function renderTable(orders, totalPages) {
                 // Lấy phần tử danh sách chứa các đơn hàng
@@ -299,7 +316,7 @@
 
                     var channel = pusher.subscribe('order-status.' + order.id);
                     channel.bind('event-change-status', function(data) {
-                        fetchOrders()
+                        handleStatusChange(data.orderId)
                     });
 
 
@@ -407,26 +424,26 @@
     ${
         order.order_statuses[0].id === 1
             ? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}">Hủy hàng</button>
-                                                                                                                                                                                                                                                                                                                                                                                                                            `
+                                                                                                                                                                                                                                                                                                                                                                                                                                    `
             : order.order_statuses[0].id === 4
             ? `
-                                                                                                                <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
-                                                                                                                    Đã nhận
-                                                                                                                </button>
-                                                                                                                <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
-                                                                                                                `
+                                                                                                                        <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
+                                                                                                                            Đã nhận
+                                                                                                                        </button>
+                                                                                                                        <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
+                                                                                                                        `
             : ""
     }
 </div>
                 <div>
                     <div>${order.coupon_discount_type ? `
-                                                                                                                                                                    
-                                                                                                                            <span>Giảm giá: </span>
-                                                                                                                        <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
-                                                                                                                        </div>
-                                                                                                                            
-                                                                                                                            
-                                                                                                                            `:""}
+                                                                                                                                                                            
+                                                                                                                                    <span>Giảm giá: </span>
+                                                                                                                                <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
+                                                                                                                                </div>
+                                                                                                                                    
+                                                                                                                                    
+                                                                                                                                    `:""}
                     <div>
                         <span>Tổng tiền: </span>
                     <span class="price-new">${formatCurrency(order.total_amount)}₫</span>

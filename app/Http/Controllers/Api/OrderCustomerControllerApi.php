@@ -36,7 +36,7 @@ class OrderCustomerControllerApi extends Controller
             $userCheckVerify = User::where('id', $dataOrderCustomer["user_id"])->first();
 
             if (!$userCheckVerify->email_verified_at) {
-                return redirect('/cart-checkout')->with('error', "Xác minh tài khoản trước khi mua hàng!");
+                return response()->json(["status" => "error", "message" => "Xác minh trước khi mua hàng!"]);
             }
 
             if ($couponCode) {

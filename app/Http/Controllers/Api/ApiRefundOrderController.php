@@ -76,5 +76,43 @@ class ApiRefundOrderController extends Controller
         }
     }
 
+    public function changeStatus(Request $request)
+    {
+        try {
+            $adminReason = $request->input('adminReason');
+            $idRefund = $request->input('idRefund');
+
+            if ($adminReason) {
+                Refund::query()
+                    ->where('id', $idRefund)
+                    ->update(['admin_reason' => $adminReason, 'status' => 'receiving']);
+
+                return response()->json([
+                    "message" => "OK Admin Reason",
+                    "status" => Response::HTTP_OK
+                ]);
+
+            } else {
+                Refund::query()
+                    ->where('id', $idRefund)
+                    ->update(['status' => 'rejected']);
+
+                return response()->json([
+                    "message" => "OK Admin Rejected",
+                    "status" => Response::HTTP_OK
+                ]);
+            }
+
+
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
 
 }

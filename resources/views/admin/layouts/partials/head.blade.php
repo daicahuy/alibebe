@@ -31,6 +31,7 @@
 
     <!-- App css -->
     <link rel="stylesheet" type="text/css" href="{{ asset('theme/admin/assets/css/style2.css') }}">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
     @stack('css')
 

@@ -66,7 +66,8 @@ Route::get('/page_successfully', function () {
 
 Route::get('/page_successfully', [CheckoutController::class, 'pageSuccessfully'])->middleware(['auth'])->name('pageSuccessfully');
 Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middleware('auth');
-Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add')->middleware('auth');;
+Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add')->middleware('auth');
+;
 Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
 // Route::post('/cart/update', [ApiCartItemController::class, 'update'])->name('cart.update');
 // Route::post('/cart/save-session', [ApiCartItemController::class, 'saveSession'])->name('cart.saveSession');
@@ -145,7 +146,7 @@ Route::name('auth.')
             ->group(function () {
 
 
-                Route::get('/login', 'showFormLogin')->name('showFormLogin')->middleware([ 'isAdmin']);
+                Route::get('/login', 'showFormLogin')->name('showFormLogin')->middleware(['isAdmin']);
                 Route::get('/logout', 'logout')->name('logout');
                 Route::post('/handle', 'handleLogin')->name('handleLogin');
                 Route::get('/register', 'showFormRegister')->name('showFormRegister');
@@ -155,8 +156,10 @@ Route::name('auth.')
                 Route::post('/resend-otp', 'resendOtp')->name('resendOtp');
 
                 Route::post('/verify-otp', 'verifyOtp')->name('verifyOtp');
-                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');;
-                Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');;
+                Route::get('/new-password', 'showFormNewPassword')->name('showFormNewPassword')->middleware('check.reset.flow');
+                ;
+                Route::post('/update-password', 'updatePassword')->name('updatePassword')->middleware('check.reset.flow');
+                ;
             });
     });
 
@@ -207,39 +210,39 @@ Route::prefix('/admin')
             ->controller(CategoryController::class)
             ->group(function () {
 
-                Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
-                Route::get('/trash', 'trash')->name('trash');
+            Route::get('/trash', 'trash')->name('trash');
 
-                Route::get('/hidden', 'hidden')->name('hidden');
+            Route::get('/hidden', 'hidden')->name('hidden');
 
-                Route::get('/{category}', 'show')->name('show')->where(['category' => '[0-9]+']);
+            Route::get('/{category}', 'show')->name('show')->where(['category' => '[0-9]+']);
 
-                Route::get('/create', 'create')->name('create');
+            Route::get('/create', 'create')->name('create');
 
-                Route::post('/', 'store')->name('store');
+            Route::post('/', 'store')->name('store');
 
-                Route::get('/edit/{category}', 'edit')->name('edit');
+            Route::get('/edit/{category}', 'edit')->name('edit');
 
-                Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
+            Route::put('/{category}', 'update')->name('update')->where(['category' => '[0-9]+']);
 
-                Route::put('/{category}/restore', 'restore')->name('restore');
+            Route::put('/{category}/restore', 'restore')->name('restore');
 
-                Route::delete('{category}/delete', 'delete')->name('delete');
+            Route::delete('{category}/delete', 'delete')->name('delete');
 
-                Route::delete('/{category}', 'destroy')->name('destroy');
+            Route::delete('/{category}', 'destroy')->name('destroy');
 
 
-                // bulk
-                Route::post('/bulk-restore', 'bulkRestore')->name('bulkRestore');
+            // bulk
+            Route::post('/bulk-restore', 'bulkRestore')->name('bulkRestore');
 
-                Route::post('/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
+            Route::post('/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
 
-                Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
+            Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
 
-                // search
-                route::get('/search', 'search')->name('search');
-            });
+            // search
+            route::get('/search', 'search')->name('search');
+        });
 
 
 
@@ -249,35 +252,35 @@ Route::prefix('/admin')
             ->controller(ProductController::class)
             ->group(function () {
 
-                Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
-                Route::get('/trash', 'trash')->name('trash');
+            Route::get('/trash', 'trash')->name('trash');
 
-                Route::get('/show/{slug}', 'show')->name('show');
-                
-                Route::get('/hidden', 'hidden')->name('hidden');
+            Route::get('/show/{slug}', 'show')->name('show');
 
-                Route::get('/create', 'create')->name('create');
+            Route::get('/hidden', 'hidden')->name('hidden');
 
-                Route::post('/', 'store')->name('store');
+            Route::get('/create', 'create')->name('create');
 
-                Route::get('/edit/{slug}', 'edit')->name('edit');
+            Route::post('/', 'store')->name('store');
 
-                Route::put('/{product}', 'update')->name('update');
+            Route::get('/edit/{slug}', 'edit')->name('edit');
 
-                Route::put('/restore/{product}', 'restore')->name('restore');
+            Route::put('/{product}', 'update')->name('update');
 
-                Route::delete('/delete{product}', 'delete')->name('delete');
+            Route::put('/restore/{product}', 'restore')->name('restore');
 
-                Route::delete('/destroy{product}', 'destroy')->name('destroy');
+            Route::delete('/delete{product}', 'delete')->name('delete');
 
-                //Bulk
-                Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
+            Route::delete('/destroy{product}', 'destroy')->name('destroy');
 
-                Route::post('/bulk-restore', 'bulkRestore')->name('bulkRestore');
+            //Bulk
+            Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
 
-                Route::post('/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
-            });
+            Route::post('/bulk-restore', 'bulkRestore')->name('bulkRestore');
+
+            Route::post('/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
+        });
 
         // ATTRIBUTES
         Route::prefix('/attributes')
@@ -285,6 +288,27 @@ Route::prefix('/admin')
             ->controller(AttributeController::class)
             ->group(function () {
 
+            Route::get('/', 'index')->name('index');
+
+            Route::get('/hidden', 'hidden')->name('hidden');
+
+            Route::get('/create', 'create')->name('create');
+
+            Route::post('/', 'store')->name('store');
+
+            Route::get('/edit/{attribute}', 'edit')->name('edit');
+
+            Route::put('/{attribute}', 'update')->name('update');
+
+            Route::delete('/destroy', 'destroy')->name('destroy');
+
+            // Attribute Values
+            Route::prefix('{attribute}/attribute_values')
+                ->name('attribute_values.')
+                ->controller(AttributeValueController::class)
+                ->where(['attribute' => '[0-9]+'])
+                ->group(function () {
+
                 Route::get('/', 'index')->name('index');
 
                 Route::get('/hidden', 'hidden')->name('hidden');
@@ -293,34 +317,13 @@ Route::prefix('/admin')
 
                 Route::post('/', 'store')->name('store');
 
-                Route::get('/edit/{attribute}', 'edit')->name('edit');
+                Route::get('/edit/{attributeValue}', 'edit')->name('edit');
 
-                Route::put('/{attribute}', 'update')->name('update');
+                Route::put('/{attributeValue}', 'update')->name('update');
 
                 Route::delete('/destroy', 'destroy')->name('destroy');
-
-                // Attribute Values
-                Route::prefix('{attribute}/attribute_values')
-                    ->name('attribute_values.')
-                    ->controller(AttributeValueController::class)
-                    ->where(['attribute' => '[0-9]+'])
-                    ->group(function () {
-
-                        Route::get('/', 'index')->name('index');
-
-                        Route::get('/hidden', 'hidden')->name('hidden');
-
-                        Route::get('/create', 'create')->name('create');
-
-                        Route::post('/', 'store')->name('store');
-
-                        Route::get('/edit/{attributeValue}', 'edit')->name('edit');
-
-                        Route::put('/{attributeValue}', 'update')->name('update');
-
-                        Route::delete('/destroy', 'destroy')->name('destroy');
-                    });
             });
+        });
 
 
         // BRANDS
@@ -329,22 +332,22 @@ Route::prefix('/admin')
             ->controller(BrandController::class)
             ->group(function () {
 
-                Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
-                Route::get('/hidden', 'hidden')->name('hidden');
+            Route::get('/hidden', 'hidden')->name('hidden');
 
-                Route::get('/brands/{brand}/products', 'showProduct')->name('showProduct');
+            Route::get('/brands/{brand}/products', 'showProduct')->name('showProduct');
 
-                Route::get('/create', 'create')->name('create');
+            Route::get('/create', 'create')->name('create');
 
-                Route::post('/', 'store')->name('store');
+            Route::post('/', 'store')->name('store');
 
-                Route::get('/edit/{brand}', 'edit')->name('edit');
+            Route::get('/edit/{brand}', 'edit')->name('edit');
 
-                Route::put('/{brand}', 'update')->name('update');
+            Route::put('/{brand}', 'update')->name('update');
 
-                Route::delete('/destroy', 'destroy')->name('destroy');
-            });
+            Route::delete('/destroy', 'destroy')->name('destroy');
+        });
 
         // TAGS
         Route::prefix('/tags')
@@ -352,23 +355,23 @@ Route::prefix('/admin')
             ->controller(TagController::class)
             ->group(function () {
 
-                Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
-                Route::get('/create', 'create')->name('create');
+            Route::get('/create', 'create')->name('create');
 
-                Route::get('/{tag}/products', 'showProducts')->name('showProducts');
+            Route::get('/{tag}/products', 'showProducts')->name('showProducts');
 
-                Route::post('/', 'store')->name('store');
+            Route::post('/', 'store')->name('store');
 
-                Route::get('/edit/{tag}', 'edit')->name('edit');
+            Route::get('/edit/{tag}', 'edit')->name('edit');
 
-                Route::put('/{tag}', 'update')->name('update');
+            Route::put('/{tag}', 'update')->name('update');
 
-                Route::delete('/destroy', 'destroy')->name('destroy');
-            });
+            Route::delete('/destroy', 'destroy')->name('destroy');
+        });
 
-        Route::prefix('/ordersRefund')
-            ->name('ordersRefund.')
+        Route::prefix('/orderRefund')
+            ->name('orderRefund.')
             ->controller(OrderRefundController::class)
             ->group(function () {
 
@@ -398,60 +401,60 @@ Route::prefix('/admin')
             ->name('users.')
             ->group(function () {
 
-                Route::prefix('/customer')
-                    ->name('customer.')
-                    ->controller(UserCustomerController::class)
-                    ->group(function () {
+            Route::prefix('/customer')
+                ->name('customer.')
+                ->controller(UserCustomerController::class)
+                ->group(function () {
 
-                        Route::get('/', 'index')->name('index');
+                    Route::get('/', 'index')->name('index');
 
-                        Route::post('/', 'store')->name('store');
+                    Route::post('/', 'store')->name('store');
 
-                        Route::get('/show/{user}', 'show')->name('show');
+                    Route::get('/show/{user}', 'show')->name('show');
 
-                        Route::get('/edit/{user}', 'edit')->name('edit');
+                    Route::get('/edit/{user}', 'edit')->name('edit');
 
-                        Route::put('/update/{user}', 'update')->name('update');
+                    Route::put('/update/{user}', 'update')->name('update');
 
-                        Route::get('/lock', 'lock')->name('lock');
+                    Route::get('/lock', 'lock')->name('lock');
 
-                        Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
+                    Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
 
-                        Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
+                    Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
 
-                        Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
+                    Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
 
-                        Route::post('update-status', 'updateStatus')->name('update-status');
-                    });
+                    Route::post('update-status', 'updateStatus')->name('update-status');
+                });
 
-                Route::prefix('/employee')
-                    ->name('employee.')
-                    ->controller(UserEmployeeController::class)
-                    ->group(function () {
+            Route::prefix('/employee')
+                ->name('employee.')
+                ->controller(UserEmployeeController::class)
+                ->group(function () {
 
-                        Route::get('/', 'index')->name('index');
+                    Route::get('/', 'index')->name('index');
 
-                        Route::get('/create', 'create')->name('create');
+                    Route::get('/create', 'create')->name('create');
 
-                        Route::post('/', 'store')->name('store');
+                    Route::post('/', 'store')->name('store');
 
-                        Route::get('/show/{user}', 'show')->name('show');
+                    Route::get('/show/{user}', 'show')->name('show');
 
-                        Route::get('/edit/{user}', 'edit')->name('edit');
+                    Route::get('/edit/{user}', 'edit')->name('edit');
 
-                        Route::put('/update/{user}', 'update')->name('update');
+                    Route::put('/update/{user}', 'update')->name('update');
 
-                        Route::get('/lock', 'lock')->name('lock');
+                    Route::get('/lock', 'lock')->name('lock');
 
-                        Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
+                    Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
 
-                        Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
+                    Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
 
-                        Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
+                    Route::post('unLock-multiple', 'unLockMultipleUsers')->name('unLockMultipleUsers');
 
-                        Route::post('update-status', 'updateStatus')->name('update-status');
-                    });
-            });
+                    Route::post('update-status', 'updateStatus')->name('update-status');
+                });
+        });
 
 
         // REVIEWS
@@ -460,12 +463,12 @@ Route::prefix('/admin')
             ->controller(ReviewController::class)
             ->group(function () {
 
-                Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
-                Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
-            });
+            Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
+        });
 
-        
+
         // Comments
         Route::prefix('/comments')
             ->name('comments.')
@@ -476,7 +479,7 @@ Route::prefix('/admin')
 
             Route::get('/{product}', 'show')->name('show');
 
-            Route::get('/comments/{commentId}/replies',  'getCommentReplies')->name('comments.replies');
+            Route::get('/comments/{commentId}/replies', 'getCommentReplies')->name('comments.replies');
         });
 
 
@@ -486,34 +489,34 @@ Route::prefix('/admin')
             ->controller(CouponController::class)
             ->group(function () {
 
-                Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
-                Route::get('/hide', 'hide')->name('hide');
+            Route::get('/hide', 'hide')->name('hide');
 
-                Route::get('/{coupon}', 'show')->name('show')->where(['coupon' => '[0-9]+']);
+            Route::get('/{coupon}', 'show')->name('show')->where(['coupon' => '[0-9]+']);
 
-                Route::get('/create', 'create')->name('create');
+            Route::get('/create', 'create')->name('create');
 
-                Route::post('/', 'store')->name('store');
+            Route::post('/', 'store')->name('store');
 
-                Route::get('/edit/{coupon}', 'edit')->name('edit')->middleware(['check.coupon.usage']);
+            Route::get('/edit/{coupon}', 'edit')->name('edit')->middleware(['check.coupon.usage']);
 
-                Route::put('/{coupon}', 'update')->name('update');
+            Route::put('/{coupon}', 'update')->name('update');
 
-                Route::delete('/{coupon}/destroy', 'destroy')->name('destroy');
+            Route::delete('/{coupon}/destroy', 'destroy')->name('destroy');
 
-                Route::get('/trash', 'trash')->name('trash');
+            Route::get('/trash', 'trash')->name('trash');
 
-                Route::post('/{coupon}/restore', 'restore')->name('restore');
+            Route::post('/{coupon}/restore', 'restore')->name('restore');
 
-                Route::post('/restore-selected', 'restoreSelected')->name('restore-selected');
+            Route::post('/restore-selected', 'restoreSelected')->name('restore-selected');
 
-                Route::delete('/{coupon}/force-destroy', 'forceDestroy')->name('force-destroy');
+            Route::delete('/{coupon}/force-destroy', 'forceDestroy')->name('force-destroy');
 
-                Route::delete('/destroy-selected', 'destroySelected')->name('destroy-selected');
+            Route::delete('/destroy-selected', 'destroySelected')->name('destroy-selected');
 
-                Route::delete('/force-destroy-selected', 'forceDestroySelected')->name('force-destroy-selected');
+            Route::delete('/force-destroy-selected', 'forceDestroySelected')->name('force-destroy-selected');
 
-                Route::get('/search', 'searchCoupon')->name('search');
-            });
+            Route::get('/search', 'searchCoupon')->name('search');
+        });
     });

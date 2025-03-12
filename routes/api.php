@@ -82,11 +82,11 @@ Route::prefix('/attributes')
 
 
 Route::prefix('/refund-orders')
-    ->name('api.refund-orders.')
+    ->name('api.refund_orders.')
     ->group(function () {
         Route::get('/list', [ApiRefundOrderController::class, 'index'])->name('index');
         Route::get('/{id}', [ApiRefundOrderController::class, 'getDataOrderRefund'])->name('getDataOrderRefund');
-
+        Route::post('/changeStatus', [ApiRefundOrderController::class, 'changeStatus'])->name('changeStatus');
     });
 
 Route::prefix('/orders')
@@ -103,7 +103,6 @@ Route::prefix('/orders')
 
     });
 
-Route::get('/test/{id}', [OrderController::class, 'testChange']);
 
 Route::post('/orders/uploadImgConfirm/{idOrder}', [OrderController::class, 'uploadImgConfirm'])->name('uploadImgConfirm');
 Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');

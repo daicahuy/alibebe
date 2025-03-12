@@ -801,5 +801,4 @@
 
     <script src="{{ asset('js/utility.js') }}"></script>
     //
-    <script src="{{ mix('js/app.js') }}" type="module"></script>
 @endpush
