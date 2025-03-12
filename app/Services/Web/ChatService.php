@@ -28,13 +28,19 @@ class ChatService
         $data =  $this->chatSessionRepository->getAllChatSessionWithRelation();
         return $data;
     }
+    // Lấy Những Đoạn Chat Đã Đóng
+    public function getAllChatsIsClosed()
+    {
+        $data = $this->chatSessionRepository->getAllChatSessionWithRelationClosed();
+        return $data;
+    }
     // Lấy thông tin chi tiết của 1 phiên chat dựa vào ID
     public function getChatSession($chatSessionId)
     {
         try {
             $chatSession = $this->chatSessionRepository->getChatSession($chatSessionId);
 
-           return $chatSession;
+            return $chatSession;
         } catch (\Throwable $th) {
             // Ghi log lỗi
             Log::error(
@@ -85,7 +91,7 @@ class ChatService
                 }
             } else {
                 // Gán nhân viên cho phiên chat nếu cần thiết
-                if ($user->role == UserRoleType::EMPLOYEE && !$chatSession->employee_id) {
+                if (($user->role == UserRoleType::EMPLOYEE || $user->role == UserRoleType::ADMIN) && !$chatSession->employee_id) {
                     $this->chatSessionRepository->assignEmployeeToSession($sessionId, $user->id);
                 }
 
@@ -134,25 +140,8 @@ class ChatService
         }
     }
     // Bắt đầu phiên chat mới cho khách hàng và gán nhân viên nếu có
-    public function startChat($customerId, $employeeId = null)
+    public function startChat($customerId, $employeeId = 0)
     {
-        request()->validate([
-            'customer_id' => [
-                'required',
-                'integer',
-                Rule::exists('users', 'id')
-                    ->where('role', UserRoleType::CUSTOMER)
-            ],
-            'employee_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('users', 'id')
-                    ->where(function ($query) {
-                        $query->whereIn('role', [UserRoleType::EMPLOYEE]);
-                    })
-            ]
-        ]);
-
         try {
             // Tìm phiên chat đã có mở cho khách hàng
             $existingSession = $this->chatSessionRepository->findActiveChatSession($customerId);
@@ -179,7 +168,8 @@ class ChatService
             $sessionData = [
                 'customer_id' => $customerId,
                 'employee_id' => $employeeId,
-                'status' => ChatSessionStatusType::OPEN
+                'status' => ChatSessionStatusType::OPEN,
+                'created_date' => now()
             ];
 
             $chatSession = $this->chatSessionRepository->create($sessionData);
@@ -283,5 +273,10 @@ class ChatService
                 'message' => 'Có lỗi xảy ra, vui lòng thử lại!'
             ];
         }
+    }
+
+    public function searchUsers($searchTerm)
+    {
+        return $this->chatSessionRepository->searchUsers($searchTerm);
     }
 }

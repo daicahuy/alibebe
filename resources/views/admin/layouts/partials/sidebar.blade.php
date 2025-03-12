@@ -52,7 +52,10 @@
                                 </div>
                             </span>
                             <div class="according-menu">
-                                @if (Request::is('admin/products*') || Request::is('admin/attribute*') || Request::is('admin/brands*') || Request::is('admin/tags*'))
+                                @if (Request::is('admin/products*') ||
+                                        Request::is('admin/attribute*') ||
+                                        Request::is('admin/brands*') ||
+                                        Request::is('admin/tags*'))
                                     <i class="ri-arrow-down-s-line"></i>
                                 @else
                                     <i class="ri-arrow-right-s-line"></i>
@@ -119,13 +122,15 @@
                         </a>
                         <ul class="sidebar-submenu" @style(['display: block;' => Request::is('admin/users*')])>
                             <li>
-                                <a href="{{ route('admin.users.customer.index') }}" class="{{ Request::is('admin/users/customer*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.users.customer.index') }}"
+                                    class="{{ Request::is('admin/users/customer*') ? 'active' : '' }}">
                                     <div>{{ __('form.user_manager') }}</div>
                                 </a>
                                 <ul class="sidebar-submenu"></ul>
                             </li>
                             <li>
-                                <a href="{{ route('admin.users.employee.index') }}" class="{{ Request::is('admin/users/employee*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.users.employee.index') }}"
+                                    class="{{ Request::is('admin/users/employee*') ? 'active' : '' }}">
                                     <div>{{ __('form.user_staff') }}</div>
                                 </a>
                                 <ul class="sidebar-submenu"></ul>
@@ -171,6 +176,19 @@
                             </span>
                         </a>
                     </li>
+                    <li class="sidebar-list">
+                        <a href="{{ route('admin.chats.index') }}"
+                            class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/chats*') ? 'active' : '' }}">
+                            <span>
+                                <div class="d-flex align-items-center">
+                                    <i class="ri-mail-line"></i>
+                                    <div class="sidebar-main-link">{{ __('form.messages') }}</div>
+                                </div>
+                                <span class="badge bg-warning ml-2">5</span> <!-- Số lượng tin nhắn giả định -->
+                            </span>
+                        </a>
+                    </li>
+
                 </ul>
             </div>
         </nav>

@@ -144,7 +144,7 @@ Route::name('auth.')
             ->group(function () {
 
 
-                Route::get('/login', 'showFormLogin')->name('showFormLogin')->middleware([ 'isAdmin']);
+                Route::get('/login', 'showFormLogin')->name('showFormLogin')->middleware(['isAdmin']);
                 Route::get('/logout', 'logout')->name('logout');
                 Route::post('/handle', 'handleLogin')->name('handleLogin');
                 Route::get('/register', 'showFormRegister')->name('showFormRegister');
@@ -175,6 +175,9 @@ Route::prefix('/admin')
                 // Hiển thị danh sách tất cả các phiên chat
                 Route::get('/', 'index')->name('index');
 
+                // Hiển thị danh sách chat đã đóng
+                Route::get('/closed', 'closed')->name('closed');
+
                 // Hiển thị một phiên chat cụ thể
                 Route::get('/chat-session/{id}', 'show')->name('chat-session');
 
@@ -183,6 +186,9 @@ Route::prefix('/admin')
 
                 // Đóng phiên chat
                 Route::delete('/chat-session/{id}/close', 'closeChat')->name('close-chat-session');
+                
+                //admin.chats.start-chat
+                Route::post('/chat-session/start', 'startChat')->name('start-chat');
             });
 
 
@@ -253,7 +259,7 @@ Route::prefix('/admin')
                 Route::get('/trash', 'trash')->name('trash');
 
                 Route::get('/show/{slug}', 'show')->name('show');
-                
+
                 Route::get('/hidden', 'hidden')->name('hidden');
 
                 Route::get('/create', 'create')->name('create');
@@ -452,19 +458,19 @@ Route::prefix('/admin')
                 Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
             });
 
-        
+
         // Comments
         Route::prefix('/comments')
             ->name('comments.')
             ->controller(CommentController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
-            Route::get('/{product}', 'show')->name('show');
+                Route::get('/{product}', 'show')->name('show');
 
-            Route::get('/comments/{commentId}/replies',  'getCommentReplies')->name('comments.replies');
-        });
+                Route::get('/comments/{commentId}/replies',  'getCommentReplies')->name('comments.replies');
+            });
 
 
         // COUPONS

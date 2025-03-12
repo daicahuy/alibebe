@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Enums\ChatSessionStatusType;
 use App\Enums\UserRoleType;
 use App\Models\ChatSession;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ChatSessionRepository extends BaseRepository
@@ -20,7 +21,40 @@ class ChatSessionRepository extends BaseRepository
     {
         // Lấy các cột cần thiết từ model ChatSession
         $query = $this->model->select('id', 'customer_id', 'employee_id', 'status')
-            ->with(['messages:id,chat_session_id,message', 'customer:id,fullname,avatar', 'employee:id,fullname,avatar']);
+            ->with(['messages:id,chat_session_id,message', 'customer:id,fullname,avatar', 'employee:id,fullname,avatar'])
+            ->whereNull('closed_date')
+            ->where('status', 1);
+
+        $user = auth()->user();  // Lấy người dùng hiện tại
+
+        // Quản trị viên có thể xem tất cả các phiên trò chuyện
+        if ($user->role == UserRoleType::ADMIN) {
+            return $query->paginate($perPage);
+        } elseif ($user->role == UserRoleType::EMPLOYEE) {
+            // Nhân viên chỉ xem các phiên mà họ được gán hoặc các phiên chưa được gán và đang mở
+            return $query->where(function ($q) use ($user) {
+                $q->where('employee_id', $user->id)
+                    ->orWhere(function ($q2) {
+                        $q2->whereNull('employee_id')
+                            ->where('status', ChatSessionStatusType::OPEN);
+                    });
+            })->paginate($perPage);
+        } else {
+            // Khách hàng chỉ xem được các phiên trò chuyện của họ
+            return $query->where('customer_id', $user->id)
+                ->paginate($perPage);
+        }
+    }
+
+    // lấy tất cả phiên trò chuyện đã đóng
+
+    public function getAllChatSessionWithRelationClosed($perPage = 10)
+    {
+        // Lấy các cột cần thiết từ model ChatSession
+        $query = $this->model->select('id', 'customer_id', 'employee_id', 'status')
+            ->with(['messages:id,chat_session_id,message', 'customer:id,fullname,avatar', 'employee:id,fullname,avatar'])
+            // ->whereNotNull('closed_date')
+            ->where('status', 0);
 
         $user = auth()->user();  // Lấy người dùng hiện tại
 
@@ -51,7 +85,7 @@ class ChatSessionRepository extends BaseRepository
         // Lấy phiên trò chuyện cùng với các tin nhắn liên quan
         $query = $this->model->with([
             'messages' => function ($query) {
-                $query->oldest()->paginate(10);  // Phân trang tin nhắn
+                $query->oldest()->get();  // Phân trang tin nhắn
             },
             'customer:id,fullname,avatar',
             'employee:id,fullname,avatar'
@@ -123,5 +157,27 @@ class ChatSessionRepository extends BaseRepository
                     ->where('employ_id', $customerId);
             })
             ->exists();  // Kiểm tra sự tồn tại của phiên
+    }
+
+    // Tìm Kiếm Người Dùng (chỉ người dùng Customer)
+    public function searchUsers($searchTerm, $limit = 10)
+    {
+        $user_id = request('user_id');
+        $query = DB::table('users as u')
+            ->select([
+                'u.id',
+                'u.fullname',
+                'u.avatar'
+            ])
+            ->where('u.id', '!=', $user_id)  // Loại bỏ người dùng hiện tại khỏi kết quả
+            ->where('u.role', UserRoleType::CUSTOMER)  // Chỉ tìm kiếm người dùng là khách hàng
+            ->where(function ($query) use ($searchTerm) {
+                $query->where('u.fullname', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('u.email', 'LIKE', "%{$searchTerm}%");
+            })
+            ->limit($limit)
+            ->get();
+
+        return $query;
     }
 }

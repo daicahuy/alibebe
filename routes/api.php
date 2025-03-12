@@ -15,6 +15,7 @@ use App\Http\Controllers\api\OrderCustomerControllerApi;
 use App\Http\Controllers\api\PaymentController;
 use App\Http\Controllers\api\PaymentOnlineController;
 use App\Http\Controllers\api\UserAddressController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Api\ListCategoryController;
 use App\Http\Controllers\Api\ProductController;
@@ -42,6 +43,14 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Route for searching users
+Route::get('admin/chats/search-users', [ChatController::class, 'searchUsers'])
+    ->name('api.admin.chats.search-users');
+
+// Route for starting a new chat with a user
+Route::get('admin/chats/start-chat', [ChatController::class, 'startChat'])
+    ->name('admin.chats.start-chat');
 
 Route::post('/cart/update', [CartItemController::class, 'update'])->middleware('web')->name('cart.update');
 Route::post('/cart/save-session', [CartItemController::class, 'saveSession'])->middleware('web')->name('cart.saveSession');

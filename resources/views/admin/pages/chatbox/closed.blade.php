@@ -148,12 +148,18 @@
             <!-- User List -->
             <div class="user-list">
                 <div class="user-search row">
-                    <div class="col-md-10">
+                    <div class="col-md-8">
                         <input type="text" class="form-control" placeholder="Tìm kiếm..." style="border-radius: 12px;">
                     </div>
+                    <!-- Add New User Button -->
                     <div class="col-md-2">
-                        <a href="{{ route('admin.chats.closed') }}" class="btn btn-primary">
-                            Đoạn Chat Lưu Trữ
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            Tìm Kiếm
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{{ route('admin.chats.index') }}" class="btn btn-primary">
+                            Tin Nhắn
                         </a>
                     </div>
                 </div>
@@ -167,10 +173,9 @@
                                 <div class="user-status">Đang hoạt động</div>
                             </div>
                             <div class="message-item">
-                                <a class="btn btn-primary"
-                                    href="{{ route('admin.chats.chat-session', ['id' => $chatSession->id]) }}">
+                                <a class="btn btn-primary" href="{{ route('admin.chats.chat-session', ['id' => $chatSession->id]) }}">
                                     Mở Chat
-                                </a>
+                                </a>                                
                                 <!-- Thêm icon xóa -->
                                 <button type="button" class="btn btn-danger mt-2" data-bs-toggle="modal"
                                     data-bs-target="#deleteMessageModal{{ $chatSession->id }}">
@@ -215,6 +220,41 @@
             </div>
         </div>
     </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Thêm mới người dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="userName" class="form-label">Tên người dùng</label>
+                            <input type="text" class="form-control" id="userName" placeholder="Nhập tên người dùng">
+                        </div>
+                        <div class="mb-3">
+                            <label for="userEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="userEmail" placeholder="Nhập email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="userStatus" class="form-label">Trạng thái</label>
+                            <select class="form-select" id="userStatus">
+                                <option value="online">Đang hoạt động</option>
+                                <option value="offline">Offline</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js_library')
@@ -224,111 +264,22 @@
 
 @push('js')
     <script>
-        $(document).ready(function() {
-            // Lấy ID của người dùng đã đăng nhập từ Laravel
-            const loggedInUserId = {{ auth()->id() }};
-            console.log('Logged in User ID:', loggedInUserId);
-
-            let searchTimeout;
-            const searchInput = $('.user-search input');
-            const userListContent = $('.user-list-content');
-
-            // Debug để kiểm tra jQuery đã load chưa
-            console.log('jQuery loaded:', typeof $ !== 'undefined');
-
-            function performSearch() {
-                const searchTerm = searchInput.val();
-                console.log('Searching for:', searchTerm); // Debug
-
-                // Hiển thị spinner ngay lập tức
-                userListContent.html(
-                    '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Đang tìm kiếm...</div>'
-                );
-
-                // Nếu search rỗng
-                if (searchTerm.length === 0) {
-                    window.location.reload();
-                    return;
-                }
-
-                // AJAX request
-                $.ajax({
-                    url: '{{ route('api.admin.chats.search-users') }}',
-                    type: 'GET',
-                    data: {
-                        search: searchTerm,
-                        user_id: loggedInUserId
-                    },
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    success: function(response) {
-                        console.log('Response:', response); // Debug
-
-                        if (response.success && response.users && response.users.length > 0) {
-                            let html = '';
-                            response.users.forEach(function(user) {
-                                // Giả sử mỗi đối tượng user có các thuộc tính: id, fullname, avatar
-                                html += `
-                                        <div class="user-item">
-                                            <img src="${user.avatar ? user.avatar : '{{ asset('assets/images/default-avatar.png') }}'}" class="user-avatar">
-                                            <div class="user-info">
-                                                <div class="user-name">${user.fullname}</div>
-                                            </div>
-                                            <div class="message-item">
-                                              <form action="{{ route('admin.chats.start-chat') }}" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="customer_id" value="${user.id}">
-                                                <button type="submit" class="btn btn-primary">Mở Chat</button>
-                                              </form>
-                                            </div>
-                                        </div>
-                                        `;
-                            });
-                            userListContent.html(html);
-                        } else {
-                            userListContent.html(
-                                '<div class="text-center p-4">Không tìm thấy người dùng nào</div>');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Ajax error:', error); // Debug
-                        userListContent.html(
-                            '<div class="text-center p-4 text-danger">Có lỗi xảy ra, vui lòng thử lại</div>'
-                        );
-                    }
-                });
-            }
-
-            // Sự kiện input với debounce
-            searchInput.on('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(performSearch, 300);
+        @if (session()->has('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: '{{ session('success') }}',
+                timer: 2000
             });
+        @endif
 
-            // Sự kiện click nút tìm kiếm
-            $('.user-search button').on('click', function() {
-                performSearch();
+        @if ($errors->has('message'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra',
+                text: '{{ $errors->first('message') }}',
+                showConfirmButton: true
             });
-
-            @if (session()->has('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công',
-                    text: '{{ session('success') }}',
-                    timer: 2000
-                });
-            @endif
-
-            @if (session()->has('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Có lỗi xảy ra',
-                    text: '{{ session('error') }}',
-                    showConfirmButton: true
-                });
-            @endif
-
-        });
+        @endif
     </script>
 @endpush
