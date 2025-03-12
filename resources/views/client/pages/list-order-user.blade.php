@@ -54,8 +54,28 @@
             color: #ccc
         }
 
+        .btn-return {
+            border: 1px solid #adadad;
+            color: #040404;
+        }
+
+        .btn-return:hover {
+            background-color: #8d8b8b;
+            color: #fff
+        }
+
+        .btn-success-return {
+            background-color: #0da487;
+            color: #fff
+        }
+
+        .btn-success-return:hover{
+            background-color: #0c8b72;
+            color: #fff
+        }
+
         .btn-not-get:hover {
-            color: #ccc !important;
+            color: #ffffff !important;
         }
 
         .price-old {
@@ -102,7 +122,7 @@
                 transform: rotate(360deg);
             }
         }
-    </style>s
+    </style>
 @endpush
 
 
@@ -142,6 +162,9 @@
             <li class="nav-item tab" data-status="{{ OrderStatusType::CANCEL }}">
                 <p class="nav-link " style="cursor: pointer">Đã hủy</p>
             </li>
+            <li class="nav-item tab" data-status="{{ OrderStatusType::RETURN }}">
+                <p class="nav-link " style="cursor: pointer"><a href="{{route('hoanhang')}}">Hoàn hàng</a></p>
+            </li>
         </ul>
 
         <!-- Search Bar -->
@@ -172,7 +195,144 @@
         </div>
     </div>
 @endsection
+@section('modal')
+    <!-- Return Order Modal Start -->
+    <div class="modal fade theme-modal view-modal" id="returnOrderModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header p-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid-lg">
+                        <div id="listCard">
+                            <div class="order-card">
 
+                                <div class="d-flex justify-content-between align-items-center p-2">
+                                    <h4 class="ml-3 d-block">ID: ORDER-11032025145635.844-553</h4>
+
+                                    <div class="d-flex align-items-center">
+                                        <div class="d-flex" style="align-items:center">
+
+                                        </div>
+                                        <span class="badge bg-success complete ms-2" style="font-size: 1.2em; ">
+                                            Hoàn thành
+                                        </span>
+                                    </div>
+                                </div>
+
+
+                                <div class="d-flex flex-row"
+                                    style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
+                                    <div class="order-body d-flex">
+                                        <input type="checkbox">
+                                        <img src="http://127.0.0.1:8000/storage/products/product_2.png" alt="Product"
+                                            class="me-3" style="width: 100px; height: 100px; object-fit: cover;">
+                                        <div class="d-flex flex-row" style="justify-content: space-between">
+                                            <div>
+                                                <p class="mb-1">Tablet Z73 Pro 45273</p>
+                                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                                    Phân loại hàng: 256GB,
+                                                    Màu vàng
+                                                </p>
+                                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                                    x1
+                                                </p>
+                                                <div style="margin-right: 15px">
+                                                    <span class="price-old"></span>
+                                                    <span class="price-new ms-2">
+                                                        6.884.550,00₫
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-row" style="margin-right: 15px">
+                                        <span>Thành tiền:</span>
+                                        <p class="price-new">6.884.550,00₫</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-row"
+                                    style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
+                                    <div class="order-body d-flex">
+                                        <input type="checkbox">
+                                        <img src="http://127.0.0.1:8000/storage/products/product_2.png" alt="Product"
+                                            class="me-3" style="width: 100px; height: 100px; object-fit: cover;">
+                                        <div class="d-flex flex-row" style="justify-content: space-between">
+                                            <div>
+                                                <p class="mb-1">Tablet Z73 Pro 45273</p>
+                                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                                    Phân loại hàng: 256GB,
+                                                    Màu vàng
+                                                </p>
+                                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                                    x1
+                                                </p>
+                                                <div style="margin-right: 15px">
+                                                    <span class="price-old"></span>
+                                                    <span class="price-new ms-2">
+                                                        6.884.550,00₫
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-row" style="margin-right: 15px">
+                                        <span>Thành tiền:</span>
+                                        <p class="price-new">6.884.550,00₫</p>
+                                    </div>
+                                </div>
+                                <div class="order-footer">
+                                    <div class="d-flex flex-row">
+                                        Khách hàng: Nguyễn Minh Quân
+
+                                    </div>
+                                    <div>
+                                        <div>
+                                            <div>
+                                                <span>Tổng tiền: </span>
+                                                <span class="price-new">9.355.305,00₫</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div id="address-container" class="flex justify-between">
+                            <div class="flex items-start">
+                                <div>
+                                    <h4 class="mt-3">Thông tin hoàn tiền</h4>
+                                    <textarea id="returnReason" class="form-control" placeholder="Lý do hoàn hàng..."></textarea>
+                                    <p>Hình ảnh minh chứng:</p>
+                                    <input type="file"> <br>
+                                    <img src="http://127.0.0.1:8000/storage/products/product_2.png" alt="Product"
+                                            class="me-3" style="width: 100px; height: 100px; object-fit: cover;"><br>
+                                    <label for="accountNumber" class="form-label">Số tài khoản</label>
+                                    <input type="text" id="accountNumber" class="form-control"
+                                        placeholder="Nhập số tài khoản">
+                                    <label for="name" class="form-label mt-2">Tên người nhận</label>
+                                    <input type="text" id="name" class="form-control"
+                                        placeholder="Nhập tên người nhận">
+                                    <label for="bankName" class="form-label mt-2">Ngân hàng</label>
+                                    <input type="text" id="bankName" class="form-control"
+                                        placeholder="Nhập tên ngân hàng">
+                                    <button class="btn btn-success-return mt-3" id="confirmReturnOrder">Hoàn hàng</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Return Order Modal End -->
+@endsection
 @push('js_library')
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.2/jquery.twbsPagination.min.js"></script>
@@ -393,26 +553,30 @@
     ${
         order.order_statuses[0].id === 1
             ? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}">Hủy hàng</button>
-                                                                                                                                                                                                                                                                                                                                                                                                `
+                                                                                                                                                                                                                                                                                                                                                                                                                `
             : order.order_statuses[0].id === 4
             ? `
-                                                                                    <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
-                                                                                        Đã nhận
-                                                                                    </button>
-                                                                                    <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
-                                                                                    `
-            : ""
+                                                                                                    <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
+                                                                                                        Đã nhận
+                                                                                                    </button>
+                                                                                                    <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
+                                                                                                    `
+                                                                                    : order.order_statuses[0].id === 6
+        ? `
+                            <button class="btn btn-return me-2 btn-return-order" data-idOrderReturn="${order.id} " data-bs-toggle="modal" data-bs-target="#returnOrderModal">Hoàn hàng</button>
+                        `
+        : ""
     }
 </div>
                 <div>
                     <div>${order.coupon_discount_type ? `
-                                                                                                                                        
-                                                                                                <span>Giảm giá: </span>
-                                                                                            <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
-                                                                                            </div>
-                                                                                                
-                                                                                                
-                                                                                                `:""}
+                                                                                                                                                        
+                                                                                                                <span>Giảm giá: </span>
+                                                                                                            <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
+                                                                                                            </div>
+                                                                                                                
+                                                                                                                
+                                                                                                                `:""}
                     <div>
                         <span>Tổng tiền: </span>
                     <span class="price-new">${formatCurrency(order.total_amount)}₫</span>
