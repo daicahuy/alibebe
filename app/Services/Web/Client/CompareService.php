@@ -36,7 +36,12 @@ class CompareService
                 'thumbnail' => Storage::url($product->thumbnail),
                 'specifications' => [], //thông số kĩ thuật
                 'variant_attributes' => [], //  mảng để chứa thuộc tính biến thể
+                'rating_avg' => 0,
             ];
+
+            // tính avg rating
+            $avgRating = $product->reviews()->avg('rating');
+            $productData['rating_avg'] = number_format($avgRating,1);
 
             // 1. Xử lý THÔNG SỐ KỸ THUẬT (cho cả sản phẩm đơn và sản phẩm gốc của biến thể - is_variant = 0)
             foreach ($product->attributeValues as $attributeValue) {

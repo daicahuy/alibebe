@@ -193,8 +193,10 @@ Route::prefix('compare')
     // ->middleware(StartSession::class)
     ->group(function () {
         Route::post('/add-with-check/{productId}', [CompareController::class, 'addTocompareWithCheck'])->name('add.with.check');
-        // Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
+        Route::get('/compareDetail/{id}', [CompareController::class, 'detailModal']);
 
+        // Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
+    
         // Route::get('/get-compare-products',[CompareController::class,'getComparedProducts'])->name('get_compared_products');
         // Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
         // Route::post('/remove/{productId}', [CompareController::class, 'removeFromCompare'])->name('remove'); 
