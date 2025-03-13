@@ -3,6 +3,7 @@
 use App\Http\Controllers\api\PaymentOnlineController;
 use App\Http\Controllers\VNPayController;
 use App\Http\Controllers\Api\CartItemController as ApiCartItemController;
+use App\Http\Controllers\Api\OrderController as ApiOrderController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Admin\AttributeController;
@@ -80,6 +81,7 @@ Route::post('/comment-replies', [DetailProductController::class, 'storeReply'])-
 
 Route::post('/reviewsSp', [DetailProductController::class, 'storeReview'])->name('reviewsSp.store')->middleware('auth');
 
+Route::get('/hoanhang', [ApiOrderController::class, 'hoanhang'])->name('hoanhang');
 
 Route::name('account.')
     ->middleware(['auth'])

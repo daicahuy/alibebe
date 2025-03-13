@@ -28,6 +28,11 @@ class OrderController extends Controller
         $this->orderService = $orderService;
     }
 
+    public function hoanhang()
+    {
+        return view('client.pages.hoanhang');
+    }
+
 
     public function index(Request $request)
     {
