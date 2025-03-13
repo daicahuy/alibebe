@@ -13,6 +13,7 @@ use App\Http\Controllers\Web\Admin\CommentController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Web\Admin\DashboardController;
 use App\Http\Controllers\Web\Admin\OrderController;
+use App\Http\Controllers\web\admin\OrderRefundController;
 use App\Http\Controllers\Web\Admin\ProductController;
 use App\Http\Controllers\Web\Admin\ReviewController;
 use App\Http\Controllers\Web\Admin\TagController;
@@ -372,6 +373,14 @@ Route::prefix('/admin')
                 Route::delete('/destroy', 'destroy')->name('destroy');
             });
 
+        Route::prefix('/ordersRefund')
+            ->name('ordersRefund.')
+            ->controller(OrderRefundController::class)
+            ->group(function () {
+
+                Route::get('/', 'index')->name('index');
+            });
+
         Route::prefix('/orders')
             ->name('orders.')
             ->controller(OrderController::class)
@@ -385,6 +394,10 @@ Route::prefix('/admin')
 
                 Route::put('/{order}', 'update')->name('update');
             });
+
+
+
+
 
         // USERS
         Route::prefix('/users')

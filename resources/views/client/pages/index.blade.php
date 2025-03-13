@@ -159,7 +159,8 @@
                                             <img src="{{ Storage::url($category->icon) }}" class="blur-up lazyload"
                                                 alt="">
                                             <h5>
-                                                <a href="{{ route('categories', $category->slug) }}">{{ $category->name }}</a>
+                                                <a
+                                                    href="{{ route('categories', $category->slug) }}">{{ $category->name }}</a>
                                             </h5>
                                         </div>
                                     </li>
@@ -236,7 +237,7 @@
                                     @foreach ($trendingProducts->take(10) as $trendingProduct)
                                         <li>
                                             <div class="offer-product">
-                                                <a href="{{ route('categories', ['category' => $trendingProduct->id]) }}"
+                                                <a href="{{ route('products', ['product' => $trendingProduct->id]) }}"
                                                     class="offer-image">
                                                     <img src="{{ Storage::url($trendingProduct->thumbnail) }}"
                                                         class="blur-up lazyload" alt="">
@@ -244,7 +245,7 @@
 
                                                 <div class="offer-detail">
                                                     <div>
-                                                        <a href="{{ route('categories', ['category' => $trendingProduct->id]) }}"
+                                                        <a href="{{ route('products', ['product' => $trendingProduct->id]) }}"
                                                             class="text-title">
                                                             <h6 class="name">{{ $trendingProduct->name }}</h6>
                                                         </a>
@@ -308,8 +309,7 @@
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
                                                     <ul class="product-option">
-                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
-                                                            title="View">
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                                                             <a href="javascript:void(0)" data-bs-toggle="modal"
                                                                 data-bs-target="#view" data-id={{ $topSell->id }}>
                                                                 <i data-feather="eye"></i>
@@ -324,13 +324,14 @@
                                                         </li>
 
                                                         <li data-bs-toggle="tooltip" data-bs-placement="top"
-                                                        title="Wishlist">
-                                                        <a href="javascript:void(0);"
-                                                            class="notifi-wishlist wishlist-toggle"
-                                                            data-product-id="{{ $topSell->id }}">
-                                                            <i data-feather="heart" class="wishlist-icon"></i>
-                                                        </a>
-                                                    </li>
+                                                            title="Wishlist">
+                                                            <a href="javascript:void(0);"
+                                                                class="notifi-wishlist wishlist-toggle"
+                                                                data-product-id="{{ $topSell->id }}">
+                                                                <i data-feather="heart" class="wishlist-icon"
+                                                                    style="color: {{ in_array($topSell->id, $wishlistProductIds) ? 'red' : 'black' }};"></i>
+                                                            </a>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
@@ -403,7 +404,7 @@
                                 <div class="banner-contain hover-effect">
                                     <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
                                         class="bg-img blur-up lazyload" alt="">
-                                    
+
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -453,7 +454,8 @@
                                                             <a href="javascript:void(0);"
                                                                 class="notifi-wishlist wishlist-toggle"
                                                                 data-product-id="{{ $aiSuggest->id }}">
-                                                                <i data-feather="heart" class="wishlist-icon"></i>
+                                                                <i data-feather="heart" class="wishlist-icon"
+                                                                    style="color: {{ in_array($aiSuggest->id, $wishlistProductIds) ? 'red' : 'black' }};"></i>
                                                             </a>
                                                         </li>
                                                     </ul>
@@ -464,13 +466,16 @@
                                                     </a>
 
                                                     <h5 class="sold text-content">
-                                                        <span
-                                                            class="theme-color price">{{ number_format($aiSuggest->sale_price ?? $aiSuggest->price) }}
-                                                            ₫</span>
-                                                        @if ($aiSuggest->sale_price)
+                                                        <span class="theme-color price">
+                                                            {{ number_format($aiSuggest->sale_price > 0 ? $aiSuggest->sale_price : $aiSuggest->price) }}
+                                                            ₫
+                                                        </span>
+
+                                                        @if (!is_null($aiSuggest->sale_price) && $aiSuggest->sale_price > 0 && $aiSuggest->sale_price != $aiSuggest->price)
                                                             <del>{{ number_format($aiSuggest->price) }} ₫</del>
                                                         @endif
                                                     </h5>
+
 
                                                     <div class="product-rating mt-sm-2 mt-1">
                                                         <ul class="rating">
@@ -484,10 +489,15 @@
                                                         <span
                                                             class="text-muted ms-2">({{ number_format($aiSuggest->average_rating, 1) }})</span>
                                                     </div>
+
                                                     <div class="d-flex justify-content-between mt-sm-2 mt-1">
                                                         <h6 class="unit">Lượt xem: {{ $aiSuggest->views_count }}</h6>
-                                                        <h6 class="unit">Đã Bán: {{ $aiSuggest->total_sold }}</h6>
+
+                                                        @if (isset($aiSuggest->total_sold))
+                                                            <h6 class="unit">Đã Bán: {{ $aiSuggest->total_sold }}</h6>
+                                                        @endif
                                                     </div>
+
                                                     <div class="add-to-cart-box">
                                                         <a href="javascript:void(0)" data-bs-toggle="modal"
                                                             data-bs-target="#view" data-id={{ $aiSuggest->id }}
@@ -505,26 +515,26 @@
                     </div>
 
 
-                    <div class="section-t-space">
+                    {{-- <div class="section-t-space">
                         <div class="banner-contain">
                             <img src="{{ asset('theme/client/assets/images/product/bia1.png') }}"
                                 class="bg-img blur-up lazyload" alt="">
-                            {{-- <div class="banner-details p-center p-4 text-white text-center">
+                            <div class="banner-details p-center p-4 text-white text-center">
                                 <div>
                                     <h3 class="lh-base fw-bold offer-text">Get $3 Cashback! Min Order of $30</h3>
                                     <h6 class="coupon-code">Use Code : GROCERY1920</h6>
                                 </div>
-                            </div> --}}
+                            </div>
                         </div>
-                    </div>
+                    </div> --}}
 
-                    <div class="section-t-space section-b-space">
+                    {{-- <div class="section-t-space section-b-space">
                         <div class="row g-md-4 g-3">
                             <div class="col-xxl-8 col-xl-12 col-md-7">
                                 <div class="banner-contain hover-effect">
                                     <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
                                         class="bg-img blur-up lazyload" alt="">
-                                    {{-- <div class="banner-details p-center-left p-4">
+                                    <div class="banner-details p-center-left p-4">
                                         <div>
                                             <h2 class="text-kaushan fw-normal theme-color">Get Ready To</h2>
                                             <h3 class="mt-2 mb-3">TAKE ON THE DAY!</h3>
@@ -535,7 +545,7 @@
                                                 class="btn btn-animation btn-sm mend-auto">Mua Ngay <i
                                                     class="fa-solid fa-arrow-right icon"></i></button>
                                         </div>
-                                    </div> --}}
+                                    </div>
                                 </div>
                             </div>
 
@@ -543,25 +553,23 @@
                                 <a href="shop-left-sidebar.html" class="banner-contain hover-effect h-100">
                                     <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
                                         class="bg-img blur-up lazyload" alt="">
-                                    {{-- <div class="banner-details p-center-left p-4 h-100">
+                                    <div class="banner-details p-center-left p-4 h-100">
                                         <div>
                                             <h2 class="text-kaushan fw-normal text-danger">20% Off</h2>
                                             <h3 class="mt-2 mb-2 theme-color">SUMMRY</h3>
                                             <h3 class="fw-normal product-name text-title">Product</h3>
                                         </div>
-                                    </div> --}}
+                                    </div>
                                 </a>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div class="title d-block">
                         <div>
                             <h2>Sản phẩm bán chạy nhất của chúng tôi</h2>
                         </div>
                     </div>
-
-
                     <div class="best-selling-slider product-wrapper wow fadeInUp">
                         @foreach ($bestSellingProducts->chunk(4) as $chunk)
                             <div>
@@ -598,16 +606,7 @@
                         <div class="banner-contain hover-effect">
                             <img src="{{ asset('theme/client/assets/images/product/vendor.png') }}"
                                 class="bg-img blur-up lazyload" alt="">
-                            {{-- <div class="banner-details p-center banner-b-space w-100 text-center">
-                                {{-- <div>
-                                    <h6 class="ls-expanded theme-color mb-sm-3 mb-1"> </h6>
-                                    <h2 class="banner-title"> </h2>
-                                    <h5 class="lh-sm mx-auto mt-1 text-content">Tiết kiệm lên đến 5% GIẢM GIÁ</h5>
-                                    <button onclick="location.href = 'shop-left-sidebar.html';"
-                                        class="btn btn-animation btn-sm mx-auto mt-sm-3 mt-2">Mua Ngay <i
-                                            class="fa-solid fa-arrow-right icon"></i></button>
-                                </div> --}}
-                            {{-- </div>  --}}
+
                         </div>
                     </div>
                 </div>
@@ -765,6 +764,7 @@
                     success: function(response) {
                         console.log("📦 Dữ liệu sản phẩm:", response);
 
+                        $('#prdName').text(response.name).data('product-name', response.name);
                         $('#prdDescription').text(response.short_description);
                         $('#prdThumbnail').attr('src', response.thumbnail).data(
                             'default-thumbnail', response.thumbnail);
@@ -784,17 +784,16 @@
 
                         var soldCount = response.sold_count !== undefined && response
                             .sold_count !== null ? response.sold_count : 0;
-                        var soldCountText = `Đã bán (${soldCount})`;
-                        $('#prdSoldCount').text(soldCountText);
-
+                        $('#prdSoldCount').text(`Đã bán (${soldCount})`);
 
                         var stockQuantityText = response.stock_quantity ?
                             `Kho: ${response.stock_quantity}` : "Kho: 0";
                         $('.product-stock span').text(stockQuantityText);
 
                         productVariantsData = {};
-                        let defaultPrice = response.price; // Giá mặc định
-                        let defaultVariantId = null; // Biến thể mặc định
+                        let defaultPrice = response.price; // Giá mặc định từ sản phẩm
+                        let defaultVariantId = null;
+                        let hasSalePrice = false; // Kiểm tra xem có giá giảm không
 
                         if (response.productVariants && response.productVariants.length > 0) {
                             let allAttributes = {};
@@ -808,17 +807,15 @@
                                     thumbnail: variant.thumbnail,
                                     attribute_values: variant.attribute_values
                                 };
-
                                 if (!defaultVariantId) {
                                     defaultVariantId = variantId;
                                     defaultPrice = variant.sale_price ? variant
                                         .sale_price : variant.price;
                                 }
-
                                 variant.attribute_values.forEach(attr => {
                                     if (!allAttributes[attr.attributes_name]) {
                                         allAttributes[attr
-                                    .attributes_name] = [];
+                                            .attributes_name] = [];
                                     }
                                     if (!allAttributes[attr.attributes_name]
                                         .some(v => v.id === attr.id)) {
@@ -835,15 +832,15 @@
                             let attributesHtml = '';
                             for (const attrName in allAttributes) {
                                 attributesHtml += `
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="${attrName}">${attrName}:</label>
-                                <select class="form-control attribute-select" id="${attrName}">
-                                    <option value="">Chọn ${attrName}</option>
-                                    ${allAttributes[attrName].map(attr => `<option value="${attr.id}">${attr.attribute_value}</option>`).join('')}
-                                </select>
-                            </div>
-                        </div>`;
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="${attrName}">${attrName}:</label>
+                                    <select class="form-control attribute-select" id="${attrName}">
+                                        <option value="">Chọn ${attrName}</option>
+                                        ${allAttributes[attrName].map(attr => `<option value="${attr.id}">${attr.attribute_value}</option>`).join('')}
+                                    </select>
+                                </div>
+                            </div>`;
                             }
 
                             $('#productVariants').html('<div class="row">' + attributesHtml +
@@ -856,7 +853,7 @@
 
                         $('#prdPrice').text(formatPrice(defaultPrice)).data('default-price',
                             defaultPrice);
-                        $('#cartProductVariantId').val(defaultVariantId);
+                        $('#cartProductVariantId').val('');
                     },
                     error: function(xhr) {
                         alert('Không tìm thấy sản phẩm.');
@@ -864,39 +861,67 @@
                 });
             });
 
-
             function getCurrentVariantId() {
                 let selectedAttributes = {};
+
                 $('.attribute-select').each(function() {
                     let attrName = $(this).attr('id');
                     let selectedValueId = $(this).val();
                     if (selectedValueId) {
-                        selectedAttributes[attrName] = selectedValueId;
+                        selectedAttributes[attrName] = parseInt(selectedValueId); // Chuyển thành số
                     }
                 });
 
+                console.log("🔍 Thuộc tính đã chọn:", selectedAttributes);
+
                 let matchedVariant = Object.values(productVariantsData).find(variant => {
-                    return variant.attribute_values.every(attr => selectedAttributes[attr
-                        .attributes_name] == attr.id);
+                    if (!variant.attribute_values || variant.attribute_values.length === 0) {
+                        return false; // Không có thuộc tính
+                    }
+
+                    return variant.attribute_values.every(attr => {
+                        let match = selectedAttributes[attr.attributes_name] === attr.id;
+                        console.log(
+                            `🧐 Kiểm tra ${attr.attributes_name}: ${attr.id} == ${selectedAttributes[attr.attributes_name]} ? ${match}`
+                            );
+                        return match;
+                    });
                 });
+
+                console.log("🔎 Kết quả tìm thấy biến thể:", matchedVariant ? matchedVariant.id :
+                    "❌ Không có biến thể phù hợp");
 
                 return matchedVariant ? matchedVariant.id : null;
             }
+
 
             function updateSelectedVariant() {
                 let selectedVariantId = getCurrentVariantId();
                 console.log("🛒 Biến thể được chọn:", selectedVariantId);
 
-                if (selectedVariantId) {
+                let defaultPrice = $('#prdPrice').data('default-price') ||
+                0; // Lấy giá mặc định, nếu null thì gán 0
+                let defaultThumbnail = $('#prdThumbnail').data('default-thumbnail');
+
+                if (selectedVariantId && productVariantsData[selectedVariantId]) {
                     let selectedVariant = productVariantsData[selectedVariantId];
-                    $('#prdPrice').text(formatPrice(selectedVariant.price));
-                    $('#prdThumbnail').attr('src', selectedVariant.thumbnail);
+
+                    console.log("📊 Dữ liệu biến thể:", selectedVariant);
+
+                    let variantPrice = (selectedVariant.price !== null && selectedVariant.price > 0) ?
+                        selectedVariant.price :
+                        defaultPrice;
+
+                    console.log("💰 Giá biến thể:", selectedVariant.price, "➡️ Hiển thị giá:", variantPrice);
+
+                    $('#prdPrice').text(formatPrice(variantPrice));
+                    $('#prdThumbnail').attr('src', selectedVariant.thumbnail || defaultThumbnail);
                     $('#cartProductVariantId').val(selectedVariantId);
                 } else {
-                    console.log("⚠️ Không tìm thấy biến thể phù hợp!");
-                    $('#cartProductVariantId').val(null);
-                    $('#prdPrice').text(formatPrice($('#prdPrice').data('default-price')));
-                    $('#prdThumbnail').attr('src', $('#prdThumbnail').data('default-thumbnail'));
+                    console.warn("⚠️ Không tìm thấy biến thể phù hợp!");
+                    $('#cartProductVariantId').val('');
+                    $('#prdPrice').text(formatPrice(defaultPrice));
+                    $('#prdThumbnail').attr('src', defaultThumbnail);
                 }
             }
 
@@ -905,89 +930,126 @@
 
                 let productId = $('#cartProductId').val();
                 let selectedVariantId = $('#cartProductVariantId').val();
+                let hasVariant = $('#productVariants .attribute-select').length > 0;
 
                 console.log("🛒 ID sản phẩm trong form:", productId);
                 console.log("🛒 ID biến thể đã chọn:", selectedVariantId);
+                console.log("🔍 Sản phẩm có biến thể?", hasVariant);
 
                 if (!productId) {
-                    alert("Lỗi: Không tìm thấy ID sản phẩm.");
+                    Swal.fire({
+                        icon: "error",
+                        title: "Lỗi!",
+                        text: "Không tìm thấy ID sản phẩm.",
+                    });
                     return;
                 }
 
-                this.submit();
-            });
-
-        });
-         // wish list 
-         $(document).on('click', '.wishlist-toggle', function (e) {
-    e.preventDefault();
-
-    @guest
-        // Nếu chưa đăng nhập, hiển thị thông báo yêu cầu đăng nhập
-        Swal.fire({
-            icon: 'warning',
-            title: 'Bạn chưa đăng nhập!',
-            text: 'Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích.',
-            showConfirmButton: true,
-            confirmButtonText: 'Đăng nhập',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = '/login'; // Điều hướng đến trang đăng nhập
-            }
-        });
-        return; // Dừng xử lý tiếp theo
-    @endguest
-
-    var productId = $(this).data('product-id'); // Lấy product ID từ thuộc tính data-product-id
-    var icon = $(this).find('.wishlist-icon'); // Chỉ chọn icon trong element hiện tại
-
-    $.ajax({
-        url: `/account/wishlist/toggle/${productId}`,
-        type: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-        },
-        data: {
-            product_id: productId
-        },
-        success: function (data) {
-            if (data.result) {
-                if (data.action === 'added') {
-                    icon.css('color', 'red'); // Đổi màu khi thêm vào wishlist
+                // Kiểm tra nếu sản phẩm có biến thể nhưng chưa chọn
+                if (hasVariant && (!selectedVariantId || selectedVariantId.trim() === "")) {
                     Swal.fire({
-                        icon: 'success',
-                        title: 'Đã thêm!',
-                        text: 'Sản phẩm đã được thêm vào danh sách yêu thích!',
-                        timer: 1500,
-                        showConfirmButton: false
+                        icon: "warning",
+                        title: "Vui lòng chọn biến thể!",
+                        text: "Bạn cần chọn màu sắc hoặc kích thước trước khi thêm vào giỏ hàng.",
                     });
-                } else if (data.action === 'removed') {
-                    icon.css('color', 'black'); // Đổi màu khi xóa khỏi wishlist
+                    return;
+                }
+
+                // Gửi request thêm vào giỏ hàng nếu hợp lệ
+                $.ajax({
+                    url: $('#addToCartForm').attr('action'),
+                    method: $('#addToCartForm').attr('method'),
+                    data: $('#addToCartForm').serialize(),
+                    success: function(response) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Thêm vào giỏ hàng thành công!",
+                            text: "Sản phẩm của bạn đã được thêm vào giỏ hàng.",
+                            showConfirmButton: false,
+                            timer: 2000
+                        }).then(() => {
+                            location.reload();
+                        });
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Lỗi!",
+                            text: "Có lỗi xảy ra khi thêm vào giỏ hàng.",
+                        });
+                    }
+                });
+            });
+        });
+        // wish list 
+        $(document).on('click', '.wishlist-toggle', function(e) {
+            e.preventDefault();
+
+            @guest
+            // Nếu chưa đăng nhập, hiển thị thông báo yêu cầu đăng nhập
+            Swal.fire({
+                icon: 'warning',
+                title: 'Bạn chưa đăng nhập!',
+                text: 'Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích.',
+                showConfirmButton: true,
+                confirmButtonText: 'Đăng nhập',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/login'; // Điều hướng đến trang đăng nhập
+                }
+            });
+            return; // Dừng xử lý tiếp theo
+        @endguest
+
+        var productId = $(this).data('product-id'); // Lấy product ID từ thuộc tính data-product-id
+        var icon = $(this).find('.wishlist-icon'); // Chỉ chọn icon trong element hiện tại
+
+        $.ajax({
+            url: `/account/wishlist/toggle/${productId}`,
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            },
+            data: {
+                product_id: productId
+            },
+            success: function(data) {
+                if (data.result) {
+                    if (data.action === 'added') {
+                        icon.css('color', 'red'); // Đổi màu khi thêm vào wishlist
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đã thêm!',
+                            text: 'Sản phẩm đã được thêm vào danh sách yêu thích!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else if (data.action === 'removed') {
+                        icon.css('color', 'black'); // Đổi màu khi xóa khỏi wishlist
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đã xóa!',
+                            text: 'Sản phẩm đã bị xóa khỏi danh sách yêu thích!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                } else {
                     Swal.fire({
-                        icon: 'success',
-                        title: 'Đã xóa!',
-                        text: 'Sản phẩm đã bị xóa khỏi danh sách yêu thích!',
-                        timer: 1500,
-                        showConfirmButton: false
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: data.message || 'Có lỗi xảy ra, vui lòng thử lại!',
                     });
                 }
-            } else {
+            },
+            error: function(xhr, status, error) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Lỗi!',
-                    text: data.message || 'Có lỗi xảy ra, vui lòng thử lại!',
+                    text: 'Có lỗi xảy ra, vui lòng thử lại!',
                 });
             }
-        },
-        error: function (xhr, status, error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Lỗi!',
-                text: 'Có lỗi xảy ra, vui lòng thử lại!',
-            });
-        }
-    });
-});
-
+        });
+        });
     </script>
 @endpush

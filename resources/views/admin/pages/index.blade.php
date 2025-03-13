@@ -6,6 +6,8 @@
 {{-- ================================== --}}
 
 @push('css_library')
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 @endpush
 
 @push('css')
@@ -72,15 +74,31 @@
                                         <div class="title-header">
                                             <div class="w-100 d-flex align-items-center justify-content-between">
                                                 <h5>{{ __('message.revenue_and_orders') }}</h5>
-                                                <div>
-                                                    <select class="form-select" name="">
-                                                        <option value="">Today</option>
-                                                        <option value="">Last Week</option>
-                                                        <option value="">Last Month</option>
-                                                        <option value="">Last Year</option>
-                                                        <option value="">Last 2 Year</option>
-                                                        <option value="">Last 3 Year</option>
-                                                    </select>
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    <div class="d-flex justify-content-center align-items-center me-4">
+                                                        <p class="mb-0 me-2 fw-bold">{{ __('message.from') }}</p>
+                                                        <div class="input-group custom-dt-picker">
+                                                            <input placeholder="YYY-MM-DD"
+                                                                id="start_date_input"
+                                                                class="form-control form-date">
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary">
+                                                                <i class="ri-calendar-line"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <p class="mb-0 me-2 fw-bold">{{ __('message.to') }}</p>
+                                                        <div class="input-group custom-dt-picker">
+                                                            <input placeholder="YYY-MM-DD"
+                                                                id="end_date_input"
+                                                                class="form-control form-date">
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary">
+                                                                <i class="ri-calendar-line"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -351,9 +369,35 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-body">
-                                        <div class="title-header ">
-                                            <div class="d-flex align-items-center">
+                                        <div class="title-header">
+                                            <div class="w-100 d-flex align-items-center justify-content-between">
                                                 <h5>{{ __('message.orders_status') }}</h5>
+                                                <div class="d-flex align-items-center align-items-center">
+                                                    <div class="d-flex justify-content-center align-items-center me-4">
+                                                        <p class="mb-0 me-2 fw-bold">{{ __('message.from') }}</p>
+                                                        <div class="input-group custom-dt-picker">
+                                                            <input placeholder="YYY-MM-DD"
+                                                                id="start_date_input_2"
+                                                                class="form-control form-date">
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary">
+                                                                <i class="ri-calendar-line"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex justify-content-center align-items-center">
+                                                        <p class="mb-0 me-2 fw-bold">{{ __('message.to') }}</p>
+                                                        <div class="input-group custom-dt-picker">
+                                                            <input placeholder="YYY-MM-DD"
+                                                                id="end_date_input_2"
+                                                                class="form-control form-date">
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary">
+                                                                <i class="ri-calendar-line"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div style="min-height: 360px;">
@@ -378,7 +422,30 @@
 {{-- ================================== --}}
 
 @push('js_library')
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 @endpush
 
 @push('js')
+    <script>
+        $(".form-date").flatpickr({
+            dateFormat: "Y-m-d"
+        });
+
+        $("#start_date_input").click(function() {
+            $("#start_date_input").open();
+        });
+
+        $("#end_date_input").click(function() {
+            $("#end_date_input").open();
+        });
+
+        $("#start_date_input_2").click(function() {
+            $("#start_date_input_2").open();
+        });
+
+        $("#end_date_input_2").click(function() {
+            $("#end_date_input_2").open();
+        });
+    </script>
 @endpush

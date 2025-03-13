@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\ProductStock;
 use App\Services\Api\Admin\OrderService;
+use DB;
 use Exception;
 use Illuminate\Http\Request;
 use PDF;
@@ -153,6 +156,35 @@ class OrderController extends Controller
             $idOrder = $request->input("order_id");
             $idStatus = $request->input("status_id");
             $note = $request->input("note");
+
+            $order = Order::query()->where('id', $idOrder)->with('orderItems', 'orderStatuses')->first();
+
+            DB::beginTransaction();
+
+
+            $orderArray = $order->toArray();
+            if ($orderArray['order_statuses'][0]['id'] == 1) {
+
+                foreach ($orderArray['order_items'] as $key => $value) {
+                    if ($value['product_variant_id']) {
+                        $itemStock = ProductStock::where('product_variant_id', $value['product_variant_id'])->first();
+
+                        $itemStock->stock = $itemStock->stock + (INT) $value['quantity_variant'];
+                        $itemStock->save();
+
+                    } else {
+                        $itemStock = ProductStock::where('product_id', $value['product_id'])->first();
+
+                        $itemStock->stock = $itemStock->stock + (INT) $value['quantity'];
+                        $itemStock->save();
+                    }
+                }
+
+            }
+
+            DB::commit();
+
+
 
 
             if ($note) {

@@ -744,16 +744,16 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                    <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                    <div class="status-pending">
-                                    <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                    </div>
-                                    </div>
+                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                        <div class="status-pending">
+                                        <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                        </div>
+                                        </div>
 
 
-                                    ` : `
+                                        ` : `
 
-                                    `}
+                                        `}
                                         <li>
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
@@ -776,8 +776,6 @@
                             'configorder'); // Lấy orderId từ thuộc tính data-configOrder
                         // Thêm mã để xử lý orderId nếu cần (ví dụ, gửi lên server)
                         callApiGetOrderOrderStatus(orderId);
-
-
 
                         $('#modalConfirm').modal('show'); // Hiển thị modal
                     });

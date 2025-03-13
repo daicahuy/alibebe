@@ -451,6 +451,41 @@
                     showConfirmButton: true
                 });
             @endif
+            // Khi checkbox chọn tất cả được click
+            $('#checkbox-table').on('change', function() {
+                let isChecked = $(this).prop('checked');
+                $('.checkbox-input').prop('checked', isChecked);
+                toggleDeleteButton();
+            });
+
+            // Khi checkbox con được click
+            $('.checkbox-input').on('change', function() {
+                let total = $('.checkbox-input').length;
+                let checked = $('.checkbox-input:checked').length;
+                $('#checkbox-table').prop('checked', total === checked);
+                toggleDeleteButton();
+            });
+
+            // Khi nhấn nút xóa tất cả
+            $('#btn-delete-all').on('click', function(e) {
+                e.preventDefault();
+
+                let selectedIds = $('.checkbox-input:checked').map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (selectedIds.length > 0) {
+                    $('#ids-to-delete').val(selectedIds.join(','));
+                    $('#delete-all-form').submit();
+                }
+            });
+
+            // Hàm ẩn/hiện nút xóa tất cả
+            function toggleDeleteButton() {
+                let checked = $('.checkbox-input:checked').length > 0;
+                $('#btn-delete-all').toggleClass('visually-hidden', !checked);
+            }
+
 
             // Cập nhật số lượng sản phẩm khi nhấn nút +/- trong giỏ hàng
             $(".qty-left-minus, .qty-right-plus").off("click").on("click", function() {
@@ -721,7 +756,7 @@
                     });
 
                     totalSum2 += (productVariantId ? finalPriceVariant : finalPrice) * qty;
-                    
+
                 });
 
                 $.ajax({
@@ -775,7 +810,7 @@
                                 .newSubtotal); // Cập nhật dropdown cart ngay lập tức
                             if (data && data.type) {
                                 updateDropdownTotal2(data
-                                .status); // Cập nhật tổng tiền trong dropdown cart
+                                    .status); // Cập nhật tổng tiền trong dropdown cart
                             } else {
                                 updateDropdownTotal(); // Cập nhật tổng tiền trong dropdown cart
                             }

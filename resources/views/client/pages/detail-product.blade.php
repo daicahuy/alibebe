@@ -390,8 +390,8 @@
                                                         </a>
 
                                                         <h5 class="sold text-content">
-                                                            @if ($dk->sale_price == null)
-                                                                <del>{{ number_format($dk->price, 0, ',', '.') }} ₫</del>
+                                                            @if ( $dk->is_sale == 0)
+                                                                <span>{{ number_format($dk->price, 0, ',', '.') }} ₫</span>
                                                             @else
                                                                 <span
                                                                     class="theme-color price">{{ number_format($dk->sale_price, 0, ',', '.') }}
@@ -1021,6 +1021,25 @@
 
         $(document).ready(function() {
 
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: "{{ session('success') }}",
+                    timer: 1500,
+                    showConfirmButton: true
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: "{{ session('error') }}",
+                    showConfirmButton: true
+                });
+            @endif
+
             $('a.xem-chi-tiet-button').click(function(
                 e) { // Bắt sự kiện click trên nút "Xem chi tiết" (class 'xem-chi-tiet-button')
                 e.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ <a> (nếu có href)
@@ -1347,13 +1366,13 @@
 
                 // **FORM SẼ ĐƯỢC SUBMIT ĐI (vì đã bỏ event.preventDefault())**
                 // KHÔNG CẦN AJAX NỮA - FORM SUBMIT MẶC ĐỊNH SẼ ĐƯỢC THỰC HIỆN
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công!',
-                    text: 'Sản phẩm đã được thêm vào giỏ hàng!',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
+                // Swal.fire({
+                //     icon: 'success',
+                //     title: 'Thành công!',
+                //     text: 'Sản phẩm đã được thêm vào giỏ hàng!',
+                //     showConfirmButton: false,
+                //     timer: 1500
+                // });
 
             });
         })
@@ -1404,13 +1423,13 @@
                     console.log('product_variant_id:', productVariantId);
                     console.log('quantity:', quantity);
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công!',
-                        text: 'Sản phẩm đã được thêm vào giỏ hàng!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
+                    // Swal.fire({
+                    //     icon: 'success',
+                    //     title: 'Thành công!',
+                    //     text: 'Sản phẩm đã được thêm vào giỏ hàng!',
+                    //     showConfirmButton: false,
+                    //     timer: 1500
+                    // });
 
                 });
             } else {

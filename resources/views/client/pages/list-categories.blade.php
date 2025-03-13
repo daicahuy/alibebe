@@ -682,9 +682,9 @@
                                         <button type="submit" class="btn btn-md add-cart-button icon">Thêm vào giỏ
                                             hàng</button>
                                     </form>
-                                    <button onclick="location.href = {{ route('cart.add') }}"
-                                        class="btn theme-bg-color view-button icon text-white fw-bold btn-md">
-                                        View More Details</button>
+                                    <button class="btn theme-bg-color view-button icon text-white fw-bold btn-md detail-product-button">
+                                        View More Details
+                                    </button>
                                     {{-- <a href="{{ route('products', $listProductCate) }}" class="btn theme-bg-color view-button icon text-white fw-bold btn-md">Chi tiết sản phẩm</a> --}}
                                 </div>
                             </div>
@@ -715,6 +715,17 @@
         }
 
         $(document).ready(function() {
+            $('.detail-product-button').click(function() {
+            const productId = $('#view').data('product-id');
+
+            if (productId) {
+                const productDetailUrl = "{{ route('products', ['product' => ':productId']) }}".replace(':productId', productId);
+                location.href = productDetailUrl;
+            } else {
+                console.error("Không tìm thấy product_id...");
+                alert("Lỗi:...");
+            }
+        });
             // Thông báo alert (giữ nguyên)
             @if (session('success'))
                 Swal.fire({
@@ -986,6 +997,9 @@
                 }
                 this.submit();
             }); // end modal-addToCard
+
+
+            
             // comapre cookie
             const compareCookieName = 'compare_list'; // Tên cookie để lưu danh sách so sánh
 
