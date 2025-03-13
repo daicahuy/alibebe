@@ -331,6 +331,8 @@
         <div class="d-flex" style="align-items:center">
             ${order.order_statuses[0].id == 4 && order.order_statuses[0].pivot.customer_confirmation == 0? "<p  class='' style='color:red; margin:unset'>!Không nhận được hàng</p>" : ""}
             </div>
+
+           
         <span class="badge bg-success complete ms-2"  style='font-size: 1.2em; ${order.order_statuses[0].id == 7?'background-color: red !important; color: #fff':''}'>
             ${order.order_statuses[0].name}
         </span>
@@ -421,29 +423,36 @@
                     orderHTML += `
             <div class="order-footer">
                 <div class="d-flex flex-row">
+                    ${order.order_statuses[0].id == 6 ? `
+
+    <button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund ="${order.id}" style="background-color: red; color: #fff;">
+            Hoàn hàng
+        </button>
+
+    `:""}
     ${
         order.order_statuses[0].id === 1
             ? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}">Hủy hàng</button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                    `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `
             : order.order_statuses[0].id === 4
             ? `
-                                                                                                                        <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
-                                                                                                                            Đã nhận
-                                                                                                                        </button>
-                                                                                                                        <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
-                                                                                                                        `
+                                                        <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
+                                                            Đã nhận
+                                                        </button>
+                                                        <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
+                                                        `
             : ""
     }
 </div>
                 <div>
                     <div>${order.coupon_discount_type ? `
-                                                                                                                                                                            
-                                                                                                                                    <span>Giảm giá: </span>
-                                                                                                                                <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
-                                                                                                                                </div>
-                                                                                                                                    
-                                                                                                                                    
-                                                                                                                                    `:""}
+                                                                                                        
+                                                                <span>Giảm giá: </span>
+                                                            <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
+                                                            </div>
+                                                                
+                                                                
+                                                                `:""}
                     <div>
                         <span>Tổng tiền: </span>
                     <span class="price-new">${formatCurrency(order.total_amount)}₫</span>

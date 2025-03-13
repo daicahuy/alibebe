@@ -85,7 +85,7 @@ class ApiRefundOrderController extends Controller
             if ($adminReason) {
                 Refund::query()
                     ->where('id', $idRefund)
-                    ->update(['admin_reason' => $adminReason, 'status' => 'receiving']);
+                    ->update(['admin_reason' => $adminReason, 'status' => 'rejected']);
 
                 return response()->json([
                     "message" => "OK Admin Reason",
@@ -95,10 +95,10 @@ class ApiRefundOrderController extends Controller
             } else {
                 Refund::query()
                     ->where('id', $idRefund)
-                    ->update(['status' => 'rejected']);
+                    ->update(['status' => 'receiving']);
 
                 return response()->json([
-                    "message" => "OK Admin Rejected",
+                    "message" => "OK Admin receiving",
                     "status" => Response::HTTP_OK
                 ]);
             }
