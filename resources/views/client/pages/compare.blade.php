@@ -89,45 +89,54 @@
 
                                     @php
                                         $allVariantAttributeNames = collect($productsData)
-                                            ->pluck('variant_attributes') // Lấy mảng variant_attributes của mỗi sản phẩm
-                                            ->filter() // Loại bỏ các sản phẩm không có variant_attributes (null hoặc rỗng)
-                                            ->flatten(1) // Làm phẳng mảng 2 chiều thành 1 chiều (mỗi phần tử là 1 variantAttributeSet)
+                                            ->pluck('variant_attributes')
+                                            ->filter()
+                                            ->flatten(1)
                                             ->map(function ($variantAttributeSet) {
-                                                return array_keys($variantAttributeSet); // Lấy keys (tên thuộc tính) từ mỗi variantAttributeSet
+                                                return array_keys($variantAttributeSet);
                                             })
-                                            ->flatten() // Làm phẳng mảng tên thuộc tính
-                                            ->unique() // Lấy các tên thuộc tính duy nhất
-                                            ->values(); // Reset key mảng
+                                            ->flatten()
+                                            ->unique()
+                                            ->values();
                                     @endphp
 
                                     @foreach ($allVariantAttributeNames as $variantAttributeName)
-                                        <tr>
-                                            <th>{{ $variantAttributeName }}</th>
-                                            @foreach ($productsData as $product)
-                                                <td class="text-content">
-                                                    @if ($product['variant_attributes'])
-                                                        @php
-                                                            $variantAttributeValues = collect(
-                                                                $product['variant_attributes'],
-                                                            )
-                                                                ->map(function ($variantAttributeSet) use (
-                                                                    $variantAttributeName,
-                                                                ) {
-                                                                    return $variantAttributeSet[
-                                                                        $variantAttributeName
-                                                                    ] ?? null; // Lấy giá trị của thuộc tính hiện tại, hoặc null nếu không có
-                                                                })
-                                                                ->filter() // Loại bỏ giá trị null
-                                                                ->unique()
-                                                                ->implode(' | ');
-                                                        @endphp
-                                                        {{ $variantAttributeValues ?: 'X' }}
-                                                    @else
-                                                        X
-                                                    @endif
-                                                </td>
-                                            @endforeach
-                                        </tr>
+                                        {{-- **KIỂM TRA: Nếu KHÔNG PHẢI tất cả sản phẩm đều thiếu thuộc tính này thì HIỂN THỊ hàng** --}}
+                                        @if (
+                                            !collect($productsData)->every(function ($product) use ($variantAttributeName) {
+                                                return empty($product['variant_attributes']) ||
+                                                    !collect($product['variant_attributes'])->contains(function ($attributeSet) use ($variantAttributeName) {
+                                                        return array_key_exists($variantAttributeName, $attributeSet);
+                                                    });
+                                            }))
+                                            <tr>
+                                                <th>{{ $variantAttributeName }}</th>
+                                                @foreach ($productsData as $product)
+                                                    <td class="text-content">
+                                                        @if ($product['variant_attributes'])
+                                                            @php
+                                                                $variantAttributeValues = collect(
+                                                                    $product['variant_attributes'],
+                                                                )
+                                                                    ->map(function ($variantAttributeSet) use (
+                                                                        $variantAttributeName,
+                                                                    ) {
+                                                                        return $variantAttributeSet[
+                                                                            $variantAttributeName
+                                                                        ] ?? null;
+                                                                    })
+                                                                    ->filter()
+                                                                    ->unique()
+                                                                    ->implode(' | ');
+                                                            @endphp
+                                                            {{ $variantAttributeValues ?: 'X' }}
+                                                        @else
+                                                            X
+                                                        @endif
+                                                    </td>
+                                                @endforeach
+                                            </tr>
+                                        @endif {{-- END IF: Không phải tất cả sản phẩm đều thiếu thuộc tính --}}
                                     @endforeach
                                 @endif{{-- end biến thể --}}
 
@@ -136,13 +145,41 @@
                                     <th>Price</th>
                                     @foreach ($productsData as $product)
                                         <td class="price text-content">
-                                            @if ($product['sale_price'])
-                                                <del>{{ number_format($product['price']) }}đ</del>
-                                                <br>
-                                                <span class="theme-color">
-                                                    {{ number_format($product['sale_price']) }}đ</span>
+                                            @if ($product['type'] == 1)
+                                                @if ($product['is_sale'] && $product['min_variant_sale_price'] !== null)
+                                                    <del>
+                                                        @if ($product['min_variant_price'] != $product['max_variant_price'])
+                                                            {{ $product['min_variant_price'] }} -
+                                                            {{ $product['max_variant_price'] }}đ
+                                                        @else
+                                                            {{ $product['min_variant_price'] }}đ
+                                                        @endif
+                                                    </del><br>
+                                                    <span class="theme-color">
+                                                        @if ($product['min_variant_sale_price'] != $product['max_variant_sale_price'])
+                                                            {{ $product['min_variant_sale_price'] }} -
+                                                            {{ $product['max_variant_sale_price'] }}đ
+                                                        @else
+                                                            {{ $product['min_variant_sale_price'] }}đ
+                                                        @endif
+                                                    </span>
+                                                @else
+                                                    <span class="theme-color">
+                                                        @if ($product['min_variant_price'] != $product['max_variant_price'])
+                                                            {{ $product['min_variant_price'] }} -
+                                                            {{ $product['max_variant_price'] }}đ
+                                                        @else
+                                                            {{ $product['min_variant_price'] }}đ
+                                                        @endif
+                                                    </span>
+                                                @endif
                                             @else
-                                                <span class="theme-color"> {{ number_format($product['price']) }}đ</span>
+                                                @if ($product['is_sale'] && $product['sale_price'] !== null)
+                                                    <del>{{ $product['price'] }}đ</del><br>
+                                                    <span class="theme-color"> {{ $product['sale_price'] }}đ </span>
+                                                @else
+                                                    <span class="theme-color"> {{ $product['price'] }}đ </span>
+                                                @endif
                                             @endif
                                         </td>
                                     @endforeach
@@ -443,7 +480,7 @@
             return cookieValue;
         }
 
-        
+
         // Hàm set cookie
         function setCookie(name, value, days) {
             var expires = "";

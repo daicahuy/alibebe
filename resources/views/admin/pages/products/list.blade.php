@@ -194,7 +194,18 @@
                                                         <span class="text-muted">Không có danh mục</span>
                                                     @endif
                                                 </td>
-                                                <td class="cursor-pointer">{{ $product->price_range }} </td>
+                                                <td class="cursor-pointer">
+                                                    @if ($product->show_sale)
+                                                        <del>
+                                                            {{ $product->original_price_display }}
+                                                        </del><br>
+                                                        <span class="theme-color">
+                                                            {{ str_replace("\n", '<br>', str($product->price_range)->after("\n")) }}
+                                                        </span>
+                                                    @else
+                                                        <span class="theme-color"> {{ $product->price_range }} </span>
+                                                    @endif
+                                                </td>
                                                 <td class="cursor-pointer">{{ $product->stock_quantity }}</td>
                                                 <td class="cursor-pointer">
                                                     @if ($product->stock_quantity > 10)

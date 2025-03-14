@@ -1123,8 +1123,7 @@
 
                 if (currentState === 'unselected') {
                     console.log(`  Action: Add product to compare`);
-                    addProductToCompare(productId,
-                        productCategoryId); // **ĐẢM BẢO DÒNG NÀY KHÔNG BỊ COMMENT VÀ GÕ ĐÚNG CHÍNH TẢ**
+                    addProductToCompare(productId,productCategoryId); 
                 } else {
                     console.log(`  Action: Remove product from compare`);
                     removeFromCompareCookie(productId);
