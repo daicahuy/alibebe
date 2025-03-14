@@ -10,7 +10,7 @@
                 <div class="col-xl-8 ratio_65">
                     <div class="home-contain h-100">
                         <div class="h-100">
-                            <img src="{{ asset('theme/client/assets/images/product/bia1.png') }}"
+                            <img src="https://cdn-media.sforum.vn/storage/app/media/trannghia/Apple-MacBook-Air-M4-ra-mat-1.jpg"
                                 class="bg-img blur-up lazyload" alt="">
                         </div>
                         {{-- <div class="home-detail p-center-left w-75">
@@ -33,7 +33,7 @@
                     <div class="row g-4">
                         <div class="col-xl-12 col-md-6">
                             <div class="home-contain">
-                                <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
+                                <img src="https://cdn-media.sforum.vn/storage/app/media/1nghiatran/camera-galaxy-z-fold7.jpg"
                                     class="bg-img blur-up lazyload" alt="">
                                 {{-- <div class="home-detail p-center-left home-p-sm w-75">
                                     <div>
@@ -50,7 +50,7 @@
 
                         <div class="col-xl-12 col-md-6">
                             <div class="home-contain">
-                                <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
+                                <img src="https://cdn-media.sforum.vn/storage/app/media/trannghia/Nubia-LiveFlip-ra-mat-cover.jpg"
                                     class="bg-img blur-up lazyload" alt="">
                                 {{-- <div class="home-detail p-center-left home-p-sm w-75">
                                     <div>
@@ -76,7 +76,7 @@
             <div class="banner-slider">
                 <div>
                     <div class="banner-contain hover-effect">
-                        <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
+                        <img src="https://cdn-media.sforum.vn/storage/app/media/trannghia/beats-solo-buds-purple.jpg"
                             class="bg-img blur-up lazyload" alt="">
                         {{-- <div class="banner-details">
                             <div class="banner-box">
@@ -92,7 +92,7 @@
 
                 <div>
                     <div class="banner-contain hover-effect">
-                        <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
+                        <img src="https://cdn-media.sforum.vn/storage/app/media/trannghia/Insta360-Flow-2-Pro-ra-mat-1.jpg"
                             class="bg-img blur-up lazyload" alt="">
                         {{-- <div class="banner-details">
                             <div class="banner-box">
@@ -108,7 +108,7 @@
 
                 <div>
                     <div class="banner-contain hover-effect">
-                        <img src="{{ asset('theme/client/assets/images/product/bia1.png') }}"
+                        <img src="https://cdn-media.sforum.vn/storage/app/media/haianh/video-thuc-te-kinh-galaxy-xr-thumb.jpg"
                             class="bg-img blur-up lazyload" alt="">
                         {{-- <div class="banner-details">
                             <div class="banner-box">
@@ -124,7 +124,7 @@
 
                 <div>
                     <div class="banner-contain hover-effect">
-                        <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
+                        <img src="https://cdn-media.sforum.vn/storage/app/media/haianh/vivo-y29s-5g-ra-mat-thumb.jpg"
                             class="bg-img blur-up lazyload" alt="">
                         {{-- <div class="banner-details">
                             <div class="banner-box">
@@ -194,7 +194,7 @@
 
                         <div class="ratio_156 section-t-space">
                             <div class="home-contain hover-effect">
-                                <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
+                                <img src="https://cdn-media.sforum.vn/storage/app/media/haianh/icemag/vivo-y29s-5g-ra-mat-1.jpg"
                                     class="bg-img blur-up lazyload" alt="">
                                 {{-- <div class="home-detail p-top-left home-p-medium">
                                     <div>
@@ -212,7 +212,7 @@
 
                         <div class="ratio_medium section-t-space">
                             <div class="home-contain hover-effect">
-                                <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
+                                <img src="https://cdn-media.sforum.vn/storage/app/media/trannghia/ROG-Flow-Z13-civer.jpg"
                                     class="img-fluid blur-up lazyload" alt="">
                                 {{-- <div class="home-detail p-top-left home-p-medium">
                                     <div>

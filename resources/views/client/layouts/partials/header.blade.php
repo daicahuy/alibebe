@@ -314,7 +314,7 @@
                                                 @endforeach
 
                                             </ul>
-
+                                            @if (!auth()->check() || !$cartItems->isEmpty())
                                             <div class="price-box">
                                                 <h5>Tổng cộng :</h5>
                                                 <h4 class="theme-color fw-bold total-dropdown-price">
@@ -331,6 +331,7 @@
                                                 text-white">Thanh
                                                     toán</a>
                                             </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </li>
@@ -420,7 +421,7 @@
                         <a href="{{ route('categories') }}">
                             <button class="dropdown-category">
                                 <i data-feather="align-left"></i>
-                                <span>All Categories</span>
+                                <span>Danh Mục</span>
                             </button>
                         </a>
 
