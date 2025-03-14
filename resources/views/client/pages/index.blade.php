@@ -344,7 +344,7 @@
                                                 </div>
                                                 <div class="product-detail">
                                                     <a href="{{ route('products', ['product' => $topSell->id]) }}">
-                                                        <h6 class="name">{{ $topSell->product_names }}</h6>
+                                                        <h6 class="name">{{ $topSell->name }}</h6>
                                                     </a>
 
                                                     <h5 class="sold text-content">
@@ -529,7 +529,110 @@
                             </div>
                         </div>
                     </div>
+                    <div class="title d-block">
+                        <h2>Sản phẩm Nổi bật.</h2>
+                        <p></p>
+                    </div>
+                    <div class="section-b-space">
+                        <div class="product-border  overflow-hidden">
+                            <div>
+                                <div class="row gx-3 gy-4">
+                                    @foreach ($productForYou as $fouYou)
+                                        <div class="col-lg-3 col-md-4 col-sm-6 ">
+                                            <div class="product-box border rounded shadow-sm p-3">
+                                                <div class="product-image">
+                                                    <a href="{{ route('products', ['product' => $fouYou->id]) }}">
+                                                        <img src="{{ Storage::url($fouYou->thumbnail) }}"
+                                                            class="img-fluid blur-up lazyload" alt="">
+                                                    </a>
+                                                    <ul class="product-option">
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="View">
+                                                            <a href="javascript:void(0)" data-bs-toggle="modal"
+                                                                data-bs-target="#view" data-id={{ $fouYou->id }}>
+                                                                <i data-feather="eye"></i>
+                                                            </a>
+                                                        </li>
 
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="So sánh">
+                                                            <a href="javascript:;" class="compare-toggle"
+                                                                data-state="unselected"
+                                                                data-product-id="{{ $fouYou->id }}"
+                                                                data-product-category-id="{{ $fouYou->categories->first()->id ?? null }}">
+                                                                <span class="icon-refresh">
+                                                                    <i data-feather="refresh-cw"></i>
+                                                                </span>
+                                                                <span class="icon-check" style="display:none;">
+                                                                    <i data-feather="check"></i>
+                                                                </span>
+                                                            </a>
+                                                        </li>
+
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="Wishlist">
+                                                            <a href="javascript:void(0);"
+                                                                class="notifi-wishlist wishlist-toggle"
+                                                                data-product-id="{{ $fouYou->id }}">
+                                                                <i data-feather="heart" class="wishlist-icon"
+                                                                    style="color: {{ in_array($fouYou->id, $wishlistProductIds) ? 'red' : 'black' }};"></i>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div class="product-detail">
+                                                    <a href="{{ route('products', ['product' => $fouYou->id]) }}">
+                                                        <h6 class="name">{{ $fouYou->name }}</h6>
+                                                    </a>
+
+                                                    <h5 class="sold text-content">
+                                                        <span class="theme-color price">
+                                                            {{ number_format($fouYou->sale_price > 0 ? $fouYou->sale_price : $fouYou->price) }}
+                                                            ₫
+                                                        </span>
+
+                                                        @if (!is_null($fouYou->sale_price) && $fouYou->sale_price > 0 && $fouYou->sale_price != $fouYou->price)
+                                                            <del>{{ number_format($fouYou->price) }} ₫</del>
+                                                        @endif
+                                                    </h5>
+
+
+                                                    <div class="product-rating mt-sm-2 mt-1">
+                                                        <ul class="rating">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <li>
+                                                                    <i data-feather="star"
+                                                                        class="{{ $i <= round($fouYou->average_rating) ? 'fill text-warning' : '' }}"></i>
+                                                                </li>
+                                                            @endfor
+                                                        </ul>
+                                                        <span
+                                                            class="text-muted ms-2">({{ number_format($fouYou->average_rating, 1) }})</span>
+                                                    </div>
+
+                                                    <div class="d-flex justify-content-between mt-sm-2 mt-1">
+                                                        <h6 class="unit">Lượt xem: {{ $fouYou->views_count }}</h6>
+
+                                                        @if (isset($fouYou->total_sold))
+                                                            <h6 class="unit">Đã Bán: {{ $fouYou->total_sold }}</h6>
+                                                        @endif
+                                                    </div>
+
+                                                    <div class="add-to-cart-box">
+                                                        <a href="javascript:void(0)" data-bs-toggle="modal"
+                                                            data-bs-target="#view" data-id={{ $fouYou->id }}
+                                                            class="btn btn-add-cart addcart-button">
+                                                            Add
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {{-- <div class="section-t-space">
                         <div class="banner-contain">
@@ -788,6 +891,31 @@
                 productVariantsData = {};
             });
 
+            function updateSelectedVariantUI(variantId) {
+                let selectedVariant = productVariantsData[variantId];
+
+                if (selectedVariant) {
+                    console.log("📦 Cập nhật UI theo biến thể:", selectedVariant);
+
+                    // Cập nhật thông tin sản phẩm theo biến thể đã chọn
+                    $("#prdPrice").text(formatPrice(selectedVariant.price));
+                    $("#prdThumbnail").attr("src", selectedVariant.thumbnail);
+                    $(".product-stock span").text(`Kho: ${selectedVariant.stock_quantity}`);
+                    $("#prdSoldCount").text(`Đã bán biến thể : (${selectedVariant.sold_count || 0})`);
+                    $("#cartProductVariantId").val(selectedVariant.id);
+
+                    // Cập nhật UI dropdown thuộc tính để phản ánh biến thể đã chọn
+                    $(".attribute-select").each(function() {
+                        let attrName = $(this).attr("id");
+                        let matchingAttr = selectedVariant.attribute_values.find(attr => attr
+                            .attributes_name === attrName);
+                        if (matchingAttr) {
+                            $(this).val(matchingAttr.id).trigger("change"); // 🟢 Chọn đúng thuộc tính
+                        }
+                    });
+                }
+            }
+
             $('a[data-bs-target="#view"]').click(function() {
 
                 let productId = $(this).data('id');
@@ -823,7 +951,7 @@
                         feather.replace();
 
                         // 🟢 Hiển thị kho sản phẩm thường trước khi chọn biến thể
-                        var stockQuantity = response.stock_quantity || 0;
+                        var stockQuantity = response.stock || 0;
                         $('.product-stock span').text(`Kho: ${stockQuantity}`);
                         $('#productVariants').data('stock', stockQuantity);
 
@@ -836,6 +964,12 @@
 
                         if (response.productVariants && response.productVariants.length > 0) {
                             let allAttributes = {};
+                            let firstVariant = response.productVariants[
+                                0]; // Chọn biến thể đầu tiên
+                            defaultVariantId = firstVariant.id;
+                            defaultPrice = firstVariant.sale_price ?? firstVariant.price;
+                            // Lấy tồn kho từ product_stock
+                            let firstStock = firstVariant.product_stock?.stock ?? 0;
 
                             response.productVariants.forEach(variant => {
                                 let variantId = variant.id;
@@ -847,14 +981,8 @@
                                     thumbnail: variant.thumbnail,
                                     attribute_values: variant.attribute_values,
                                     stock_quantity: stock,
-                                    sold_count: variant
-                                        .sold_count // 🟢 Hiển thị số lượng đã bán của biến thể
+                                    sold_count: variant.sold_count
                                 };
-
-                                if (!defaultVariantId) {
-                                    defaultVariantId = variantId;
-                                    defaultPrice = variant.sale_price ?? variant.price;
-                                }
 
                                 variant.attribute_values.forEach(attr => {
                                     if (!allAttributes[attr.attributes_name]) {
@@ -876,20 +1004,34 @@
                             let attributesHtml = '';
                             for (const attrName in allAttributes) {
                                 attributesHtml += `
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="${attrName}">${attrName}:</label>
-                    <select class="form-control attribute-select" id="${attrName}">
-                        <option value="">Chọn ${attrName}</option>
-                        ${allAttributes[attrName].map(attr => `<option value="${attr.id}">${attr.attribute_value}</option>`).join('')}
-                    </select>
-                </div>
-            </div>`;
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="${attrName}">${attrName}:</label>
+                                        <select class="form-control attribute-select" id="${attrName}">
+                                            <option value="">Chọn ${attrName}</option>
+                                            ${allAttributes[attrName].map(attr => 
+                                                `<option value="${attr.id}" ${firstVariant.attribute_values.some(a => a.id === attr.id) ? 'selected' : ''}>${attr.attribute_value}</option>`
+                                            ).join('')}
+                                        </select>
+                                    </div>
+                                </div>`;
                             }
 
                             $('#productVariants').html('<div class="row">' + attributesHtml +
                                 '</div>');
                             $('.attribute-select').change(updateSelectedVariant);
+
+                            // Cập nhật UI theo biến thể đầu tiên
+                            $('#prdPrice').text(formatPrice(defaultPrice));
+                            $('#prdThumbnail').attr('src', firstVariant.thumbnail);
+                            $('.product-stock span').text(
+                                `Kho: ${firstStock}`); // 🟢 Hiển thị kho chính xác
+                            $('#prdSoldCount').text(
+                                `Đã bán biến thể : (${firstVariant.sold_count || 0})`);
+                            $('#cartProductVariantId').val(firstVariant.id);
+                            updateSelectedVariantUI(
+                                firstVariantId); // 🟢 Cập nhật UI theo biến thể mặc định
+                            console.log("🟢 Mặc định chọn biến thể:", firstVariant);
                         } else {
                             $('#productVariants').html(
                                 '<p>Sản phẩm này hiện không có biến thể.</p>');
@@ -965,33 +1107,27 @@
                 e.preventDefault();
 
                 let productId = $('#cartProductId').val();
-                let selectedVariantId = $('#cartProductVariantId').val();
+                let selectedVariantId = $('#cartProductVariantId').val(); // 🟢 Lấy giá trị biến thể đã chọn
+
                 let hasVariant = $('#productVariants .attribute-select').length > 0;
 
-                console.log("🛒 ID sản phẩm trong form:", productId);
+                console.log("🛒 ID sản phẩm:", productId);
                 console.log("🛒 ID biến thể đã chọn:", selectedVariantId);
                 console.log("🔍 Sản phẩm có biến thể?", hasVariant);
 
-                // Kiểm tra nếu sản phẩm có biến thể nhưng chưa chọn
+                // 🟢 Nếu có biến thể nhưng chưa chọn, lấy biến thể mặc định
                 if (hasVariant && (!selectedVariantId || selectedVariantId.trim() === "")) {
-                    Swal.fire({
-                        icon: "warning",
-                        title: "Vui lòng chọn biến thể!",
-                        text: "Bạn cần chọn màu sắc hoặc kích thước trước khi thêm vào giỏ hàng.",
-                    });
-                    return;
+                    let defaultVariantId = $('#productVariants').find('.attribute-select option[selected]')
+                        .val();
+                    selectedVariantId = defaultVariantId || $('#cartProductVariantId').val();
+
+                    console.log("🟢 Tự động lấy biến thể mặc định:", selectedVariantId);
+                    $('#cartProductVariantId').val(selectedVariantId);
                 }
 
-                // Lấy số lượng tồn kho của sản phẩm (có thể là sản phẩm chính hoặc biến thể)
-                let stockQuantity = 0;
-
-                if (selectedVariantId) {
-                    let selectedVariant = productVariantsData[selectedVariantId];
-                    stockQuantity = selectedVariant ? selectedVariant.stock_quantity : 0;
-                } else {
-                    // Nếu không có biến thể, lấy số lượng tồn kho của sản phẩm chính
-                    stockQuantity = $('#productVariants').data('stock') || 0;
-                }
+                // Kiểm tra số lượng tồn kho
+                let stockQuantity = selectedVariantId ? productVariantsData[selectedVariantId]
+                    ?.stock_quantity || 0 : $('#productVariants').data('stock') || 0;
 
                 console.log("🛒 Số lượng tồn kho:", stockQuantity);
 
@@ -1005,7 +1141,7 @@
                     return;
                 }
 
-                // Nếu còn hàng, gửi yêu cầu thêm vào giỏ
+                // Gửi AJAX thêm vào giỏ hàng
                 $.ajax({
                     url: $('#addToCartForm').attr('action'),
                     method: $('#addToCartForm').attr('method'),
@@ -1030,7 +1166,6 @@
                     }
                 });
             });
-
 
             // comrpert
             // comapre cookie
@@ -1249,18 +1384,18 @@
 
             @guest
 // Nếu chưa đăng nhập, hiển thị thông báo yêu cầu đăng nhập
-    Swal.fire({
-        icon: 'warning',
-        title: 'Bạn chưa đăng nhập!',
-        text: 'Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích.',
-        showConfirmButton: true,
-        confirmButtonText: 'Đăng nhập',
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = '/login'; // Điều hướng đến trang đăng nhập
-        }
-    });
-    return; // Dừng xử lý tiếp theo @endguest
+        Swal.fire({
+            icon: 'warning',
+            title: 'Bạn chưa đăng nhập!',
+            text: 'Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích.',
+            showConfirmButton: true,
+            confirmButtonText: 'Đăng nhập',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/login'; // Điều hướng đến trang đăng nhập
+            }
+        });
+        return; // Dừng xử lý tiếp theo @endguest
 
             var productId = $(this).data('product-id'); // Lấy product ID
             var icon = $(this).find('.wishlist-icon'); // Chỉ chọn icon trong element hiện tại

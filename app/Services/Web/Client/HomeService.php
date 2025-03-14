@@ -73,7 +73,9 @@ class HomeService
     {
         return $this->categoryRepo->topCategoryInWeek();
     }
-
+    public function productForYou()  {
+        return $this->productRepository->getPopularProducts();
+    }
     public function getBestSellingProduct()
     {
         return $this->productRepository->getBestSellingProducts();
@@ -85,62 +87,42 @@ class HomeService
     public function detailModal($id)
     {
         try {
-            $product = $this->productRepository->detailModal($id);
+            $product = $this->productRepository->detailModal($id) ?? 0;
 
             if (!$product) {
                 throw new ModelNotFoundException('Không tìm thấy sản phẩm.');
             }
-
             $avgRating = $product->reviews->avg('rating');
 
-            // 🟢 Lấy tồn kho của sản phẩm thường
-            $stockQuantity = optional($product->productStock)->stock ?? 0;
-
-            // 🟢 Lấy số lượng đã bán của sản phẩm thường (không phải biến thể)
-            $productSoldCount = DB::table('order_items')
-                ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
-                ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
-                ->where('order_items.product_id', $product->id) // 🟢 Lọc theo product_id
-                ->whereNull('order_items.product_variant_id') // 🟢 Chỉ lấy sản phẩm thường (không có biến thể)
-                ->where('order_statuses.name', 'Hoàn thành')
-                ->sum('order_items.quantity');
-
-            // 🟢 Xử lý sold_count cho từng biến thể trong Service
-          
-            $productVariantIds = $product->productVariants->pluck('id')->toArray();
-
-            $soldCounts = DB::table('order_items')
-                ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
-                ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
-                ->whereIn('order_items.product_variant_id', $productVariantIds)
-                ->where('order_statuses.name', 'Hoàn thành')
-                ->groupBy('order_items.product_variant_id')
-                ->select('order_items.product_variant_id', DB::raw('SUM(order_items.quantity) as sold_count'))
-                ->pluck('sold_count', 'order_items.product_variant_id');
-            
-            $productVariants = $product->productVariants->map(function ($variant) use ($soldCounts) {
+            // **CHỈNH SỬA QUAN TRỌNG: Tính toán sold_count TRƯỚC VÒNG LẶP và truyền vào map**
+            $productVariants = $product->productVariants->map(function ($variant) use ($product) { // **USE $product để truyền product ID nếu cần**
                 return [
                     'id' => $variant->id,
                     'price' => $variant->price,
                     'sale_price' => $variant->sale_price,
                     'display_price' => $variant->display_price,
+                    'original_price' => $variant->original_price,
                     'thumbnail' => Storage::url($variant->thumbnail),
+                    'is_active' => $variant->is_active,
                     'attribute_values' => $variant->attributeValues->map(function ($attributeValue) {
                         return [
                             'id' => $attributeValue->id,
                             'attribute_value' => $attributeValue->value,
                             'attributes_name' => $attributeValue->attribute->name,
+                            'attributes_slug' => $attributeValue->attribute->slug,
                         ];
                     }),
-                    'product_stock' => $variant->productStock ? [
-                        'stock' => $variant->productStock->stock,
-                    ] : ['stock' => 0],
-                    'sold_count' => $soldCounts[$variant->id] ?? 0,  // 🟢 Lấy số lượng đã bán từ truy vấn
+                    'product_stock' => $variant->productStock ?
+                        [
+                            "product_id" => $variant->productStock->product_id,
+                            'product_variant_id' => $variant->productStock->product_variant_id,
+                            'stock' => $variant->productStock->stock,
+                        ] : [],
+                    // **TÍNH TOÁN sold_count TRONG VÒNG LẶP MAP, ĐẢM BẢO TÍNH CHO TỪNG BIẾN THỂ**
+                    'sold_count' => $variant->getSoldQuantity(), // **ĐẢM BẢO GỌI getSoldQuantity() CHO TỪNG $variant**
                 ];
             });
-            
+
             return [
                 'id' => $product->id,
                 'name' => $product->name,
@@ -153,9 +135,9 @@ class HomeService
                 'brand' => $product->brand ? $product->brand->name : null,
                 'avgRating' => $avgRating,
                 'productVariants' => $productVariants,
-                'sold_count' => $productSoldCount, // 🟢 Số lượng đã bán của sản phẩm thường (không tính biến thể)
+                'sold_count' => $product->getSoldQuantity(), // Vẫn giữ lại tổng sold_count của sản phẩm gốc (nếu cần)
                 'is_sale' => $product->is_sale,
-                'stock_quantity' => $stockQuantity, // 🟢 Trả về tồn kho sản phẩm thường
+                'stock' => $product->stock,
             ];
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()], 500);
