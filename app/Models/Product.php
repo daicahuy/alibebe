@@ -134,48 +134,31 @@ class Product extends Model
     public function scopeTrending($query)
     {
         return $query->with([
-                'productVariants', 
+                'productVariants',
                 'reviews' => function ($query) {
                     $query->where('is_active', 1);
                 },
-                'orderItems.order.orderStatuses' => function ($query) {
-                    $query->where('order_status_id', 6); // Chỉ lấy đơn hàng hoàn thành
-                }
             ])
             ->select(
                 'products.*',
-                DB::raw('COALESCE(product_variants.price, products.price) as price'),
-                DB::raw('COALESCE(NULLIF(product_variants.sale_price, 0), NULLIF(products.sale_price, 0), products.price) as sale_price'),
                 DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
-                DB::raw('
+                DB::raw('COALESCE(SUM(
                     CASE 
-                        WHEN COUNT(order_items.id) = 0 THEN NULL
-                        ELSE SUM(
-                            CASE 
-                                WHEN order_items.product_variant_id IS NOT NULL 
-                                THEN order_items.quantity_variant
-                                ELSE order_items.quantity 
-                            END
-                        )
-                    END as total_sold
-                ')
+                        WHEN order_items.product_variant_id IS NOT NULL 
+                        THEN order_items.quantity_variant
+                        ELSE order_items.quantity 
+                    END
+                ), 0) as total_sold')
             )
-            ->where('products.is_active','=','1')
-            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id')
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+            ->leftJoin('order_items', function ($join) {
+                $join->on('products.id', '=', 'order_items.product_id')
+                    ->leftJoin('orders', 'order_items.order_id', '=', 'orders.id')
+                    ->leftJoin('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+                    ->where('order_order_status.order_status_id', '=', 6); // Chỉ lấy đơn hoàn thành
+            })
             ->leftJoin('reviews', 'reviews.product_id', '=', 'products.id')
-            ->groupBy(
-                'products.id',
-                'products.name',
-                'products.thumbnail',
-                'product_variants.price',
-                'product_variants.sale_price',
-                'products.price',
-                'products.sale_price',
-                'products.created_at'
-            )
+            ->where('products.is_active', '=', '1')
+            ->groupBy('products.id')
             ->orderByDesc('total_sold')
             ->limit(12);
     }
