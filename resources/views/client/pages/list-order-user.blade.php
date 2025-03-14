@@ -211,82 +211,26 @@
                             <div class="order-card">
 
                                 <div class="d-flex justify-content-between align-items-center p-2">
-                                    <h4 class="ml-3 d-block">ID: ORDER-11032025145635.844-553</h4>
+                                    <h4 class="ml-3 d-block" id="order-id"></h4>
 
                                     <div class="d-flex align-items-center">
                                         <div class="d-flex" style="align-items:center">
 
                                         </div>
-                                        <span class="badge bg-success complete ms-2" style="font-size: 1.2em; ">
-                                            Hoàn thành
+                                        <span class="badge bg-success complete ms-2" id="order-status"
+                                            style="font-size: 1.2em; ">
+
                                         </span>
                                     </div>
                                 </div>
 
+                                <div id="listItemOrder">
 
-                                <div class="d-flex flex-row"
-                                    style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
-                                    <div class="order-body d-flex">
-                                        <input type="checkbox">
-                                        <img src="http://127.0.0.1:8000/storage/products/product_2.png" alt="Product"
-                                            class="me-3" style="width: 100px; height: 100px; object-fit: cover;">
-                                        <div class="d-flex flex-row" style="justify-content: space-between">
-                                            <div>
-                                                <p class="mb-1">Tablet Z73 Pro 45273</p>
-                                                <p class="text-muted mb-1" style="font-size: 14px;">
-                                                    Phân loại hàng: 256GB,
-                                                    Màu vàng
-                                                </p>
-                                                <p class="text-muted mb-1" style="font-size: 14px;">
-                                                    x1
-                                                </p>
-                                                <div style="margin-right: 15px">
-                                                    <span class="price-old"></span>
-                                                    <span class="price-new ms-2">
-                                                        6.884.550,00₫
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex flex-row" style="margin-right: 15px">
-                                        <span>Thành tiền:</span>
-                                        <p class="price-new">6.884.550,00₫</p>
-                                    </div>
                                 </div>
-                                <div class="d-flex flex-row"
-                                    style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
-                                    <div class="order-body d-flex">
-                                        <input type="checkbox">
-                                        <img src="http://127.0.0.1:8000/storage/products/product_2.png" alt="Product"
-                                            class="me-3" style="width: 100px; height: 100px; object-fit: cover;">
-                                        <div class="d-flex flex-row" style="justify-content: space-between">
-                                            <div>
-                                                <p class="mb-1">Tablet Z73 Pro 45273</p>
-                                                <p class="text-muted mb-1" style="font-size: 14px;">
-                                                    Phân loại hàng: 256GB,
-                                                    Màu vàng
-                                                </p>
-                                                <p class="text-muted mb-1" style="font-size: 14px;">
-                                                    x1
-                                                </p>
-                                                <div style="margin-right: 15px">
-                                                    <span class="price-old"></span>
-                                                    <span class="price-new ms-2">
-                                                        6.884.550,00₫
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex flex-row" style="margin-right: 15px">
-                                        <span>Thành tiền:</span>
-                                        <p class="price-new">6.884.550,00₫</p>
-                                    </div>
-                                </div>
+
+
                                 <div class="order-footer">
-                                    <div class="d-flex flex-row">
-                                        Khách hàng: Nguyễn Minh Quân
+                                    <div class="d-flex flex-row" id="user_name">
 
                                     </div>
                                     <div>
@@ -366,7 +310,7 @@
                     },
                     success: function(response) {
 
-                        // console.log(response);
+                        console.log(response);
                         // return;
                         renderTable(response.orders, response.totalPages);
 
@@ -445,6 +389,80 @@
                     changedOrderIds = [];
                 }, 1000);
             }
+
+
+            function callApiGetItemInOrder(orderId) {
+                $.ajax({
+                    url: `http://127.0.0.1:8000/api/orders/${orderId}`,
+                    method: "get",
+
+                    success: function(response) {
+
+                        return response.listItemOrder;
+
+                    },
+                    error: function() {
+                        alert("Error fetching data from API");
+                    },
+
+                });
+            }
+
+
+            async function getItemProductByOrder(orderId) {
+
+                const orderById = await callApiGetItemInOrder(orderId);
+
+                $('#returnOrderModal #order-id').val(`ID: ${orderById[0].order.code}`);
+                $('#returnOrderModal #order-status').val(orderById[0].order.order_statuses[0].name);
+                $('#returnOrderModal #user_name').val(`Khách hàng: ${orderById[0].order.fullname}`);
+
+                $('#listItemOrder').empty();
+
+
+                orderById.forEach((order) => {
+
+                    const imageUrl =
+                        `{{ Storage::url('${order.product.thumbnail}') }}`;
+                    $('#listItemOrder').append(
+                        `
+                        <div class="d-flex flex-row"
+                                    style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
+                                    <div class="order-body d-flex">
+                                        <input type="checkbox">
+                                        <img src="${imageUrl}" alt="Product"
+                                            class="me-3" style="width: 100px; height: 100px; object-fit: cover;">
+                                        <div class="d-flex flex-row" style="justify-content: space-between">
+                                            <div>
+                                                <p class="mb-1">${order.name}</p>
+                                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                                    ${order.name_variant}
+                                                </p>
+                                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                                    ${product_variant_id?`x${order.quantity_variant}`:`x${order.quantity}`}
+                                                </p>
+                                                <div style="margin-right: 15px">
+                                                    <span class="price-old"></span>
+                                                    <span class="price-new ms-2">
+                                                        6.884.550,00₫
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-row" style="margin-right: 15px">
+                                        <span>Thành tiền:</span>
+                                        <p class="price-new">6.884.550,00₫</p>
+                                    </div>
+                                </div>
+                        
+                        `
+                    )
+                })
+
+
+            }
+
 
             function renderTable(orders, totalPages) {
                 // Lấy phần tử danh sách chứa các đơn hàng
@@ -530,7 +548,7 @@
                             style="width: 100px; height: 100px; object-fit: cover;">
                         <div class="d-flex flex-row" style="justify-content: space-between">
                             <div>
-                                <p class="mb-1">${item.name}</p>
+                                <a href="/products/${item.product.id}?order_id=${item.order_id}" class="mb-1">${item.name}</a>
                                 <p class="text-muted mb-1" style="font-size: 14px;">
                                     ${
                                         item.product_variant_id
@@ -585,34 +603,34 @@
                 <div class="d-flex flex-row">
                     ${order.order_statuses[0].id == 6 ? `
 
-            <button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund ="${order.id}" style="background-color: red; color: #fff;">
-                    Hoàn hàng
-                </button>
+                                                                                    <button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund="${order.id}" style="background-color: red; color: #fff;">
+                                                                                            Hoàn hàng
+                                                                                        </button>
 
-            `:""}
+                                                                                    `:""}
     ${
         order.order_statuses[0].id === 1
             ? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}">Hủy hàng</button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `
             : order.order_statuses[0].id === 4
             ? `
-    <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
-    Đã nhận
-    </button>
-    <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
-    `
+                                                                                        <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
+                                                                                        Đã nhận
+                                                                                        </button>
+                                                                                        <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
+                                                                                        `
             : ""
     }
 </div>
                 <div>
                     <div>${order.coupon_discount_type ? `
-                                                                                                                
-                                <span>Giảm giá: </span>
-                            <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
-                            </div>
-                                
-                                
-                                `:""}
+                                                                                                                                                                                                                                                                
+                                                                                                <span>Giảm giá: </span>
+                                                                                            <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
+                                                                                            </div>
+                                                                                                
+                                                                                                
+                                                                                                `:""}
                     <div>
                         <span>Tổng tiền: </span>
                     <span class="price-new">${formatCurrency(order.total_amount)}₫</span>
@@ -708,6 +726,15 @@
                                 error);
                         }
                     });
+                })
+
+
+                $(".btn-refund-order").click(async function() {
+                    const orderId = $(this).data("idorderrefund");
+                    console.log(orderId);
+                    await getItemProductByOrder(orderId)
+                    $("#returnOrderModal").modal('show');
+
                 })
             }
 
