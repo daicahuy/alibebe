@@ -54,8 +54,7 @@ Route::get('admin/chats/search-users', [ChatController::class, 'searchUsers'])
 Route::get('admin/chats/start-chat', [ChatController::class, 'startChat'])
     ->name('admin.chats.start-chat');
 
-    Route::middleware(['auth:sanctum'])
-    ->prefix('client/chat')
+Route::prefix('client/chat')
     ->group(function () {
         Route::get('/session', [ChatClientController::class, 'getSession']);
         Route::post('/messages', [ChatClientController::class, 'sendMessage']);

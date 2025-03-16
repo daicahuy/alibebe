@@ -142,7 +142,7 @@ class ChatService
         }
     }
     // Bắt đầu phiên chat mới cho khách hàng và gán nhân viên nếu có
-    public function startChat($customerId, $employeeId = 0)
+    public function startChat($customerId, $employeeId = null)
     {
         try {
             // Tìm phiên chat đã có mở cho khách hàng
@@ -352,8 +352,6 @@ class ChatService
 
     //======================= Client ====================
 
-    // ... [Các phương thức cũ giữ nguyên]
-
     public function getClientSession($userId)
     {
         try {
@@ -368,7 +366,8 @@ class ChatService
                 'status' => true,
                 'session' => $session,
                 'messages' => $session->messages,
-                'employee' => $session->employee
+                'employee' => $session->employee,
+                'customer' => $session->customer
             ];
         } catch (\Exception $e) {
             Log::error('Client session error: ' . $e->getMessage());
