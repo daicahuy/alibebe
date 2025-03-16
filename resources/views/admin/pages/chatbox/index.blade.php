@@ -200,7 +200,7 @@
                                         <form action="{{ route('admin.chats.close-chat-session', $chatSession->id) }}"
                                             method="POST">
                                             @csrf
-                                            @method('DELETE')
+                                            @method('PATCH')
                                             <button type="submit" class="btn btn-danger">Xóa</button>
                                         </form>
                                     </div>
@@ -208,7 +208,7 @@
                             </div>
                         </div>
                     @endforeach
-                    <div class="custom-pagination">
+                    <div class="custom-pagination p-4">
                         {{ $chatSessions->links() }}
                     </div>
                 </div>
@@ -245,11 +245,6 @@
                     '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Đang tìm kiếm...</div>'
                 );
 
-                // Nếu search rỗng
-                if (searchTerm.length === 0) {
-                    window.location.reload();
-                    return;
-                }
 
                 // AJAX request
                 $.ajax({
@@ -306,10 +301,6 @@
                 searchTimeout = setTimeout(performSearch, 300);
             });
 
-            // Sự kiện click nút tìm kiếm
-            $('.user-search button').on('click', function() {
-                performSearch();
-            });
 
             @if (session()->has('success'))
                 Swal.fire({

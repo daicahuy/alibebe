@@ -148,15 +148,6 @@
             <!-- User List -->
             <div class="user-list">
                 <div class="user-search row">
-                    <div class="col-md-8">
-                        <input type="text" class="form-control" placeholder="Tìm kiếm..." style="border-radius: 12px;">
-                    </div>
-                    <!-- Add New User Button -->
-                    <div class="col-md-2">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                            Tìm Kiếm
-                        </button>
-                    </div>
                     <div class="col-md-2">
                         <a href="{{ route('admin.chats.index') }}" class="btn btn-primary">
                             Tin Nhắn
@@ -173,40 +164,46 @@
                                 <div class="user-status">Đang hoạt động</div>
                             </div>
                             <div class="message-item">
-                                <a class="btn btn-primary" href="{{ route('admin.chats.chat-session', ['id' => $chatSession->id]) }}">
-                                    Mở Chat
-                                </a>                                
-                                <!-- Thêm icon xóa -->
-                                <button type="button" class="btn btn-danger mt-2" data-bs-toggle="modal"
+                                <!-- Thêm icon dấu ba chấm -->
+                                <button type="button" class="btn btn-secondary mt-2" data-bs-toggle="modal"
                                     data-bs-target="#deleteMessageModal{{ $chatSession->id }}">
-                                    <i class="fas fa-trash-alt"></i>
+                                    <i class="fas fa-ellipsis-h"></i> <!-- Đổi thành icon dấu ba chấm ngang -->
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Modal Xác Nhận Xóa -->
+                        <!-- Modal Xác Nhận Xóa hoặc Khôi Phục -->
                         <div class="modal fade" id="deleteMessageModal{{ $chatSession->id }}" tabindex="-1"
                             aria-labelledby="deleteMessageModalLabel{{ $chatSession->id }}" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="deleteMessageModalLabel{{ $chatSession->id }}">Xác Nhận
-                                            Xóa</h5>
+                                            Hành
+                                            Động</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        Bạn có chắc chắn muốn xóa tin nhắn này không?
+                                        Bạn có muốn khôi phục hoặc xóa vĩnh viễn tin nhắn này không?
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"
                                             data-bs-dismiss="modal">Hủy</button>
-                                        <!-- Form xóa tin nhắn -->
-                                        <form action="{{ route('admin.chats.close-chat-session', $chatSession->id) }}"
-                                            method="POST">
+                                        <!-- Form khôi phục tin nhắn -->
+                                        <form action="{{ route('admin.chats.restore-chat-session', $chatSession->id) }}"
+                                            method="POST" style="display:inline;">
                                             @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger">Xóa</button>
+                                            @method('PATCH')
+                                            <button type="submit" class="btn btn-primary">Khôi Phục</button>
+                                        </form>
+
+                                        <!-- Form xóa vĩnh viễn tin nhắn -->
+                                        <form action="{{ route('admin.chats.force-delete', $chatSession->id) }}"
+                                            method="POST" style="display:inline;" onclick="return confirm('Xóa tin nhắn sẽ mất toàn bộ và không khôi phục được , Bạn đồng ý ?')">
+                                            @csrf
+                                            @method('DELETE') <!-- Sử dụng phương thức DELETE cho việc xóa vĩnh viễn -->
+                                            <button type="submit" class="btn btn-danger">Xóa Vĩnh Viễn</button>
                                         </form>
                                     </div>
                                 </div>
@@ -216,41 +213,6 @@
                     <div class="custom-pagination">
                         {{ $chatSessions->links() }}
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add User Modal -->
-    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addUserModalLabel">Thêm mới người dùng</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label for="userName" class="form-label">Tên người dùng</label>
-                            <input type="text" class="form-control" id="userName" placeholder="Nhập tên người dùng">
-                        </div>
-                        <div class="mb-3">
-                            <label for="userEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="userEmail" placeholder="Nhập email">
-                        </div>
-                        <div class="mb-3">
-                            <label for="userStatus" class="form-label">Trạng thái</label>
-                            <select class="form-select" id="userStatus">
-                                <option value="online">Đang hoạt động</option>
-                                <option value="offline">Offline</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary">Lưu</button>
                 </div>
             </div>
         </div>
@@ -273,11 +235,11 @@
             });
         @endif
 
-        @if ($errors->has('message'))
+        @if (session()->has('error'))
             Swal.fire({
                 icon: 'error',
                 title: 'Có lỗi xảy ra',
-                text: '{{ $errors->first('message') }}',
+                text: '{{ session('error') }}',
                 showConfirmButton: true
             });
         @endif

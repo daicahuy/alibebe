@@ -20,7 +20,7 @@
             </div>
 
             <!-- Khu vực tin nhắn -->
-            <div id="chatMessages" class="flex-grow-1 p-2 overflow-auto bg-light border-bottom" style="max-height: 450px;">
+            <div id="chatMessages" class="flex-grow-1 p-2 overflow-auto bg-light border-bottom" style="height: 450px; max-height: 450px;">
                 @foreach ($chatSession->messages as $message)
                     @if ($message->sender_id == $chatSession->customer_id)
                         <!-- Tin nhắn của khách hàng -->
@@ -82,5 +82,23 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }, 100);
         });
+
+        @if (session()->has('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: '{{ session('success') }}',
+                timer: 2000
+            });
+        @endif
+
+        @if (session()->has('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra',
+                text: '{{ session('error') }}',
+                showConfirmButton: true
+            });
+        @endif
     </script>
 @endsection

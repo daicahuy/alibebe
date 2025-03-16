@@ -186,7 +186,12 @@ Route::prefix('/admin')
                 Route::post('/chat-session/{id}/send', 'sendMessage')->name('send-message');
 
                 // Đóng phiên chat
-                Route::delete('/chat-session/{id}/close', 'closeChat')->name('close-chat-session');
+                Route::patch('/chat-session/{id}/close', 'closeChat')->name('close-chat-session');
+
+                // Mở Phiên chat
+                Route::patch('/chat-session/{id}/reopen', 'reOpenChat')->name('restore-chat-session');
+
+                Route::delete('/chat-sesson/{id}/force-delete','forceDelete')->name('force-delete');
                 
                 //admin.chats.start-chat
                 Route::post('/chat-session/start', 'startChat')->name('start-chat');
