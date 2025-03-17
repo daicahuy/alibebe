@@ -662,6 +662,8 @@ END');
                 'price',
                 'is_active',
                 'type',
+                'is_sale',
+                'sale_price',
             )
             ->with([
                 'categories' => function ($query) {
@@ -710,6 +712,8 @@ END');
                 'price',
                 'is_active',
                 'type',
+                'is_sale',
+                'sale_price',
             )
             ->with([
                 'categories' => function ($query) {

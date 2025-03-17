@@ -663,7 +663,8 @@
                                         <button type="submit" class="btn btn-md add-cart-button icon">Thêm vào giỏ
                                             hàng</button>
                                     </form>
-                                    <button class="btn theme-bg-color view-button icon text-white fw-bold btn-md detail-product-button">
+                                    <button
+                                        class="btn theme-bg-color view-button icon text-white fw-bold btn-md detail-product-button">
                                         View More Details
                                     </button>
                                     {{-- <a href="{{ route('products', $listProductCate) }}" class="btn theme-bg-color view-button icon text-white fw-bold btn-md">Chi tiết sản phẩm</a> --}}
@@ -697,16 +698,17 @@
 
         $(document).ready(function() {
             $('.detail-product-button').click(function() {
-            const productId = $('#view').data('product-id');
+                const productId = $('#view').data('product-id');
 
-            if (productId) {
-                const productDetailUrl = "{{ route('products', ['product' => ':productId']) }}".replace(':productId', productId);
-                location.href = productDetailUrl;
-            } else {
-                console.error("Không tìm thấy product_id...");
-                alert("Lỗi:...");
-            }
-        });
+                if (productId) {
+                    const productDetailUrl = "{{ route('products', ['product' => ':productId']) }}"
+                        .replace(':productId', productId);
+                    location.href = productDetailUrl;
+                } else {
+                    console.error("Không tìm thấy product_id...");
+                    alert("Lỗi:...");
+                }
+            });
             // Thông báo alert (giữ nguyên)
             @if (session('success'))
                 Swal.fire({
@@ -980,7 +982,7 @@
             }); // end modal-addToCard
 
 
-            
+
             // comapre cookie
             const compareCookieName = 'compare_list'; // Tên cookie để lưu danh sách so sánh
 
@@ -1048,6 +1050,13 @@
                     setCookie(compareCookieName, JSON.stringify(compareList), 30); // Lưu lại vào cookie
                     updateCompareCountBadgeCookie(); // Cập nhật badge số lượng
                     updateCompareButtonStatus(productId, false); // Cập nhật trạng thái nút (icon)
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: 'Đã xóa sản phẩm khỏi danh sách so sánh.',
+                        showConfirmButton: false,
+                        timer: 1000 // Tự động đóng thông báo sau 1.5 giây (1500ms)
+                    });
                 }
             }
 
@@ -1123,7 +1132,7 @@
 
                 if (currentState === 'unselected') {
                     console.log(`  Action: Add product to compare`);
-                    addProductToCompare(productId,productCategoryId); 
+                    addProductToCompare(productId, productCategoryId);
                 } else {
                     console.log(`  Action: Remove product from compare`);
                     removeFromCompareCookie(productId);
@@ -1161,8 +1170,8 @@
                                 icon: 'success',
                                 title: 'Thành công!',
                                 text: 'Sản phẩm đã được thêm vào danh sách so sánh.',
-                                showConfirmButton: true, // Ẩn nút "OK" mặc định
-                                // timer: 1500 // Tự động đóng thông báo sau 1.5 giây (1500ms)
+                                showConfirmButton: false,
+                                timer: 1000 // Tự động đóng thông báo sau 1.5 giây (1500ms)
                             });
                         } else if (response.status === 'error') {
                             // Backend báo lỗi (ví dụ: không cùng danh mục)
@@ -1171,7 +1180,6 @@
                         }
                     },
                     error: function(xhr, status, error) {
-                        // **CALLBACK ERROR ĐÃ ĐƯỢC CHỈNH SỬA Ở CÁC BƯỚC TRƯỚC - GIỮ NGUYÊN**
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             Swal.fire({
                                 icon: 'error',
@@ -1190,7 +1198,7 @@
                 });
             }
 
-            
+
         }); // end document
 
 

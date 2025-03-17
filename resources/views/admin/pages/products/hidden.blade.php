@@ -48,12 +48,12 @@
                                         </option>
                                     </select>
                                     <label>{{ __('message.items_per_page') }}</label>
-                                    
+
                                     <button class="align-items-center btn btn-outline btn-sm d-flex ms-2 visually-hidden"
                                         type="button" id="btn-move-to-trash-all">
                                         {{ __('message.move_to_trash') }}
                                     </button>
-                                    
+
                                 </div>
                                 <div class="datepicker-wrap">
 
@@ -139,7 +139,18 @@
                                                         <span class="text-muted">Không có danh mục</span>
                                                     @endif
                                                 </td>
-                                                <td class="cursor-pointer">{{ $hidden->price_range }} </td>
+                                                <td class="cursor-pointer">
+                                                    @if ($hidden->show_sale)
+                                                        <del>
+                                                            {{ $hidden->original_price_display }}
+                                                        </del><br>
+                                                        <span class="theme-color">
+                                                            {{ str_replace("\n", '<br>', str($hidden->price_range)->after("\n")) }}
+                                                        </span>
+                                                    @else
+                                                        <span class="theme-color"> {{ $hidden->price_range }} </span>
+                                                    @endif
+                                                </td>
                                                 <td class="cursor-pointer">{{ $hidden->stock_quantity }}</td>
                                                 <td class="cursor-pointer">
                                                     @if ($hidden->stock_quantity > 10)
@@ -159,9 +170,9 @@
                                                 <td class="cursor-pointer">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch switch-sm">
-                                                            <input type="checkbox"  class="toggle-active-products-hidden"
-                                                            data-product-id="{{ $hidden->id }}"
-                                                                {{ $hidden->is_active == 1 ? 'checked' : '' }} >
+                                                            <input type="checkbox" class="toggle-active-products-hidden"
+                                                                data-product-id="{{ $hidden->id }}"
+                                                                {{ $hidden->is_active == 1 ? 'checked' : '' }}>
                                                             <span class="switch-state"></span>
                                                         </label>
                                                     </div>
@@ -169,12 +180,12 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.products.show', $hidden->id) }}" class="btn-detail"><i
-                                                                    class="ri-eye-line"></i></a>
+                                                            <a href="{{ route('admin.products.show', $hidden->id) }}"
+                                                                class="btn-detail"><i class="ri-eye-line"></i></a>
                                                         </li>
                                                         <li>
-                                                            <a href="{{ route('admin.products.edit', $hidden->id) }}" class="btn-edit"><i
-                                                                    class="ri-pencil-line"></i></a>
+                                                            <a href="{{ route('admin.products.edit', $hidden->id) }}"
+                                                                class="btn-edit"><i class="ri-pencil-line"></i></a>
                                                         </li>
 
                                                         <li>
@@ -226,112 +237,112 @@
     <script>
         $(document).ready(function() {
 
-             // --- Logic Checkbox ---
-             $('#checkbox-table').on('click', function() {
+            // --- Logic Checkbox ---
+            $('#checkbox-table').on('click', function() {
 
-$('.checkbox-input').prop('checked', $(this).prop('checked'));
-toggleBulkActionButton();
+                $('.checkbox-input').prop('checked', $(this).prop('checked'));
+                toggleBulkActionButton();
 
-});
+            });
 
-$('.checkbox-input').on('click', function() {
+            $('.checkbox-input').on('click', function() {
 
-const total = $('.checkbox-input').length;
-const checked = $('.checkbox-input:checked').length;
+                const total = $('.checkbox-input').length;
+                const checked = $('.checkbox-input:checked').length;
 
-$('#checkbox-table').prop('checked', total === checked);
-toggleBulkActionButton();
+                $('#checkbox-table').prop('checked', total === checked);
+                toggleBulkActionButton();
 
-});
+            });
 
 
-// --- Xử lý sự kiện click nút "Xóa tất cả" ---
-$('#btn-move-to-trash-all').on('click', function() {
-handleBulkAction(); // 6.1 Gọi hàm xử lý
-});
+            // --- Xử lý sự kiện click nút "Xóa tất cả" ---
+            $('#btn-move-to-trash-all').on('click', function() {
+                handleBulkAction(); // 6.1 Gọi hàm xử lý
+            });
 
-//  Hàm ẩn/hiện nút "Xóa tất cả"
-function toggleBulkActionButton() {
-if ($('.checkbox-input:checked').length > 0) {
-    $('#btn-move-to-trash-all').removeClass('visually-hidden'); // checkbox => hiện
-} else {
-    $('#btn-move-to-trash-all').addClass('visually-hidden'); //  ẩn
-}
-}
-
-toggleBulkActionButton(); // 5. Gọi hàm lần đầu khi trang tải
-
-// Lấy ids và gửi AJAX request
-function handleBulkAction() {
-
-const selectedIds = [];
-$('.checkbox-input:checked').each(function() {
-    selectedIds.push($(this).val());
-});
-
-if (selectedIds.length == 0) { // 6.2 Kiểm tra nếu không có ID nào được chọn
-    alert('Vui lòng chọn ít nhất một danh mục.');
-    return; // Dừng thực thi nếu không có ID
-}
-
-if (confirm(
-        "{{ __('message.confirm_move_to_trash_all_item') }}"
-    )) {
-    $.ajax({ // Gửi AJAX request
-        url: '{{ route('admin.products.bulkTrash') }}', //  URL của route xử lý
-        method: 'POST', //  Phương thức POST
-        data: {
-            _token: '{{ csrf_token() }}',
-            product_ids: selectedIds,
-        },
-
-        success: function(response) {
-            console.log("data:", selectedIds);
-
-            console.log("Response:", response);
-
-            if (response && typeof response === 'object') {
-
-                if (response.success === true) {
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công!',
-                        html: response.message,
-                        timer: 1500, // Tự động đóng sau 1.5 giây
-                        showConfirmButton: false,
-                    }).then(() => {
-                        location.reload();
-                    });
-
+            //  Hàm ẩn/hiện nút "Xóa tất cả"
+            function toggleBulkActionButton() {
+                if ($('.checkbox-input:checked').length > 0) {
+                    $('#btn-move-to-trash-all').removeClass('visually-hidden'); // checkbox => hiện
                 } else {
+                    $('#btn-move-to-trash-all').addClass('visually-hidden'); //  ẩn
+                }
+            }
 
-                    // let errorMessage = "Đã có lỗi xảy ra.";
+            toggleBulkActionButton(); // 5. Gọi hàm lần đầu khi trang tải
 
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi!',
-                        html: response.message,
-                    }).then(() => {
-                        location.reload();
+            // Lấy ids và gửi AJAX request
+            function handleBulkAction() {
+
+                const selectedIds = [];
+                $('.checkbox-input:checked').each(function() {
+                    selectedIds.push($(this).val());
+                });
+
+                if (selectedIds.length == 0) { // 6.2 Kiểm tra nếu không có ID nào được chọn
+                    alert('Vui lòng chọn ít nhất một danh mục.');
+                    return; // Dừng thực thi nếu không có ID
+                }
+
+                if (confirm(
+                        "{{ __('message.confirm_move_to_trash_all_item') }}"
+                    )) {
+                    $.ajax({ // Gửi AJAX request
+                        url: '{{ route('admin.products.bulkTrash') }}', //  URL của route xử lý
+                        method: 'POST', //  Phương thức POST
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            product_ids: selectedIds,
+                        },
+
+                        success: function(response) {
+                            console.log("data:", selectedIds);
+
+                            console.log("Response:", response);
+
+                            if (response && typeof response === 'object') {
+
+                                if (response.success === true) {
+
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Thành công!',
+                                        html: response.message,
+                                        timer: 1500, // Tự động đóng sau 1.5 giây
+                                        showConfirmButton: false,
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+
+                                } else {
+
+                                    // let errorMessage = "Đã có lỗi xảy ra.";
+
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Lỗi!',
+                                        html: response.message,
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                }
+
+                            } else {
+                                console.error("Response không đúng định dạng:", response);
+                                alert("Đã có lỗi xảy ra trong quá trình xử lý.");
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Lỗi AJAX:", error);
+                            alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+                        }
                     });
                 }
 
-            } else {
-                console.error("Response không đúng định dạng:", response);
-                alert("Đã có lỗi xảy ra trong quá trình xử lý.");
             }
-        },
-        error: function(error) {
-            console.error("Lỗi AJAX:", error);
-            alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
-        }
-    });
-}
 
-}
-
-// --- End Logic Checkbox ---
+            // --- End Logic Checkbox ---
 
 
             // update Is_active Api
