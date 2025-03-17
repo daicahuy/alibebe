@@ -193,10 +193,17 @@
                                     }
                                 </style>
                                 <li class="right-side">
-                                    <a href="wishlist.html" class="btn p-0 position-relative header-wishlist">
+                                    <a href="{{ route('account.wishlist') }}"
+                                        class="btn p-0 position-relative header-wishlist">
                                         <i data-feather="heart"></i>
+                                        <span
+                                            class="wishlist-count badge bg-danger position-absolute top-0 start-100 translate-middle">
+                                            {{ $wishlistCount ?? 0 }}
+                                        </span>
                                     </a>
                                 </li>
+
+
                                 <li class="right-side">
                                     <div class="onhover-dropdown header-badge">
                                         <button type="button" class="btn p-0 position-relative header-wishlist">
@@ -288,14 +295,15 @@
                                                                     value="{{ $cartItem->productVariant?->sale_price > 0 ? $cartItem->productVariant->sale_price : null }}">
                                                                 <h6><span class="input-number" name="quantity"
                                                                         data-max-stock="{{ $cartItem->productVariant?->productStock?->stock ?? ($cartItem->product?->productStock?->stock ?? 1) }}">{{ $cartItem->quantity }}
-                                                                        </span>x
+                                                                    </span>x
                                                                     {{ number_format($salePrice, 0, ',', '.') }}đ
                                                                     @if ($salePrice < $price)
                                                                         <del
                                                                             class="text-content">{{ number_format($price, 0, ',', '.') }}đ</del>
                                                                     @endif
                                                                 </h6>
-                                                                <input type="hidden" class="sale_price" value="{{ $salePrice }}" >
+                                                                <input type="hidden" class="sale_price"
+                                                                    value="{{ $salePrice }}">
 
 
                                                                 <form method="POST"
@@ -440,8 +448,8 @@
                                             <img src="{{ Storage::url($category->icon) }}"
                                                 alt="{{ $category->name }}">
                                             <h6>{{ $category->name }}</h6>
-                            
-                                            @if($category->categories->count() > 0)
+
+                                            @if ($category->categories->count() > 0)
                                                 <i class="fa-solid fa-angle-right"></i>
                                             @endif
                                         </a>
@@ -464,7 +472,7 @@
                                     </li>
                                 @endforeach
                             </ul>
-                            
+
                         </div>
                     </div>
 
@@ -1028,85 +1036,108 @@
         }
     </script>
     <script>
-     function updateCartSessionForHeader() {
-    console.log("⚡ Hàm updateCartSessionForHeader() được gọi");
+        function updateCartSessionForHeader() {
+            console.log("⚡ Hàm updateCartSessionForHeader() được gọi");
 
-    let selectedProducts = [];
-    let totalSum = 0;
+            let selectedProducts = [];
+            let totalSum = 0;
 
-    $(".drop-cart").each(function() {
-        let row = $(this);
-        let cartItemId = row.data("id");
-        let qty = parseInt(row.find(".input-number").text()) || 1;
-        let productId = row.data("product-id") || null;
-        let productVariantId = row.data("product-variant-id") || null;
-        let productName = row.find("h5").text().trim();
-        let nameVariant = row.find(".selected-variation").text().trim() || null;
-        let imageUrl = row.find(".drop-image img").attr("src") || "";
+            $(".drop-cart").each(function() {
+                let row = $(this);
+                let cartItemId = row.data("id");
+                let qty = parseInt(row.find(".input-number").text()) || 1;
+                let productId = row.data("product-id") || null;
+                let productVariantId = row.data("product-variant-id") || null;
+                let productName = row.find("h5").text().trim();
+                let nameVariant = row.find(".selected-variation").text().trim() || null;
+                let imageUrl = row.find(".drop-image img").attr("src") || "";
 
-        if (imageUrl.startsWith("http")) {
-            let url = new URL(imageUrl);
-            imageUrl = url.pathname.replace("/storage/", "").replace(/^\/+/, "");
+                if (imageUrl.startsWith("http")) {
+                    let url = new URL(imageUrl);
+                    imageUrl = url.pathname.replace("/storage/", "").replace(/^\/+/, "");
+                }
+
+                let originalPrice = parseInt(row.find(".price").val()) || 0;
+                let salePrice = parseInt(row.find(".old_price").val()) || 0;
+                let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
+                let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
+
+                let finalPrice = salePrice > 0 ? salePrice : originalPrice;
+                let oldPrice = salePrice > 0 ? originalPrice : null;
+
+                let finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
+                let oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
+
+                selectedProducts.push({
+                    id: cartItemId,
+                    product_id: productId,
+                    product_variant_id: productVariantId,
+                    name: productName,
+                    name_variant: nameVariant,
+                    image: imageUrl,
+                    price: finalPrice,
+                    old_price: oldPrice,
+                    price_variant: productVariantId ? finalPriceVariant : null,
+                    old_price_variant: productVariantId ? oldPriceVariant : null,
+                    quantity: productVariantId ? null : qty,
+                    quantity_variant: productVariantId ? qty : null,
+                });
+
+                totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
+            });
+
+            console.log("📤 Dữ liệu gửi lên server:", selectedProducts);
+            console.log("📤 Tổng tiền gửi lên server:", totalSum);
+
+            $.ajax({
+                url: "{{ route('cart.saveSession') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    selectedProducts: selectedProducts,
+                    total: totalSum
+                },
+                success: function(response) {
+                    console.log("✅ Giỏ hàng header cập nhật thành công!", response);
+                },
+                error: function(xhr, status, error) {
+                    console.log("❌ Lỗi khi cập nhật giỏ hàng:", xhr.responseText);
+                }
+            });
+
         }
-
-        let originalPrice = parseInt(row.find(".price").val()) || 0;
-        let salePrice = parseInt(row.find(".old_price").val()) || 0;
-        let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
-        let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
-
-        let finalPrice = salePrice > 0 ? salePrice : originalPrice;
-        let oldPrice = salePrice > 0 ? originalPrice : null;
-
-        let finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
-        let oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
-
-        selectedProducts.push({
-            id: cartItemId,
-            product_id: productId,
-            product_variant_id: productVariantId,
-            name: productName,
-            name_variant: nameVariant,
-            image: imageUrl,
-            price: finalPrice,
-            old_price: oldPrice,
-            price_variant: productVariantId ? finalPriceVariant : null,
-            old_price_variant: productVariantId ? oldPriceVariant : null,
-            quantity: productVariantId ? null : qty,
-            quantity_variant: productVariantId ? qty : null,
+        $(document).ready(function() {
+            $(".button-group .cart-button.theme-bg-color").on("click", function() {
+                console.log("⚡ Nút Thanh toán được click");
+                updateCartSessionForHeader();
+            });
         });
 
-        totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
-    });
 
-    console.log("📤 Dữ liệu gửi lên server:", selectedProducts);
-    console.log("📤 Tổng tiền gửi lên server:", totalSum);
+        // wishList
+        function updateWishlistCount(count) {
+            document.querySelector(".wishlist-count").textContent = count;
+        }
 
-    $.ajax({
-    url: "{{ route('cart.saveSession') }}",
-    type: "POST",
-    data: {
-        _token: "{{ csrf_token() }}",
-        selectedProducts: selectedProducts,
-        total: totalSum
-    },
-    success: function(response) {
-        console.log("✅ Giỏ hàng header cập nhật thành công!", response);
-    },
-    error: function(xhr, status, error) {
-        console.log("❌ Lỗi khi cập nhật giỏ hàng:", xhr.responseText);
-    }
-});
+        document.querySelectorAll(".wishlist-button").forEach(button => {
+            button.addEventListener("click", function() {
+                let productId = this.dataset.id;
 
-}
-$(document).ready(function () {
-    $(".button-group .cart-button.theme-bg-color").on("click", function () {
-        console.log("⚡ Nút Thanh toán được click");
-        updateCartSessionForHeader();
-    });
-});
-
-
-
+                fetch(`/wishlist/toggle/${productId}`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                            "Content-Type": "application/json"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.result) {
+                            updateWishlistCount(data.wishlistCount);
+                        }
+                    })
+                    .catch(error => console.error("Error updating wishlist:", error));
+            });
+        });
     </script>
- 
 @endpush

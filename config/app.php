@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\View\ViewServiceProvider;
 
 return [
     /*
@@ -167,6 +168,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        ViewServiceProvider::class,
 
         Elibyy\TCPDF\ServiceProvider::class,
     ])->toArray(),

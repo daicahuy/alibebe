@@ -115,6 +115,8 @@ Route::name('account.')
         Route::get('/wishlist', 'wishlist')->name('wishlist');
         Route::post('/wishlist/toggle/{id}', 'toggleWishlist')->name('wishlist-toggle');
         Route::delete('/remove-wishlist/{id}', 'removeWishlist')->name('remove-wishlist');
+        Route::get('/wishlist/count', 'wishlistCount')->name('wishlist.count');
+
     });
 
 /*--------------AUTHENTICATION--------------*/
