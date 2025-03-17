@@ -92,14 +92,16 @@ class ReviewRepository extends BaseRepository
     }
 
     public function userHasPurchasedProduct($userId, $productId)
-    {
-        return Order::where('user_id', $userId)
-            ->where('is_paid', 1)
-            ->whereHas('orderItems', function ($query) use ($productId) {
-                $query->where('product_id', $productId);
-            })
-            ->exists();
-    }
+{
+    return Order::where('user_id', $userId)
+        ->whereHas('orderStatuses', function ($query) {
+            $query->where('id', 6); // Kiểm tra order_status_id = 6 (Hoàn thành)
+        })
+        ->whereHas('orderItems', function ($query) use ($productId) {
+            $query->where('product_id', $productId);
+        })
+        ->exists();
+}
 
     public function getLatestReview($productId, $userId)
     {

@@ -14,6 +14,7 @@ class Refund extends Model
         'user_id',
         'total_amount',
         'bank_account',
+        'phone_number',
         'bank_name',
         'reason',
         'reason_image',

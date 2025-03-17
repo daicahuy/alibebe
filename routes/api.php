@@ -82,11 +82,11 @@ Route::prefix('/attributes')
 
 
 Route::prefix('/refund-orders')
-    ->name('api.refund-orders.')
+    ->name('api.refund_orders.')
     ->group(function () {
         Route::get('/list', [ApiRefundOrderController::class, 'index'])->name('index');
         Route::get('/{id}', [ApiRefundOrderController::class, 'getDataOrderRefund'])->name('getDataOrderRefund');
-
+        Route::post('/changeStatus', [ApiRefundOrderController::class, 'changeStatus'])->name('changeStatus');
     });
 
 Route::prefix('/orders')
@@ -102,6 +102,7 @@ Route::prefix('/orders')
         Route::post('/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
 
     });
+
 
 Route::post('/orders/uploadImgConfirm/{idOrder}', [OrderController::class, 'uploadImgConfirm'])->name('uploadImgConfirm');
 Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');
@@ -194,7 +195,7 @@ Route::prefix('compare')
     ->group(function () {
         Route::post('/add-with-check/{productId}', [CompareController::class, 'addTocompareWithCheck'])->name('add.with.check');
         // Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
-
+    
         // Route::get('/get-compare-products',[CompareController::class,'getComparedProducts'])->name('get_compared_products');
         // Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
         // Route::post('/remove/{productId}', [CompareController::class, 'removeFromCompare'])->name('remove'); 

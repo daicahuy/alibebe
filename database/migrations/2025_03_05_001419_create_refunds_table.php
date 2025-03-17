@@ -17,13 +17,13 @@ return new class extends Migration {
             $table->decimal('total_amount', 12, 2);
             $table->string('bank_account', 255)->nullable();
             $table->string('user_bank_name', 255)->nullable();
+            $table->string('phone_number', 20);
             $table->string('bank_name', 100)->nullable();
             $table->text('reason');
             $table->text('reason_image');
             $table->text('admin_reason')->nullable();
             $table->enum('status', [
                 'pending',
-                'awaiting_information',
                 'receiving',
                 'completed',
                 'rejected',

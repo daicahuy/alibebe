@@ -489,6 +489,7 @@
 @push('js_library')
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.2/jquery.twbsPagination.min.js"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 @endpush
 
 @push('js')
@@ -583,33 +584,33 @@
             const orderStatuses = [{
                     id: 1,
                     name: "Chờ xử lý",
-                    next: [2, 7]
+                    next: [1, 2, 7]
                 },
                 {
                     id: 2,
                     name: "Đang xử lý",
-                    next: [3, 7]
+                    next: [2, 3, 7]
                 },
                 {
                     id: 3,
                     name: "Đang giao hàng",
-                    next: [4, 5, 7],
+                    next: [3, 4, 5, 7],
                     unnextList: [5, 7]
                 },
                 {
                     id: 4,
                     name: "Đã giao hàng",
-                    next: [6, 7]
+                    next: [4, 6, 7]
                 },
                 {
                     id: 5,
                     name: "Giao hàng thất bại",
-                    next: [7]
+                    next: [5, 7]
                 },
                 {
                     id: 6,
                     name: "Hoàn thành",
-                    next: [7]
+                    next: [6, 7]
                 },
                 {
                     id: 7,
@@ -671,7 +672,33 @@
                 });
             }
 
-            // Hàm render dữ liệu vào bảng
+            function debounce(func, delay) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
+
+            let changedOrderIds = [];
+            let debounceTimer;
+
+            function handleStatusChange(orderId) {
+
+                if (!changedOrderIds.includes(orderId)) {
+                    changedOrderIds.push(orderId);
+                }
+
+
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+
+                    fetchOrders(true);
+                    changedOrderIds = [];
+                }, 1000);
+            }
+
+
             function renderTable(orders, totalPages) {
                 $("#orderTable tbody").empty();
 
@@ -685,9 +712,18 @@
                     orders.forEach(order => {
                         const currentStatusId = order.order_statuses[0].pivot.order_status_id;
                         const selectId = `select_status_${order.id}`;
+                        Pusher.logToConsole = true;
 
+                        var pusher = new Pusher('14773cf491b61b0bc6e2', {
+                            cluster: 'ap1'
+                        });
+
+                        var channel = pusher.subscribe('order-status.' + order.id);
+                        channel.bind('event-change-status', function(data) {
+                            handleStatusChange(data.orderId)
+                        });
                         let selectHtml =
-                            `<select class="font-serif form-select form-select-sm orderStatus" id="${selectId}">`;
+                            `<select class="font-serif form-select form-select-sm orderStatus" data-order-id="${order.id}" id="${selectId}">`;
                         orderStatuses.forEach(status => {
                             const currentStatus = orderStatuses.find(s => s.id === currentStatusId);
                             const disabled = !currentStatus.next.includes(status.id) && status
@@ -744,16 +780,16 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                        <div class="status-pending">
-                                        <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                        </div>
-                                        </div>
+                                                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                        <div class="status-pending">
+                                                                        <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                        </div>
+                                                                        </div>
 
 
-                                        ` : `
+                                                                        ` : `
 
-                                        `}
+                                                                        `}
                                         <li>
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
@@ -773,11 +809,10 @@
 
                     $('.status-pending span').on("click", function() {
                         const orderId = $(this).data(
-                            'configorder'); // Lấy orderId từ thuộc tính data-configOrder
-                        // Thêm mã để xử lý orderId nếu cần (ví dụ, gửi lên server)
+                            'configorder');
                         callApiGetOrderOrderStatus(orderId);
 
-                        $('#modalConfirm').modal('show'); // Hiển thị modal
+                        $('#modalConfirm').modal('show');
                     });
                 }
             }
@@ -793,7 +828,7 @@
                     success: function(response) {
                         console.log(response.data[0])
                         const imageUrl =
-                            `{{ Storage::url('${response.data[0].employee_evidence}') }}`; //Laravel Blade syntax
+                            `{{ Storage::url('${response.data[0].employee_evidence}') }}`;
                         //Chuyển đổi thành Javascript string
                         const jsImageUrl = imageUrl.replace(/\{\{\s*|\s*\}\}/g, '');
                         $("#modalConfirm #img-checkout-order").attr("src",
@@ -832,7 +867,7 @@
                             $('#checkbox-table').prop('checked', false);
                             $('#select-change-status-items').empty();
                             $("#count_selected_item").text(``)
-                            $('.btn-download-all').addClass('active');
+                            // $('.btn-download-all').addClass('active');
                             $('#selected-category-ids').val('');
                             fetchOrders(true);
                             toggleBulkActionButton();
@@ -893,8 +928,17 @@
 
                     // Gọi hàm để thiết lập trạng thái ban đầu
                     updateSelectStatus();
-                    $('#select_status_list').on("change", function() {
+                    let previousValuesOrderList;
 
+                    // Sự kiện focus để lưu giá trị trước đó
+                    $('#select_status_list').on('focus', function() {
+                        previousValuesOrderList = $(this).val(); // Lưu giá trị hiện tại vào object
+                    });
+                    $('#select_status_list').on("change", function() {
+                        if (!confirm('Bạn có chắc chắn muốn thay đổi trạng thái không?')) {
+                            $('#select_status_list').val(previousValuesOrderList);
+                            return;
+                        }
                         const selectedStatusChangeList = $(this).val();
                         console.log("selectedIds", selectedIds)
                         callApiChangeStatusListOrder(selectedIds, selectedStatusChangeList);
@@ -1040,25 +1084,38 @@
                 fetchOrders();
             });
 
+            let previousValuesOrder = {};
+
+            // Sự kiện focus để lưu giá trị trước đó
+            $('#orderTable').on('focus', '.orderStatus', function() {
+                const orderId = $(this).data('order-id'); // Lấy ID đơn hàng từ data attribute
+                previousValuesOrder[orderId] = $(this).val(); // Lưu giá trị hiện tại vào object
+            });
+
+
             $('#orderTable').on('change', '.orderStatus', function() {
+                const orderId = $(this).data('order-id');
+
+                if (!confirm('Bạn có chắc chắn muốn thay đổi trạng thái không?')) {
+                    $(this).val(previousValuesOrder[orderId]); // Khôi phục giá trị trước đó
+                    return;
+                }
 
                 const selectedValue = parseInt($(this).val());
-                //  Lấy idOrder.  Giả sử idOrder nằm trong thuộc tính data-id của hàng tương ứng.
                 const idOrder = $(this).closest('tr').data('id');
 
-                if (selectedValue === 4) { // Nếu chọn "Đã giao hàng" (id 4)
+                if (selectedValue === 4) {
 
                     $("#modalUpload .hiddenIDOrderUpload").val(idOrder);
 
                     $('#modalUpload').modal(
-                        'show'); // Hiển thị modal và lưu orderId
+                        'show');
                     $(this).val($(this).data(
-                        'previous-value')); //Set lại giá trị cũ, tránh cập nhật trạng thái sớm
-                    return; // Dừng thực thi tiếp
+                        'previous-value'));
+                    return;
                 }
 
 
-                //  Xử lý selectedValue và idOrder ở đây. Ví dụ: gửi lên server bằng AJAX
                 $.ajax({
                     url: '{{ route('api.orders.changeStatusOrder') }}',
                     type: 'POST',
@@ -1072,7 +1129,7 @@
                             $('#checkbox-table').prop('checked', false);
                             $('#select-change-status-items').empty();
                             $("#count_selected_item").text(``)
-                            $('.btn-download-all').addClass('active');
+                            // $('.btn-download-all').addClass('active');
                             $('#selected-category-ids').val('');
                             toggleBulkActionButton();
                         }

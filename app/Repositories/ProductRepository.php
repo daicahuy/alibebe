@@ -1029,13 +1029,13 @@ END');
             ->limit($limit * 2)
             ->get();
         $relatedProducts = $relatedProducts->concat($relatedByPriceBrandCategory);
-        Log::info('Step 1 Related Products Count: ' . $relatedProducts->count());
+        // Log::info('Step 1 Related Products Count: ' . $relatedProducts->count());
 
 
 
         if ($relatedProducts->count() < $limit) {
-            Log::info('Count before Step 2 Check: ' . $relatedProducts->count());
-            Log::info('Entering Step 2');
+            // Log::info('Count before Step 2 Check: ' . $relatedProducts->count());
+            // Log::info('Entering Step 2');
             // **Bước 2: Nếu chưa đủ sản phẩm, tìm thêm theo DANH MỤC (Ưu tiên thứ ba) - ĐÃ SỬA ĐỔI**
             $productCategoryIds = $product->categories->pluck('id');
             $relatedByCategory = Product::with('reviews', 'productVariants', 'categories')

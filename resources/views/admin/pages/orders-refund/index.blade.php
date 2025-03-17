@@ -119,6 +119,7 @@
                             </div>
                             <div class="modal-body">
                                 <div class="border rounded-3">
+                                    <input type="text" hidden id="idOrderRefund">
                                     <table class="table all-package theme-table no-footer">
                                         <tbody><!---->
                                             <tr>
@@ -134,6 +135,10 @@
                                             <tr>
                                                 <td class="text-start fw-semibold">Giá trị hoàn</td>
                                                 <td class="text-start" id="total_amount"></td>
+                                            </tr><!---->
+                                            <tr>
+                                                <td class="text-start fw-semibold">Số điện thoại liên hệ</td>
+                                                <td class="text-start" id="phone_number"></td>
                                             </tr><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Tên người thụ hưởng </td>
@@ -157,24 +162,12 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="mt-2">
+                                <div class="mt-2" id="admin_reason_div">
 
-                                    <div class="form-floating">
-                                        <textarea class="form-control" placeholder="Leave a comment here" id="admin_reason" style="height: 100px"></textarea>
-                                        <label for="floatingTextarea2">Lý do từ chối</label>
-                                    </div>
+
                                 </div>
                                 <div class="mt-2">
-                                    <div class="button-box"><app-button><button class="btn btn-md  fw-bold"
-                                                style="background-color: red; color: #fff;" disabled
-                                                id="withdrawal_rejected_btn" type="submit" fdprocessedid="hbnu3">
-                                                <div> Từ chối </div>
-                                            </button></app-button>
-                                        <app-button>
-                                            <button class="btn btn-md btn-theme fw-bold" id="withdrawal_approved_btn"
-                                                type="submit" fdprocessedid="qq0uf9">
-                                                <div> Đông ý </div>
-                                            </button></app-button>
+                                    <div class="button-box" id="button-box-footer">
                                     </div><!---->
                                 </div><!---->
                             </div>
@@ -202,6 +195,78 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="modalConfirmProduct" tabindex="-1" aria-hidden="true">
+        <div class="overlay">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+                    <div class="modal-body text-center">
+                        <div class="modal-content" id="modalConfirm">
+                            <div class="modal-header">
+                                <h3 class="mb-1 fw-semibold">Hoàn hàng</h3><app-button><button fdprocessedid="b2b4oc"
+                                        class="btn btn-close" id="payout_close_btn_product" type="submit">
+                                    </button></app-button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="border rounded-3">
+                                    <input type="text" hidden id="idOrderRefund">
+                                    <table class="table all-package theme-table no-footer">
+                                        <tbody><!---->
+                                            <tr>
+                                                <td class="text-start fw-semibold">Lý do </td>
+                                                <td class="text-start" id="reason"></td>
+                                            </tr><!---->
+                                            <tr>
+                                                <td class="text-start fw-semibold">Hình ảnh</td>
+                                                <td class="text-start"><img src="" alt=""
+                                                        id="reason-thumbnail-image" class="thumbnail-image"
+                                                        style="width: 50px; height: 50px;"></td>
+                                            </tr><!---->
+                                            <tr>
+                                                <td class="text-start fw-semibold">Giá trị hoàn</td>
+                                                <td class="text-start" id="total_amount"></td>
+                                            </tr><!---->
+                                            <tr>
+                                                <td class="text-start fw-semibold">Số điện thoại liên hệ</td>
+                                                <td class="text-start" id="phone_number"></td>
+                                            </tr><!---->
+                                            <tr>
+                                                <td class="text-start fw-semibold">Tên người thụ hưởng </td>
+                                                <td class="text-start" id="user_bank_name"></td>
+                                            </tr><!---->
+                                            <tr>
+                                                <td class="text-start fw-semibold">Tên ngân hàng </td>
+                                                <td class="text-start"id="bank_name"></td>
+                                            </tr><!---->
+                                            <tr>
+                                                <td class="text-start fw-semibold">Số tài khoản </td>
+                                                <td class="text-start" id="bank_account"></td>
+                                            </tr><!---->
+                                            <tr>
+                                                <td class="text-start fw-semibold">Trạng thái</td>
+                                                <td class="text-start">
+                                                    <div class="status-pending"><span id="status"></span></div>
+                                                </td>
+                                            </tr><!---->
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mt-2" id="admin_reason_div">
+
+
+                                </div>
+                                <div class="mt-2">
+                                    <div class="button-box" id="button-box-footer">
+                                    </div><!---->
+                                </div><!---->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js_library')
@@ -225,21 +290,155 @@
             }
 
             function renderHtmlModalOrderRefund(dataOrderRefund) {
-
+                $('#button-box-footer').empty();
+                $("#modalConfirm #admin_reason_div").empty();
+                $("#modalConfirm #admin_reason_div").append(`<div class="form-floating">
+                                        <textarea class="form-control" placeholder="Leave a comment here" id="admin_reason" style="height: 100px"></textarea>
+                                        <label for="floatingTextarea2">Lý do từ chối</label>
+                                    </div>`)
                 const imageUrl =
                     `{{ Storage::url('${dataOrderRefund.reason_image}') }}`; //Laravel Blade syntax
                 //Chuyển đổi thành Javascript string
                 const jsImageUrl = imageUrl.replace(/\{\{\s*|\s*\}\}/g, '');
                 $("#modalConfirm #reason-thumbnail-image").attr("src",
                     jsImageUrl);
-                $("#modalConfirm #reason").text(dataOrderRefund.reason)
+                $("#modalConfirm #reason").text(dataOrderRefund.reason ? dataOrderRefund.reason : "")
+                $("#modalConfirm #idOrderRefund").val(dataOrderRefund.id)
                 $("#modalConfirm #total_amount").text(`${formatCurrency(dataOrderRefund.total_amount)}đ`)
-                $("#modalConfirm #user_bank_name").text(dataOrderRefund.user_bank_name)
-                $("#modalConfirm #bank_name").text(dataOrderRefund.bank_name)
-                $("#modalConfirm #bank_account").text(dataOrderRefund.bank_account)
-                $("#modalConfirm #status").text(dataOrderRefund.status)
-                $("#modalConfirm #admin_reason").val(dataOrderRefund.admin_reason ? dataOrderRefund.admin_reason :
+                $("#modalConfirm #phone_number").text(dataOrderRefund.phone_number ? dataOrderRefund
+                    .phone_number : "")
+                $("#modalConfirm #user_bank_name").text(dataOrderRefund.user_bank_name ? dataOrderRefund
+                    .user_bank_name : "")
+                $("#modalConfirm #bank_name").text(dataOrderRefund.bank_name ? dataOrderRefund.bank_name : "")
+                $("#modalConfirm #bank_account").text(dataOrderRefund.bank_account ? dataOrderRefund.bank_account :
                     "")
+                $("#modalConfirm #status").text(dataOrderRefund.status ? dataOrderRefund.status : "")
+                if (dataOrderRefund.status == 'rejected' || dataOrderRefund.status == 'pending') {
+                    $("#modalConfirm #admin_reason").val(dataOrderRefund.admin_reason ? dataOrderRefund
+                        .admin_reason :
+                        "")
+                } else {
+                    $("#modalConfirm #admin_reason_div").empty()
+                }
+                if (dataOrderRefund.status == 'rejected') {
+                    $("#modalConfirm #admin_reason").attr("disabled", true);
+                }
+                if (dataOrderRefund.status == 'pending') {
+                    $('#button-box-footer').append(`<app-button><button class="btn btn-md  fw-bold"
+                                                style="background-color: red; color: #fff;" disabled
+                                                id="withdrawal_rejected_btn" type="submit" fdprocessedid="hbnu3">
+                                                <div> Từ chối </div>
+                                            </button></app-button>
+                                        <app-button>
+                                            <button class="btn btn-md btn-theme fw-bold" id="withdrawal_approved_btn"
+                                                type="submit" fdprocessedid="qq0uf9">
+                                                <div> Đông ý </div>
+                                            </button></app-button>`)
+                }
+
+                $('#admin_reason').on('input', function() {
+                    const reason = $(this).val()
+                        .trim(); // Lấy giá trị trong textarea và loại bỏ khoảng trắng
+                    const rejectButton = $('#withdrawal_rejected_btn'); // Nút "Từ chối"
+                    const approvedButton = $('#withdrawal_approved_btn'); // Nút "Từ chối"
+
+                    if (reason.length > 0) {
+                        // Nếu lý do từ chối không trống, bật nút "Từ chối"
+                        rejectButton.prop('disabled', false);
+                        approvedButton.prop('disabled', true);
+                    } else {
+                        // Nếu lý do từ chối trống, disable nút "Từ chối"
+                        rejectButton.prop('disabled', true);
+                        approvedButton.prop('disabled', false);
+                    }
+                });
+                $("#withdrawal_rejected_btn").on("click", function(event) {
+
+                    if (!confirm("Bạn có chắn chắn thao tác này không?")) {
+                        return;
+                    }
+
+                    const adminReason = $("#modalConfirm #admin_reason").val();
+                    const idRefund = $("#modalConfirm #idOrderRefund").val();
+                    $.ajax({
+                        url: '{{ route('api.refund_orders.changeStatus') }}',
+                        type: 'POST',
+                        data: {
+                            adminReason: adminReason,
+                            idRefund: idRefund
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                Toastify({
+                                    text: "Thao tác thành công",
+                                    duration: 2000,
+                                    newWindow: true,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    stopOnFocus: true,
+                                    style: {
+                                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                    },
+                                }).showToast();
+                                callApiGetDataOrderRefund(idRefund)
+                                fetchOrders()
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                error);
+                        }
+                    });
+
+
+
+                })
+
+                $("#withdrawal_approved_btn").on("click", function(event) {
+
+                    console.log("!23")
+
+                    if (!confirm("Bạn có chắn chắn thao tác này không?")) {
+                        return;
+                    }
+
+                    const idRefund = $("#modalConfirm #idOrderRefund").val();
+                    $.ajax({
+                        url: '{{ route('api.refund_orders.changeStatus') }}',
+                        type: 'POST',
+                        data: {
+                            idRefund: idRefund
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                Toastify({
+                                    text: "Thao tác thành công",
+                                    duration: 2000,
+                                    newWindow: true,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    stopOnFocus: true,
+                                    style: {
+                                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                    },
+                                }).showToast();
+                                callApiGetDataOrderRefund(idRefund)
+                                fetchOrders()
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                error);
+                        }
+                    });
+
+
+
+                })
+
+
 
             }
 
@@ -264,8 +463,34 @@
 
 
 
-
             function callApiGetDataOrderRefund(idOrderRefund) {
+
+                $.ajax({
+                    url: `http://127.0.0.1:8000/api/refund-orders/${idOrderRefund}`,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status == 200) {
+                            renderHtmlModalOrderRefund(response.dataOrderRefund)
+
+                        } else {
+                            alert('Something error happened');
+                        }
+
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Lỗi call api:", xhr.responseText);
+                        alert(
+                            "Lỗi call api"
+                        );
+                    }
+                });
+
+
+            }
+
+
+            function callApiGetDataProductOrderRefund(idOrderRefund) {
 
                 $.ajax({
                     url: `http://127.0.0.1:8000/api/refund-orders/${idOrderRefund}`,
@@ -323,7 +548,9 @@
                         </td>
                         <td>
                             <ul id="actions">
-                                <li data-order="${order.id}"><a href="javascript:void(0)"><i class="ri-eye-line"></i></a>
+                                <li class='action-view-order' data-order="${order.id}"><a href="javascript:void(0)"><i class="ri-eye-line"></i></a>
+                                </li>
+                                <li class='action-view-product' data-order="${order.id}"><a href="javascript:void(0)"><i class="ri-store-3-line"></i></a>
                                 </li>
                             </ul>
                         </td>
@@ -331,7 +558,7 @@
             `);
                     })
 
-                    $('#actions li').on("click", function() {
+                    $('#actions .action-view-order').on("click", function() {
                         const orderId = $(this).data(
                             'order');
 
@@ -342,40 +569,42 @@
                         $('#modalConfirm').modal('show'); // Hiển thị modal
                     });
 
+                    $('#actions .action-view-product').on("click", function() {
+                        const orderId = $(this).data(
+                            'order');
 
+                        callApiGetDataProductOrderRefund(orderId)
 
-
-
-                    $('#admin_reason').on('input', function() {
-                        const reason = $(this).val()
-                            .trim(); // Lấy giá trị trong textarea và loại bỏ khoảng trắng
-                        const rejectButton = $('#withdrawal_rejected_btn'); // Nút "Từ chối"
-
-                        if (reason.length > 0) {
-                            // Nếu lý do từ chối không trống, bật nút "Từ chối"
-                            rejectButton.prop('disabled', false);
-                        } else {
-                            // Nếu lý do từ chối trống, disable nút "Từ chối"
-                            rejectButton.prop('disabled', true);
-                        }
+                        $('#modalConfirmProduct').modal('show');
                     });
+
+
+
+
+
+
 
                 }
             }
 
+
+
             $('#payout_close_btn').on('click', function(event) {
                 event.stopPropagation();
+                $('#button-box-footer').empty();
                 $('#modalConfirm').modal('hide');
+
+            })
+            $('#payout_close_btn_product').on('click', function(event) {
+                event.stopPropagation();
+                $('#modalConfirmProduct').modal('hide');
 
             })
 
             function fetchOrders(search = "") {
-
-
                 $("#loading-icon").show();
-                // Gọi API
                 $.ajax({
-                    url: '{{ route('api.refund-orders.index') }}',
+                    url: '{{ route('api.refund_orders.index') }}',
                     method: "GET",
                     data: {
                         search,

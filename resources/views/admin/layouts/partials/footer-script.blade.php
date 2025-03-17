@@ -30,6 +30,7 @@
 
 <!-- MAIN JS -->
 <script src="{{ asset('theme/admin/assets/js/main.js') }}"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 @stack('js_library')
 
