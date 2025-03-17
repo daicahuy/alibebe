@@ -347,8 +347,8 @@
             // Enable pusher logging - don't include this in production
             Pusher.logToConsole = true;
 
-            var pusher = new Pusher('14773cf491b61b0bc6e2', {
-                cluster: 'ap1'
+            var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
             });
 
             var channel = pusher.subscribe('order-status.' + orderId);
