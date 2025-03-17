@@ -16,10 +16,12 @@ use App\Http\Controllers\api\OrderCustomerControllerApi;
 use App\Http\Controllers\api\PaymentController;
 use App\Http\Controllers\api\PaymentOnlineController;
 use App\Http\Controllers\api\UserAddressController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Api\ListCategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\StockController;
+use App\Http\Controllers\ChatClientController;
 use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Admin\CommentController;
 use App\Http\Controllers\Web\Client\AccountController as ClientAccountController;
@@ -44,6 +46,22 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Route for searching users
+Route::get('admin/chats/search-users', [ChatController::class, 'searchUsers'])
+    ->name('api.admin.chats.search-users');
+
+// Route for starting a new chat with a user
+Route::get('admin/chats/start-chat', [ChatController::class, 'startChat'])
+    ->name('admin.chats.start-chat');
+
+Route::prefix('client/chat')
+    ->group(function () {
+        Route::get('/session', [ChatClientController::class, 'getSession']);
+        Route::post('/messages', [ChatClientController::class, 'sendMessage']);
+        Route::get('/messages', [ChatClientController::class, 'getMessages']);
+    });
+
+
 Route::post('/cart/update', [CartItemController::class, 'update'])->middleware('web')->name('cart.update');
 Route::post('/cart/save-session', [CartItemController::class, 'saveSession'])->middleware('web')->name('cart.saveSession');
 Route::get('/comments/{commentId}/replies', [CommentController::class, 'getCommentReplies'])->name('comments.replies');
@@ -63,7 +81,7 @@ Route::prefix('/categories')
     ->group(function () {
 
         Route::patch('/{category}/active', 'toggleActive')->name('toggleActive'); // Cập nhật trạng thái active
-    
+
     });
 
 Route::prefix('/attributes')
@@ -100,7 +118,6 @@ Route::prefix('/orders')
         Route::post('/updateOrderStatusWithUserCheck', [OrderController::class, 'updateOrderStatusWithUserCheck'])->name('updateOrderStatusWithUserCheck');
         Route::post('/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');
         Route::post('/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
-
     });
 
 
@@ -125,7 +142,6 @@ Route::prefix('/address')
         Route::post('/update-address-user', [UserAddressController::class, 'updateAddressUser'])->name('updateAddressUser');
         Route::get('/get-address-edit/{id}', [UserAddressController::class, 'getDataAddress'])->name('getDataAddress');
         Route::get('/get-address-one/{id}', [UserAddressController::class, 'getDataAddressOne'])->name('getDataAddressOne');
-
     });
 
 Route::prefix('/coupons')
@@ -164,8 +180,6 @@ Route::prefix('/auth')
 
 
         Route::get('/email/verify/{id}', [AuthCustomerApiController::class, 'actionVerifyEmail'])->name('verification.verify');
-
-
     });
 
 

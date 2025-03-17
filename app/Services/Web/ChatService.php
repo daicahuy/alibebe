@@ -5,9 +5,11 @@ namespace App\Services\Web;
 use App\Enums\ChatSessionStatusType;
 use App\Enums\MessageType;
 use App\Enums\UserRoleType;
+use App\Models\Message;
 use App\Repositories\ChatSessionRepository;
 use App\Repositories\MessageRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
@@ -28,13 +30,19 @@ class ChatService
         $data =  $this->chatSessionRepository->getAllChatSessionWithRelation();
         return $data;
     }
+    // Lấy Những Đoạn Chat Đã Đóng
+    public function getAllChatsIsClosed()
+    {
+        $data = $this->chatSessionRepository->getAllChatSessionWithRelationClosed();
+        return $data;
+    }
     // Lấy thông tin chi tiết của 1 phiên chat dựa vào ID
     public function getChatSession($chatSessionId)
     {
         try {
             $chatSession = $this->chatSessionRepository->getChatSession($chatSessionId);
 
-           return $chatSession;
+            return $chatSession;
         } catch (\Throwable $th) {
             // Ghi log lỗi
             Log::error(
@@ -85,7 +93,7 @@ class ChatService
                 }
             } else {
                 // Gán nhân viên cho phiên chat nếu cần thiết
-                if ($user->role == UserRoleType::EMPLOYEE && !$chatSession->employee_id) {
+                if (($user->role == UserRoleType::EMPLOYEE || $user->role == UserRoleType::ADMIN) && !$chatSession->employee_id) {
                     $this->chatSessionRepository->assignEmployeeToSession($sessionId, $user->id);
                 }
 
@@ -136,23 +144,6 @@ class ChatService
     // Bắt đầu phiên chat mới cho khách hàng và gán nhân viên nếu có
     public function startChat($customerId, $employeeId = null)
     {
-        request()->validate([
-            'customer_id' => [
-                'required',
-                'integer',
-                Rule::exists('users', 'id')
-                    ->where('role', UserRoleType::CUSTOMER)
-            ],
-            'employee_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('users', 'id')
-                    ->where(function ($query) {
-                        $query->whereIn('role', [UserRoleType::EMPLOYEE]);
-                    })
-            ]
-        ]);
-
         try {
             // Tìm phiên chat đã có mở cho khách hàng
             $existingSession = $this->chatSessionRepository->findActiveChatSession($customerId);
@@ -179,7 +170,8 @@ class ChatService
             $sessionData = [
                 'customer_id' => $customerId,
                 'employee_id' => $employeeId,
-                'status' => ChatSessionStatusType::OPEN
+                'status' => ChatSessionStatusType::OPEN,
+                'created_date' => now()
             ];
 
             $chatSession = $this->chatSessionRepository->create($sessionData);
@@ -253,21 +245,35 @@ class ChatService
         }
     }
     // mở lại phiên chat cho khách hàng
-    public function reopenCustomerChat($customerId)
+    public function reopenCustomerChat($sessionId)
     {
         try {
-            // tạo phiên chat mới cho khách hàng
-            $sessionData = [
-                'customer_id' => $customerId,
-                'status' => ChatSessionStatusType::OPEN
-            ];
+            $user = Auth::user();
+            $chatSession = $this->chatSessionRepository->getChatSessionClosed($sessionId);
 
-            $chatSession = $this->chatSessionRepository->create($sessionData);
+            if (!$chatSession) {
+                return [
+                    'status' => false,
+                    'message' => 'Không tìm thấy phiên chat!'
+                ];
+            }
+
+            // Kiểm tra quyền Mở chat (nhân viên hoặc admin)
+            if ($user->role == UserRoleType::EMPLOYEE && $chatSession->employee_id != $user->id) {
+                return [
+                    'status' => false,
+                    'message' => 'Bạn không có quyền mở phiên chat này!'
+                ];
+            }
+
+            $chatSession->update([
+                'status' => ChatSessionStatusType::OPEN
+            ]);
 
             return [
                 'status' => true,
-                'message' => 'Đã mở lại phiên chat cho khách hàng!',
-                'session_id' => $chatSession->id
+                'message' => 'Mở lại phiên chat thành công!',
+                'session_id' => $sessionId
             ];
         } catch (\Throwable $th) {
             Log::error(
@@ -283,5 +289,149 @@ class ChatService
                 'message' => 'Có lỗi xảy ra, vui lòng thử lại!'
             ];
         }
+    }
+
+    public function forceDestroy($sessionId)
+    {
+        try {
+            DB::beginTransaction();
+            $user = Auth::user();
+            $chatSession = $this->chatSessionRepository->getChatSessionClosed($sessionId);
+
+            if (!$chatSession) {
+                return [
+                    'status' => false,
+                    'message' => 'Không tìm thấy phiên chat!'
+                ];
+            }
+
+            // Kiểm tra quyền đóng chat (nhân viên hoặc admin)
+            if (
+                $user->role == UserRoleType::EMPLOYEE &&
+                $chatSession->employee_id != $user->id &&
+                $user->role != UserRoleType::ADMIN
+            ) {
+                return [
+                    'status' => false,
+                    'message' => 'Bạn không có quyền cóa phiên chat này!'
+                ];
+            }
+
+            Message::where('chat_session_id', $sessionId)->delete();
+
+            $chatSession->delete();
+
+            DB::commit();
+
+            return [
+                'status' => true,
+                'message' => 'Đã Xóa Phiên Chat !!!'
+            ];
+        } catch (\Throwable $th) {
+            Log::error(
+                "Error In " . __CLASS__ . "@" . __FUNCTION__,
+                [
+                    'message' => $th->getMessage(),
+                    'data' => $data ?? 'No data'
+                ]
+            );
+
+            DB::rollBack();
+
+            return [
+                'status' => false,
+                'message' => 'Có lỗi xảy ra, vui lòng thử lại!'
+            ];
+        }
+    }
+
+    public function searchUsers($searchTerm)
+    {
+        return $this->chatSessionRepository->searchUsers($searchTerm);
+    }
+
+    //======================= Client ====================
+
+    public function getClientSession($userId)
+    {
+        try {
+            $session = $this->chatSessionRepository->findActiveChatSession($userId);
+
+            if (!$session) {
+                $newSession = $this->startChat($userId);
+                $session = $this->chatSessionRepository->getChatSession($newSession['session_id']);
+            }
+
+            return [
+                'status' => true,
+                'session' => $session,
+                'messages' => $session->messages,
+                'employee' => $session->employee,
+                'customer' => $session->customer
+            ];
+        } catch (\Exception $e) {
+            Log::error('Client session error: ' . $e->getMessage());
+            return $this->formatError('Không thể khởi tạo phiên chat');
+        }
+    }
+
+    public function sendClientMessage($userId, $message, $type = 1)
+    {
+        try {
+            $session = $this->chatSessionRepository->findActiveChatSession($userId);
+
+            if (!$session) {
+                $newSession = $this->startChat($userId);
+                $sessionId = $newSession['session_id'];
+            } else {
+                $sessionId = $session->id;
+            }
+
+            $this->messageRepository->create([
+                'chat_session_id' => $sessionId,
+                'sender_id' => $userId,
+                'message' => $message,
+                'type' => $type
+            ]);
+
+            return [
+                'status' => true,
+                'message' => 'Tin nhắn đã được gửi'
+            ];
+        } catch (\Exception $e) {
+            Log::error('Client send message error: ' . $e->getMessage());
+            return $this->formatError('Gửi tin nhắn thất bại');
+        }
+    }
+
+    public function getClientMessages($userId)
+    {
+        try {
+            $session = $this->chatSessionRepository->findActiveChatSession($userId);
+
+            if (!$session) {
+                return $this->formatError('Không tìm thấy phiên chat', false);
+            }
+
+            return [
+                'status' => true,
+                'messages' => $this->messageRepository->getMessagesBySession($session->id)
+            ];
+        } catch (\Exception $e) {
+            Log::error('Client get messages error: ' . $e->getMessage());
+            return $this->formatError('Lỗi tải tin nhắn');
+        }
+    }
+
+    private function formatError($message, $logError = true)
+    {
+        if ($logError) {
+            Log::error($message);
+        }
+
+        return [
+            'status' => false,
+            'message' => $message
+        ];
     }
 }

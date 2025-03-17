@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ChatSessionStatusType;
+use App\Enums\UserRoleType;
 use App\Services\Web\ChatService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class ChatController extends Controller
 {
@@ -26,18 +29,27 @@ class ChatController extends Controller
     }
 
     /**
+     * Hiển thị danh sách Chat Lưu Trữ
+     */
+    public function closed()
+    {
+        $chatSessions = $this->chatService->getAllChatsIsClosed();
+        return view('admin.pages.chatbox.closed', compact('chatSessions'));
+    }
+
+    /**
      * Hiển thị một phiên chat cụ thể
      */
     public function show($sessionId)
     {
         $chatSession = $this->chatService->getChatSession($sessionId);
-        
+
         // Kiểm tra nếu không tìm thấy phiên chat hoặc không có quyền truy cập
-        if (!$chatSession || !is_object($chatSession)) {
+        if (!$chatSession) {
             return redirect()->route('admin.chats.index')
-                ->with('error', $chatSession['message'] ?? 'Không tìm thấy phiên chat hoặc bạn không có quyền truy cập!');
+                ->with('error', 'Không tìm thấy phiên chat hoặc bạn không có quyền truy cập!');
         }
-        
+
         return view('admin.pages.chatbox.show', compact('chatSession'));
     }
 
@@ -46,23 +58,36 @@ class ChatController extends Controller
      */
     public function startChat(Request $request)
     {
-        $request->validate([
-            'customer_id' => 'required|integer|exists:users,id',
-            'employee_id' => 'nullable|integer|exists:users,id'
+        request()->validate([
+            'customer_id' => [
+                'required',
+                'integer',
+                Rule::exists('users', 'id')
+                    ->where('role', UserRoleType::CUSTOMER)
+            ],
+            'employee_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('users', 'id')
+                    ->where(function ($query) {
+                        $query->whereIn('role', [UserRoleType::EMPLOYEE]);
+                    })
+            ]
         ]);
 
-        $result = $this->chatService->startChat(
-            $request->customer_id,
-            $request->employee_id
-        );
+        // Gọi service và truyền cả customer_id và employee_id
+        $result = $this->chatService->startChat($request->customer_id, $request->employee_id);
+
+        Log::info('Chat service result:', $result);
 
         if ($result['status']) {
-            return redirect()->route('admin.pages.chatbox.show', $result['session_id'])
+            return redirect()->route('admin.chats.chat-session', $result['session_id'])
                 ->with('success', $result['message']);
         }
 
         return redirect()->back()->with('error', $result['message']);
     }
+
 
     /**
      * Gửi tin nhắn trong phiên chat
@@ -95,7 +120,7 @@ class ChatController extends Controller
         $result = $this->chatService->closeChatSession($sessionId);
 
         if ($result['status']) {
-            return redirect()->route('admin.pages.chatbox.index')
+            return redirect()->route('admin.chats.index')
                 ->with('success', $result['message']);
         }
 
@@ -105,19 +130,44 @@ class ChatController extends Controller
     /**
      * Mở lại phiên chat cho khách hàng
      */
-    public function reopenChat(Request $request)
+    public function reOpenChat($id)
     {
-        $request->validate([
-            'customer_id' => 'required|integer|exists:users,id'
-        ]);
-
-        $result = $this->chatService->reopenCustomerChat($request->customer_id);
+        $result = $this->chatService->reopenCustomerChat($id);
 
         if ($result['status']) {
-            return redirect()->route('admin.pages.chatbox.show', $result['session_id'])
+            return redirect()->route('admin.chats.chat-session', $result['session_id'])
                 ->with('success', $result['message']);
         }
 
         return redirect()->back()->with('error', $result['message']);
+    }
+
+    /** 
+     * Xóa Phiên CHat
+     */
+    public function forceDelete($id)
+    {
+        $result = $this->chatService->forceDestroy($id);
+
+        if ($result['status']) {
+            return redirect()->route('admin.chats.index')
+                ->with('success', $result['message']);
+        }
+
+        return redirect()->back()->with('error', $result['message']);
+    }
+
+    /**
+     * Tìm Kiếm người dùng cho admin
+     */
+    public function searchUsers()
+    {
+        $searchTerm = request('search');
+        $users = $this->chatService->searchUsers($searchTerm);
+
+        return response()->json([
+            'success' => true,
+            'users' => $users
+        ]);
     }
 }
