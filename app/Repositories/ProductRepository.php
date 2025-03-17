@@ -433,10 +433,11 @@ END');
             ->join('order_items', 'order_items.product_id', '=', 'products.id')
             ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->join('order_order_status', function ($join) {
-                $join->on('orders.id', '=', 'order_order_status.order_id')
-                    ->where('order_order_status.order_status_id', 6);
-            })
+            ->join(DB::raw('
+                (SELECT order_id FROM order_order_status 
+                WHERE order_status_id = 6 
+                GROUP BY order_id) as completed_orders
+            '), 'completed_orders.order_id', '=', 'orders.id') // ✅ Chỉ lấy đơn hàng hoàn thành 1 lần duy nhất
             ->leftJoin('reviews', function ($join) {
                 $join->on('reviews.product_id', '=', 'products.id')
                     ->where('reviews.is_active', 1);
@@ -453,21 +454,21 @@ END');
                         ELSE products.name 
                     END AS name
                 '),
-                DB::raw('COALESCE(product_variants.thumbnail, products.thumbnail) as thumbnail'), // 🟢 Lấy ảnh từ biến thể nếu có
+                DB::raw('COALESCE(product_variants.thumbnail, products.thumbnail) as thumbnail'),
                 DB::raw('COALESCE(product_variants.price, products.price) as price'),
                 DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'),
                 DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
                 DB::raw('
-                    SUM(
+                    SUM(DISTINCT 
                         CASE 
                             WHEN order_items.product_variant_id IS NOT NULL 
                             THEN order_items.quantity_variant
                             ELSE order_items.quantity 
                         END
                     ) as total_sold
-                '),
+                '), // ✅ Sử dụng DISTINCT để tránh nhân đôi số lượng
                 DB::raw('products.views as views_count'),
-                DB::raw('COALESCE(product_stocks.stock, 0) as stock_quantity') // 🟢 Thêm tồn kho sản phẩm
+                DB::raw('COALESCE(product_stocks.stock, 0) as stock_quantity')
             )
             ->groupBy(
                 'products.id',
@@ -486,63 +487,68 @@ END');
             ->limit(12)
             ->get();
     
-        // Nếu không có sản phẩm nào bán thành công, lấy sản phẩm mới nhất
-        // Nếu không có sản phẩm nào bán thành công, lấy sản phẩm mới nhất (bao gồm cả biến thể)
-if ($popularProducts->isEmpty()) {
-    return DB::table('products')
-        ->where('products.is_active', 1)
-        ->leftJoin('product_variants', function ($join) {
-            $join->on('product_variants.product_id', '=', 'products.id')
-                ->where('product_variants.is_active', 1);
-        })
-        ->leftJoin('attribute_value_product_variant', 'attribute_value_product_variant.product_variant_id', '=', 'product_variants.id')
-        ->leftJoin('attribute_values', 'attribute_values.id', '=', 'attribute_value_product_variant.attribute_value_id')
-        ->leftJoin('product_stocks', function ($join) {
-            $join->on('product_stocks.product_id', '=', 'products.id')
-                ->orOn('product_stocks.product_variant_id', '=', 'product_variants.id');
-        })
-        ->select(
-            'products.id',
-            DB::raw('
-                CASE 
-                    WHEN product_variants.id IS NOT NULL 
-                    THEN CONCAT(products.name, " - ", GROUP_CONCAT(DISTINCT attribute_values.value SEPARATOR ", "))
-                    ELSE products.name 
-                END AS name
-            '),
-            DB::raw('COALESCE(product_variants.thumbnail, products.thumbnail) as thumbnail'),
-            DB::raw('COALESCE(product_variants.price, products.price) as price'),
-            DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'),
-            DB::raw('0 as average_rating'),
-            DB::raw('0 as total_sold'),
-            DB::raw('products.views as views_count'),
-            DB::raw('COALESCE(product_stocks.stock, 0) as stock_quantity')
-        )
-        ->groupBy(
-            'products.id',
-            'products.name',
-            'products.thumbnail',
-            'product_variants.id',
-            'product_variants.thumbnail',
-            'product_variants.price',
-            'product_variants.sale_price',
-            'products.price',
-            'products.sale_price',
-            'products.views',
-            'product_stocks.stock'
-        )
-        ->orderByDesc('products.created_at')
-        ->limit(12)
-        ->get();
-}
-
-    
+        if ($popularProducts->isEmpty()) {
+            return DB::table('products')
+                ->where('products.is_active', 1)
+                ->leftJoin('product_variants', function ($join) {
+                    $join->on('product_variants.product_id', '=', 'products.id')
+                        ->where('product_variants.is_active', 1);
+                })
+                ->leftJoin('attribute_value_product_variant', 'attribute_value_product_variant.product_variant_id', '=', 'product_variants.id')
+                ->leftJoin('attribute_values', 'attribute_values.id', '=', 'attribute_value_product_variant.attribute_value_id')
+                ->leftJoin('product_stocks', function ($join) {
+                    $join->on('product_stocks.product_id', '=', 'products.id')
+                        ->orOn('product_stocks.product_variant_id', '=', 'product_variants.id');
+                })
+                ->leftJoin('order_items', function ($join) {
+                    $join->on('order_items.product_id', '=', 'products.id')
+                        ->orOn('order_items.product_variant_id', '=', 'product_variants.id');
+                })
+                ->leftJoin('orders', 'orders.id', '=', 'order_items.order_id')
+                ->leftJoin(DB::raw('(SELECT order_id FROM order_order_status WHERE order_status_id = 6 GROUP BY order_id) as completed_orders'),
+                    'completed_orders.order_id', '=', 'orders.id'
+                )
+                ->select(
+                    'products.id',
+                    DB::raw('
+                        CASE 
+                            WHEN product_variants.id IS NOT NULL 
+                            THEN CONCAT(products.name, " - ", (
+                                SELECT GROUP_CONCAT(DISTINCT attribute_values.value SEPARATOR ", ") 
+                                FROM attribute_value_product_variant avpv
+                                JOIN attribute_values av ON av.id = avpv.attribute_value_id
+                                WHERE avpv.product_variant_id = product_variants.id
+                            ))
+                            ELSE products.name 
+                        END AS name
+                    '),
+                    DB::raw('COALESCE(product_variants.thumbnail, products.thumbnail) as thumbnail'),
+                    DB::raw('COALESCE(product_variants.price, products.price) as price'),
+                    DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'),
+                    DB::raw('0 as average_rating'),
+                    DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold'),
+                    DB::raw('products.views as views_count'),
+                    DB::raw('COALESCE(product_stocks.stock, 0) as stock_quantity')
+                )
+                ->groupBy(
+                    'products.id',
+                    'products.name',
+                    'products.thumbnail',
+                    'product_variants.id',
+                    'product_variants.thumbnail',
+                    'product_variants.price',
+                    'product_variants.sale_price',
+                    'products.price',
+                    'products.sale_price',
+                    'products.views',
+                    'product_stocks.stock'
+                )
+                ->orderByDesc('products.created_at')
+                ->limit(12)
+                ->get();
+        }
         return $popularProducts;
     }
-    
-    
-    
-
     public function getUserRecommendations($userId)
     {
         // 🔹 Lấy danh sách sản phẩm đã mua trong các đơn hàng hoàn thành
