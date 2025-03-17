@@ -143,7 +143,18 @@
                                                         <span class="text-muted">Không có danh mục</span>
                                                     @endif
                                                 </td>
-                                                <td class="cursor-pointer">{{ $trash->price_range }} </td>
+                                                <td class="cursor-pointer">
+                                                    @if ($trash->show_sale)
+                                                        <del>
+                                                            {{ $trash->original_price_display }}
+                                                        </del><br>
+                                                        <span class="theme-color">
+                                                            {{ str_replace("\n", '<br>', str($trash->price_range)->after("\n")) }}
+                                                        </span>
+                                                    @else
+                                                        <span class="theme-color"> {{ $trash->price_range }} </span>
+                                                    @endif
+                                                </td>
                                                 <td class="cursor-pointer">{{ $trash->stock_quantity }}</td>
                                                 <td class="cursor-pointer">
                                                     @if ($trash->stock_quantity > 10)

@@ -333,8 +333,8 @@ END');
                 DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'), // Lấy giá khuyến mãi
                 'products.thumbnail',
                 'products.is_active',
-                  // Tổng số lượng đã bán từ trước đến giờ (không lọc theo ngày)
-            DB::raw('
+                // Tổng số lượng đã bán từ trước đến giờ (không lọc theo ngày)
+                DB::raw('
             (SELECT SUM(
                 CASE 
                     WHEN oi.product_variant_id IS NOT NULL 
@@ -424,28 +424,28 @@ END');
             ->get();
     }
 
-  public function getPopularProducts()
-{
-    $popularProducts = DB::table('order_items')
-        ->join('products', 'order_items.product_id', '=', 'products.id')
-        ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id') // Lấy thông tin biến thể
-        ->join('orders', 'order_items.order_id', '=', 'orders.id')
-        ->join('order_order_status', function ($join) {
-            $join->on('orders.id', '=', 'order_order_status.order_id')
-                ->where('order_order_status.order_status_id', 6); // Chỉ tính đơn hàng Hoàn thành
-        })
-        ->leftJoin('reviews', function ($join) {
-            $join->on('reviews.product_id', '=', 'products.id')
-                ->where('reviews.is_active', 1);
-        })
-        ->select(
-            'products.id',
-            'products.thumbnail',
-            DB::raw('COALESCE(product_variants.price, products.price) as price'),
-            DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'),
-            'products.name',
-            DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
-            DB::raw('
+    public function getPopularProducts()
+    {
+        $popularProducts = DB::table('order_items')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id') // Lấy thông tin biến thể
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->join('order_order_status', function ($join) {
+                $join->on('orders.id', '=', 'order_order_status.order_id')
+                    ->where('order_order_status.order_status_id', 6); // Chỉ tính đơn hàng Hoàn thành
+            })
+            ->leftJoin('reviews', function ($join) {
+                $join->on('reviews.product_id', '=', 'products.id')
+                    ->where('reviews.is_active', 1);
+            })
+            ->select(
+                'products.id',
+                'products.thumbnail',
+                DB::raw('COALESCE(product_variants.price, products.price) as price'),
+                DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'),
+                'products.name',
+                DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
+                DB::raw('
                 SUM(
                     CASE 
                         WHEN order_items.product_variant_id IS NOT NULL 
@@ -454,42 +454,42 @@ END');
                     END
                 ) as total_sold
             '),
-            DB::raw('products.views as views_count')
-        )
-        ->groupBy(
-            'products.id',
-            'products.name',
-            'products.thumbnail',
-            'product_variants.price',
-            'product_variants.sale_price',
-            'products.price',
-            'products.sale_price',
-            'products.views'
-        )
-        ->orderByDesc('total_sold')
-        ->limit(12)
-        ->get();
-
-    // Nếu không có sản phẩm nào bán thành công, lấy sản phẩm mới nhất hoặc có nhiều lượt xem nhất
-    if ($popularProducts->isEmpty()) {
-        return DB::table('products')
-            ->select(
+                DB::raw('products.views as views_count')
+            )
+            ->groupBy(
                 'products.id',
                 'products.name',
                 'products.thumbnail',
-                DB::raw('COALESCE(products.price, 0) as price'),
-                DB::raw('COALESCE(products.sale_price, 0) as sale_price'),
-                DB::raw('0 as average_rating'),
-                DB::raw('0 as total_sold'),
-                DB::raw('products.views as views_count')
+                'product_variants.price',
+                'product_variants.sale_price',
+                'products.price',
+                'products.sale_price',
+                'products.views'
             )
-            ->orderByDesc('products.created_at') // Lấy sản phẩm mới nhất
+            ->orderByDesc('total_sold')
             ->limit(12)
             ->get();
-    }
 
-    return $popularProducts;
-}
+        // Nếu không có sản phẩm nào bán thành công, lấy sản phẩm mới nhất hoặc có nhiều lượt xem nhất
+        if ($popularProducts->isEmpty()) {
+            return DB::table('products')
+                ->select(
+                    'products.id',
+                    'products.name',
+                    'products.thumbnail',
+                    DB::raw('COALESCE(products.price, 0) as price'),
+                    DB::raw('COALESCE(products.sale_price, 0) as sale_price'),
+                    DB::raw('0 as average_rating'),
+                    DB::raw('0 as total_sold'),
+                    DB::raw('products.views as views_count')
+                )
+                ->orderByDesc('products.created_at') // Lấy sản phẩm mới nhất
+                ->limit(12)
+                ->get();
+        }
+
+        return $popularProducts;
+    }
 
     public function getUserRecommendations($userId)
     {
@@ -580,6 +580,8 @@ END');
             'price',
             'is_active',
             'type',
+            'is_sale',
+            'sale_price'
         )
             ->with(['categories', 'productStock', 'productVariants.productStock'])
             ->where(['deleted_at' => null, 'is_active' => 1])
@@ -660,6 +662,8 @@ END');
                 'price',
                 'is_active',
                 'type',
+                'is_sale',
+                'sale_price',
             )
             ->with([
                 'categories' => function ($query) {
@@ -708,6 +712,8 @@ END');
                 'price',
                 'is_active',
                 'type',
+                'is_sale',
+                'sale_price',
             )
             ->with([
                 'categories' => function ($query) {
@@ -1223,9 +1229,16 @@ END');
 
     public function getProductsWithDetailsByIds(array $productIds, array $with = [])
     {
-        return $this->model->with($with)
+        return $this->model->with([
+            'attributeValues' => function ($query) {
+                $query->where('is_active', 1);
+            },
+            'productVariants.attributeValues' => function ($query) {
+                $query->where('is_active', 1);
+            }
+        ])
             ->whereIn('id', $productIds)
-            ->where('is_active', 1)
+            // ->where('is_active', 1)
             ->get();
     }
 
