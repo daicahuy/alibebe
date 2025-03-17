@@ -87,6 +87,7 @@ Route::prefix('/refund-orders')
         Route::get('/list', [ApiRefundOrderController::class, 'index'])->name('index');
         Route::get('/{id}', [ApiRefundOrderController::class, 'getDataOrderRefund'])->name('getDataOrderRefund');
         Route::post('/changeStatus', [ApiRefundOrderController::class, 'changeStatus'])->name('changeStatus');
+        Route::post('/createOrderRefund', [ApiRefundOrderController::class, 'createOrderRefund'])->name('createOrderRefund');
     });
 
 Route::prefix('/orders')

@@ -17,8 +17,11 @@ return new class extends Migration {
             $table->bigInteger('variant_id')->unsigned()->nullable();
             $table->string('name')->nullable();
             $table->string('name_variant')->nullable();
-            $table->integer('quantity');
-            $table->decimal('refund_amount', 12, 2);
+            $table->unsignedSmallInteger('quantity')->nullable();
+            $table->decimal('price', 11, 2)->nullable();
+            $table->decimal('price_variant', 11, 2)->nullable();
+            $table->unsignedSmallInteger('quantity_variant')->nullable();
+
 
             $table->timestamps();
 

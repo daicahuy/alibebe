@@ -20,6 +20,7 @@ class Order extends Model
         'note',
         'total_amount',
         'is_paid',
+        'is_refund',
         'coupon_id',
         'coupon_code',
         'coupon_description',

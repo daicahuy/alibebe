@@ -16,6 +16,7 @@ class Refund extends Model
         'bank_account',
         'phone_number',
         'bank_name',
+        'user_bank_name',
         'reason',
         'reason_image',
         'admin_reason',
