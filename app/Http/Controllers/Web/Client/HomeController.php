@@ -32,8 +32,6 @@ class HomeController extends Controller
         ->pluck('product_id')
         ->toArray();
         $aiSuggestedProducts = $userId ? $this->HomeService->getAIFakeSuggest($userId) : $this->HomeService->getTrendingProduct();
-
-        
         return view('client.pages.index',
             compact('categories',
             'trendingProducts',
