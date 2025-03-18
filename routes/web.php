@@ -285,9 +285,9 @@ Route::prefix('/admin')
 
             Route::put('/restore/{product}', 'restore')->name('restore');
 
-            Route::delete('/delete{product}', 'delete')->name('delete');
+            Route::delete('/delete/{product}', 'delete')->name('delete');
 
-            Route::delete('/destroy{product}', 'destroy')->name('destroy');
+            Route::delete('/destroy/{product}', 'destroy')->name('destroy');
 
             //Bulk
             Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
@@ -480,7 +480,7 @@ Route::prefix('/admin')
 
             Route::get('/', 'index')->name('index');
 
-            Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
+            Route::get('/{product}', 'show')->name('show')->where(['product' => '[a-zA-Z0-9-_]+']);
         });
 
 

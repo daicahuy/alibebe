@@ -27,7 +27,7 @@ class HomeController extends Controller
         $topCategoriesInweek = $this->HomeService->topCategoriesInWeek();
         $bestSellingProducts = $this->HomeService->getBestSellingProduct();
         $productForYou = $this->HomeService->productForYou();
-        // dd($bestSellingProducts);
+
         $wishlistProductIds = $this->wishlistRepository->getWishlistForUserLogin()
         ->pluck('product_id')
         ->toArray();

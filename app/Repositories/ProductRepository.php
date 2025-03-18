@@ -383,6 +383,7 @@ END');
                 {$originalPriceSubQuery}, 
                 products.sale_price, 
                 products.views, 
+                products.slug, 
                 COALESCE(product_stocks.stock, 0) as stock_quantity, 
                 {$totalSoldSubQuery}, 
                 {$averageRatingSubQuery}
@@ -483,6 +484,7 @@ END');
             $originalPriceSubQuery,
             'products.sale_price',
             'products.views',
+            'products.slug',
             DB::raw('COALESCE(product_stocks.stock, 0) as stock_quantity'),
             $totalSoldSubQuery,
             $averageRatingSubQuery
@@ -579,6 +581,7 @@ END');
             'products.id',
             'products.name',
             'products.thumbnail',
+            'products.slug',
             $displayPriceSubQuery,
             $originalPriceSubQuery,
             'products.sale_price',
@@ -656,6 +659,7 @@ END');
                 'products.name',
                 'products.thumbnail',
                 'products.price',
+                'products.slug',
                 'products.sale_price',
                 'products.views',
                 'products.is_sale',

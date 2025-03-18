@@ -237,7 +237,7 @@
                                     @foreach ($trendingProducts->take(10) as $trendingProduct)
                                         <li>
                                             <div class="offer-product">
-                                                <a href="{{ route('products', ['product' => $trendingProduct->id]) }}"
+                                                <a href="{{ route('products', ['product' => $trendingProduct->slug]) }}"
                                                     class="offer-image">
                                                     <img src="{{ Storage::url($trendingProduct->thumbnail) }}"
                                                         class="blur-up lazyload" alt="">
@@ -245,7 +245,7 @@
 
                                                 <div class="offer-detail">
                                                     <div>
-                                                        <a href="{{ route('products', ['product' => $trendingProduct->id]) }}"
+                                                        <a href="{{ route('products', ['product' => $trendingProduct->slug]) }}"
                                                             class="text-title">
                                                             <h6 class="name">{{ $trendingProduct->name }}</h6>
                                                         </a>
@@ -310,7 +310,7 @@
                                         <div class="col-lg-3 col-md-4 col-sm-6 ">
                                             <div class="product-box border rounded shadow-sm p-3">
                                                 <div class="product-image">
-                                                    <a href="{{ route('products', ['product' => $topSell->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $topSell->slug]) }}">
                                                         <img src="{{ Storage::url($topSell->thumbnail) }}"
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
@@ -349,7 +349,7 @@
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
-                                                    <a href="{{ route('products', ['product' => $topSell->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $topSell->slug]) }}">
                                                         <h6 class="name">{{ $topSell->name }}</h6>
                                                     </a>
 
@@ -403,7 +403,7 @@
                     <div class="category-slider-2 product-wrapper no-arrow">
                         @foreach ($topCategoriesInweek as $topCategory)
                             <div>
-                                <a href="{{ route('categories', ['category' => $topCategory->id]) }}"
+                                <a href="{{ route('categories', $topCategory->slug) }}"
                                     class="category-box category-dark">
                                     <div>
                                         <img src="{{ Storage::url($topCategory->icon) }}" class="blur-up lazyload"
@@ -446,7 +446,7 @@
                                         <div class="col-lg-3 col-md-4 col-sm-6 ">
                                             <div class="product-box border rounded shadow-sm p-3">
                                                 <div class="product-image">
-                                                    <a href="{{ route('products', ['product' => $aiSuggest->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $aiSuggest->slug]) }}">
                                                         <img src="{{ Storage::url($aiSuggest->thumbnail) }}"
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
@@ -486,7 +486,7 @@
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
-                                                    <a href="{{ route('products', ['product' => $aiSuggest->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $aiSuggest->slug]) }}">
                                                         <h6 class="name">{{ $aiSuggest->name }}</h6>
                                                     </a>
 
@@ -548,7 +548,7 @@
                                         <div class="col-lg-3 col-md-4 col-sm-6 ">
                                             <div class="product-box border rounded shadow-sm p-3">
                                                 <div class="product-image">
-                                                    <a href="{{ route('products', ['product' => $fouYou->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $fouYou->slug]) }}">
                                                         <img src="{{ Storage::url($fouYou->thumbnail) }}"
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
@@ -588,7 +588,7 @@
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
-                                                    <a href="{{ route('products', ['product' => $fouYou->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $fouYou->slug]) }}">
                                                         <h6 class="name">{{ $fouYou->name }}</h6>
                                                     </a>
 
@@ -698,7 +698,7 @@
                                     @foreach ($chunk as $product)
                                         <li>
                                             <div class="offer-product">
-                                                <a href="{{ route('products', ['product' => $product->id]) }}"
+                                                <a href="{{ route('products', ['product' => $product->slug]) }}"
                                                     class="offer-image">
                                                     <img src="{{ Storage::url($product->thumbnail) }}" class="blur-up lazyload"
                                                         alt="{{ $product->name }}">
@@ -706,7 +706,7 @@
 
                                                 <div class="offer-detail">
                                                     <div>
-                                                        <a href="{{ route('products', ['product' => $product->id]) }}"
+                                                        <a href="{{ route('products', ['product' => $product->slug]) }}"
                                                             class="text-title">
                                                             <h6 class="name">{{ $product->name }}</h6>
                                                         </a>
