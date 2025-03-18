@@ -189,7 +189,7 @@
                                                         </li>
 
                                                         <li>
-                                                            <form action="{{ route('admin.products.delete', $hidden) }}"
+                                                            <form action="{{ route('admin.products.delete', $hidden->id) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('DELETE')

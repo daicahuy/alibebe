@@ -113,7 +113,7 @@
                                     <td>{{$review->total_reviews}}</td>
                                     <td>
                                         <ul>
-                                            <li><a href="{{ route('admin.reviews.show', ['product' => $review->product->id]) }}"><i class="ri-eye-line"></i></a>
+                                            <li><a href="{{ route('admin.reviews.show', ['product' => $review->product->slug]) }}"><i class="ri-eye-line"></i></a>
                                             </li>
                                         </ul>
                                     </td>

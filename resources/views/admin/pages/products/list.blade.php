@@ -243,7 +243,7 @@
                                                                 class="btn-edit"><i class="ri-pencil-line"></i></a>
                                                         </li>
                                                         <li>
-                                                            <form action="{{ route('admin.products.delete', $product) }}"
+                                                            <form action="{{ route('admin.products.delete', $product->id) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('DELETE')

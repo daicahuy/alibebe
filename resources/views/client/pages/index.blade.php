@@ -237,7 +237,7 @@
                                     @foreach ($trendingProducts->take(10) as $trendingProduct)
                                         <li>
                                             <div class="offer-product">
-                                                <a href="{{ route('products', ['product' => $trendingProduct->id]) }}"
+                                                <a href="{{ route('products', ['product' => $trendingProduct->slug]) }}"
                                                     class="offer-image">
                                                     <img src="{{ Storage::url($trendingProduct->thumbnail) }}"
                                                         class="blur-up lazyload" alt="">
@@ -245,13 +245,19 @@
 
                                                 <div class="offer-detail">
                                                     <div>
-                                                        <a href="{{ route('products', ['product' => $trendingProduct->id]) }}"
+                                                        <a href="{{ route('products', ['product' => $trendingProduct->slug]) }}"
                                                             class="text-title">
                                                             <h6 class="name">{{ $trendingProduct->name }}</h6>
                                                         </a>
-                                                        <span>{{ $trendingProduct->views }}</span>
-                                                        <h6 class="price theme-color">
-                                                            {{ number_format($trendingProduct->price, 0, ',', '.') }}₫</h6>
+                                                        <span>Lượt Xem: {{ $trendingProduct->views }}</span>
+                                                        <h5 class="price">
+                                                            <span
+                                                                class="theme-color">{{ number_format($trendingProduct->display_price) }}đ</span>
+                                                            {{-- Kiểm tra is_sale thay vì sale_price --}}
+                                                            @if ($trendingProduct->is_sale == 1)
+                                                                <del>{{ number_format($trendingProduct->original_price) }}đ</del>
+                                                            @endif
+                                                        </h5>
                                                     </div>
                                                 </div>
                                             </div>
@@ -304,7 +310,7 @@
                                         <div class="col-lg-3 col-md-4 col-sm-6 ">
                                             <div class="product-box border rounded shadow-sm p-3">
                                                 <div class="product-image">
-                                                    <a href="{{ route('products', ['product' => $topSell->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $topSell->slug]) }}">
                                                         <img src="{{ Storage::url($topSell->thumbnail) }}"
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
@@ -343,14 +349,17 @@
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
-                                                    <a href="{{ route('products', ['product' => $topSell->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $topSell->slug]) }}">
                                                         <h6 class="name">{{ $topSell->name }}</h6>
                                                     </a>
 
-                                                    <h5 class="sold text-content">
+                                                    <h5 class="price">
                                                         <span
-                                                            class="theme-color price">{{ number_format($topSell->price, 0, ',', '.') }}₫</span>
-                                                        <del>{{ number_format($topSell->sale_price, 0, ',', '.') }}₫</del>
+                                                            class="theme-color">{{ number_format($topSell->display_price) }}đ</span>
+                                                        {{-- Kiểm tra is_sale thay vì sale_price --}}
+                                                        @if ($topSell->is_sale == 1)
+                                                            <del>{{ number_format($topSell->original_price) }}đ</del>
+                                                        @endif
                                                     </h5>
 
 
@@ -367,14 +376,14 @@
                                                             class="text-muted ms-2">({{ number_format($topSell->average_rating, 1) }})</span>
                                                     </div>
                                                     <div class="d-flex justify-content-between mt-sm-2 mt-1">
-                                                        <h6 class="unit">Lượt xem: {{ $topSell->views_count }}</h6>
-                                                        <h6 class="unit">Đã Bán: {{ $topSell->total_sold }}</h6>
+                                                        <h6 class="unit">Lượt xem: {{ $topSell->views }}</h6>
+                                                        <h6 class="unit">Đã Bán Hôm Nay: {{ $topSell->total_sold }}</h6>
                                                     </div>
                                                     <div class="add-to-cart-box">
                                                         <a href="javascript:void(0)" data-bs-toggle="modal"
                                                             data-bs-target="#view" data-id={{ $topSell->id }}
                                                             class="btn btn-add-cart addcart-button">
-                                                            Add
+                                                            Thêm vào giỏ hàng
                                                         </a>
                                                     </div>
                                                 </div>
@@ -394,7 +403,7 @@
                     <div class="category-slider-2 product-wrapper no-arrow">
                         @foreach ($topCategoriesInweek as $topCategory)
                             <div>
-                                <a href="{{ route('categories', ['category' => $topCategory->id]) }}"
+                                <a href="{{ route('categories', $topCategory->slug) }}"
                                     class="category-box category-dark">
                                     <div>
                                         <img src="{{ Storage::url($topCategory->icon) }}" class="blur-up lazyload"
@@ -437,7 +446,7 @@
                                         <div class="col-lg-3 col-md-4 col-sm-6 ">
                                             <div class="product-box border rounded shadow-sm p-3">
                                                 <div class="product-image">
-                                                    <a href="{{ route('products', ['product' => $aiSuggest->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $aiSuggest->slug]) }}">
                                                         <img src="{{ Storage::url($aiSuggest->thumbnail) }}"
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
@@ -477,18 +486,16 @@
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
-                                                    <a href="{{ route('products', ['product' => $aiSuggest->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $aiSuggest->slug]) }}">
                                                         <h6 class="name">{{ $aiSuggest->name }}</h6>
                                                     </a>
 
-                                                    <h5 class="sold text-content">
-                                                        <span class="theme-color price">
-                                                            {{ number_format($aiSuggest->sale_price > 0 ? $aiSuggest->sale_price : $aiSuggest->price) }}
-                                                            ₫
-                                                        </span>
-
-                                                        @if (!is_null($aiSuggest->sale_price) && $aiSuggest->sale_price > 0 && $aiSuggest->sale_price != $aiSuggest->price)
-                                                            <del>{{ number_format($aiSuggest->price) }} ₫</del>
+                                                    <h5 class="price">
+                                                        <span
+                                                            class="theme-color">{{ number_format($aiSuggest->display_price) }}đ</span>
+                                                        {{-- Kiểm tra is_sale thay vì sale_price --}}
+                                                        @if ($aiSuggest->is_sale == 1)
+                                                            <del>{{ number_format($aiSuggest->original_price) }}đ</del>
                                                         @endif
                                                     </h5>
 
@@ -507,7 +514,7 @@
                                                     </div>
 
                                                     <div class="d-flex justify-content-between mt-sm-2 mt-1">
-                                                        <h6 class="unit">Lượt xem: {{ $aiSuggest->views_count }}</h6>
+                                                        <h6 class="unit">Lượt xem: {{ $aiSuggest->views}}</h6>
 
                                                         @if (isset($aiSuggest->total_sold))
                                                             <h6 class="unit">Đã Bán: {{ $aiSuggest->total_sold }}</h6>
@@ -518,7 +525,7 @@
                                                         <a href="javascript:void(0)" data-bs-toggle="modal"
                                                             data-bs-target="#view" data-id={{ $aiSuggest->id }}
                                                             class="btn btn-add-cart addcart-button">
-                                                            Add
+                                                            Thêm vào giỏ hàng
                                                         </a>
                                                     </div>
                                                 </div>
@@ -541,7 +548,7 @@
                                         <div class="col-lg-3 col-md-4 col-sm-6 ">
                                             <div class="product-box border rounded shadow-sm p-3">
                                                 <div class="product-image">
-                                                    <a href="{{ route('products', ['product' => $fouYou->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $fouYou->slug]) }}">
                                                         <img src="{{ Storage::url($fouYou->thumbnail) }}"
                                                             class="img-fluid blur-up lazyload" alt="">
                                                     </a>
@@ -581,22 +588,18 @@
                                                     </ul>
                                                 </div>
                                                 <div class="product-detail">
-                                                    <a href="{{ route('products', ['product' => $fouYou->id]) }}">
+                                                    <a href="{{ route('products', ['product' => $fouYou->slug]) }}">
                                                         <h6 class="name">{{ $fouYou->name }}</h6>
                                                     </a>
 
-                                                    <h5 class="sold text-content">
-                                                        <span class="theme-color price">
-                                                            {{ number_format($fouYou->sale_price > 0 ? $fouYou->sale_price : $fouYou->price) }}
-                                                            ₫
-                                                        </span>
-
-                                                        @if (!is_null($fouYou->sale_price) && $fouYou->sale_price > 0 && $fouYou->sale_price != $fouYou->price)
-                                                            <del>{{ number_format($fouYou->price) }} ₫</del>
+                                                    <h5 class="price">
+                                                        @if ($fouYou->is_sale == 1 && $fouYou->display_price < $fouYou->original_price)
+                                                            <span class="theme-color">{{ number_format($fouYou->display_price) }}đ</span>
+                                                            <del>{{ number_format($fouYou->original_price) }}đ</del>
+                                                        @else
+                                                            <span class="theme-color">{{ number_format($fouYou->original_price) }}đ</span>
                                                         @endif
-                                                    </h5>
-
-
+                                                    </h5>                                                    
                                                     <div class="product-rating mt-sm-2 mt-1">
                                                         <ul class="rating">
                                                             @for ($i = 1; $i <= 5; $i++)
@@ -611,18 +614,17 @@
                                                     </div>
 
                                                     <div class="d-flex justify-content-between mt-sm-2 mt-1">
-                                                        <h6 class="unit">Lượt xem: {{ $fouYou->views_count }}</h6>
+                                                        <h6 class="unit">Lượt xem: {{ $fouYou->views }}</h6>
 
                                                         @if (isset($fouYou->total_sold))
                                                             <h6 class="unit">Đã Bán: {{ $fouYou->total_sold }}</h6>
                                                         @endif
                                                     </div>
-
                                                     <div class="add-to-cart-box">
                                                         <a href="javascript:void(0)" data-bs-toggle="modal"
                                                             data-bs-target="#view" data-id={{ $fouYou->id }}
                                                             class="btn btn-add-cart addcart-button">
-                                                            Add
+                                                            Thêm vào giỏ hàng
                                                         </a>
                                                     </div>
                                                 </div>
@@ -696,21 +698,27 @@
                                     @foreach ($chunk as $product)
                                         <li>
                                             <div class="offer-product">
-                                                <a href="{{ route('products', ['product' => $product->product_id]) }}"
+                                                <a href="{{ route('products', ['product' => $product->slug]) }}"
                                                     class="offer-image">
-                                                    <img src="{{ $product->thumbnail }}" class="blur-up lazyload"
-                                                        alt="{{ $product->product_name }}">
+                                                    <img src="{{ Storage::url($product->thumbnail) }}" class="blur-up lazyload"
+                                                        alt="{{ $product->name }}">
                                                 </a>
 
                                                 <div class="offer-detail">
                                                     <div>
-                                                        <a href="{{ route('products', ['product' => $product->product_id]) }}"
+                                                        <a href="{{ route('products', ['product' => $product->slug]) }}"
                                                             class="text-title">
-                                                            <h6 class="name">{{ $product->product_name }}</h6>
+                                                            <h6 class="name">{{ $product->name }}</h6>
                                                         </a>
                                                         <span>{{ $product->total_sold }} đã bán</span>
-                                                        <h6 class="price theme-color">
-                                                            {{ number_format($product->price) }}₫</h6>
+                                                        <h5 class="price">
+                                                            <span
+                                                                class="theme-color">{{ number_format($product->display_price) }}đ</span>
+                                                            {{-- Kiểm tra is_sale thay vì sale_price --}}
+                                                            @if ($product->is_sale == 1)
+                                                                <del>{{ number_format($product->original_price) }}đ</del>
+                                                            @endif
+                                                        </h5>
                                                     </div>
                                                 </div>
                                             </div>
@@ -828,6 +836,7 @@
                                         @csrf
                                         <input type="hidden" name="product_id" id="cartProductId">
                                         <input type="hidden" name="product_variant_id" id="cartProductVariantId">
+                                        <input type="hidden" id="isUserLoggedIn" value="{{ auth()->check() ? '1' : '0' }}">
                                         <input type="hidden" name="quantity" value="1">
                                         <button type="submit" class="btn btn-md add-cart-button icon">Thêm Vào giỏ
                                             hàng</button>
@@ -1106,6 +1115,23 @@
             $('#addToCartForm').submit(function(e) {
                 e.preventDefault();
 
+                  // Kiểm tra trạng thái đăng nhập
+                    let isLoggedIn = $('#isUserLoggedIn').val() === '1';
+
+                    if (!isLoggedIn) {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Bạn chưa đăng nhập!",
+                            text: "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.",
+                            confirmButtonText: "Đăng nhập"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "/login"; // Điều hướng đến trang đăng nhập
+                            }
+                        });
+                        return;
+                    }
+
                 let productId = $('#cartProductId').val();
                 let selectedVariantId = $('#cartProductVariantId').val(); // 🟢 Lấy giá trị biến thể đã chọn
 
@@ -1309,7 +1335,7 @@
                 );
 
                 if (currentState === 'unselected') {
-                    console.log(`  Action: Add product to compare`);
+                    console.log(`  Action: Thêm vào giỏ hàng product to compare`);
                     addProductToCompare(productId,
                         productCategoryId); // **ĐẢM BẢO DÒNG NÀY KHÔNG BỊ COMMENT VÀ GÕ ĐÚNG CHÍNH TẢ**
                 } else {
