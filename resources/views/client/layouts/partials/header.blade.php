@@ -113,22 +113,26 @@
 
                         <div class="middle-box">
                             <div class="search-box">
-                                <div class="input-group">
-                                    <input type="search" class="form-control" placeholder="I'm searching for...">
-                                    <button class="btn" type="button" id="button-addon2">
-                                        <i data-feather="search"></i>
-                                    </button>
-                                </div>
+                                <form action="{{ route('search') }}" method="GET">
+                                    <div class="input-group">
+                                        <input type="search" class="form-control" id="searchInput" name="query" placeholder="Im searching for..." autocomplete="off" value="{{ request('query') }}">
+                                        <button class="btn" type="submit" id="button-addon2">
+                                            <i data-feather="search"></i>
+                                        </button>
+                                    </div>
+                                    <ul id="suggestions" class="suggestions-list" style="position: absolute; top: 100%; left: 0; width: 100%; background-color: white; border: 1px solid #ccc; border-top: none; list-style-type: none; padding: 0; margin: 0; display: none; z-index: 10; overflow-y: auto; max-height: 200px;">
+                                    </ul>
+                                </form>
                             </div>
                         </div>
-
                         <div class="rightside-box">
                             <div class="search-full w-100">
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <i data-feather="search" class="font-light"></i>
                                     </span>
-                                    <input type="text" class="form-control search-type" placeholder="Search here..">
+                                    <input type="text" class="form-control search-type"
+                                        placeholder="Search here..">
                                     <span class="input-group-text close-search">
                                         <i data-feather="x" class="font-light"></i>
                                     </span>
@@ -190,6 +194,109 @@
                                         /* Áp dụng thêm nếu badge nằm trong button (có thể cần hoặc không) */
                                         position: relative;
                                         top: -1px;
+                                    }
+
+                                    .search-box {
+                                        position: relative;
+                                        /* Để định vị tuyệt đối cho danh sách gợi ý */
+                                        width: 100%;
+                                        /* Hoặc một kích thước cố định nếu cần */
+                                        max-width: 600px;
+                                        /* Ví dụ, giới hạn chiều rộng tối đa */
+                                        margin: 0 auto;
+                                        /* Để căn giữa nếu cần */
+                                    }
+
+                                    /*  cho input group (nếu bạn đang sử dụng Bootstrap hoặc tương tự) */
+                                    .input-group {
+                                        display: flex;
+                                        border: 1px solid #ccc;
+                                        /* Ví dụ về border cho input group */
+                                        border-radius: 5px;
+                                        /* Bo tròn góc */
+                                        overflow: hidden;
+                                        /* Ẩn border thừa */
+                                    }
+
+                                    /*  ô input tìm kiếm */
+                                    #searchInput {
+                                        flex-grow: 1;
+                                        /* Để input chiếm phần lớn chiều rộng */
+                                        padding: 10px;
+                                        border: none;
+                                        outline: none;
+                                    }
+
+                                    /*  nút tìm kiếm */
+                                    #button-addon2 {
+                                        background-color: #ffa53b;
+                                        /* Màu nền nhạt */
+                                        color: white;
+                                        border: none;
+                                        padding: 10px 15px;
+                                        cursor: pointer;
+                                    }
+
+                                    #button-addon2:hover {
+                                        background-color: #e9ecef;
+                                    }
+
+                                    #button-addon2 i {
+                                        /*  cho icon tìm kiếm (nếu bạn đang dùng Feather Icons) */
+                                        display: inline-block;
+                                        width: 16px;
+                                        height: 16px;
+                                        stroke-width: 3;
+                                        stroke: currentColor;
+                                        fill: none;
+                                        vertical-align: middle;
+                                    }
+
+                                    /*  cho danh sách gợi ý */
+                                    .suggestions-list {
+                                        position: absolute;
+                                        top: 100%;
+                                        /* Hiển thị ngay dưới input */
+                                        left: 0;
+                                        width: 100%;
+                                        /* Chiều rộng bằng input */
+                                        background-color: white;
+                                        border: 1px solid #ccc;
+                                        border-top: none;
+                                        list-style-type: none;
+                                        padding: 0;
+                                        margin: 0;
+                                        display: none;
+                                        /* Ẩn ban đầu */
+                                        z-index: 10;
+                                        /* Đảm bảo hiển thị trên các phần tử khác */
+                                        overflow-y: auto;
+                                        /* Thêm thanh cuộn nếu nhiều gợi ý */
+                                        max-height: 200px;
+                                        /* Chiều cao tối đa của danh sách gợi ý */
+                                        border-radius: 0 0 5px 5px;
+                                        /* Bo tròn góc dưới */
+                                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                                        /* Hiệu ứng đổ bóng nhẹ */
+                                    }
+
+                                    /*  cho từng mục gợi ý */
+                                    .suggestions-list li {
+                                        display: block;
+                                        /* Đảm bảo mỗi gợi ý là một dòng */
+                                        padding: 10px 15px;
+                                        cursor: pointer;
+                                        white-space: nowrap;
+                                        /* Ngăn văn bản xuống dòng */
+                                        overflow: hidden;
+                                        /* Ẩn phần văn bản bị tràn */
+                                        text-overflow: ellipsis;
+                                        /* Hiển thị dấu ba chấm */
+                                    }
+
+                                    /*  khi hover vào mục gợi ý */
+                                    .suggestions-list li:hover {
+                                        background-color: #f0f0f0;
                                     }
                                 </style>
                                 <li class="right-side">
@@ -1137,6 +1244,59 @@
                         }
                     })
                     .catch(error => console.error("Error updating wishlist:", error));
+            });
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const suggestionsList = document.getElementById('suggestions');
+            const searchBox = searchInput.closest('.search-box');
+            const searchForm = searchInput.closest('form');
+        
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                suggestionsList.innerHTML = '';
+        
+                if (query.length < 2) {
+                    suggestionsList.style.display = 'none';
+                    return;
+                }
+        
+                fetch(`/api/search/suggestions?query=${query}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            data.forEach(suggestion => {
+                                const listItem = document.createElement('li');
+                                listItem.textContent = suggestion;
+                                listItem.addEventListener('click', function() {
+                                    searchInput.value = suggestion;
+                                    suggestionsList.style.display = 'none';
+                                    searchForm.submit(); // Tự động submit form khi chọn gợi ý
+                                });
+                                suggestionsList.appendChild(listItem);
+                            });
+                            suggestionsList.style.display = 'block';
+                        } else {
+                            suggestionsList.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching suggestions:', error);
+                        suggestionsList.style.display = 'none';
+                    });
+            });
+        
+            // Ẩn gợi ý khi click ra ngoài
+            document.addEventListener('click', function(event) {
+                if (!searchBox.contains(event.target)) {
+                    suggestionsList.style.display = 'none';
+                }
             });
         });
     </script>

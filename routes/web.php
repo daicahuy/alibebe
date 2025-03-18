@@ -47,7 +47,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 /*--------------CLIENT--------------*/
-
+Route::get('/search', [HomeController::class, 'search'])->name('search');
 Route::get('/', [HomeController::class, 'index'])->name('index');
 Route::get('/categories/{slug?}', [ListCategoriesController::class, 'index'])->name('categories');
 Route::get('/compare', [CompareController::class, 'getComparedProducts'])->name('compare.page');

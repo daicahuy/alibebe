@@ -149,7 +149,14 @@ class HomeService
         return $this->categoryRepo->getAllCategories();
     }
 
+    public function getSuggestions(string $query, int $limit = 10)
+    {
+        return $this->productRepository->searchProductsByName($query, $limit);
+    }
 
-
+    public function getProductsByQuery(string $query)
+    {
+        return $this->productRepository->searchProducts($query);
+    }
 }
 ;

@@ -780,7 +780,7 @@
                                 <div class="product-box-3 wow fadeInUp">
                                     <div class="product-header">
                                         <div class="product-image">
-                                            <a href="{{ route('products', $related->id) }}">
+                                            <a href="{{ route('products', $related->slug) }}">
                                                 <img src="{{ asset('storage/' . $related->thumbnail) }}"
                                                     class="img-fluid blur-up lazyload" alt="{{ $related->name }}">
                                             </a>
@@ -812,7 +812,7 @@
                                     <div class="product-footer">
                                         <div class="product-detail">
                                             <span class="span-name">{{ $related->brand->name }}</span>
-                                            <a href="{{ route('products', $related->id) }}">
+                                            <a href="{{ route('products', $related->slug) }}">
                                                 <h5 class="name">{{ $related->name }}</h5>
                                             </a>
                                             <div class="product-rating mt-2">
