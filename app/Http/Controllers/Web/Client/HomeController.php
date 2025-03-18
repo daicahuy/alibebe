@@ -55,4 +55,26 @@ class HomeController extends Controller
         return view('client.layoutspartials.header',compact('categories','categoryIds'));
     }
     
+    public function getSuggestions(Request $request)
+    {
+        $query = $request->input('query'); 
+
+        if ($query) {
+            $suggestions = $this->HomeService->getSuggestions($query);
+            return response()->json($suggestions);
+        }
+
+        return response()->json();
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        $results = $this->HomeService->getProductsByQuery($query);
+        $wishlistProductIds = $this->wishlistRepository->getWishlistForUserLogin()
+        ->pluck('product_id')
+        ->toArray();
+        return view('client.pages.tim-kiem', compact('query','results','wishlistProductIds'));
+    }
+    
 }

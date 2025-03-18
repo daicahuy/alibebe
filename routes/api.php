@@ -24,7 +24,7 @@ use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Admin\CommentController;
 use App\Http\Controllers\Web\Client\AccountController as ClientAccountController;
 use App\Http\Controllers\Web\Client\DetailProductController;
-
+use App\Http\Controllers\Web\Client\HomeController as ClientHomeController;
 use Illuminate\Http\Request;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +43,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/search/suggestions', [ClientHomeController::class, 'getSuggestions']);
 
 Route::post('/cart/update', [CartItemController::class, 'update'])->middleware('web')->name('cart.update');
 Route::post('/cart/save-session', [CartItemController::class, 'saveSession'])->middleware('web')->name('cart.saveSession');
