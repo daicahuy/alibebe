@@ -45,10 +45,10 @@ class ListCategoriesController extends Controller
             ->pluck('product_id')
             ->toArray();
         $listProductCate = $this->listCategoriesService->listProductCate($perpage, $sortBy, $filters);
-        $listStar = $this->listCategoriesService->getAllReviews();
+        $listStar = $this->listCategoriesService->getAllReviews($slug ? $category->id : null);
         $listVariantAttributes = $this->listCategoriesService->listVariantAttributes($slug ? $category->id : null);
 
-        // dd($listProductCate); 
+        // dd($listStar); 
 
         return view('client.pages.list-categories', compact(
             'listParentCategories',

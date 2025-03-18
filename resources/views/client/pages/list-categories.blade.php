@@ -187,7 +187,7 @@
                                         <div id="collapseSix" class="accordion-collapse collapse show">
                                             <div class="accordion-body">
 
-                                                <ul class="category-list custom-padding">
+                                                {{-- <ul class="category-list custom-padding">
                                                     @foreach ($listStar as $start)
                                                         <li>
                                                             <div class="form-check ps-0 m-0 category-list-box">
@@ -216,9 +216,33 @@
                                                             </div>
                                                         </li>
                                                     @endforeach
+                                                </ul> --}}
 
-
-
+                                                <ul class="category-list custom-padding">
+                                                    @foreach ($listStar as $ratingValue)
+                                                        <li>
+                                                            <div class="form-check ps-0 m-0 category-list-box">
+                                                                <input class="checkbox_animated" type="checkbox"
+                                                                       id="rating-{{ $ratingValue }}" name="rating[]"
+                                                                       value="{{ $ratingValue }}"
+                                                                       {{ isset($currentFilters['rating']) && in_array($ratingValue, (array) $currentFilters['rating']) ? 'checked' : '' }}>
+                                                                <div class="form-check-label">
+                                                                    <ul class="rating">
+                                                                        @for ($i = 0; $i < 5; $i++)
+                                                                            <li>
+                                                                                @if ($i < $ratingValue)
+                                                                                    <i data-feather="star" class="fill"></i>
+                                                                                @else
+                                                                                    <i data-feather="star"></i>
+                                                                                @endif
+                                                                            </li>
+                                                                        @endfor
+                                                                    </ul>
+                                                                    <span class="text-content">({{ $ratingValue }} Star)</span>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    @endforeach
                                                 </ul>
 
                                             </div>
@@ -408,7 +432,7 @@
                                 <div class="product-box-3 h-100 wow fadeInUp">
                                     <div class="product-header">
                                         <div class="product-image">
-                                            <a href="{{ route('products', $item->id) }}">
+                                            <a href="{{ route('products', $item->slug) }}">
                                                 <img src="{{ Storage::url($item->thumbnail) }}"
                                                     class="img-fluid blur-up lazyload" alt="">
                                             </a>
@@ -416,7 +440,8 @@
                                             <ul class="product-option">
                                                 <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                                                     <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                        data-bs-target="#view" data-id={{ $item->id }}>
+                                                        data-bs-target="#view" data-id={{ $item->id }}
+                                                        data-slug="{{ $item->slug }}">
                                                         <i data-feather="eye"></i>
                                                     </a>
                                                 </li>
@@ -456,7 +481,7 @@
                                             @else
                                                 <span class="text-muted">Không có danh mục</span>
                                             @endif
-                                            <a href="{{ route('products', $item->id) }}">
+                                            <a href="{{ route('products', $item->slug) }}">
                                                 <h5 class="name">{{ $item->name }}</h5>
                                             </a>
                                             <p class="text-content mt-1 mb-2 product-content">
@@ -503,6 +528,7 @@
                                             <div class="add-to-cart-box bg-white">
                                                 <a href="javascript:void(0)" data-bs-toggle="modal"
                                                     data-bs-target="#view" data-id={{ $item->id }}
+                                                    data-slug="{{ $item->slug }}"
                                                     class="btn btn-add-cart addcart-button">
                                                     Thêm vào giỏ hàng
                                                 </a>
@@ -665,7 +691,7 @@
                                     </form>
                                     <button
                                         class="btn theme-bg-color view-button icon text-white fw-bold btn-md detail-product-button">
-                                        View More Details
+                                        Xem chi tiết sản phẩm
                                     </button>
                                     {{-- <a href="{{ route('products', $listProductCate) }}" class="btn theme-bg-color view-button icon text-white fw-bold btn-md">Chi tiết sản phẩm</a> --}}
                                 </div>
@@ -697,19 +723,23 @@
         }
 
         $(document).ready(function() {
-            $('.detail-product-button').click(function() {
-                const productId = $('#view').data('product-id');
-
-                if (productId) {
-                    const productDetailUrl = "{{ route('products', ['product' => ':productId']) }}"
-                        .replace(':productId', productId);
-                    location.href = productDetailUrl;
-                } else {
-                    console.error("Không tìm thấy product_id...");
-                    alert("Lỗi:...");
-                }
-            });
-            // Thông báo alert (giữ nguyên)
+            // $('.detail-product-button').click(function() {
+            //     // const productId = $('#view').data('product-id');
+            //     const productSlug = $('#view').data('product-slug');
+            //     console.log("Giá trị productSlug khi nút được click:", productSlug);
+            //     if (productSlug) {
+            //         const productDetailUrl = "{{ route('products', ['product' => ':slug']) }}".replace(
+            //             ':slug', productSlug);
+            //         location.href = productDetailUrl;
+            //     } else {
+            //         console.error(
+            //             "Không tìm thấy productSlug để chuyển hướng đến trang chi tiết sản phẩm.");
+            //         alert(
+            //             "Lỗi: Không thể chuyển đến trang chi tiết sản phẩm. Không tìm thấy Slug sản phẩm."
+            //             );
+            //     }
+            // });
+            // // Thông báo alert (giữ nguyên)
             @if (session('success'))
                 Swal.fire({
                     icon: 'success',
@@ -734,7 +764,10 @@
 
             $('a[data-bs-target="#view"]').click(function() {
                 const productId = $(this).data('id');
+                const productSlug = $(this).data('slug');
+
                 $('#view').data('product-id', productId);
+                $('#view').data('product-slug', productSlug);
                 $('#cartProductId').val(productId);
 
                 $.ajax({
@@ -902,6 +935,23 @@
                     },
                     error: () => alert('Không tìm thấy sản phẩm')
                 });
+            });
+
+            // view detial product
+            $('.detail-product-button').click(function() {
+                const productSlug = $('#view').data('product-slug');
+
+                if (productSlug) {
+                    const productDetailUrl = "{{ route('products', ['product' => ':slug']) }}".replace(
+                        ':slug', productSlug);
+                    location.href = productDetailUrl;
+                } else {
+                    console.error(
+                        "Không tìm thấy productSlug để chuyển hướng đến trang chi tiết sản phẩm.");
+                    alert(
+                        "Lỗi: Không thể chuyển đến trang chi tiết sản phẩm. Không tìm thấy Slug sản phẩm."
+                    );
+                }
             });
 
             // Hàm cập nhật giá và thumbnail
@@ -1200,7 +1250,6 @@
 
 
         }); // end document
-
 
 
         // wish list - của Bảo
