@@ -189,19 +189,28 @@ END');
 
 
 
+            // if (isset($filters['rating'])) { //filter rating
+            //     $ratingFilter = $filters['rating'];
+            //     // Log::info('Rating filter:' . $ratingFilter);
+            //     if (is_array($ratingFilter)) { // nhiều rating
+            //         $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+            //             $q->whereIn('rating', $ratingFilter);
+            //         });
+            //     } else if (is_numeric($ratingFilter)) { // chỉ chọn một rating
+            //         $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+            //             $q->whereIn('rating', '=', $ratingFilter);
+            //         });
+            //     }
+            // } //end filter rating
             if (isset($filters['rating'])) { //filter rating
                 $ratingFilter = $filters['rating'];
-                // Log::info('Rating filter:' . $ratingFilter);
-                if (is_array($ratingFilter)) { // nhiều rating
-                    $query->whereHas('reviews', function ($q) use ($ratingFilter) {
-                        $q->whereIn('rating', $ratingFilter);
-                    });
-                } else if (is_numeric($ratingFilter)) { // chỉ chọn một rating
-                    $query->whereHas('reviews', function ($q) use ($ratingFilter) {
-                        $q->whereIn('rating', '=', $ratingFilter);
-                    });
+                if (!is_array($ratingFilter)) {
+                    $ratingFilter = [$ratingFilter];
                 }
-            } //end filter rating
+                $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+                    $q->whereIn('rating', $ratingFilter);
+                });
+            }
 
 
 
