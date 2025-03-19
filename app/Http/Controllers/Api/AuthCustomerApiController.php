@@ -148,15 +148,23 @@ class AuthCustomerApiController extends Controller
             Auth::login($user);
             return redirect()->intended('/');
         } else {
+            $verificationCode = Str::uuid();
             $newUser = User::create([
                 'google_id' => $googleUser->id,
                 'fullname' => $googleUser->name,
                 'email' => $googleUser->email,
                 "role" => UserRoleType::CUSTOMER,
                 "status" => UserStatusType::ACTIVE,
+                'code_verified_email' => $verificationCode,
+                'code_verified_at' => now()->addHours(24),
                 'password' => bcrypt(Str::random(16)),
 
             ]);
+
+            if ($newUser) {
+                $verificationUrl = route('auth.verification.verify', ['id' => $newUser->code_verified_email]); // Sử dụng ID user
+                Mail::to($newUser->email)->send(new VerifyEmail($newUser, $verificationUrl));
+            }
 
             // Đăng nhập người dùng mới
             Auth::login($newUser);
@@ -186,15 +194,24 @@ class AuthCustomerApiController extends Controller
             Auth::login($user);
             return redirect()->intended('/');
         } else {
+            $verificationCode = Str::uuid();
+
             $newUser = User::create([
                 'facebook_id' => $facebookUser->id,
                 'fullname' => $facebookUser->name,
                 'email' => $facebookUser->email,
                 "role" => UserRoleType::CUSTOMER,
                 "status" => UserStatusType::ACTIVE,
+                'code_verified_email' => $verificationCode,
+                'code_verified_at' => now()->addHours(24),
                 'password' => bcrypt(Str::random(16)),
 
             ]);
+
+            if ($newUser) {
+                $verificationUrl = route('auth.verification.verify', ['id' => $newUser->code_verified_email]); // Sử dụng ID user
+                Mail::to($newUser->email)->send(new VerifyEmail($newUser, $verificationUrl));
+            }
 
             // Đăng nhập người dùng mới
             Auth::login($newUser);
