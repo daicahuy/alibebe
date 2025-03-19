@@ -148,12 +148,9 @@
             <!-- User List -->
             <div class="user-list">
                 <div class="user-search row">
-                    <div class="col-md-10">
-                        <input type="text" class="form-control" placeholder="Tìm kiếm..." style="border-radius: 12px;">
-                    </div>
                     <div class="col-md-2">
-                        <a href="{{ route('admin.chats.closed') }}" class="btn btn-primary">
-                            Đoạn Chat Lưu Trữ
+                        <a href="{{ route('admin.chats.index') }}" class="btn btn-primary">
+                            Tin Nhắn
                         </a>
                     </div>
                 </div>
@@ -167,48 +164,53 @@
                                 <div class="user-status">Đang hoạt động</div>
                             </div>
                             <div class="message-item">
-                                <a class="btn btn-primary"
-                                    href="{{ route('admin.chats.chat-session', ['id' => $chatSession->id]) }}">
-                                    Mở Chat
-                                </a>
-                                <!-- Thêm icon xóa -->
-                                <button type="button" class="btn btn-danger mt-2" data-bs-toggle="modal"
+                                <!-- Thêm icon dấu ba chấm -->
+                                <button type="button" class="btn btn-secondary mt-2" data-bs-toggle="modal"
                                     data-bs-target="#deleteMessageModal{{ $chatSession->id }}">
-                                    <i class="fas fa-trash-alt"></i>
+                                    <i class="fas fa-ellipsis-h"></i> <!-- Đổi thành icon dấu ba chấm ngang -->
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Modal Xác Nhận Xóa -->
+                        <!-- Modal Xác Nhận Xóa hoặc Khôi Phục -->
                         <div class="modal fade" id="deleteMessageModal{{ $chatSession->id }}" tabindex="-1"
                             aria-labelledby="deleteMessageModalLabel{{ $chatSession->id }}" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="deleteMessageModalLabel{{ $chatSession->id }}">Xác Nhận
-                                            Xóa</h5>
+                                            Hành
+                                            Động</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        Bạn có chắc chắn muốn xóa tin nhắn này không?
+                                        Bạn có muốn khôi phục hoặc xóa vĩnh viễn tin nhắn này không?
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"
                                             data-bs-dismiss="modal">Hủy</button>
-                                        <!-- Form xóa tin nhắn -->
-                                        <form action="{{ route('admin.chats.close-chat-session', $chatSession->id) }}"
-                                            method="POST">
+                                        <!-- Form khôi phục tin nhắn -->
+                                        <form action="{{ route('admin.chats.restore-chat-session', $chatSession->id) }}"
+                                            method="POST" style="display:inline;">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="btn btn-danger">Xóa</button>
+                                            <button type="submit" class="btn btn-primary">Khôi Phục</button>
+                                        </form>
+
+                                        <!-- Form xóa vĩnh viễn tin nhắn -->
+                                        <form action="{{ route('admin.chats.force-delete', $chatSession->id) }}"
+                                            method="POST" style="display:inline;" onclick="return confirm('Xóa tin nhắn sẽ mất toàn bộ và không khôi phục được , Bạn đồng ý ?')">
+                                            @csrf
+                                            @method('DELETE') <!-- Sử dụng phương thức DELETE cho việc xóa vĩnh viễn -->
+                                            <button type="submit" class="btn btn-danger">Xóa Vĩnh Viễn</button>
                                         </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     @endforeach
-                    <div class="custom-pagination p-4">
+                    <div class="custom-pagination">
                         {{ $chatSessions->links() }}
                     </div>
                 </div>
@@ -224,102 +226,22 @@
 
 @push('js')
     <script>
-        $(document).ready(function() {
-            // Lấy ID của người dùng đã đăng nhập từ Laravel
-            const loggedInUserId = {{ auth()->id() }};
-            console.log('Logged in User ID:', loggedInUserId);
-
-            let searchTimeout;
-            const searchInput = $('.user-search input');
-            const userListContent = $('.user-list-content');
-
-            // Debug để kiểm tra jQuery đã load chưa
-            console.log('jQuery loaded:', typeof $ !== 'undefined');
-
-            function performSearch() {
-                const searchTerm = searchInput.val();
-                console.log('Searching for:', searchTerm); // Debug
-
-                // Hiển thị spinner ngay lập tức
-                userListContent.html(
-                    '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Đang tìm kiếm...</div>'
-                );
-
-
-                // AJAX request
-                $.ajax({
-                    url: '{{ route('api.admin.chats.search-users') }}',
-                    type: 'GET',
-                    data: {
-                        search: searchTerm,
-                        user_id: loggedInUserId
-                    },
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    success: function(response) {
-                        console.log('Response:', response); // Debug
-
-                        if (response.success && response.users && response.users.length > 0) {
-                            let html = '';
-                            response.users.forEach(function(user) {
-                                // Giả sử mỗi đối tượng user có các thuộc tính: id, fullname, avatar
-                                html += `
-                                        <div class="user-item">
-                                            <img src="${user.avatar ? user.avatar : '{{ asset('assets/images/default-avatar.png') }}'}" class="user-avatar">
-                                            <div class="user-info">
-                                                <div class="user-name">${user.fullname}</div>
-                                            </div>
-                                            <div class="message-item">
-                                              <form action="{{ route('admin.chats.start-chat') }}" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="customer_id" value="${user.id}">
-                                                <button type="submit" class="btn btn-primary">Mở Chat</button>
-                                              </form>
-                                            </div>
-                                        </div>
-                                        `;
-                            });
-                            userListContent.html(html);
-                        } else {
-                            userListContent.html(
-                                '<div class="text-center p-4">Không tìm thấy người dùng nào</div>');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Ajax error:', error); // Debug
-                        userListContent.html(
-                            '<div class="text-center p-4 text-danger">Có lỗi xảy ra, vui lòng thử lại</div>'
-                        );
-                    }
-                });
-            }
-
-            // Sự kiện input với debounce
-            searchInput.on('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(performSearch, 300);
+        @if (session()->has('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: '{{ session('success') }}',
+                timer: 2000
             });
+        @endif
 
-
-            @if (session()->has('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công',
-                    text: '{{ session('success') }}',
-                    timer: 2000
-                });
-            @endif
-
-            @if (session()->has('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Có lỗi xảy ra',
-                    text: '{{ session('error') }}',
-                    showConfirmButton: true
-                });
-            @endif
-
-        });
+        @if (session()->has('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra',
+                text: '{{ session('error') }}',
+                showConfirmButton: true
+            });
+        @endif
     </script>
 @endpush

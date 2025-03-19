@@ -28,7 +28,7 @@ class ProductController extends Controller
         $countTrash = $productData['countTrash'];
         $countHidden = $productData['countHidden'];
         $categories = $this->productService->getCategories();
-
+// dd($productData);
         return view('admin.pages.products.list', compact(
             'products',
             'categories',

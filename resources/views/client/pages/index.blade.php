@@ -10,7 +10,7 @@
                 <div class="col-xl-8 ratio_65">
                     <div class="home-contain h-100">
                         <div class="h-100">
-                            <img src="{{ asset('theme/client/assets/images/product/bia1.png') }}"
+                            <img src="https://cdn-media.sforum.vn/storage/app/media/trannghia/Apple-MacBook-Air-M4-ra-mat-1.jpg"
                                 class="bg-img blur-up lazyload" alt="">
                         </div>
                         {{-- <div class="home-detail p-center-left w-75">
@@ -33,7 +33,7 @@
                     <div class="row g-4">
                         <div class="col-xl-12 col-md-6">
                             <div class="home-contain">
-                                <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
+                                <img src="https://cdn-media.sforum.vn/storage/app/media/1nghiatran/camera-galaxy-z-fold7.jpg"
                                     class="bg-img blur-up lazyload" alt="">
                                 {{-- <div class="home-detail p-center-left home-p-sm w-75">
                                     <div>
@@ -50,7 +50,7 @@
 
                         <div class="col-xl-12 col-md-6">
                             <div class="home-contain">
-                                <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
+                                <img src="https://cdn-media.sforum.vn/storage/app/media/trannghia/Nubia-LiveFlip-ra-mat-cover.jpg"
                                     class="bg-img blur-up lazyload" alt="">
                                 {{-- <div class="home-detail p-center-left home-p-sm w-75">
                                     <div>
@@ -76,7 +76,7 @@
             <div class="banner-slider">
                 <div>
                     <div class="banner-contain hover-effect">
-                        <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
+                        <img src="https://cdn-media.sforum.vn/storage/app/media/trannghia/beats-solo-buds-purple.jpg"
                             class="bg-img blur-up lazyload" alt="">
                         {{-- <div class="banner-details">
                             <div class="banner-box">
@@ -92,7 +92,7 @@
 
                 <div>
                     <div class="banner-contain hover-effect">
-                        <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
+                        <img src="https://cdn-media.sforum.vn/storage/app/media/trannghia/Insta360-Flow-2-Pro-ra-mat-1.jpg"
                             class="bg-img blur-up lazyload" alt="">
                         {{-- <div class="banner-details">
                             <div class="banner-box">
@@ -108,7 +108,7 @@
 
                 <div>
                     <div class="banner-contain hover-effect">
-                        <img src="{{ asset('theme/client/assets/images/product/bia1.png') }}"
+                        <img src="https://cdn-media.sforum.vn/storage/app/media/haianh/video-thuc-te-kinh-galaxy-xr-thumb.jpg"
                             class="bg-img blur-up lazyload" alt="">
                         {{-- <div class="banner-details">
                             <div class="banner-box">
@@ -124,7 +124,7 @@
 
                 <div>
                     <div class="banner-contain hover-effect">
-                        <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
+                        <img src="https://cdn-media.sforum.vn/storage/app/media/haianh/vivo-y29s-5g-ra-mat-thumb.jpg"
                             class="bg-img blur-up lazyload" alt="">
                         {{-- <div class="banner-details">
                             <div class="banner-box">
@@ -194,7 +194,7 @@
 
                         <div class="ratio_156 section-t-space">
                             <div class="home-contain hover-effect">
-                                <img src="{{ asset('theme/client/assets/images/product/image2.png') }}"
+                                <img src="https://cdn-media.sforum.vn/storage/app/media/haianh/icemag/vivo-y29s-5g-ra-mat-1.jpg"
                                     class="bg-img blur-up lazyload" alt="">
                                 {{-- <div class="home-detail p-top-left home-p-medium">
                                     <div>
@@ -212,7 +212,7 @@
 
                         <div class="ratio_medium section-t-space">
                             <div class="home-contain hover-effect">
-                                <img src="{{ asset('theme/client/assets/images/product/image1.png') }}"
+                                <img src="https://cdn-media.sforum.vn/storage/app/media/trannghia/ROG-Flow-Z13-civer.jpg"
                                     class="img-fluid blur-up lazyload" alt="">
                                 {{-- <div class="home-detail p-top-left home-p-medium">
                                     <div>
@@ -317,9 +317,17 @@
                                                         </li>
 
                                                         <li data-bs-toggle="tooltip" data-bs-placement="top"
-                                                            title="Compare">
-                                                            <a href="compare.html">
-                                                                <i data-feather="refresh-cw"></i>
+                                                            title="So sánh">
+                                                            <a href="javascript:;" class="compare-toggle"
+                                                                data-state="unselected"
+                                                                data-product-id="{{ $topSell->id }}"
+                                                                data-product-category-id="{{ $topSell->categories->first()->id ?? null }}">
+                                                                <span class="icon-refresh">
+                                                                    <i data-feather="refresh-cw"></i>
+                                                                </span>
+                                                                <span class="icon-check" style="display:none;">
+                                                                    <i data-feather="check"></i>
+                                                                </span>
                                                             </a>
                                                         </li>
 
@@ -336,7 +344,7 @@
                                                 </div>
                                                 <div class="product-detail">
                                                     <a href="{{ route('products', ['product' => $topSell->id]) }}">
-                                                        <h6 class="name">{{ $topSell->product_names }}</h6>
+                                                        <h6 class="name">{{ $topSell->name }}</h6>
                                                     </a>
 
                                                     <h5 class="sold text-content">
@@ -443,9 +451,17 @@
                                                         </li>
 
                                                         <li data-bs-toggle="tooltip" data-bs-placement="top"
-                                                            title="Compare">
-                                                            <a href="compare.html">
-                                                                <i data-feather="refresh-cw"></i>
+                                                            title="So sánh">
+                                                            <a href="javascript:;" class="compare-toggle"
+                                                                data-state="unselected"
+                                                                data-product-id="{{ $aiSuggest->id }}"
+                                                                data-product-category-id="{{ $aiSuggest->categories->first()->id ?? null }}">
+                                                                <span class="icon-refresh">
+                                                                    <i data-feather="refresh-cw"></i>
+                                                                </span>
+                                                                <span class="icon-check" style="display:none;">
+                                                                    <i data-feather="check"></i>
+                                                                </span>
                                                             </a>
                                                         </li>
 
@@ -513,7 +529,110 @@
                             </div>
                         </div>
                     </div>
+                    <div class="title d-block">
+                        <h2>Sản phẩm Nổi bật.</h2>
+                        <p></p>
+                    </div>
+                    <div class="section-b-space">
+                        <div class="product-border  overflow-hidden">
+                            <div>
+                                <div class="row gx-3 gy-4">
+                                    @foreach ($productForYou as $fouYou)
+                                        <div class="col-lg-3 col-md-4 col-sm-6 ">
+                                            <div class="product-box border rounded shadow-sm p-3">
+                                                <div class="product-image">
+                                                    <a href="{{ route('products', ['product' => $fouYou->id]) }}">
+                                                        <img src="{{ Storage::url($fouYou->thumbnail) }}"
+                                                            class="img-fluid blur-up lazyload" alt="">
+                                                    </a>
+                                                    <ul class="product-option">
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="View">
+                                                            <a href="javascript:void(0)" data-bs-toggle="modal"
+                                                                data-bs-target="#view" data-id={{ $fouYou->id }}>
+                                                                <i data-feather="eye"></i>
+                                                            </a>
+                                                        </li>
 
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="So sánh">
+                                                            <a href="javascript:;" class="compare-toggle"
+                                                                data-state="unselected"
+                                                                data-product-id="{{ $fouYou->id }}"
+                                                                data-product-category-id="{{ $fouYou->categories->first()->id ?? null }}">
+                                                                <span class="icon-refresh">
+                                                                    <i data-feather="refresh-cw"></i>
+                                                                </span>
+                                                                <span class="icon-check" style="display:none;">
+                                                                    <i data-feather="check"></i>
+                                                                </span>
+                                                            </a>
+                                                        </li>
+
+                                                        <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="Wishlist">
+                                                            <a href="javascript:void(0);"
+                                                                class="notifi-wishlist wishlist-toggle"
+                                                                data-product-id="{{ $fouYou->id }}">
+                                                                <i data-feather="heart" class="wishlist-icon"
+                                                                    style="color: {{ in_array($fouYou->id, $wishlistProductIds) ? 'red' : 'black' }};"></i>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div class="product-detail">
+                                                    <a href="{{ route('products', ['product' => $fouYou->id]) }}">
+                                                        <h6 class="name">{{ $fouYou->name }}</h6>
+                                                    </a>
+
+                                                    <h5 class="sold text-content">
+                                                        <span class="theme-color price">
+                                                            {{ number_format($fouYou->sale_price > 0 ? $fouYou->sale_price : $fouYou->price) }}
+                                                            ₫
+                                                        </span>
+
+                                                        @if (!is_null($fouYou->sale_price) && $fouYou->sale_price > 0 && $fouYou->sale_price != $fouYou->price)
+                                                            <del>{{ number_format($fouYou->price) }} ₫</del>
+                                                        @endif
+                                                    </h5>
+
+
+                                                    <div class="product-rating mt-sm-2 mt-1">
+                                                        <ul class="rating">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <li>
+                                                                    <i data-feather="star"
+                                                                        class="{{ $i <= round($fouYou->average_rating) ? 'fill text-warning' : '' }}"></i>
+                                                                </li>
+                                                            @endfor
+                                                        </ul>
+                                                        <span
+                                                            class="text-muted ms-2">({{ number_format($fouYou->average_rating, 1) }})</span>
+                                                    </div>
+
+                                                    <div class="d-flex justify-content-between mt-sm-2 mt-1">
+                                                        <h6 class="unit">Lượt xem: {{ $fouYou->views_count }}</h6>
+
+                                                        @if (isset($fouYou->total_sold))
+                                                            <h6 class="unit">Đã Bán: {{ $fouYou->total_sold }}</h6>
+                                                        @endif
+                                                    </div>
+
+                                                    <div class="add-to-cart-box">
+                                                        <a href="javascript:void(0)" data-bs-toggle="modal"
+                                                            data-bs-target="#view" data-id={{ $fouYou->id }}
+                                                            class="btn btn-add-cart addcart-button">
+                                                            Add
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {{-- <div class="section-t-space">
                         <div class="banner-contain">
@@ -713,9 +832,11 @@
                                         <button type="submit" class="btn btn-md add-cart-button icon">Thêm Vào giỏ
                                             hàng</button>
                                     </form>
-                                    <button onclick="location.href = 'product-left.html';"
-                                        class="btn theme-bg-color view-button icon text-white fw-bold btn-md">
-                                        Xem chi tiết</button>
+                                    <button
+                                        class="btn theme-bg-color view-button icon text-white fw-bold btn-md detail-product-button"
+                                        data-product-id="">
+                                        Xem chi tiết sản phẩm
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -741,7 +862,25 @@
         // sửa lại script để phù hợp với làm giỏ hàng
 
         $(document).ready(function() {
+            $('.detail-product-button').click(function() {
+                const productId = $('#view').data('product-id'); // Lấy product-id từ modal
+
+                if (productId) {
+                    const productDetailUrl = "{{ route('products', ['product' => ':productId']) }}"
+                        .replace(':productId', productId);
+                    location.href = productDetailUrl;
+                } else {
+                    console.error("Không tìm thấy product_id hoặc phần tử #view không tồn tại.");
+                    alert("Lỗi: Không tìm thấy thông tin sản phẩm.");
+                }
+            });
+
+
             let productVariantsData = {};
+            $('.view-button').click(function() {
+                const productId = $(this).data('product-id'); // Lấy product-id từ nút "View"
+                $('#view').data('product-id', productId); // Gán product-id vào modal
+            });
 
             $('#view').on('hidden.bs.modal', function() {
                 $('#prdName, #prdPrice, #prdDescription, #prdBrand, #prdCategories').text('');
@@ -752,10 +891,38 @@
                 productVariantsData = {};
             });
 
+            function updateSelectedVariantUI(variantId) {
+                let selectedVariant = productVariantsData[variantId];
+
+                if (selectedVariant) {
+                    console.log("📦 Cập nhật UI theo biến thể:", selectedVariant);
+
+                    // Cập nhật thông tin sản phẩm theo biến thể đã chọn
+                    $("#prdPrice").text(formatPrice(selectedVariant.price));
+                    $("#prdThumbnail").attr("src", selectedVariant.thumbnail);
+                    $(".product-stock span").text(`Kho: ${selectedVariant.stock_quantity}`);
+                    $("#prdSoldCount").text(`Đã bán biến thể : (${selectedVariant.sold_count || 0})`);
+                    $("#cartProductVariantId").val(selectedVariant.id);
+
+                    // Cập nhật UI dropdown thuộc tính để phản ánh biến thể đã chọn
+                    $(".attribute-select").each(function() {
+                        let attrName = $(this).attr("id");
+                        let matchingAttr = selectedVariant.attribute_values.find(attr => attr
+                            .attributes_name === attrName);
+                        if (matchingAttr) {
+                            $(this).val(matchingAttr.id).trigger("change"); // 🟢 Chọn đúng thuộc tính
+                        }
+                    });
+                }
+            }
+
             $('a[data-bs-target="#view"]').click(function() {
-                var productId = $(this).data('id');
-                console.log("🔍 Modal mở cho Product ID:", productId);
+
+                let productId = $(this).data('id');
+                $('#view').data('product-id', productId);
                 $('#cartProductId').val(productId);
+
+                console.log("🔍 Modal mở cho Product ID:", productId);
 
                 $.ajax({
                     url: '/api/product/' + productId,
@@ -772,6 +939,7 @@
                         $('#prdCategories').text(response.categories);
                         $('#productVariants').empty();
 
+                        // 🟢 Hiển thị đánh giá trung bình
                         const avgRating = response.avgRating || 0;
                         $('#prdRating ul.rating').html(
                             Array.from({
@@ -782,36 +950,40 @@
                         );
                         feather.replace();
 
-                        var soldCount = response.sold_count !== undefined && response
-                            .sold_count !== null ? response.sold_count : 0;
-                        $('#prdSoldCount').text(`Đã bán (${soldCount})`);
+                        // 🟢 Hiển thị kho sản phẩm thường trước khi chọn biến thể
+                        var stockQuantity = response.stock || 0;
+                        $('.product-stock span').text(`Kho: ${stockQuantity}`);
+                        $('#productVariants').data('stock', stockQuantity);
 
-                        var stockQuantityText = response.stock_quantity ?
-                            `Kho: ${response.stock_quantity}` : "Kho: 0";
-                        $('.product-stock span').text(stockQuantityText);
+                        // Đã bán
+                        $('#prdSoldCount').text(`Đã bán (${response.sold_count})`);
 
                         productVariantsData = {};
-                        let defaultPrice = response.price; // Giá mặc định từ sản phẩm
+                        let defaultPrice = response.price;
                         let defaultVariantId = null;
-                        let hasSalePrice = false; // Kiểm tra xem có giá giảm không
 
                         if (response.productVariants && response.productVariants.length > 0) {
                             let allAttributes = {};
+                            let firstVariant = response.productVariants[
+                                0]; // Chọn biến thể đầu tiên
+                            defaultVariantId = firstVariant.id;
+                            defaultPrice = firstVariant.sale_price ?? firstVariant.price;
+                            // Lấy tồn kho từ product_stock
+                            let firstStock = firstVariant.product_stock?.stock ?? 0;
 
                             response.productVariants.forEach(variant => {
                                 let variantId = variant.id;
+                                let stock = variant.product_stock?.stock ?? 0;
+
                                 productVariantsData[variantId] = {
                                     id: variantId,
-                                    price: variant.sale_price ? variant.sale_price :
-                                        variant.price,
+                                    price: variant.sale_price ?? variant.price,
                                     thumbnail: variant.thumbnail,
-                                    attribute_values: variant.attribute_values
+                                    attribute_values: variant.attribute_values,
+                                    stock_quantity: stock,
+                                    sold_count: variant.sold_count
                                 };
-                                if (!defaultVariantId) {
-                                    defaultVariantId = variantId;
-                                    defaultPrice = variant.sale_price ? variant
-                                        .sale_price : variant.price;
-                                }
+
                                 variant.attribute_values.forEach(attr => {
                                     if (!allAttributes[attr.attributes_name]) {
                                         allAttributes[attr
@@ -832,20 +1004,34 @@
                             let attributesHtml = '';
                             for (const attrName in allAttributes) {
                                 attributesHtml += `
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="${attrName}">${attrName}:</label>
-                                    <select class="form-control attribute-select" id="${attrName}">
-                                        <option value="">Chọn ${attrName}</option>
-                                        ${allAttributes[attrName].map(attr => `<option value="${attr.id}">${attr.attribute_value}</option>`).join('')}
-                                    </select>
-                                </div>
-                            </div>`;
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="${attrName}">${attrName}:</label>
+                                        <select class="form-control attribute-select" id="${attrName}">
+                                            <option value="">Chọn ${attrName}</option>
+                                            ${allAttributes[attrName].map(attr => 
+                                                `<option value="${attr.id}" ${firstVariant.attribute_values.some(a => a.id === attr.id) ? 'selected' : ''}>${attr.attribute_value}</option>`
+                                            ).join('')}
+                                        </select>
+                                    </div>
+                                </div>`;
                             }
 
                             $('#productVariants').html('<div class="row">' + attributesHtml +
                                 '</div>');
                             $('.attribute-select').change(updateSelectedVariant);
+
+                            // Cập nhật UI theo biến thể đầu tiên
+                            $('#prdPrice').text(formatPrice(defaultPrice));
+                            $('#prdThumbnail').attr('src', firstVariant.thumbnail);
+                            $('.product-stock span').text(
+                                `Kho: ${firstStock}`); // 🟢 Hiển thị kho chính xác
+                            $('#prdSoldCount').text(
+                                `Đã bán biến thể : (${firstVariant.sold_count || 0})`);
+                            $('#cartProductVariantId').val(firstVariant.id);
+                            updateSelectedVariantUI(
+                                firstVariantId); // 🟢 Cập nhật UI theo biến thể mặc định
+                            console.log("🟢 Mặc định chọn biến thể:", firstVariant);
                         } else {
                             $('#productVariants').html(
                                 '<p>Sản phẩm này hiện không có biến thể.</p>');
@@ -855,11 +1041,13 @@
                             defaultPrice);
                         $('#cartProductVariantId').val('');
                     },
+
                     error: function(xhr) {
                         alert('Không tìm thấy sản phẩm.');
                     }
                 });
             });
+
 
             function getCurrentVariantId() {
                 let selectedAttributes = {};
@@ -868,7 +1056,7 @@
                     let attrName = $(this).attr('id');
                     let selectedValueId = $(this).val();
                     if (selectedValueId) {
-                        selectedAttributes[attrName] = parseInt(selectedValueId); // Chuyển thành số
+                        selectedAttributes[attrName] = parseInt(selectedValueId);
                     }
                 });
 
@@ -876,52 +1064,42 @@
 
                 let matchedVariant = Object.values(productVariantsData).find(variant => {
                     if (!variant.attribute_values || variant.attribute_values.length === 0) {
-                        return false; // Không có thuộc tính
+                        return false;
                     }
 
                     return variant.attribute_values.every(attr => {
-                        let match = selectedAttributes[attr.attributes_name] === attr.id;
-                        console.log(
-                            `🧐 Kiểm tra ${attr.attributes_name}: ${attr.id} == ${selectedAttributes[attr.attributes_name]} ? ${match}`
-                            );
-                        return match;
+                        return selectedAttributes[attr.attributes_name] === attr.id;
                     });
                 });
-
-                console.log("🔎 Kết quả tìm thấy biến thể:", matchedVariant ? matchedVariant.id :
-                    "❌ Không có biến thể phù hợp");
 
                 return matchedVariant ? matchedVariant.id : null;
             }
 
-
             function updateSelectedVariant() {
-                let selectedVariantId = getCurrentVariantId();
-                console.log("🛒 Biến thể được chọn:", selectedVariantId);
+                let selectedAttributes = {};
+                $(".attribute-select").each(function() {
+                    let attrName = $(this).attr("id");
+                    let attrValue = $(this).val();
+                    if (attrValue) selectedAttributes[attrName] = attrValue;
+                });
 
-                let defaultPrice = $('#prdPrice').data('default-price') ||
-                0; // Lấy giá mặc định, nếu null thì gán 0
-                let defaultThumbnail = $('#prdThumbnail').data('default-thumbnail');
+                let selectedVariant = Object.values(productVariantsData).find(variant => {
+                    return variant.attribute_values.every(attr =>
+                        selectedAttributes[attr.attributes_name] == attr.id
+                    );
+                });
 
-                if (selectedVariantId && productVariantsData[selectedVariantId]) {
-                    let selectedVariant = productVariantsData[selectedVariantId];
+                if (selectedVariant) {
+                    console.log("📦 Biến thể được chọn:", selectedVariant);
+                    console.log("Số lượng đã bán của biến thể:", selectedVariant
+                        .sold_count); // Thêm dòng này để debug
 
-                    console.log("📊 Dữ liệu biến thể:", selectedVariant);
-
-                    let variantPrice = (selectedVariant.price !== null && selectedVariant.price > 0) ?
-                        selectedVariant.price :
-                        defaultPrice;
-
-                    console.log("💰 Giá biến thể:", selectedVariant.price, "➡️ Hiển thị giá:", variantPrice);
-
-                    $('#prdPrice').text(formatPrice(variantPrice));
-                    $('#prdThumbnail').attr('src', selectedVariant.thumbnail || defaultThumbnail);
-                    $('#cartProductVariantId').val(selectedVariantId);
-                } else {
-                    console.warn("⚠️ Không tìm thấy biến thể phù hợp!");
-                    $('#cartProductVariantId').val('');
-                    $('#prdPrice').text(formatPrice(defaultPrice));
-                    $('#prdThumbnail').attr('src', defaultThumbnail);
+                    $("#prdPrice").text(formatPrice(selectedVariant.price));
+                    $("#prdThumbnail").attr("src", selectedVariant.thumbnail);
+                    $(".product-stock span").text(`Kho: ${selectedVariant.stock_quantity}`);
+                    $("#prdSoldCount").text(
+                        `Đã bán biến thể : (${selectedVariant.sold_count || 0})`); // 🟢 Hiển thị số lượng đã bán
+                    $("#cartProductVariantId").val(selectedVariant.id);
                 }
             }
 
@@ -929,33 +1107,41 @@
                 e.preventDefault();
 
                 let productId = $('#cartProductId').val();
-                let selectedVariantId = $('#cartProductVariantId').val();
+                let selectedVariantId = $('#cartProductVariantId').val(); // 🟢 Lấy giá trị biến thể đã chọn
+
                 let hasVariant = $('#productVariants .attribute-select').length > 0;
 
-                console.log("🛒 ID sản phẩm trong form:", productId);
+                console.log("🛒 ID sản phẩm:", productId);
                 console.log("🛒 ID biến thể đã chọn:", selectedVariantId);
                 console.log("🔍 Sản phẩm có biến thể?", hasVariant);
 
-                if (!productId) {
+                // 🟢 Nếu có biến thể nhưng chưa chọn, lấy biến thể mặc định
+                if (hasVariant && (!selectedVariantId || selectedVariantId.trim() === "")) {
+                    let defaultVariantId = $('#productVariants').find('.attribute-select option[selected]')
+                        .val();
+                    selectedVariantId = defaultVariantId || $('#cartProductVariantId').val();
+
+                    console.log("🟢 Tự động lấy biến thể mặc định:", selectedVariantId);
+                    $('#cartProductVariantId').val(selectedVariantId);
+                }
+
+                // Kiểm tra số lượng tồn kho
+                let stockQuantity = selectedVariantId ? productVariantsData[selectedVariantId]
+                    ?.stock_quantity || 0 : $('#productVariants').data('stock') || 0;
+
+                console.log("🛒 Số lượng tồn kho:", stockQuantity);
+
+                // Kiểm tra nếu hết hàng
+                if (stockQuantity <= 0) {
                     Swal.fire({
                         icon: "error",
                         title: "Lỗi!",
-                        text: "Không tìm thấy ID sản phẩm.",
+                        text: "Sản phẩm này đã hết hàng.",
                     });
                     return;
                 }
 
-                // Kiểm tra nếu sản phẩm có biến thể nhưng chưa chọn
-                if (hasVariant && (!selectedVariantId || selectedVariantId.trim() === "")) {
-                    Swal.fire({
-                        icon: "warning",
-                        title: "Vui lòng chọn biến thể!",
-                        text: "Bạn cần chọn màu sắc hoặc kích thước trước khi thêm vào giỏ hàng.",
-                    });
-                    return;
-                }
-
-                // Gửi request thêm vào giỏ hàng nếu hợp lệ
+                // Gửi AJAX thêm vào giỏ hàng
                 $.ajax({
                     url: $('#addToCartForm').attr('action'),
                     method: $('#addToCartForm').attr('method'),
@@ -980,76 +1166,278 @@
                     }
                 });
             });
+
+            // comrpert
+            // comapre cookie
+            const compareCookieName = 'compare_list'; // Tên cookie để lưu danh sách so sánh
+
+            // Hàm lấy cookie theo tên
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.startsWith(name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            // Hàm set cookie
+            function setCookie(name, value, days) {
+                var expires = "";
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                    expires = "; expires=" + date.toUTCString();
+                }
+                document.cookie = name + "=" + (value || "") + expires + "; path=/";
+            }
+
+            // Hàm xóa cookie
+            function deleteCookie(name) {
+                document.cookie = name + '=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+            }
+
+            // Hàm lấy danh sách sản phẩm so sánh từ cookie
+            function getCompareListFromCookie() {
+                let compareListCookie = getCookie(compareCookieName);
+                return compareListCookie ? JSON.parse(compareListCookie) : [];
+            }
+
+            // Hàm thêm sản phẩm vào so sánh (lưu vào cookie)
+            function addProductToCompareCookie(productId) {
+                let compareListCookie = getCookie(compareCookieName);
+                let compareList = compareListCookie ? JSON.parse(compareListCookie) : [];
+
+                if (!compareList.includes(productId)) { // Kiểm tra sản phẩm đã có trong list chưa
+                    compareList.push(productId); // Thêm sản phẩm vào list
+                    setCookie(compareCookieName, JSON.stringify(compareList),
+                        30); // Lưu lại vào cookie (JSON string, hết hạn sau 30 ngày)
+                    updateCompareCountBadgeCookie(); // Cập nhật badge số lượng
+                }
+            }
+
+            // Hàm xóa sản phẩm khỏi so sánh (xóa khỏi cookie)
+            function removeFromCompareCookie(
+                productId
+            ) {
+                let compareListCookie = getCookie(compareCookieName);
+                let compareList = compareListCookie ? JSON.parse(compareListCookie) : [];
+                const index = compareList.indexOf(productId);
+                if (index > -1) {
+                    compareList.splice(index, 1); // Xóa sản phẩm khỏi list
+                    setCookie(compareCookieName, JSON.stringify(compareList), 30); // Lưu lại vào cookie
+                    updateCompareCountBadgeCookie(); // Cập nhật badge số lượng
+                    updateCompareButtonStatus(productId, false); // Cập nhật trạng thái nút (icon)
+                }
+            }
+
+            // Hàm cập nhật badge số lượng sản phẩm so sánh (dùng jQuery)
+            function updateCompareCountBadgeCookie() {
+                const compareCount = getCompareListFromCookie().length; // Đếm số lượng từ cookie
+                $('.header-compare .badge-compare').text(compareCount); // Cập nhật text badge
+                if (compareCount > 0) {
+                    $('.header-compare .badge-compare').show(); // Hiển thị badge nếu có sản phẩm
+                } else {
+                    $('.header-compare .badge-compare').hide(); // Ẩn badge nếu không có sản phẩm
+                }
+            }
+
+
+            function updateCompareCount() {
+                updateCompareCountBadgeCookie(); // GỌI HÀM CẬP NHẬT BADGE DỰA TRÊN COOKIE TRỰC TIẾP
+            }
+
+
+            function updateCompareButtonStatus(productId, isCompared) {
+                var compareButton = $('.compare-toggle[data-product-id="' + productId + '"]');
+                if (compareButton.length) {
+                    console.log(`[updateCompareButtonStatus] productId: ${productId}, isCompared: ${isCompared}`);
+                    console.log(
+                        `  Before update: data-state: ${compareButton.attr('data-state')}, icon-refresh visible: ${compareButton.find('.icon-refresh').is(':visible')}, icon-check visible: ${compareButton.find('.icon-check').is(':visible')}`
+                    );
+                    if (isCompared) {
+                        compareButton.find('.icon-refresh').hide();
+                        compareButton.find('.icon-check').show();
+                        // **CHỈNH SỬA: DIRECT DOM MANIPULATION - SET data-state**
+                        compareButton[0].dataset.state = 'selected'; // Sử dụng dataset để set data-state
+                        console.log(`  **SET data-state to: selected (dataset)**`); // Log thay đổi
+                    } else {
+                        compareButton.find('.icon-check').hide();
+                        compareButton.find('.icon-refresh').show();
+                        // **CHỈNH SỬA: DIRECT DOM MANIPULATION - SET data-state**
+                        compareButton[0].dataset.state = 'unselected'; // Sử dụng dataset để set data-state
+                        console.log(`  **SET data-state to: unselected (dataset)**`); // Log thay đổi
+                    }
+                    feather.replace();
+                    console.log(
+                        `  After update: data-state: ${compareButton.attr('data-state')}, icon-refresh visible: ${compareButton.find('.icon-refresh').is(':visible')}, icon-check visible: ${compareButton.find('.icon-check').is(':visible')}`
+                    );
+                }
+            }
+
+
+            function updateCompareButtonInitialStatus() { // cập nhật button ban đầu
+                const comparedProductIds = getCompareListFromCookie(); // **ĐỌC DANH SÁCH ID TỪ COOKIE**
+                comparedProductIds.forEach(function(productId) {
+                    updateCompareButtonStatus(productId,
+                        true); // khi load lại trang, CẬP NHẬT TRẠNG THÁI DỰA TRÊN COOKIE
+                });
+                updateCompareCount(); // CẬP NHẬT BADGE SỐ LƯỢNG DỰA TRÊN COOKIE
+            }
+
+
+            // $(document).ready(function() {
+
+            updateCompareCount();
+            updateCompareButtonInitialStatus();
+
+            $('.compare-toggle').click(function(e) {
+                e.preventDefault();
+                var productId = $(this).data('product-id');
+                var productCategoryId = $(this).data('product-category-id');
+                var currentState = this.dataset.state;
+
+                console.log(
+                    `[compare-toggle click] productId: ${productId}, productCategoryId: ${productCategoryId}, currentState: ${currentState}`
+                );
+
+                if (currentState === 'unselected') {
+                    console.log(`  Action: Add product to compare`);
+                    addProductToCompare(productId,
+                        productCategoryId); // **ĐẢM BẢO DÒNG NÀY KHÔNG BỊ COMMENT VÀ GÕ ĐÚNG CHÍNH TẢ**
+                } else {
+                    console.log(`  Action: Remove product from compare`);
+                    removeFromCompareCookie(productId);
+                    updateCompareCountBadgeCookie();
+                    updateCompareButtonStatus(productId, false);
+                }
+            }); //end compare-toggle
+
+            feather.replace(); // load lại icon
+            // });
+
+
+            function addProductToCompare(productId, productCategoryId) { // GIỮ NGUYÊN tham số
+                let compareListCookie = getCookie(compareCookieName);
+                let compareList = compareListCookie ? JSON.parse(compareListCookie) : [];
+
+                // Gửi AJAX request lên backend để kiểm tra và thêm sản phẩm (với check danh mục)
+                $.ajax({
+                    url: '/api/compare/add-with-check/' +
+                        productId, // **ĐƯỜNG DẪN API MỚI - CÓ PRODUCT ID TRONG URL**
+                    method: 'POST',
+                    data: {
+                        compareList: compareList // Gửi danh sách so sánh hiện tại từ cookie
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            // Backend cho phép thêm sản phẩm
+                            addProductToCompareCookie(productId); // Thêm vào cookie
+                            updateCompareCountBadgeCookie();
+                            // **CHỈNH SỬA 2: BỌC updateCompareButtonStatus TRONG requestAnimationFrame (khi THÊM sản phẩm)**
+                            requestAnimationFrame(() => { // **<-- THÊM requestAnimationFrame VÀO ĐÂY**
+                                updateCompareButtonStatus(productId, true);
+                            });
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: 'Sản phẩm đã được thêm vào danh sách so sánh.',
+                                showConfirmButton: true, // Ẩn nút "OK" mặc định
+                                // timer: 1500 // Tự động đóng thông báo sau 1.5 giây (1500ms)
+                            });
+                        } else if (response.status === 'error') {
+                            // Backend báo lỗi (ví dụ: không cùng danh mục)
+                            alert(response.message); // Hiển thị thông báo lỗi cho người dùng
+                            console.error('[addProductToCompare] Lỗi từ server:', response);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // **CALLBACK ERROR ĐÃ ĐƯỢC CHỈNH SỬA Ở CÁC BƯỚC TRƯỚC - GIỮ NGUYÊN**
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi!',
+                                text: xhr.responseJSON.message,
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi!',
+                                text: 'Lỗi khi thêm sản phẩm vào so sánh. Vui lòng thử lại sau.',
+                            });
+                        }
+                        console.error('[addProductToCompare] Lỗi AJAX request:', error);
+                    }
+                });
+            }
         });
-        // wish list 
+        // Wishlist Toggle
         $(document).on('click', '.wishlist-toggle', function(e) {
             e.preventDefault();
 
             @guest
-            // Nếu chưa đăng nhập, hiển thị thông báo yêu cầu đăng nhập
-            Swal.fire({
-                icon: 'warning',
-                title: 'Bạn chưa đăng nhập!',
-                text: 'Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích.',
-                showConfirmButton: true,
-                confirmButtonText: 'Đăng nhập',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '/login'; // Điều hướng đến trang đăng nhập
-                }
-            });
-            return; // Dừng xử lý tiếp theo
-        @endguest
+// Nếu chưa đăng nhập, hiển thị thông báo yêu cầu đăng nhập
+        Swal.fire({
+            icon: 'warning',
+            title: 'Bạn chưa đăng nhập!',
+            text: 'Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích.',
+            showConfirmButton: true,
+            confirmButtonText: 'Đăng nhập',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/login'; // Điều hướng đến trang đăng nhập
+            }
+        });
+        return; // Dừng xử lý tiếp theo @endguest
 
-        var productId = $(this).data('product-id'); // Lấy product ID từ thuộc tính data-product-id
-        var icon = $(this).find('.wishlist-icon'); // Chỉ chọn icon trong element hiện tại
+            var productId = $(this).data('product-id'); // Lấy product ID
+            var icon = $(this).find('.wishlist-icon'); // Chỉ chọn icon trong element hiện tại
 
-        $.ajax({
-            url: `/account/wishlist/toggle/${productId}`,
-            type: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-            data: {
-                product_id: productId
-            },
-            success: function(data) {
-                if (data.result) {
-                    if (data.action === 'added') {
-                        icon.css('color', 'red'); // Đổi màu khi thêm vào wishlist
+            $.ajax({
+                url: `/account/wishlist/toggle/${productId}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                data: {
+                    product_id: productId
+                },
+                success: function(data) {
+                    if (data.result) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Đã thêm!',
-                            text: 'Sản phẩm đã được thêm vào danh sách yêu thích!',
+                            title: data.action === 'added' ? 'Đã thêm!' : 'Đã xóa!',
+                            text: data.action === 'added' ?
+                                'Sản phẩm đã được thêm vào danh sách yêu thích!' :
+                                'Sản phẩm đã bị xóa khỏi danh sách yêu thích!',
                             timer: 1500,
                             showConfirmButton: false
+                        }).then(() => {
+                            location.reload(); // Load lại trang sau khi hiển thị thông báo
                         });
-                    } else if (data.action === 'removed') {
-                        icon.css('color', 'black'); // Đổi màu khi xóa khỏi wishlist
+                    } else {
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Đã xóa!',
-                            text: 'Sản phẩm đã bị xóa khỏi danh sách yêu thích!',
-                            timer: 1500,
-                            showConfirmButton: false
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: data.message || 'Có lỗi xảy ra, vui lòng thử lại!',
                         });
                     }
-                } else {
+                },
+                error: function(xhr, status, error) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Lỗi!',
-                        text: data.message || 'Có lỗi xảy ra, vui lòng thử lại!',
+                        text: 'Có lỗi xảy ra, vui lòng thử lại!',
                     });
                 }
-            },
-            error: function(xhr, status, error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi!',
-                    text: 'Có lỗi xảy ra, vui lòng thử lại!',
-                });
-            }
-        });
+            });
         });
     </script>
 @endpush

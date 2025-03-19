@@ -115,12 +115,15 @@
                             <div class="search-box">
                                 <form action="{{ route('search') }}" method="GET">
                                     <div class="input-group">
-                                        <input type="search" class="form-control" id="searchInput" name="query" placeholder="Im searching for..." autocomplete="off" value="{{ request('query') }}">
+                                        <input type="search" class="form-control" id="searchInput" name="query"
+                                            placeholder="Im searching for..." autocomplete="off"
+                                            value="{{ request('query') }}">
                                         <button class="btn" type="submit" id="button-addon2">
                                             <i data-feather="search"></i>
                                         </button>
                                     </div>
-                                    <ul id="suggestions" class="suggestions-list" style="position: absolute; top: 100%; left: 0; width: 100%; background-color: white; border: 1px solid #ccc; border-top: none; list-style-type: none; padding: 0; margin: 0; display: none; z-index: 10; overflow-y: auto; max-height: 200px;">
+                                    <ul id="suggestions" class="suggestions-list"
+                                        style="position: absolute; top: 100%; left: 0; width: 100%; background-color: white; border: 1px solid #ccc; border-top: none; list-style-type: none; padding: 0; margin: 0; display: none; z-index: 10; overflow-y: auto; max-height: 200px;">
                                     </ul>
                                 </form>
                             </div>
@@ -300,10 +303,17 @@
                                     }
                                 </style>
                                 <li class="right-side">
-                                    <a href="wishlist.html" class="btn p-0 position-relative header-wishlist">
+                                    <a href="{{ route('account.wishlist') }}"
+                                        class="btn p-0 position-relative header-wishlist">
                                         <i data-feather="heart"></i>
+                                        <span
+                                            class="wishlist-count badge bg-danger position-absolute top-0 start-100 translate-middle">
+                                            {{ $wishlistCount ?? 0 }}
+                                        </span>
                                     </a>
                                 </li>
+
+
                                 <li class="right-side">
                                     <div class="onhover-dropdown header-badge">
                                         <button type="button" class="btn p-0 position-relative header-wishlist">
@@ -422,23 +432,24 @@
                                                 @endforeach
 
                                             </ul>
+                                            @if (!auth()->check() || !$cartItems->isEmpty())
+                                                <div class="price-box">
+                                                    <h5>Tổng cộng :</h5>
+                                                    <h4 class="theme-color fw-bold total-dropdown-price">
+                                                        {{ number_format($totalSum, 0, ',', '.') }}đ
+                                                    </h4>
+                                                </div>
 
-                                            <div class="price-box">
-                                                <h5>Tổng cộng :</h5>
-                                                <h4 class="theme-color fw-bold total-dropdown-price">
-                                                    {{ number_format($totalSum, 0, ',', '.') }}đ
-                                                </h4>
-                                            </div>
 
-
-                                            <div class="button-group">
-                                                {{-- <a href="{{ route('cart', ['user' => auth()->id()]) }}"
+                                                <div class="button-group">
+                                                    {{-- <a href="{{ route('cart', ['user' => auth()->id()]) }}"
                                                     class="btn btn-sm cart-button">Giỏ hàng</a> --}}
-                                                <a href="{{ route('cartCheckout') }}"
-                                                    class="btn btn-sm cart-button theme-bg-color
+                                                    <a href="{{ route('cartCheckout') }}"
+                                                        class="btn btn-sm cart-button theme-bg-color
                                                 text-white">Thanh
-                                                    toán</a>
-                                            </div>
+                                                        toán</a>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </li>
@@ -528,7 +539,7 @@
                         <a href="{{ route('categories') }}">
                             <button class="dropdown-category">
                                 <i data-feather="align-left"></i>
-                                <span>All Categories</span>
+                                <span>Danh Mục</span>
                             </button>
                         </a>
 
@@ -1207,57 +1218,91 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const suggestionsList = document.getElementById('suggestions');
-    const searchBox = searchInput.closest('.search-box');
-    const searchForm = searchInput.closest('form');
+            const searchInput = document.getElementById('searchInput');
+            const suggestionsList = document.getElementById('suggestions');
+            const searchBox = searchInput.closest('.search-box');
+            const searchForm = searchInput.closest('form');
 
-    searchInput.addEventListener('input', function() {
-        const query = this.value.trim();
-        suggestionsList.innerHTML = '';
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                suggestionsList.innerHTML = '';
 
-        if (query.length < 2) {
-            suggestionsList.style.display = 'none';
-            return;
-        }
-
-        fetch(`/api/search/suggestions?query=${query}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                if (query.length < 2) {
+                    suggestionsList.style.display = 'none';
+                    return;
                 }
-                return response.json();
-            })
-            .then(data => {
-                if (data && data.length > 0) {
-                    data.forEach(suggestion => {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = suggestion;
-                        listItem.addEventListener('click', function() {
-                            searchInput.value = suggestion;
+
+                fetch(`/api/search/suggestions?query=${query}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            data.forEach(suggestion => {
+                                const listItem = document.createElement('li');
+                                listItem.textContent = suggestion;
+                                listItem.addEventListener('click', function() {
+                                    searchInput.value = suggestion;
+                                    suggestionsList.style.display = 'none';
+                                    searchForm
+                                .submit(); // Tự động submit form khi chọn gợi ý
+                                });
+                                suggestionsList.appendChild(listItem);
+                            });
+                            suggestionsList.style.display = 'block';
+                        } else {
                             suggestionsList.style.display = 'none';
-                            searchForm.submit(); // Tự động submit form khi chọn gợi ý
-                        });
-                        suggestionsList.appendChild(listItem);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching suggestions:', error);
+                        suggestionsList.style.display = 'none';
                     });
-                    suggestionsList.style.display = 'block';
-                } else {
+            });
+
+            // Ẩn gợi ý khi click ra ngoài
+            document.addEventListener('click', function(event) {
+                if (!searchBox.contains(event.target)) {
                     suggestionsList.style.display = 'none';
                 }
-            })
-            .catch(error => {
-                console.error('Error fetching suggestions:', error);
-                suggestionsList.style.display = 'none';
             });
-    });
+        });
 
-    // Ẩn gợi ý khi click ra ngoài
-    document.addEventListener('click', function(event) {
-        if (!searchBox.contains(event.target)) {
-            suggestionsList.style.display = 'none';
+        $(document).ready(function() {
+            $(".button-group .cart-button.theme-bg-color").on("click", function() {
+                console.log("⚡ Nút Thanh toán được click");
+                updateCartSessionForHeader();
+            });
+        });
+
+
+        // wishList
+        function updateWishlistCount(count) {
+            document.querySelector(".wishlist-count").textContent = count;
         }
-    });
-});
-    </script>
+
+        document.querySelectorAll(".wishlist-button").forEach(button => {
+            button.addEventListener("click", function() {
+                let productId = this.dataset.id;
+
+                fetch(`/wishlist/toggle/${productId}`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                            "Content-Type": "application/json"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.result) {
+                            updateWishlistCount(data.wishlistCount);
+                        }
+                    })
+                    .catch(error => console.error("Error updating wishlist:", error));
+            });
+        });
     </script>
 @endpush

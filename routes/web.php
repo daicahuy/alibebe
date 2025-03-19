@@ -115,6 +115,8 @@ Route::name('account.')
         Route::get('/wishlist', 'wishlist')->name('wishlist');
         Route::post('/wishlist/toggle/{id}', 'toggleWishlist')->name('wishlist-toggle');
         Route::delete('/remove-wishlist/{id}', 'removeWishlist')->name('remove-wishlist');
+        Route::get('/wishlist/count', 'wishlistCount')->name('wishlist.count');
+
     });
 
 /*--------------AUTHENTICATION--------------*/
@@ -181,6 +183,9 @@ Route::prefix('/admin')
                 // Hiển thị danh sách tất cả các phiên chat
                 Route::get('/', 'index')->name('index');
 
+                // Hiển thị danh sách chat đã đóng
+                Route::get('/closed', 'closed')->name('closed');
+
                 // Hiển thị một phiên chat cụ thể
                 Route::get('/chat-session/{id}', 'show')->name('chat-session');
 
@@ -188,7 +193,15 @@ Route::prefix('/admin')
                 Route::post('/chat-session/{id}/send', 'sendMessage')->name('send-message');
 
                 // Đóng phiên chat
-                Route::delete('/chat-session/{id}/close', 'closeChat')->name('close-chat-session');
+                Route::patch('/chat-session/{id}/close', 'closeChat')->name('close-chat-session');
+
+                // Mở Phiên chat
+                Route::patch('/chat-session/{id}/reopen', 'reOpenChat')->name('restore-chat-session');
+
+                Route::delete('/chat-sesson/{id}/force-delete','forceDelete')->name('force-delete');
+                
+                //admin.chats.start-chat
+                Route::post('/chat-session/start', 'startChat')->name('start-chat');
             });
 
 
@@ -477,11 +490,11 @@ Route::prefix('/admin')
             ->controller(CommentController::class)
             ->group(function () {
 
-            Route::get('/', 'index')->name('index');
+                Route::get('/', 'index')->name('index');
 
-            Route::get('/{product}', 'show')->name('show');
+                Route::get('/{product}', 'show')->name('show');
 
-            Route::get('/comments/{commentId}/replies', 'getCommentReplies')->name('comments.replies');
+                Route::get('/comments/{commentId}/replies', 'getCommentReplies')->name('comments.replies');
         });
 
 

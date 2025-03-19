@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Web\Client\Account\WishlistService;
 use App\Services\Web\Client\CartItemService;
 use App\Services\Web\Client\HomeService;
 use Illuminate\Pagination\Paginator;
@@ -51,6 +52,13 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $view->with(compact('categories', 'categoryIds'));
+        });
+
+          // Luôn có số lượng wishlist trên toàn bộ trang
+          View::composer('*', function ($view) {
+            $wishlistService = app(WishlistService::class); 
+            $wishlistCount = Auth::check() ? $wishlistService->count() : 0;
+            $view->with('wishlistCount', $wishlistCount);
         });
     }
 }

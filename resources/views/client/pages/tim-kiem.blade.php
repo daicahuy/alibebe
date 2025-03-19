@@ -48,7 +48,7 @@
                                     <ul class="product-option">
                                         <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                                             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#view"
-                                                data-id={{ $product->id }}>
+                                                data-id={{ $product->id }} data-slug={{$product->slug}}>
                                                 <i data-feather="eye"></i>
                                             </a>
                                         </li>
@@ -269,18 +269,18 @@
         }
 
         $(document).ready(function() {
-            $('.detail-product-button').click(function() {
-                const productId = $('#view').data('product-id');
+            // $('.detail-product-button').click(function() {
+            //     const productId = $('#view').data('product-id');
 
-                if (productId) {
-                    const productDetailUrl = "{{ route('products', ['product' => ':productId']) }}"
-                        .replace(':productId', productId);
-                    location.href = productDetailUrl;
-                } else {
-                    console.error("Không tìm thấy product_id...");
-                    alert("Lỗi:...");
-                }
-            });
+            //     if (productId) {
+            //         const productDetailUrl = "{{ route('products', ['product' => ':productId']) }}"
+            //             .replace(':productId', productId);
+            //         location.href = productDetailUrl;
+            //     } else {
+            //         console.error("Không tìm thấy product_id...");
+            //         alert("Lỗi:...");
+            //     }
+            // });
             // Thông báo alert (giữ nguyên)
             @if (session('success'))
                 Swal.fire({
@@ -306,6 +306,18 @@
 
             $('a[data-bs-target="#view"]').click(function() {
                 const productId = $(this).data('id');
+                const productSlug = $(this).data('slug');
+
+                $('.detail-product-button').click(function(
+                    e) {
+                    e.preventDefault();
+
+
+                    const productDetailPageUrl = `/products/${productSlug}`;
+
+                    window.location.href = productDetailPageUrl;
+                });
+
                 $('#view').data('product-id', productId);
                 $('#cartProductId').val(productId);
 

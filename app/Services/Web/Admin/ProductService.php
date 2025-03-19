@@ -77,22 +77,71 @@ class ProductService
 
         $products->getCollection()->each(function ($product) {
 
-            // Lấy giá biến thể
-            if ($product->productVariants->isNotEmpty()) {
-                $minPrice = $product->productVariants->min('price');
-                $maxPrice = $product->productVariants->max('price');
+            // Xử lý giá sản phẩm
+            if ($product->type == 1) { // Sản phẩm biến thể
+                $minPrice = null;
+                $maxPrice = null;
+                $minSalePrice = null;
+                $maxSalePrice = null;
 
-                if ($minPrice != $maxPrice) {
-                    $product->price_range = number_format($minPrice, 0, ',', '.') . ' VND - ' . number_format($maxPrice, 0, ',', '.') . ' VND';
-                } else {
-                    $product->price_range = number_format($minPrice, 0, ',', '.') . ' VNĐ';
+                foreach ($product->productVariants as $variant) {
+                    if ($variant->is_active == 1) { // CHỈ XÉT BIẾN THỂ ACTIVE
+                        // Giá gốc
+                        if ($minPrice === null || $variant->price < $minPrice) {
+                            $minPrice = $variant->price;
+                        }
+                        if ($maxPrice === null || $variant->price > $maxPrice) {
+                            $maxPrice = $variant->price;
+                        }
+
+                        // Giá sale
+                        if ($product->is_sale == 1 && $variant->sale_price !== null) {
+                            if ($minSalePrice === null || $variant->sale_price < $minSalePrice) {
+                                $minSalePrice = $variant->sale_price;
+                            }
+                            if ($maxSalePrice === null || $variant->sale_price > $maxSalePrice) {
+                                $maxSalePrice = $variant->sale_price;
+                            }
+                        }
+                    }
                 }
-            } else {
-                $product->price_range = $product->price ? number_format($product->price, 0, ',', '.') . ' VND' : '';
+
+                if ($minPrice !== null && $maxPrice !== null) {
+                    if ($product->is_sale == 1 && $minSalePrice !== null && $maxSalePrice !== null) {
+                        if ($minSalePrice != $maxSalePrice) {
+                            $product->price_range = number_format($minPrice) . ' - ' . number_format($maxPrice) . ' VND' . "\n" . number_format($minSalePrice) . ' - ' . number_format($maxSalePrice) . ' VND';
+                            $product->show_sale = true;
+                            $product->original_price_display = number_format($minPrice) . ' - ' . number_format($maxPrice) . ' VND';
+                        } else {
+                            $product->price_range = number_format($minPrice) . ' VND' . "\n" . number_format($minSalePrice) . ' VND';
+                            $product->show_sale = true;
+                            $product->original_price_display = number_format($minPrice) . ' VND';
+                        }
+                    } else {
+                        if ($minPrice != $maxPrice) {
+                            $product->price_range = number_format($minPrice) . ' - ' . number_format($maxPrice) . ' VND';
+                        } else {
+                            $product->price_range = number_format($minPrice) . ' VND';
+                        }
+                        $product->show_sale = false;
+                    }
+                } else {
+                    $product->price_range = 'Liên hệ';
+                    $product->show_sale = false;
+                }
+
+            } else { // Sản phẩm đơn (type != 1)
+                if ($product->is_sale == 1 && $product->sale_price !== null) {
+                    $product->price_range = number_format($product->price) . ' VND' . "\n" . number_format($product->sale_price) . ' VND';
+                    $product->show_sale = true;
+                    $product->original_price_display = number_format($product->price) . ' VND';
+                } else {
+                    $product->price_range = $product->price ? number_format($product->price) . ' VND' : '';
+                    $product->show_sale = false;
+                }
             }
 
-
-            // Lấy tổng stock quantity thông qua Accessor (thuộc tính ảo) trong model product
+            // Lấy tổng stock quantity (không thay đổi)
             $stockQuantity = $product->totalStockQuantity;
             $product->stock_quantity = $stockQuantity;
         });
@@ -215,19 +264,82 @@ class ProductService
             $listTrashs = $this->productRepository->getTrash($perPage, $keyword);
             $listTrashs->getCollection()->each(function ($trash) {
                 // Lấy giá biến thể
-                if ($trash->productVariants->isNotEmpty()) {
-                    $minPrice = $trash->productVariants->min('price');
-                    $maxPrice = $trash->productVariants->max('price');
+                // if ($trash->productVariants->isNotEmpty()) {
+                //     $minPrice = $trash->productVariants->min('price');
+                //     $maxPrice = $trash->productVariants->max('price');
 
-                    if ($minPrice != $maxPrice) {
-                        $trash->price_range = number_format($minPrice, 0, ',', '.') . ' VND - ' . number_format($maxPrice, 0, ',', '.') . ' VND';
-                    } else {
-                        $trash->price_range = number_format($minPrice, 0, ',', '.') . ' VNĐ';
+                //     if ($minPrice != $maxPrice) {
+                //         $trash->price_range = number_format($minPrice, 0, ',', '.') . ' VND - ' . number_format($maxPrice, 0, ',', '.') . ' VND';
+                //     } else {
+                //         $trash->price_range = number_format($minPrice, 0, ',', '.') . ' VNĐ';
+                //     }
+                // } else {
+                //     $trash->price_range = $trash->price ? number_format($trash->price, 0, ',', '.') . ' VND' : '';
+                // }
+
+                // Xử lý giá sản phẩm
+                if ($trash->type == 1) { // Sản phẩm biến thể
+                    $minPrice = null;
+                    $maxPrice = null;
+                    $minSalePrice = null;
+                    $maxSalePrice = null;
+
+                    foreach ($trash->productVariants as $variant) {
+                        if ($variant->is_active == 1) { // CHỈ XÉT BIẾN THỂ ACTIVE
+                            // Giá gốc
+                            if ($minPrice === null || $variant->price < $minPrice) {
+                                $minPrice = $variant->price;
+                            }
+                            if ($maxPrice === null || $variant->price > $maxPrice) {
+                                $maxPrice = $variant->price;
+                            }
+
+                            // Giá sale
+                            if ($trash->is_sale == 1 && $variant->sale_price !== null) {
+                                if ($minSalePrice === null || $variant->sale_price < $minSalePrice) {
+                                    $minSalePrice = $variant->sale_price;
+                                }
+                                if ($maxSalePrice === null || $variant->sale_price > $maxSalePrice) {
+                                    $maxSalePrice = $variant->sale_price;
+                                }
+                            }
+                        }
                     }
-                } else {
-                    $trash->price_range = $trash->price ? number_format($trash->price, 0, ',', '.') . ' VND' : '';
-                }
 
+                    if ($minPrice !== null && $maxPrice !== null) {
+                        if ($trash->is_sale == 1 && $minSalePrice !== null && $maxSalePrice !== null) {
+                            if ($minSalePrice != $maxSalePrice) {
+                                $trash->price_range = number_format($minPrice) . ' - ' . number_format($maxPrice) . ' VND' . "\n" . number_format($minSalePrice) . ' - ' . number_format($maxSalePrice) . ' VND';
+                                $trash->show_sale = true;
+                                $trash->original_price_display = number_format($minPrice) . ' - ' . number_format($maxPrice) . ' VND';
+                            } else {
+                                $trash->price_range = number_format($minPrice) . ' VND' . "\n" . number_format($minSalePrice) . ' VND';
+                                $trash->show_sale = true;
+                                $trash->original_price_display = number_format($minPrice) . ' VND';
+                            }
+                        } else {
+                            if ($minPrice != $maxPrice) {
+                                $trash->price_range = number_format($minPrice) . ' - ' . number_format($maxPrice) . ' VND';
+                            } else {
+                                $trash->price_range = number_format($minPrice) . ' VND';
+                            }
+                            $trash->show_sale = false;
+                        }
+                    } else {
+                        $trash->price_range = 'Liên hệ';
+                        $trash->show_sale = false;
+                    }
+
+                } else { // Sản phẩm đơn (type != 1)
+                    if ($trash->is_sale == 1 && $trash->sale_price !== null) {
+                        $trash->price_range = number_format($trash->price) . ' VND' . "\n" . number_format($trash->sale_price) . ' VND';
+                        $trash->show_sale = true;
+                        $trash->original_price_display = number_format($trash->price) . ' VND';
+                    } else {
+                        $trash->price_range = $trash->price ? number_format($trash->price) . ' VND' : '';
+                        $trash->show_sale = false;
+                    }
+                }
                 // Lấy tổng stock quantity thông qua Accessor (thuộc tính ảo) trong model trash
                 $stockQuantity = $trash->totalStockQuantity;
                 $trash->stock_quantity = $stockQuantity;
@@ -250,24 +362,92 @@ class ProductService
             $listHidden = $this->productRepository->getHidden($perPage, $keyword);
             $listHidden->getCollection()->each(function ($hidden) {
                 // Lấy giá biến thể
-                if ($hidden->productVariants->isNotEmpty()) {
-                    $minPrice = $hidden->productVariants->min('price');
-                    $maxPrice = $hidden->productVariants->max('price');
+                // if ($hidden->productVariants->isNotEmpty()) {
+                //     $minPrice = $hidden->productVariants->min('price');
+                //     $maxPrice = $hidden->productVariants->max('price');
 
-                    if ($minPrice != $maxPrice) {
-                        $hidden->price_range = number_format($minPrice, 0, ',', '.') . ' VND - ' . number_format($maxPrice, 0, ',', '.') . ' VND';
-                    } else {
-                        $hidden->price_range = number_format($minPrice, 0, ',', '.') . ' VNĐ';
+                //     if ($minPrice != $maxPrice) {
+                //         $hidden->price_range = number_format($minPrice, 0, ',', '.') . ' VND - ' . number_format($maxPrice, 0, ',', '.') . ' VND';
+                //     } else {
+                //         $hidden->price_range = number_format($minPrice, 0, ',', '.') . ' VNĐ';
+                //     }
+                // } else {
+                //     $hidden->price_range = $hidden->price ? number_format($hidden->price, 0, ',', '.') . ' VND' : '';
+                // }
+
+                // Giá sản phẩm
+                if ($hidden->type == 1) {
+                    $minPrice = null;
+                    $maxPrice = null;
+                    $minSalePrice = null;
+                    $maxSalePrice = null;
+
+                    foreach ($hidden->productVariants as $variant) {
+                        if ($variant->is_active == 0) { // biến thể active
+
+                            // Giá gốc
+                            if ($minPrice === null || $variant->price < $minPrice) {
+                                $minPrice = $variant->price;
+                            }
+                            if ($maxPrice === null || $variant->price > $maxPrice) {
+                                $maxPrice = $variant->price;
+                            }
+
+                            // Giá sale
+                            if ($hidden->is_sale == 1 && $variant->sale_price !== null) {
+                                if ($minSalePrice === null || $variant->sale_price < $minSalePrice) {
+                                    $minSalePrice = $variant->sale_price;
+                                }
+                                if ($maxSalePrice === null || $variant->sale_price > $maxSalePrice) {
+                                    $maxSalePrice = $variant->sale_price;
+                                }
+                            }
+                        }
                     }
-                } else {
-                    $hidden->price_range = $hidden->price ? number_format($hidden->price, 0, ',', '.') . ' VND' : '';
+
+                    if ($minPrice !== null && $maxPrice !== null) {
+                        if ($hidden->is_sale == 1 && $minSalePrice !== null && $maxSalePrice !== null) {
+
+                            if ($minSalePrice != $maxSalePrice) {
+                                $hidden->price_range = number_format($minPrice) . '-' . number_format($maxPrice) . ' VND ' . "\n" . number_format($minSalePrice) .
+                                    '-' . number_format($maxSalePrice) . ' VND ';
+                                $hidden->show_sale = true;
+                                $hidden->original_price_display = number_format($minPrice) . '-' . number_format($maxPrice) . ' VND ';
+                            } else {
+                                $hidden->price_range = number_format($minPrice) . ' VND ' . "\n" . number_format($minSalePrice) . ' VND ';
+                                $hidden->show_sale = true;
+                                $hidden->original_price_display = number_format($minPrice) . ' VND ';
+                            }
+
+                        } else {
+                            if ($minPrice != $maxPrice) {
+                                $hidden->price_range = number_format($minPrice) . '-' . number_format($maxPrice) . ' VND ';
+                            } else {
+                                $hidden->price_range = number_format($minPrice) . ' VND ';
+                            }
+                            $hidden->show_sale = false;
+                        }
+                    } else {
+                        $hidden->price_range = 'Liên hệ';
+                        $hidden->show_sale = false;
+                    }
+
+                } else { // sản phẩm đơn
+                    if ($hidden->is_sale == 1 && $hidden->sale_price !== null) {
+                        $hidden->price_range = number_format($hidden->price) . ' VND ' . "\n" . number_format($hidden->sale_price) . ' VND ';
+                        $hidden->show_sale = true;
+                        $hidden->original_price_display = number_format($hidden->price) . ' VND ';
+                    } else {
+                        $hidden->price_range = $hidden->price ? number_format($hidden->price) . ' VND ' : '';
+                        $hidden->show_sale = false;
+                    }
                 }
 
                 // Lấy tổng stock quantity thông qua Accessor (thuộc tính ảo) trong model hidden
                 $stockQuantity = $hidden->totalStockQuantity;
                 $hidden->stock_quantity = $stockQuantity;
             });
-            // dd($listTrashs);
+            // dd($listHidden);
             return $listHidden;
         } catch (\Throwable $th) {
             log::error(

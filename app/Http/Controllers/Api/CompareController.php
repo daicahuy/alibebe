@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Repositories\ProductRepository;
 use App\Services\Web\Client\CompareService;
+use App\Services\Web\Client\ListCategoriesService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Log;
@@ -13,6 +14,7 @@ use Log;
 class CompareController extends Controller
 {
     protected CompareService $compareService;
+    protected ListCategoriesService $listCategoriesService;
     public function __construct(CompareService $compareService)
     {
         $this->compareService = $compareService;
@@ -79,7 +81,17 @@ class CompareController extends Controller
         return response()->json(['status' => 'success']);
     }
 
+    public function detailModal(Request $request, $id)
+    {
+        // dd($id);
+        $product = $this->listCategoriesService->detailModal($id);
+        // dd($product);
+        if (!$product) {
+            return response()->json(['error' => 'Không tìm thấy sản phẩm'], 404);
+        }
 
+        return response()->json($product);
+    }
 
 
 

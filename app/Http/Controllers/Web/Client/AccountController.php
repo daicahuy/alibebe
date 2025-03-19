@@ -129,7 +129,8 @@ class AccountController extends Controller
     public function wishlist()
     {
         $wishlist = $this->wishlistService->index();
-        return view('client.pages.accounts.wishlist',compact('wishlist'));
+        $wishListCount = $this->wishlistService->count();
+        return view('client.pages.accounts.wishlist',compact('wishlist','wishListCount'));
     }
 
     public function toggleWishlist($id)
@@ -147,6 +148,7 @@ class AccountController extends Controller
             'result' => $result['status'],
             'message' => $result['message'],
             'action' => $action,
+            'wishlistCount' => $this->wishlistService->count(),
         ]);
     }   
     

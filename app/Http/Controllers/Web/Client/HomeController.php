@@ -26,16 +26,14 @@ class HomeController extends Controller
         $bestSellProductsToday = $this->HomeService->getBestSellerProductsToday();
         $topCategoriesInweek = $this->HomeService->topCategoriesInWeek();
         $bestSellingProducts = $this->HomeService->getBestSellingProduct();
+        $productForYou = $this->HomeService->productForYou();
         // dd($bestSellingProducts);
         $wishlistProductIds = $this->wishlistRepository->getWishlistForUserLogin()
         ->pluck('product_id')
         ->toArray();
         $aiSuggestedProducts = $userId ? $this->HomeService->getAIFakeSuggest($userId) : $this->HomeService->getTrendingProduct();
 
-        if ($aiSuggestedProducts->isEmpty()) {
-            $aiSuggestedProducts = $this->getPopularProducts(); // Nếu AI không gợi ý được, lấy sản phẩm phổ biến
-        }
-
+        
         return view('client.pages.index',
             compact('categories',
             'trendingProducts',
@@ -43,7 +41,8 @@ class HomeController extends Controller
             'topCategoriesInweek',
             'bestSellingProducts',
             'aiSuggestedProducts',
-            'wishlistProductIds'
+            'wishlistProductIds',
+            'productForYou'
         ));
     }
     public function header()  {
@@ -74,6 +73,7 @@ class HomeController extends Controller
         $wishlistProductIds = $this->wishlistRepository->getWishlistForUserLogin()
         ->pluck('product_id')
         ->toArray();
+        // dd($results);
         return view('client.pages.tim-kiem', compact('query','results','wishlistProductIds'));
     }
     

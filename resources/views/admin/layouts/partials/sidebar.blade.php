@@ -187,6 +187,19 @@
                             </span>
                         </a>
                     </li>
+                    <li class="sidebar-list">
+                        <a href="{{ route('admin.chats.index') }}"
+                            class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/chats*') ? 'active' : '' }}">
+                            <span>
+                                <div class="d-flex align-items-center">
+                                    <i class="ri-mail-line"></i>
+                                    <div class="sidebar-main-link">{{ __('form.messages') }}</div>
+                                </div>
+                                <span class="badge bg-warning ml-2">5</span> <!-- Số lượng tin nhắn giả định -->
+                            </span>
+                        </a>
+                    </li>
+
                 </ul>
             </div>
         </nav>

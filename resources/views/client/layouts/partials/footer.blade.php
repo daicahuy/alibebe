@@ -12,7 +12,7 @@
                             </div>
 
                             <div class="service-detail">
-                                <h5>Every Fresh Products</h5>
+                                <h5>Tiếp cận công nghệ mới nhất</h5>
                             </div>
                         </div>
 
@@ -23,7 +23,7 @@
                             </div>
 
                             <div class="service-detail">
-                                <h5>Free Delivery For Order Over $50</h5>
+                                <h5>Giao hàng mới tốc độ cao</h5>
                             </div>
                         </div>
 
@@ -34,7 +34,7 @@
                             </div>
 
                             <div class="service-detail">
-                                <h5>Daily Mega Discounts</h5>
+                                <h5>Giảm giá mỗi ngày</h5>
                             </div>
                         </div>
 
@@ -45,7 +45,7 @@
                             </div>
 
                             <div class="service-detail">
-                                <h5>Best Price On The Market</h5>
+                                <h5>Giá tốt nhất thị trường</h5>
                             </div>
                         </div>
                     </div>
@@ -65,17 +65,16 @@
                         </div>
 
                         <div class="footer-logo-contain">
-                            <p>We are a friendly bar serving a variety of cocktails, wines and beers. Our bar is a
-                                perfect place for a couple.</p>
+                            <p>Chúng tôi là điểm đến lý tưởng cho những tín đồ công nghệ, cung cấp đa dạng sản phẩm từ điện thoại, phụ kiện đến thiết bị thông minh - nơi hoàn hảo để khám phá và trải nghiệm công nghệ hiện đại.</p>
 
                             <ul class="address">
                                 <li>
                                     <i data-feather="home"></i>
-                                    <a href="javascript:void(0)">1418 Riverwood Drive, CA 96052, US</a>
+                                    <a href="javascript:void(0)">Trịnh Văn Bô, Nam Từ Liên, Hà Nội</a>
                                 </li>
                                 <li>
                                     <i data-feather="mail"></i>
-                                    <a href="javascript:void(0)">support@fastkart.com</a>
+                                    <a href="javascript:void(0)">alibebe@gmail.com</a>
                                 </li>
                             </ul>
                         </div>
@@ -84,28 +83,28 @@
 
                 <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                     <div class="footer-title">
-                        <h4>Categories</h4>
+                        <h4>Thể loại</h4>
                     </div>
 
                     <div class="footer-contain">
                         <ul>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Vegetables & Fruit</a>
+                                <a href="shop-left-sidebar.html" class="text-content">Điện thoại</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Beverages</a>
+                                <a href="shop-left-sidebar.html" class="text-content">Máy tính bảng</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Meats & Seafood</a>
+                                <a href="shop-left-sidebar.html" class="text-content">Máy tính xách tay</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Frozen Foods</a>
+                                <a href="shop-left-sidebar.html" class="text-content">Đồng hồ</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Biscuits & Snacks</a>
+                                <a href="shop-left-sidebar.html" class="text-content">Âm thanh</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Grocery & Staples</a>
+                                <a href="shop-left-sidebar.html" class="text-content">Tivi</a>
                             </li>
                         </ul>
                     </div>
@@ -113,25 +112,25 @@
 
                 <div class="col-xl col-lg-2 col-sm-3">
                     <div class="footer-title">
-                        <h4>Useful Links</h4>
+                        <h4>Liên kết hữu ích</h4>
                     </div>
 
                     <div class="footer-contain">
                         <ul>
                             <li>
-                                <a href="index.html" class="text-content">Home</a>
+                                <a href="index.html" class="text-content">Trang chủ</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Shop</a>
+                                <a href="shop-left-sidebar.html" class="text-content">Cửa hàng</a>
                             </li>
                             <li>
-                                <a href="about-us.html" class="text-content">About Us</a>
+                                <a href="about-us.html" class="text-content">Giời thiệu về chúng tôi</a>
                             </li>
                             <li>
                                 <a href="blog-list.html" class="text-content">Blog</a>
                             </li>
                             <li>
-                                <a href="contact-us.html" class="text-content">Contact Us</a>
+                                <a href="contact-us.html" class="text-content">Liên hệ</a>
                             </li>
                         </ul>
                     </div>
@@ -139,28 +138,29 @@
 
                 <div class="col-xl-2 col-sm-3">
                     <div class="footer-title">
-                        <h4>Help Center</h4>
+                        <h4>Trung tâm trợ giúp
+                        </h4>
                     </div>
 
                     <div class="footer-contain">
                         <ul>
                             <li>
-                                <a href="order-success.html" class="text-content">Your Order</a>
+                                <a href="order-success.html" class="text-content">Đơn hàng của bạn</a>
                             </li>
                             <li>
-                                <a href="user-dashboard.html" class="text-content">Your Account</a>
+                                <a href="user-dashboard.html" class="text-content">Tài khoản của bạn</a>
                             </li>
                             <li>
-                                <a href="order-tracking.html" class="text-content">Track Order</a>
+                                <a href="order-tracking.html" class="text-content">Theo dõi đơn hàng</a>
                             </li>
                             <li>
-                                <a href="wishlist.html" class="text-content">Your Wishlist</a>
+                                <a href="wishlist.html" class="text-content">Danh sách mong muốn của bạn</a>
                             </li>
                             <li>
-                                <a href="search.html" class="text-content">Search</a>
+                                <a href="search.html" class="text-content">Tìm kiếm</a>
                             </li>
                             <li>
-                                <a href="faq.html" class="text-content">FAQ</a>
+                                <a href="faq.html" class="text-content">Câu hỏi thường gặp</a>
                             </li>
                         </ul>
                     </div>
@@ -168,7 +168,8 @@
 
                 <div class="col-xl-3 col-lg-4 col-sm-6">
                     <div class="footer-title">
-                        <h4>Contact Us</h4>
+                        <h4>Liên hệ với chúng tôi
+                        </h4>
                     </div>
 
                     <div class="footer-contact">
@@ -177,7 +178,7 @@
                                 <div class="footer-number">
                                     <i data-feather="phone"></i>
                                     <div class="contact-number">
-                                        <h6 class="text-content">Hotline 24/7 :</h6>
+                                        <h6 class="text-content">Đường dây nóng 24/7::</h6>
                                         <h5>+91 888 104 2340</h5>
                                     </div>
                                 </div>
@@ -187,14 +188,14 @@
                                 <div class="footer-number">
                                     <i data-feather="mail"></i>
                                     <div class="contact-number">
-                                        <h6 class="text-content">Email Address :</h6>
-                                        <h5>fastkart@hotmail.com</h5>
+                                        <h6 class="text-content">Địa chỉ Email:</h6>
+                                        <h5>alibebe@gmail.com</h5>
                                     </div>
                                 </div>
                             </li>
 
                             <li class="social-app mb-0">
-                                <h5 class="mb-2 text-content">Download App :</h5>
+                                <h5 class="mb-2 text-content">Tải ứng dụng :</h5>
                                 <ul>
                                     <li class="mb-0">
                                         <a href="https://play.google.com/store/apps" target="_blank">
@@ -218,7 +219,7 @@
 
         <div class="sub-footer section-small-space">
             <div class="reserve">
-                <h6 class="text-content">©2022 Fastkart All rights reserved</h6>
+                <h6 class="text-content">©2022 Alibebe Cửa hàng công nghệ</h6>
             </div>
 
             <div class="payment">

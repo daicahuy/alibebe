@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('chat_sessions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('users');
-            $table->foreignId('employee_id')->constrained('users');
+            $table->foreignId('employee_id')->nullable()->constrained('users');
             $table->tinyInteger('status')->default(ChatSessionStatusType::OPEN);
             $table->timestamp('created_date')->nullable();
             $table->timestamp('closed_date')->nullable();

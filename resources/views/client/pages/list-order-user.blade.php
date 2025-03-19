@@ -2,6 +2,20 @@
 
 @push('css')
     <style>
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .checkbox_animated.is-invalid {
+            border: 2px solid red !important;
+        }
+
+        .form-control.is-invalid {
+            border: 1px solid #dc3545 !important
+        }
+
         .tab-menu .nav-link {
             font-size: 14px;
             font-weight: bold;
@@ -236,39 +250,47 @@
                                     <div>
                                         <div>
                                             <div>
-                                                <span>Tổng tiền: </span>
-                                                <span class="price-new">9.355.305,00₫</span>
+                                                <span>Tổng tiền hoàn: </span>
+                                                <span class="price-new" id="amount_refund"></span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="ml-2">
+                                    <input type="text" hidden id="products">
+                                </div>
                             </div>
 
                         </div>
 
 
-                        <div id="address-container" class="flex justify-between">
+                        <form id="formRefundItem" method="POST" enctype="multipart/form-data" class="flex justify-between">
                             <div class="flex items-start">
                                 <div>
                                     <h4 class="mt-3">Thông tin hoàn tiền</h4>
-                                    <textarea id="returnReason" class="form-control" placeholder="Lý do hoàn hàng..."></textarea>
+                                    <textarea id="reason" name="reason" class="form-control" placeholder="Lý do hoàn hàng..."></textarea>
                                     <p>Hình ảnh minh chứng:</p>
-                                    <input type="file"> <br>
-                                    <img src="http://127.0.0.1:8000/storage/products/product_2.png" alt="Product"
-                                        class="me-3" style="width: 100px; height: 100px; object-fit: cover;"><br>
+                                    <input type="file" id="reason_image" name="reason_image"> <br>
+                                    <img src="http://127.0.0.1:8000/storage/products/product_2.png" id="reason_image_show"
+                                        alt="Product" class="me-3"
+                                        style="width: 100px; height: 100px; object-fit: cover;"><br>
                                     <label for="accountNumber" class="form-label">Số tài khoản</label>
-                                    <input type="text" id="accountNumber" class="form-control"
+                                    <input type="text" id="bank_account" name="bank_account" class="form-control"
                                         placeholder="Nhập số tài khoản">
                                     <label for="name" class="form-label mt-2">Tên người nhận</label>
-                                    <input type="text" id="name" class="form-control"
+                                    <input type="text" id="user_bank_name" name="user_bank_name" class="form-control"
                                         placeholder="Nhập tên người nhận">
                                     <label for="bankName" class="form-label mt-2">Ngân hàng</label>
-                                    <input type="text" id="bankName" class="form-control"
+                                    <input type="text" id="bank_name" name="bank_name" class="form-control"
                                         placeholder="Nhập tên ngân hàng">
-                                    <button class="btn btn-success-return mt-3" id="confirmReturnOrder">Hoàn hàng</button>
+                                    <label for="bankName" class="form-label mt-2">Số điện thoại liên hệ</label>
+                                    <input type="text" id="phone_number" name="phone_number" class="form-control"
+                                        placeholder="Nhập số điện thoại">
+                                    <button class="btn btn-success-return mt-3" type="submit"
+                                        id="confirmReturnOrder">Hoàn hàng</button>
                                 </div>
                             </div>
-                        </div>
+                        </form>
 
                     </div>
                 </div>
@@ -310,8 +332,6 @@
                     },
                     success: function(response) {
 
-                        console.log(response);
-                        // return;
                         renderTable(response.orders, response.totalPages);
 
 
@@ -391,33 +411,81 @@
             }
 
 
-            function callApiGetItemInOrder(orderId) {
-                $.ajax({
-                    url: `http://127.0.0.1:8000/api/orders/${orderId}`,
-                    method: "get",
-
-                    success: function(response) {
-
-                        return response.listItemOrder;
-
-                    },
-                    error: function() {
-                        alert("Error fetching data from API");
-                    },
-
+            async function callApiGetItemInOrder(orderId) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: `http://127.0.0.1:8000/api/orders/${orderId}`,
+                        method: "get",
+                        success: function(response) {
+                            // Giải quyết promise với danh sách item order
+                            resolve(response.listItemOrder);
+                        },
+                        error: function() {
+                            alert("Error fetching data from API");
+                            // Từ chối promise nếu có lỗi
+                            reject("Error fetching data from API");
+                        },
+                    });
                 });
             }
 
+            let dataRefundProducts = {
+                products: [],
+                order_id: '',
+                user_id: dataUser.id,
+                total_amount: ''
 
+
+            };
             async function getItemProductByOrder(orderId) {
 
                 const orderById = await callApiGetItemInOrder(orderId);
+                console.log("orderById:", orderById);
+                $('#returnOrderModal #reason_image_show').attr('src', ""),
+                    $('#returnOrderModal #order-id').text(`ID: ${orderById[0].order.code}`);
+                $('#returnOrderModal #order-status').text(orderById[0].order.order_statuses[0].name);
+                $('#returnOrderModal #user_name').text(`Khách hàng: ${orderById[0].order.fullname}`);
 
-                $('#returnOrderModal #order-id').val(`ID: ${orderById[0].order.code}`);
-                $('#returnOrderModal #order-status').val(orderById[0].order.order_statuses[0].name);
-                $('#returnOrderModal #user_name').val(`Khách hàng: ${orderById[0].order.fullname}`);
+                $('#returnOrderModal #listItemOrder').empty();
 
-                $('#listItemOrder').empty();
+
+                function updateAmountRefund() {
+                    let total = 0;
+
+
+                    $('#returnOrderModal .item-checkbox:checked').each(function() {
+                        const productId = $(this).data('productid');
+                        const productVariantId = $(this).data('productvariantid');
+                        const price = parseFloat($(this).data('price')); // Lấy giá trị giá
+
+                        // Kiểm tra nếu sản phẩm đã tồn tại trong selectedProducts
+                        const productExists = dataRefundProducts.products.some(product => product
+                            .productId === productId);
+
+                        if (!productExists) {
+
+                            dataRefundProducts.products.push({
+                                productId: productId,
+                                productVariantId: productVariantId
+                            });
+                        }
+
+                        total += price;
+
+                    });
+                    dataRefundProducts.total_amount = total;
+
+                    $("#returnOrderModal #amount_refund").text(`${formatCurrency(total)}₫`);
+
+                    $('#returnOrderModal .item-checkbox:not(:checked)').each(function() {
+                        const productId = $(this).data('productid');
+
+                        dataRefundProducts.products = dataRefundProducts.products.filter(product =>
+                            product.productId !== productId);
+                    });
+
+                    console.log(dataRefundProducts);
+                }
 
 
                 orderById.forEach((order) => {
@@ -429,7 +497,7 @@
                         <div class="d-flex flex-row"
                                     style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
                                     <div class="order-body d-flex">
-                                        <input type="checkbox">
+                                        <input type="checkbox" class="item-checkbox" data-productid="${order.product_id}" data-productvariantid="${order.product_variant_id}" data-price="${order.product_variant_id ? parseFloat(order.price_variant) * parseInt(order.quantity_variant) : parseFloat(order.price) * parseInt(order.quantity)}">
                                         <img src="${imageUrl}" alt="Product"
                                             class="me-3" style="width: 100px; height: 100px; object-fit: cover;">
                                         <div class="d-flex flex-row" style="justify-content: space-between">
@@ -439,12 +507,12 @@
                                                     ${order.name_variant}
                                                 </p>
                                                 <p class="text-muted mb-1" style="font-size: 14px;">
-                                                    ${product_variant_id?`x${order.quantity_variant}`:`x${order.quantity}`}
+                                                    ${order.product_variant_id?`x${order.quantity_variant}`:`x${order.quantity}`}
                                                 </p>
                                                 <div style="margin-right: 15px">
                                                     <span class="price-old"></span>
                                                     <span class="price-new ms-2">
-                                                        6.884.550,00₫
+                                                        ${order.product_variant_id?`${formatCurrency(order.price_variant)}`:`${formatCurrency(order.price)}`}₫
                                                     </span>
                                                 </div>
                                             </div>
@@ -452,7 +520,7 @@
                                     </div>
                                     <div class="d-flex flex-row" style="margin-right: 15px">
                                         <span>Thành tiền:</span>
-                                        <p class="price-new">6.884.550,00₫</p>
+                                        <p class="price-new">${order.product_variant_id?`${formatCurrency(parseFloat(order.price_variant)*parseInt(order.quantity_variant))}`:`${formatCurrency(parseFloat(order.price)*parseInt(order.quantity))}`}₫</p>
                                     </div>
                                 </div>
                         
@@ -460,16 +528,18 @@
                     )
                 })
 
+                $("#returnOrderModal #amount_refund").text(`${formatCurrency(0)}đ`)
 
+                $('#returnOrderModal .item-checkbox').on('click', function() {
+                    updateAmountRefund();
+                });
             }
 
 
             function renderTable(orders, totalPages) {
-                // Lấy phần tử danh sách chứa các đơn hàng
                 const listCard = document.getElementById("listCard");
-                listCard.innerHTML = ""; // Xóa nội dung cũ
+                listCard.innerHTML = "";
 
-                // Kiểm tra nếu không có đơn hàng
                 if (orders.length === 0) {
                     listCard.innerHTML = `
             <div class="d-flex justify-center items-center" style="justify-content: center;">
@@ -488,8 +558,8 @@
 
                     Pusher.logToConsole = true;
 
-                    var pusher = new Pusher('14773cf491b61b0bc6e2', {
-                        cluster: 'ap1'
+                    var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                        cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
                     });
 
                     var channel = pusher.subscribe('order-status.' + order.id);
@@ -508,6 +578,7 @@
     <div class="d-flex align-items-center">
         <div class="d-flex" style="align-items:center">
             ${order.order_statuses[0].id == 4 && order.order_statuses[0].pivot.customer_confirmation == 0? "<p  class='' style='color:red; margin:unset'>!Không nhận được hàng</p>" : ""}
+            ${order.is_refund == 0? "<p  class='' style='color:red; margin:unset'>Đã tạo đơn hàng hoàn</p>" : ""}
             </div>
 
            
@@ -522,7 +593,16 @@
 
         `;
 
-                    // Thêm danh sách sản phẩm của đơn hàng
+
+                    const updatedAt = new Date(order.order_statuses[0].pivot.updated_at);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - updatedAt);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    const showReviewButton = (order.order_statuses[0].id === 6 && diffDays <= 15);
+
+                    const showRefundButton = (order.order_statuses[0].id === 6 && order.is_refund == 1 &&
+                        diffDays <= 15);
 
                     orderHTML += order.order_items.map(item => {
 
@@ -548,7 +628,7 @@
                             style="width: 100px; height: 100px; object-fit: cover;">
                         <div class="d-flex flex-row" style="justify-content: space-between">
                             <div>
-                                <a href="/products/${item.product.slug}?order_id=${item.order_id}" class="mb-1">${item.name}</a>
+                                <a href="/products/${item.product.slug}" class="mb-1">${item.name}</a>
                                 <p class="text-muted mb-1" style="font-size: 14px;">
                                     ${
                                         item.product_variant_id
@@ -576,8 +656,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="d-flex flex-row" style="margin-right: 15px">
-                        <span>Thành tiền:</span> <p class="price-new">${item.product_variant_id ? formatCurrency(parseFloat(item.quantity_variant) * parseFloat(item.price_variant)) : formatCurrency(parseFloat(item.quantity) * parseFloat(item.price))}₫</p>
+                    <div class="d-flex" style="margin-right: 15px;flex-direction: column;">
+                        ${showReviewButton ? `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <a href="/products/${item.product.slug}?order_id=${item.order_id}" class="text" style="align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;">Đánh giá</a>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `:""}
+                        <div class="d-flex flex-row " style="align-items: center;justify-content: center;justify-items: center;">
+                            <span>Thành tiền: </span> <p class="price-new" style="margin-bottom: unset">${item.product_variant_id ? formatCurrency(parseFloat(item.quantity_variant) * parseFloat(item.price_variant)) : formatCurrency(parseFloat(item.quantity) * parseFloat(item.price))}₫</p>
+                            </div>
                     </div>
                 </div>
             `;
@@ -601,36 +687,36 @@
                     orderHTML += `
             <div class="order-footer">
                 <div class="d-flex flex-row">
-                    ${order.order_statuses[0].id == 6 ? `
+                    ${showRefundButton ? `
 
-                                                                                            <button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund="${order.id}" style="background-color: red; color: #fff;">
-                                                                                                    Hoàn hàng
-                                                                                                </button>
+                                                                                                    <button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund="${order.id}" style="background-color: red; color: #fff;">
+                                                                                                            Hoàn hàng
+                                                                                                        </button>
 
-                                                                                            `:""}
+                                                                                                    `:""}
     ${
         order.order_statuses[0].id === 1
             ? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}">Hủy hàng</button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `
             : order.order_statuses[0].id === 4
             ? `
-                                                                                                <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
-                                                                                                Đã nhận
-                                                                                                </button>
-                                                                                                <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
-                                                                                                `
+                                                                            <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
+                                                                            Đã nhận
+                                                                            </button>
+                                                                            <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
+                                                                            `
             : ""
     }
 </div>
                 <div>
                     <div>${order.coupon_discount_type ? `
-                                                                                                                                                                                                                                                                        
-                                                                                                        <span>Giảm giá: </span>
-                                                                                                    <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
-                                                                                                    </div>
-                                                                                                        
-                                                                                                        
-                                                                                                        `:""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                    <span>Giảm giá: </span>
+                                                                                                <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
+                                                                                                </div>
+                                                                                                    
+                                                                                                    
+                                                                                                    `:""}
                     <div>
                         <span>Tổng tiền: </span>
                     <span class="price-new">${formatCurrency(order.total_amount)}₫</span>
@@ -732,10 +818,116 @@
                 $(".btn-refund-order").click(async function() {
                     const orderId = $(this).data("idorderrefund");
                     console.log(orderId);
-                    await getItemProductByOrder(orderId)
+                    await getItemProductByOrder(orderId);
+
+                    dataRefundProducts.order_id = orderId;
+
+
                     $("#returnOrderModal").modal('show');
 
+                    $('#returnOrderModal #reason_image').on('change', function(event) {
+                        const file = event.target.files[0];
+                        console.log("showw file");
+                        // Đảm bảo rằng người dùng đã chọn một file
+                        if (file) {
+                            const reader = new FileReader();
+
+                            // Khi FileReader đã tải xong, hiển thị ảnh
+                            reader.onload = function(e) {
+                                $('#returnOrderModal #reason_image_show').attr('src', e
+                                        .target.result)
+                                    .show(); // Cập nhật src cho img và hiển thị
+                            }
+
+                            reader.readAsDataURL(file); // Đọc file ảnh
+                        }
+                    });
+
+
                 })
+
+                $("#returnOrderModal .btn-close").click(function() {
+                    $('#returnOrderModal #formRefundItem')[0].reset();
+                    $('#returnOrderModal .error-message').remove();
+                    $('#returnOrderModal .is-invalid').removeClass('is-invalid');
+                    dataRefundProducts = {
+                        products: [],
+                        order_id: '',
+                        user_id: dataUser.id,
+                        total_amount: ''
+                    };
+                });
+
+                $("#returnOrderModal #formRefundItem").off('submit').on('submit', function(event) {
+                    event.preventDefault();
+
+                    const formData = new FormData(this);
+                    formData.append('dataRefundProducts', JSON.stringify(dataRefundProducts));
+                    $.ajax({
+                        url: `{{ route('api.refund_orders.createOrderRefund') }}`,
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
+                            console.log("response1111111111111, ", response);
+
+                            if (response.status == 200) {
+
+
+                                fetchOrders()
+                                Toastify({
+                                    text: "Tạo đơn hàng hoàn thành công",
+                                    duration: 2000,
+                                    newWindow: true,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    stopOnFocus: true,
+                                    style: {
+                                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                    },
+                                }).showToast();
+
+                                $('#returnOrderModal #formRefundItem')[0].reset();
+                                $('#returnOrderModal .error-message').remove();
+                                $('#returnOrderModal .is-invalid').removeClass('is-invalid');
+                                dataRefundProducts = {
+                                    products: [],
+                                    order_id: '',
+                                    user_id: dataUser.id,
+                                    total_amount: ''
+                                };
+                                $("#returnOrderModal").modal('hide')
+                            } else {
+                                $('#returnOrderModal .error-message').remove();
+                                $('#returnOrderModal .is-invalid').removeClass('is-invalid');
+                                if (response.errors) {
+                                    $.each(response.errors, function(field, messages) {
+                                        let input = $(`#${field}`);
+                                        if (input.length > 0) {
+                                            let errorDiv = $(
+                                                '<div class="invalid-feedback error-message d-block">'
+                                            );
+                                            $.each(messages, function(index, message) {
+                                                errorDiv.append('<span>' +
+                                                    message +
+                                                    '</span><br>');
+                                            });
+                                            input.addClass('is-invalid');
+                                            input.after(errorDiv);
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Lỗi thêm dữ liệu:", error);
+                        }
+                    });
+
+                })
+
             }
 
             fetchOrders();
