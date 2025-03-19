@@ -167,46 +167,12 @@
                                 @endforeach
                             </ul>
 
-                            {{-- <ul class="value-list">
-                                <li>
-                                    <div class="category-list">
-                                        <h5 class="ms-0 text-title">
-                                            <a href="shop-left-sidebar.html">Value of the Day</a>
-                                        </h5>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="category-list">
-                                        <h5 class="ms-0 text-title">
-                                            <a href="shop-left-sidebar.html">Top 50 Offers</a>
-                                        </h5>
-                                    </div>
-                                </li>
-                                <li class="mb-0">
-                                    <div class="category-list">
-                                        <h5 class="ms-0 text-title">
-                                            <a href="shop-left-sidebar.html">New Arrivals</a>
-                                        </h5>
-                                    </div>
-                                </li>
-                            </ul> --}}
                         </div>
 
                         <div class="ratio_156 section-t-space">
                             <div class="home-contain hover-effect">
                                 <img src="https://cdn-media.sforum.vn/storage/app/media/haianh/icemag/vivo-y29s-5g-ra-mat-1.jpg"
                                     class="bg-img blur-up lazyload" alt="">
-                                {{-- <div class="home-detail p-top-left home-p-medium">
-                                    <div>
-                                        <h6 class="text-yellow home-banner">Seafood</h6>
-                                        <h3 class="text-uppercase fw-normal"><span
-                                                class="theme-color fw-bold">Freshes</span> Products</h3>
-                                        <h3 class="fw-light">every hour</h3>
-                                        <button onclick="location.href = 'shop-left-sidebar.html';"
-                                            class="btn btn-animation btn-md mend-auto">Mua Ngay <i
-                                                class="fa-solid fa-arrow-right icon"></i></button>
-                                    </div>
-                                </div> --}}
                             </div>
                         </div>
 
@@ -214,17 +180,6 @@
                             <div class="home-contain hover-effect">
                                 <img src="https://cdn-media.sforum.vn/storage/app/media/trannghia/ROG-Flow-Z13-civer.jpg"
                                     class="img-fluid blur-up lazyload" alt="">
-                                {{-- <div class="home-detail p-top-left home-p-medium">
-                                    <div>
-                                        <h4 class="text-yellow text-exo home-banner">Organic</h4>
-                                        <h2 class="text-uppercase fw-normal mb-0 text-russo theme-color">fresh</h2>
-                                        <h2 class="text-uppercase fw-normal text-title">Vegetables</h2>
-                                        <p class="mb-3">Super Offer to 50% Off</p>
-                                        <button onclick="location.href = 'shop-left-sidebar.html';"
-                                            class="btn btn-animation btn-md mend-auto">Mua Ngay <i
-                                                class="fa-solid fa-arrow-right icon"></i></button>
-                                    </div>
-                                </div> --}}
                             </div>
                         </div>
 
@@ -267,29 +222,6 @@
                                 </ul>
                             </div>
                         </div>
-
-                        {{-- <div class="section-t-space">
-                            <div class="category-menu">
-                                <h3>Customer Comment</h3>
-
-                                <div class="review-box">
-                                    <div class="review-contain">
-                                        <h5 class="w-75">We Care About Our Customer Experience</h5>
-                                        <p>In publishing and graphic design, Lorem ipsum is a placeholder text commonly
-                                            used to demonstrate the visual form of a document or a typeface without
-                                            relying on meaningful content.</p>
-                                    </div>
-
-                                    <div class="review-profile">
-                                        <div class="review-image">
-                                            <img src="{{ asset('theme/client/assets/images/product/vendor.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                        </div>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                        </div> --}}
                     </div>
                 </div>
 
@@ -491,15 +423,14 @@
                                                     <a href="{{ route('products', ['product' => $aiSuggest->slug]) }}">
                                                         <h6 class="name">{{ $aiSuggest->name }}</h6>
                                                     </a>
-
                                                     <h5 class="price">
-                                                        <span
-                                                            class="theme-color">{{ number_format($aiSuggest->display_price) }}đ</span>
-                                                        {{-- Kiểm tra is_sale thay vì sale_price --}}
-                                                        @if ($aiSuggest->is_sale == 1)
-                                                            <del>{{ number_format($aiSuggest->original_price) }}đ</del>
+                                                        @if ($aiSuggest->display_price < $aiSuggest->original_price && $aiSuggest->original_price > 0)
+                                                            <span class="theme-color">{{ number_format($aiSuggest->display_price) }}đ</span>
+                                                            <del style="color: gray;">{{ number_format($aiSuggest->original_price) }}đ</del>
+                                                        @else
+                                                            <span class="theme-color">{{ number_format($aiSuggest->display_price) }}đ</span>
                                                         @endif
-                                                    </h5>
+                                                    </h5>                                                    
 
 
                                                     <div class="product-rating mt-sm-2 mt-1">
@@ -596,13 +527,13 @@
                                                     </a>
 
                                                     <h5 class="price">
-                                                        @if ($fouYou->is_sale == 1 && $fouYou->display_price < $fouYou->original_price)
+                                                        @if ($fouYou->display_price < $fouYou->original_price && $fouYou->original_price > 0)
                                                             <span class="theme-color">{{ number_format($fouYou->display_price) }}đ</span>
-                                                            <del>{{ number_format($fouYou->original_price) }}đ</del>
+                                                            <del style="color: gray;">{{ number_format($fouYou->original_price) }}đ</del>
                                                         @else
-                                                            <span class="theme-color">{{ number_format($fouYou->original_price) }}đ</span>
+                                                            <span class="theme-color">{{ number_format($fouYou->display_price) }}đ</span>
                                                         @endif
-                                                    </h5>                                                    
+                                                    </h5>                                                 
                                                     <div class="product-rating mt-sm-2 mt-1">
                                                         <ul class="rating">
                                                             @for ($i = 1; $i <= 5; $i++)

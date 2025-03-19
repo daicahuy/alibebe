@@ -316,95 +316,93 @@ END');
         return $this->model->trending()->get();
     }
     public function getBestSellerProductsToday($limit = 12)
-    {
-        $today = Carbon::today()->toDateString(); // 'YYYY-MM-DD'
-    
-        $totalSoldSubQuery = "
-            (SELECT COALESCE(SUM(order_items.quantity), 0) + COALESCE(SUM(order_items.quantity_variant), 0)
-            FROM order_items
-            JOIN orders ON order_items.order_id = orders.id
-            JOIN order_order_status ON orders.id = order_order_status.order_id
-            JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
-            WHERE order_statuses.name = 'Hoàn thành'
-            AND DATE(orders.created_at) = '{$today}'
-            AND (
-                order_items.product_id = products.id 
-                OR order_items.product_variant_id IN (
-                    SELECT id FROM product_variants WHERE product_variants.product_id = products.id
-                )
-            )) as total_sold";
-    
-        $averageRatingSubQuery = "
-            (SELECT COALESCE(AVG(reviews.rating), 0)
-            FROM reviews
-            WHERE reviews.product_id = products.id AND reviews.is_active = 1) as average_rating";
-    
-        $displayPriceSubQuery = "
-            (CASE
-                WHEN products.type = 1 THEN (
-                    SELECT 
-                        CASE 
-                            WHEN products.is_sale = 1 THEN 
-                                CASE 
-                                    WHEN MIN(product_variants.sale_price) > 0 THEN MIN(product_variants.sale_price) 
-                                    ELSE MIN(product_variants.price) 
-                                END
-                            ELSE MIN(product_variants.price)
-                        END
-                    FROM product_variants
-                    WHERE product_variants.product_id = products.id 
-                    AND product_variants.is_active = 1
-                    AND product_variants.price > 0
-                )
-                ELSE 
-                    CASE
-                        WHEN products.is_sale = 1 THEN 
+{
+    $today = Carbon::today()->toDateString(); // 'YYYY-MM-DD'
+
+    $totalSoldSubQuery = "
+        (SELECT COALESCE(SUM(order_items.quantity), 0) + COALESCE(SUM(order_items.quantity_variant), 0)
+        FROM order_items
+        JOIN orders ON order_items.order_id = orders.id
+        JOIN order_order_status ON orders.id = order_order_status.order_id
+        JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
+        WHERE order_statuses.name = 'Hoàn thành'
+        AND DATE(orders.created_at) = '{$today}'
+        AND (
+            order_items.product_id = products.id 
+            OR order_items.product_variant_id IN (
+                SELECT id FROM product_variants WHERE product_variants.product_id = products.id
+            )
+        )) as total_sold";
+
+    $averageRatingSubQuery = "
+        (SELECT COALESCE(AVG(reviews.rating), 0)
+        FROM reviews
+        WHERE reviews.product_id = products.id AND reviews.is_active = 1) as average_rating";
+
+    // ✅ Giá hiển thị (display_price) - Ưu tiên lấy `sale_price` của sản phẩm chính trước
+    $displayPriceSubQuery = "
+        (CASE
+            WHEN products.type = 1 THEN ( -- Nếu có biến thể
+                CASE 
+                    WHEN products.is_sale = 1 AND products.sale_price > 0 THEN products.sale_price  -- Ưu tiên sale_price của sản phẩm chính nếu có
+                    WHEN products.price > 0 THEN products.price  -- Nếu không có sale_price, hiển thị price của sản phẩm chính
+                    ELSE ( -- Nếu sản phẩm chính không có giá, lấy giá thấp nhất của biến thể
+                        SELECT 
                             CASE 
-                                WHEN products.sale_price > 0 THEN products.sale_price
-                                ELSE products.price 
+                                WHEN MIN(product_variants.sale_price) > 0 AND products.is_sale = 1 THEN MIN(product_variants.sale_price)  
+                                ELSE MIN(product_variants.price) 
                             END
-                        ELSE products.price
-                    END
-            END) as display_price";
-    
-        $originalPriceSubQuery = "
-            (CASE
-                WHEN products.type = 1 THEN (
-                    SELECT 
-                        CASE 
-                            WHEN COUNT(*) > 0 THEN MAX(product_variants.price) 
-                            ELSE products.price  
-                        END
-                    FROM product_variants
-                    WHERE product_variants.product_id = products.id 
-                    AND product_variants.is_active = 1
-                    AND product_variants.price > 0
-                )
-                ELSE products.price
-            END) as original_price";
-    
-            return Product::query()
-            ->selectRaw("
-                products.id, 
-                products.name, 
-                products.thumbnail, 
-                {$displayPriceSubQuery}, 
-                {$originalPriceSubQuery}, 
-                products.sale_price, 
-                products.views, 
-                products.slug, 
-                COALESCE(product_stocks.stock, 0) as stock_quantity, 
-                {$totalSoldSubQuery}, 
-                {$averageRatingSubQuery}
-            ")
-            ->leftJoin('product_stocks', 'product_stocks.product_id', '=', 'products.id')
-            ->where('products.is_active', 1)
-            ->having('total_sold', '>', 0) // ✅ Chỉ lấy sản phẩm có lượt bán
-            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.sale_price', 'products.views', 'product_stocks.stock')
-            ->orderByDesc('total_sold')
-            ->limit($limit)
-            ->get();
-    }
+                        FROM product_variants 
+                        WHERE product_variants.product_id = products.id 
+                              AND product_variants.is_active = 1 
+                              AND product_variants.price > 0
+                    )
+                END
+            )
+            ELSE ( -- Nếu không có biến thể
+                CASE 
+                    WHEN products.is_sale = 1 AND products.sale_price > 0 THEN products.sale_price  -- Nếu có sale_price và đang sale, hiển thị sale_price
+                    ELSE products.price  -- Nếu không, hiển thị price
+                END
+            )
+        END) as display_price";
+
+    // ✅ Giá gốc (original_price) - Dùng để gạch ngang khi có `sale_price`
+    $originalPriceSubQuery = "
+        (CASE
+            WHEN products.type = 1 THEN ( -- Nếu có biến thể
+                SELECT MIN(product_variants.price) 
+                FROM product_variants 
+                WHERE product_variants.product_id = products.id 
+                      AND product_variants.is_active = 1 
+                      AND product_variants.price > 0
+            )
+            ELSE products.price
+        END) as original_price";
+
+    return Product::query()
+        ->selectRaw("
+            products.id, 
+            products.name, 
+            products.thumbnail, 
+            {$displayPriceSubQuery}, 
+            {$originalPriceSubQuery}, 
+            products.sale_price, 
+            products.views, 
+            products.slug, 
+            COALESCE(product_stocks.stock, 0) as stock_quantity, 
+            {$totalSoldSubQuery}, 
+            {$averageRatingSubQuery}
+        ")
+        ->leftJoin('product_stocks', 'product_stocks.product_id', '=', 'products.id')
+        ->where('products.is_active', 1)
+        ->having('total_sold', '>', 0) // ✅ Chỉ lấy sản phẩm có lượt bán
+        ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.sale_price', 'products.views', 'product_stocks.stock')
+        ->orderByDesc('total_sold')
+        ->limit($limit)
+        ->get();
+}
+
     
     
 
@@ -536,51 +534,44 @@ END');
             WHERE reviews.product_id = products.id AND reviews.is_active = 1
         ) as average_rating');
     
-        // ✅ Giá hiển thị (display_price)
+        // ✅ Giá hiển thị (display_price) - Ưu tiên lấy `sale_price` của sản phẩm chính, nếu không có thì xét biến thể
         $displayPriceSubQuery = DB::raw('(
             CASE
-                WHEN products.type = 1 THEN (  -- Sản phẩm có biến thể
-                    SELECT 
-                        CASE 
-                            WHEN products.is_sale = 1 THEN 
+                WHEN products.type = 1 THEN (  -- Nếu có biến thể
+                    CASE 
+                        WHEN products.is_sale = 1 AND products.sale_price > 0 THEN products.sale_price  -- Ưu tiên sale_price của sản phẩm chính nếu có
+                        WHEN products.price > 0 THEN products.price  -- Nếu không có sale_price, hiển thị price của sản phẩm chính
+                        ELSE (  -- Nếu sản phẩm chính không có giá, lấy giá thấp nhất của biến thể
+                            SELECT 
                                 CASE 
-                                    WHEN MIN(product_variants.sale_price) > 0 THEN MIN(product_variants.sale_price) 
+                                    WHEN MIN(product_variants.sale_price) > 0 AND products.is_sale = 1 THEN MIN(product_variants.sale_price)  
                                     ELSE MIN(product_variants.price) 
                                 END
-                            ELSE 
-                                MIN(product_variants.price)
-                        END
-                    FROM product_variants
-                    WHERE product_variants.product_id = products.id 
-                    AND product_variants.is_active = 1
-                    AND product_variants.price > 0
-                )
-                ELSE  -- Sản phẩm đơn (type = 0)
-                    CASE
-                        WHEN products.is_sale = 1 THEN 
-                            CASE 
-                                WHEN products.sale_price > 0 THEN products.sale_price
-                                ELSE products.price 
-                            END
-                        ELSE 
-                            products.price
+                            FROM product_variants 
+                            WHERE product_variants.product_id = products.id 
+                                  AND product_variants.is_active = 1 
+                                  AND product_variants.price > 0
+                        )
                     END
+                )
+                ELSE (  -- Nếu không có biến thể
+                    CASE 
+                        WHEN products.is_sale = 1 AND products.sale_price > 0 THEN products.sale_price  -- Nếu có sale_price và đang sale, hiển thị sale_price
+                        ELSE products.price  -- Nếu không, hiển thị price
+                    END
+                )
             END
         ) as display_price');
     
-        // ✅ Giá gốc (original_price)
+        // ✅ Giá gốc (original_price) - Dùng để gạch ngang khi có `sale_price`
         $originalPriceSubQuery = DB::raw('(
             CASE
-                WHEN products.type = 1 THEN ( -- Sản phẩm có biến thể
-                    SELECT 
-                        CASE 
-                            WHEN COUNT(*) > 0 THEN MAX(product_variants.price) 
-                            ELSE products.price  
-                        END
-                    FROM product_variants
+                WHEN products.type = 1 THEN ( -- Nếu có biến thể
+                    SELECT MIN(product_variants.price) 
+                    FROM product_variants 
                     WHERE product_variants.product_id = products.id 
-                    AND product_variants.is_active = 1
-                    AND product_variants.price > 0
+                          AND product_variants.is_active = 1 
+                          AND product_variants.price > 0
                 )
                 ELSE products.price
             END
@@ -608,6 +599,8 @@ END');
         $popularProducts = $query->get();
         return $popularProducts;
     }
+    
+
     
     
     
@@ -663,43 +656,72 @@ END');
     
         // 🔹 Truy vấn sản phẩm theo danh sách ID, với đầy đủ thông tin như getPopularProducts
         return Product::query()
-            ->select(
-                'products.id',
-                'products.name',
-                'products.thumbnail',
-                'products.price',
-                'products.slug',
-                'products.sale_price',
-                'products.views',
-                'products.is_sale',
-                DB::raw('(SELECT COALESCE(SUM(order_items.quantity), 0) + COALESCE(SUM(order_items.quantity_variant), 0)
-                          FROM order_items
-                          JOIN orders ON order_items.order_id = orders.id
-                          JOIN order_order_status ON orders.id = order_order_status.order_id
-                          JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
-                          WHERE order_statuses.name = "Hoàn thành"
-                          AND (order_items.product_id = products.id 
-                               OR order_items.product_variant_id IN (SELECT id FROM product_variants WHERE product_variants.product_id = products.id))) as total_sold'),
-                DB::raw('(SELECT COALESCE(AVG(reviews.rating), 0) FROM reviews WHERE reviews.product_id = products.id AND reviews.is_active = 1) as average_rating'),
-                DB::raw('(SELECT COALESCE(product_stocks.stock, 0) FROM product_stocks WHERE product_stocks.product_id = products.id) as stock_quantity'),
-                DB::raw('(CASE
-                            WHEN products.type = 1 THEN (
-                                SELECT CASE 
-                                    WHEN products.is_sale = 1 THEN (CASE WHEN MIN(product_variants.sale_price) > 0 THEN MIN(product_variants.sale_price) ELSE MIN(product_variants.price) END)
-                                    ELSE MIN(product_variants.price) 
-                                END FROM product_variants WHERE product_variants.product_id = products.id AND product_variants.is_active = 1 AND product_variants.price > 0)
-                            ELSE (CASE 
-                                    WHEN products.is_sale = 1 THEN (CASE WHEN products.sale_price > 0 THEN products.sale_price ELSE products.price END)
-                                    ELSE products.price
-                                  END)
-                        END) as display_price')
-            )
-            ->whereIn('products.id', $allSuggestedProductIds)
-            ->where('products.is_active', 1)
-            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price', 'products.is_sale')
-            ->orderByDesc('total_sold')
-            ->limit(12)
-            ->get();
+    ->select(
+        'products.id',
+        'products.name',
+        'products.thumbnail',
+        'products.price',
+        'products.slug',
+        'products.sale_price',
+        'products.views',
+        'products.is_sale',
+        DB::raw('(SELECT COALESCE(SUM(order_items.quantity), 0) + COALESCE(SUM(order_items.quantity_variant), 0)
+                  FROM order_items
+                  JOIN orders ON order_items.order_id = orders.id
+                  JOIN order_order_status ON orders.id = order_order_status.order_id
+                  JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
+                  WHERE order_statuses.name = "Hoàn thành"
+                  AND (order_items.product_id = products.id 
+                       OR order_items.product_variant_id IN (SELECT id FROM product_variants WHERE product_variants.product_id = products.id))) as total_sold'),
+        DB::raw('(SELECT COALESCE(AVG(reviews.rating), 0) FROM reviews WHERE reviews.product_id = products.id AND reviews.is_active = 1) as average_rating'),
+        DB::raw('(SELECT COALESCE(product_stocks.stock, 0) FROM product_stocks WHERE product_stocks.product_id = products.id) as stock_quantity'),
+
+        // Hiển thị giá ưu tiên sale_price nếu is_sale = 1
+        DB::raw('(CASE
+                    WHEN products.type = 1 THEN (  -- Nếu sản phẩm có biến thể
+                        CASE 
+                            WHEN products.is_sale = 1 AND products.sale_price > 0 THEN products.sale_price  -- Nếu sản phẩm chính đang sale, hiển thị sale_price
+                            WHEN products.price > 0 THEN products.price  -- Nếu không có sale_price, hiển thị giá chính
+                            ELSE (  -- Nếu sản phẩm chính không có giá, lấy từ biến thể
+                                SELECT 
+                                    CASE 
+                                        WHEN MIN(product_variants.sale_price) > 0 AND products.is_sale = 1 THEN MIN(product_variants.sale_price)  
+                                        ELSE MIN(product_variants.price) 
+                                    END
+                                FROM product_variants 
+                                WHERE product_variants.product_id = products.id 
+                                      AND product_variants.is_active = 1 
+                                      AND product_variants.price > 0
+                            )
+                        END
+                    )
+                    ELSE (  -- Nếu sản phẩm không có biến thể
+                        CASE 
+                            WHEN products.is_sale = 1 AND products.sale_price > 0 THEN products.sale_price  -- Nếu có sale_price và đang sale, hiển thị sale_price
+                            ELSE products.price  -- Nếu không, hiển thị price
+                        END
+                    )
+                 END) as display_price'),
+
+        // Giá gốc để gạch ngang nếu có sale_price và is_sale = 1
+        DB::raw('(CASE
+                    WHEN products.type = 1 THEN (
+                        SELECT MIN(product_variants.price) 
+                        FROM product_variants 
+                        WHERE product_variants.product_id = products.id 
+                              AND product_variants.is_active = 1 
+                              AND product_variants.price > 0
+                    )
+                    ELSE products.price
+                 END) as original_price')
+    )
+    ->whereIn('products.id', $allSuggestedProductIds)
+    ->where('products.is_active', 1)
+    ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price', 'products.is_sale')
+    ->orderByDesc('total_sold')
+    ->limit(12)
+    ->get();
+
     }
     
 
