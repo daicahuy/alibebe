@@ -493,8 +493,7 @@
                                                     <button
                                                         class="btn btn-sm cart-button theme-bg-color
                                                 text-white product-box-contain"
-                                                        id="verifyButton">Gửi lại mã xác
-                                                        minh</button>
+                                                        id="verifyButton">Gửi xác minh</button>
                                                     <p id="statusText"></p>
                                                     <p id="timer"></p>
                                                 </div>

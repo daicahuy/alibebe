@@ -20,6 +20,11 @@ class ProductController extends ApiBaseController
         $this->productService = $productService;
     }
 
+    public function getAll()
+    {
+        return $this->productService->getAll();
+    }
+
     public function storeSingle(StoreProductSingleRequest $request)
     {
         $response = $this->productService->storeSingle($request->validated());
