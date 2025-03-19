@@ -30,7 +30,12 @@ class ApiRefundOrderController extends Controller
 
 
             $queryListRefundOrder = Refund::query()
-                ->with('order', 'user', 'refundItems')
+                ->with('order', 'user')->with([
+
+                        'refundItems' => function ($query) {
+                            $query->with("product");
+                        }
+                    ])
                 ->orderBy('created_at', 'desc');
 
 
@@ -43,7 +48,10 @@ class ApiRefundOrderController extends Controller
                             ->orWhereHas('user', function ($q) use ($value) {
                                 $q->where('fullname', 'LIKE', "%{$value}%")
                                     ->orWhere('phone_number', 'LIKE', "%{$value}%");
+                            })->orWhereHas('refundItems', function ($q) use ($value) {
+                                $q->where('name', 'LIKE', "%{$value}%")->orWhere('name_variant', 'LIKE', "%{$value}%");
                             });
+                        ;
                     });
                 }
             }
@@ -69,7 +77,12 @@ class ApiRefundOrderController extends Controller
     {
         try {
 
-            $dataOrderRefund = Refund::query()->where('id', $id)->with('order', 'user', 'refundItems')->first();
+            $dataOrderRefund = Refund::query()->where('id', $id)->with('order', 'user')->with([
+
+                'refundItems' => function ($query) {
+                    $query->with("product");
+                }
+            ])->first();
 
             return response()->json(["status" => Response::HTTP_OK, "dataOrderRefund" => $dataOrderRefund]);
 
@@ -232,6 +245,88 @@ class ApiRefundOrderController extends Controller
 
             DB::commit();
             return response()->json(["data" => $dataItemProduct, "status" => Response::HTTP_OK]);
+
+
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function getOrdersRefundByUser(Request $request)
+    {
+        $filters = $request->all();
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 10);
+        $user_id = $request->input('user_id');
+
+
+        $queryListRefundOrder = Refund::query()->where('user_id', $user_id)
+            ->with('order', 'user')->with([
+
+                    'refundItems' => function ($query) {
+                        $query->with("product");
+                    }
+                ])
+            ->orderBy('created_at', 'desc');
+
+
+        foreach ($filters as $key => $value) {
+            if ($key == 'search' && isset($value)) {
+                $queryListRefundOrder->where(function ($query) use ($value) {
+                    $query->whereHas('order', function ($q) use ($value) {
+                        $q->where('code', 'LIKE', "%{$value}%");
+                    })
+                        ->orWhereHas('user', function ($q) use ($value) {
+                            $q->where('fullname', 'LIKE', "%{$value}%")
+                                ->orWhere('phone_number', 'LIKE', "%{$value}%");
+                        })
+                        ->orWhereHas('refundItems', function ($q) use ($value) {
+                            $q->where('name', 'LIKE', "%{$value}%")->orWhere('name_variant', 'LIKE', "%{$value}%");
+                        });
+                });
+            }
+        }
+
+        $dataListRefundOrder = $queryListRefundOrder->paginate($limit, ['*'], 'page', $page);
+
+        return response()->json([
+            'refundOrders' => $dataListRefundOrder->items(),
+            'totalPages' => $dataListRefundOrder->lastPage(),
+        ]);
+    }
+
+    public function changeStatusWithImg(Request $request)
+    {
+        try {
+            $data = $request->all();
+
+            if ($request->hasFile('img_fail_or_completed')) {
+                $data['img_fail_or_completed'] = Storage::put("orders", $request->file('img_fail_or_completed'));
+            } else {
+                $data['img_fail_or_completed'] = null;
+            }
+
+            $id_order_refund = $data["id_order_refund"];
+            $fail_reason = $data["fail_reason"];
+
+            DB::beginTransaction();
+
+            if ($fail_reason) {
+                Refund::where("id", $id_order_refund)->update(["fail_reason" => $fail_reason, "img_fail_or_completed" => $data['img_fail_or_completed'], "status" => "failed"]);
+            } else {
+                Refund::where("id", $id_order_refund)->update(["img_fail_or_completed" => $data['img_fail_or_completed'], "status" => "completed"]);
+            }
+
+            DB::commit();
+
+
+            return response()->json(["status" => Response::HTTP_OK, "data" => $data]);
 
 
 

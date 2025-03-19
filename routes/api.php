@@ -82,7 +82,7 @@ Route::prefix('/categories')
     ->group(function () {
 
         Route::patch('/{category}/active', 'toggleActive')->name('toggleActive'); // Cập nhật trạng thái active
-
+    
     });
 
 Route::prefix('/attributes')
@@ -106,7 +106,9 @@ Route::prefix('/refund-orders')
         Route::get('/list', [ApiRefundOrderController::class, 'index'])->name('index');
         Route::get('/{id}', [ApiRefundOrderController::class, 'getDataOrderRefund'])->name('getDataOrderRefund');
         Route::post('/changeStatus', [ApiRefundOrderController::class, 'changeStatus'])->name('changeStatus');
+        Route::post('/changeStatusWithImg', [ApiRefundOrderController::class, 'changeStatusWithImg'])->name('changeStatusWithImg');
         Route::post('/createOrderRefund', [ApiRefundOrderController::class, 'createOrderRefund'])->name('createOrderRefund');
+        Route::post('/getOrdersRefundByUser', [ApiRefundOrderController::class, 'getOrdersRefundByUser'])->name('getOrdersRefundByUser');
     });
 
 Route::prefix('/orders')

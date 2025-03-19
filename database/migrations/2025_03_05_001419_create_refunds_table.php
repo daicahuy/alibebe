@@ -20,6 +20,8 @@ return new class extends Migration {
             $table->string('phone_number', 20);
             $table->string('bank_name', 100)->nullable();
             $table->text('reason');
+            $table->text('fail_reason')->nullable();
+            $table->text('img_fail_or_completed')->nullable();
             $table->text('reason_image');
             $table->text('admin_reason')->nullable();
             $table->enum('status', [
