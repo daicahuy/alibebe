@@ -71,6 +71,7 @@ class HomeController extends Controller
         $wishlistProductIds = $this->wishlistRepository->getWishlistForUserLogin()
         ->pluck('product_id')
         ->toArray();
+        // dd($results);
         return view('client.pages.tim-kiem', compact('query','results','wishlistProductIds'));
     }
     

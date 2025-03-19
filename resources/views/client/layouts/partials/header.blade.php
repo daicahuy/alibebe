@@ -115,12 +115,15 @@
                             <div class="search-box">
                                 <form action="{{ route('search') }}" method="GET">
                                     <div class="input-group">
-                                        <input type="search" class="form-control" id="searchInput" name="query" placeholder="Im searching for..." autocomplete="off" value="{{ request('query') }}">
+                                        <input type="search" class="form-control" id="searchInput" name="query"
+                                            placeholder="Im searching for..." autocomplete="off"
+                                            value="{{ request('query') }}">
                                         <button class="btn" type="submit" id="button-addon2">
                                             <i data-feather="search"></i>
                                         </button>
                                     </div>
-                                    <ul id="suggestions" class="suggestions-list" style="position: absolute; top: 100%; left: 0; width: 100%; background-color: white; border: 1px solid #ccc; border-top: none; list-style-type: none; padding: 0; margin: 0; display: none; z-index: 10; overflow-y: auto; max-height: 200px;">
+                                    <ul id="suggestions" class="suggestions-list"
+                                        style="position: absolute; top: 100%; left: 0; width: 100%; background-color: white; border: 1px solid #ccc; border-top: none; list-style-type: none; padding: 0; margin: 0; display: none; z-index: 10; overflow-y: auto; max-height: 200px;">
                                     </ul>
                                 </form>
                             </div>
@@ -430,22 +433,22 @@
 
                                             </ul>
                                             @if (!auth()->check() || !$cartItems->isEmpty())
-                                            <div class="price-box">
-                                                <h5>Tổng cộng :</h5>
-                                                <h4 class="theme-color fw-bold total-dropdown-price">
-                                                    {{ number_format($totalSum, 0, ',', '.') }}đ
-                                                </h4>
-                                            </div>
+                                                <div class="price-box">
+                                                    <h5>Tổng cộng :</h5>
+                                                    <h4 class="theme-color fw-bold total-dropdown-price">
+                                                        {{ number_format($totalSum, 0, ',', '.') }}đ
+                                                    </h4>
+                                                </div>
 
 
-                                            <div class="button-group">
-                                                {{-- <a href="{{ route('cart', ['user' => auth()->id()]) }}"
+                                                <div class="button-group">
+                                                    {{-- <a href="{{ route('cart', ['user' => auth()->id()]) }}"
                                                     class="btn btn-sm cart-button">Giỏ hàng</a> --}}
-                                                <a href="{{ route('cartCheckout') }}"
-                                                    class="btn btn-sm cart-button theme-bg-color
+                                                    <a href="{{ route('cartCheckout') }}"
+                                                        class="btn btn-sm cart-button theme-bg-color
                                                 text-white">Thanh
-                                                    toán</a>
-                                            </div>
+                                                        toán</a>
+                                                </div>
                                             @endif
                                         </div>
                                     </div>
@@ -1213,6 +1216,7 @@
             });
 
         }
+        
         $(document).ready(function() {
             $(".button-group .cart-button.theme-bg-color").on("click", function() {
                 console.log("⚡ Nút Thanh toán được click");

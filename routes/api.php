@@ -46,6 +46,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+<<<<<<< HEAD
+=======
+
+Route::get('/search/suggestions', [ClientHomeController::class, 'getSuggestions']);
+>>>>>>> a7ba8edbf01f7e91281a3cd61625a5418f6d769b
 // Route for searching users
 Route::get('admin/chats/search-users', [ChatController::class, 'searchUsers'])
     ->name('api.admin.chats.search-users');
@@ -61,7 +66,11 @@ Route::prefix('client/chat')
         Route::get('/messages', [ChatClientController::class, 'getMessages']);
     });
 
+<<<<<<< HEAD
 Route::get('/search/suggestions', [ClientHomeController::class, 'getSuggestions']);
+=======
+
+>>>>>>> a7ba8edbf01f7e91281a3cd61625a5418f6d769b
 
 Route::post('/cart/update', [CartItemController::class, 'update'])->middleware('web')->name('cart.update');
 Route::post('/cart/save-session', [CartItemController::class, 'saveSession'])->middleware('web')->name('cart.saveSession');

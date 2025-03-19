@@ -27,7 +27,7 @@ class StoreReviewRequest extends FormRequest
         return [
             'product_id' => 'required|exists:products,id',
             'rating' => 'required|integer|min:1|max:5',
-            'review_text' => 'required|string|min:10',
+            'review_text' => 'required|string',
             'images' => 'array|max:5', 
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'videos.*' => 'mimes:mp4,mov,avi|max:10240',
