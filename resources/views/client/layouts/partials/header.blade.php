@@ -349,13 +349,13 @@
                                                                     $cartItem->product->thumbnail;
                                                             @endphp
 
-                                                            <a href="product-left-thumbnail.html" class="drop-image">
+                                                            <a href="{{ route('products', $cartItem->product->slug) }}" class="drop-image">
                                                                 <img src="{{ Storage::url($thumbnail) }}"
                                                                     class="blur-up lazyload" alt="">
                                                             </a>
 
                                                             <div class="drop-contain">
-                                                                <a href="product-left-thumbnail.html">
+                                                                <a href="{{ route('products', $cartItem->product->slug) }}">
                                                                     <h5>{{ Str::limit($cartItem->productVariant->product->name ?? $cartItem->product->name, 20, '...') }}
                                                                     </h5>
                                                                 </a>
@@ -382,7 +382,7 @@
                                                                     if ($cartItem->productVariant?->sale_price > 0) {
                                                                         $salePrice =
                                                                             $cartItem->productVariant->sale_price;
-                                                                    } elseif ($cartItem->product?->sale_price > 0) {
+                                                                    } elseif ($cartItem->product?->sale_price > 0 && $cartItem->product?->is_sale == 1) {
                                                                         $salePrice = $cartItem->product->sale_price;
                                                                     } else {
                                                                         $salePrice = $price; // Nếu không có giảm giá, salePrice bằng giá gốc

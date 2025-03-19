@@ -260,7 +260,7 @@
                                                         $cartItem->productVariant->product->thumbnail ??
                                                         $cartItem->product->thumbnail;
                                                 @endphp
-                                                <a class="product-image" href="/fastkart/product/fresh-pear">
+                                                <a class="product-image" href="{{ route('products', $cartItem->product->slug) }}">
                                                     <img alt="product" class="img-fluid"
                                                         src="{{ Storage::url($thumbnail) }}">
                                                 </a>
@@ -294,7 +294,7 @@
                                             $price = $cartItem->productVariant->price ?? $cartItem->product->price;
                                             // Kiểm tra nếu biến thể tồn tại và có sale_price > 0 thì lấy sale_price của biến thể, nếu không thì lấy sale_price của product
                                             $salePrice = null;
-                                            if ($cartItem->productVariant?->sale_price > 0 && $cartItem->productVariant?->is_sale) {
+                                            if ($cartItem->productVariant?->sale_price > 0) {
                                                 $salePrice = $cartItem->productVariant->sale_price;
                                             } elseif ($cartItem->product?->sale_price > 0 && $cartItem->product?->is_sale == 1) {
                                                 $salePrice = $cartItem->product->sale_price;
