@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Events\RefundOrderCreate;
+use App\Events\RefundOrderUpdateStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -105,7 +107,7 @@ class ApiRefundOrderController extends Controller
                 Refund::query()
                     ->where('id', $idRefund)
                     ->update(['admin_reason' => $adminReason, 'status' => 'rejected']);
-
+                event(new RefundOrderUpdateStatus($idRefund, 'rejected'));
                 return response()->json([
                     "message" => "OK Admin Reason",
                     "status" => Response::HTTP_OK
@@ -115,6 +117,7 @@ class ApiRefundOrderController extends Controller
                 Refund::query()
                     ->where('id', $idRefund)
                     ->update(['status' => 'receiving']);
+                event(new RefundOrderUpdateStatus($idRefund, 'receiving'));
 
                 return response()->json([
                     "message" => "OK Admin receiving",
@@ -242,6 +245,7 @@ class ApiRefundOrderController extends Controller
             Order::where('id', $dataRefundProducts["order_id"])
                 ->update(["is_refund" => "0"]);
 
+            event(new RefundOrderCreate($orderRefund));
 
             DB::commit();
             return response()->json(["data" => $dataItemProduct, "status" => Response::HTTP_OK]);
@@ -319,8 +323,12 @@ class ApiRefundOrderController extends Controller
 
             if ($fail_reason) {
                 Refund::where("id", $id_order_refund)->update(["fail_reason" => $fail_reason, "img_fail_or_completed" => $data['img_fail_or_completed'], "status" => "failed"]);
+                event(new RefundOrderUpdateStatus($id_order_refund, 'failed'));
+
             } else {
                 Refund::where("id", $id_order_refund)->update(["img_fail_or_completed" => $data['img_fail_or_completed'], "status" => "completed"]);
+                event(new RefundOrderUpdateStatus($id_order_refund, 'completed'));
+
             }
 
             DB::commit();
