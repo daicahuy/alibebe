@@ -294,9 +294,9 @@
                                             $price = $cartItem->productVariant->price ?? $cartItem->product->price;
                                             // Kiểm tra nếu biến thể tồn tại và có sale_price > 0 thì lấy sale_price của biến thể, nếu không thì lấy sale_price của product
                                             $salePrice = null;
-                                            if ($cartItem->productVariant?->sale_price > 0) {
+                                            if ($cartItem->productVariant?->sale_price > 0 && $cartItem->productVariant?->is_sale) {
                                                 $salePrice = $cartItem->productVariant->sale_price;
-                                            } elseif ($cartItem->product?->sale_price > 0) {
+                                            } elseif ($cartItem->product?->sale_price > 0 && $cartItem->product?->is_sale == 1) {
                                                 $salePrice = $cartItem->product->sale_price;
                                             } else {
                                                 $salePrice = $price; // Nếu không có giảm giá, salePrice bằng giá gốc

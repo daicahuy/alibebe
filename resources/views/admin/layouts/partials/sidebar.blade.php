@@ -106,8 +106,8 @@
                         </a>
                     </li>
                     <li class="sidebar-list">
-                        <a href="{{ route('admin.ordersRefund.index') }}"
-                            class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/ordersRefund*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.orderRefund.index') }}"
+                            class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/orderRefund*') ? 'active' : '' }}">
                             <span>
                                 <div class="d-flex align-items-center">
                                     <i class="ri-exchange-dollar-line"></i>

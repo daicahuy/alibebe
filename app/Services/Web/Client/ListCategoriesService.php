@@ -64,10 +64,23 @@ class ListCategoriesService
         return $categories;
     }
 
-    public function getAllReviews()
+    public function getAllReviews($category = null)
     {
-        $listStar = $this->reviewRepo->getAllReviews();
-        return $listStar;
+        // $listStar = $this->reviewRepo->getAllReviews($category = null);
+        // return $listStar;
+
+        // $data = $this->reviewRepo->getAllReviews();
+        // $listStar = $data->pluck('rating')->unique()->sortByDesc(function ($rating) {
+        //     return $rating;
+        // })->values();
+        // return $listStar;
+
+        if ($category) {
+            return $this->reviewRepo->getCategoryProductRatings($category);
+        }
+        $ratings = $this->reviewRepo->getAllReviews()->pluck('rating')->toArray();
+        // dd($ratings);
+        return $ratings;
     }
 
     public function listVariantAttributes($category = null)

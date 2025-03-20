@@ -233,6 +233,7 @@ class CategoryRepository extends BaseRepository
                 'categories.id',
                 'categories.name',
                 'categories.icon',
+                'categories.slug',
                 DB::raw('COUNT(order_items.id) as total_sales')
             )
             ->groupBy('categories.id', 'categories.name', 'categories.icon')

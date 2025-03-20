@@ -75,4 +75,5 @@ return [
     'orders_status' => 'Tình trạng đơn hàng',
     'from' => 'Từ',
     'to' => 'Đến',
+    'by_excel' => 'bằng excel'
 ];

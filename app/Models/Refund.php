@@ -14,11 +14,15 @@ class Refund extends Model
         'user_id',
         'total_amount',
         'bank_account',
+        'phone_number',
         'bank_name',
+        'user_bank_name',
         'reason',
         'reason_image',
         'admin_reason',
         'status',
+        'fail_reason',
+        'img_fail_or_completed'
     ];
 
     public function refundItems()

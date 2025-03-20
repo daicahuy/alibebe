@@ -37,7 +37,7 @@
                         <table class="table compare-table">
                             <tbody>
                                 <tr>
-                                    <th>Product</th>
+                                    <th>Tên</th>
                                     @foreach ($productsData as $product)
                                         <td>
                                             <a class="text-title"
@@ -47,7 +47,7 @@
                                 </tr>
 
                                 <tr>
-                                    <th>Images</th>
+                                    <th>Hình ảnh</th>
 
                                     @foreach ($productsData as $product)
                                         <td>
@@ -89,45 +89,54 @@
 
                                     @php
                                         $allVariantAttributeNames = collect($productsData)
-                                            ->pluck('variant_attributes') // Lấy mảng variant_attributes của mỗi sản phẩm
-                                            ->filter() // Loại bỏ các sản phẩm không có variant_attributes (null hoặc rỗng)
-                                            ->flatten(1) // Làm phẳng mảng 2 chiều thành 1 chiều (mỗi phần tử là 1 variantAttributeSet)
+                                            ->pluck('variant_attributes')
+                                            ->filter()
+                                            ->flatten(1)
                                             ->map(function ($variantAttributeSet) {
-                                                return array_keys($variantAttributeSet); // Lấy keys (tên thuộc tính) từ mỗi variantAttributeSet
+                                                return array_keys($variantAttributeSet);
                                             })
-                                            ->flatten() // Làm phẳng mảng tên thuộc tính
-                                            ->unique() // Lấy các tên thuộc tính duy nhất
-                                            ->values(); // Reset key mảng
+                                            ->flatten()
+                                            ->unique()
+                                            ->values();
                                     @endphp
 
                                     @foreach ($allVariantAttributeNames as $variantAttributeName)
-                                        <tr>
-                                            <th>{{ $variantAttributeName }}</th>
-                                            @foreach ($productsData as $product)
-                                                <td class="text-content">
-                                                    @if ($product['variant_attributes'])
-                                                        @php
-                                                            $variantAttributeValues = collect(
-                                                                $product['variant_attributes'],
-                                                            )
-                                                                ->map(function ($variantAttributeSet) use (
-                                                                    $variantAttributeName,
-                                                                ) {
-                                                                    return $variantAttributeSet[
-                                                                        $variantAttributeName
-                                                                    ] ?? null; // Lấy giá trị của thuộc tính hiện tại, hoặc null nếu không có
-                                                                })
-                                                                ->filter() // Loại bỏ giá trị null
-                                                                ->unique()
-                                                                ->implode(' | ');
-                                                        @endphp
-                                                        {{ $variantAttributeValues ?: 'X' }}
-                                                    @else
-                                                        X
-                                                    @endif
-                                                </td>
-                                            @endforeach
-                                        </tr>
+                                        {{-- **KIỂM TRA: Nếu KHÔNG PHẢI tất cả sản phẩm đều thiếu thuộc tính này thì HIỂN THỊ hàng** --}}
+                                        @if (
+                                            !collect($productsData)->every(function ($product) use ($variantAttributeName) {
+                                                return empty($product['variant_attributes']) ||
+                                                    !collect($product['variant_attributes'])->contains(function ($attributeSet) use ($variantAttributeName) {
+                                                        return array_key_exists($variantAttributeName, $attributeSet);
+                                                    });
+                                            }))
+                                            <tr>
+                                                <th>{{ $variantAttributeName }}</th>
+                                                @foreach ($productsData as $product)
+                                                    <td class="text-content">
+                                                        @if ($product['variant_attributes'])
+                                                            @php
+                                                                $variantAttributeValues = collect(
+                                                                    $product['variant_attributes'],
+                                                                )
+                                                                    ->map(function ($variantAttributeSet) use (
+                                                                        $variantAttributeName,
+                                                                    ) {
+                                                                        return $variantAttributeSet[
+                                                                            $variantAttributeName
+                                                                        ] ?? null;
+                                                                    })
+                                                                    ->filter()
+                                                                    ->unique()
+                                                                    ->implode(' | ');
+                                                            @endphp
+                                                            {{ $variantAttributeValues ?: 'X' }}
+                                                        @else
+                                                            X
+                                                        @endif
+                                                    </td>
+                                                @endforeach
+                                            </tr>
+                                        @endif {{-- END IF: Không phải tất cả sản phẩm đều thiếu thuộc tính --}}
                                     @endforeach
                                 @endif{{-- end biến thể --}}
 
@@ -136,24 +145,53 @@
                                     <th>Price</th>
                                     @foreach ($productsData as $product)
                                         <td class="price text-content">
-                                            @if ($product['sale_price'])
-                                                <del>{{ number_format($product['price']) }}đ</del>
-                                                <br>
-                                                <span class="theme-color">
-                                                    {{ number_format($product['sale_price']) }}đ</span>
+                                            @if ($product['type'] == 1)
+                                                @if ($product['is_sale'] && $product['min_variant_sale_price'] !== null)
+                                                    <del>
+                                                        @if ($product['min_variant_price'] != $product['max_variant_price'])
+                                                            {{ $product['min_variant_price'] }} -
+                                                            {{ $product['max_variant_price'] }}đ
+                                                        @else
+                                                            {{ $product['min_variant_price'] }}đ
+                                                        @endif
+                                                    </del><br>
+                                                    <span class="theme-color">
+                                                        @if ($product['min_variant_sale_price'] != $product['max_variant_sale_price'])
+                                                            {{ $product['min_variant_sale_price'] }} -
+                                                            {{ $product['max_variant_sale_price'] }}đ
+                                                        @else
+                                                            {{ $product['min_variant_sale_price'] }}đ
+                                                        @endif
+                                                    </span>
+                                                @else
+                                                    <span class="theme-color">
+                                                        @if ($product['min_variant_price'] != $product['max_variant_price'])
+                                                            {{ $product['min_variant_price'] }} -
+                                                            {{ $product['max_variant_price'] }}đ
+                                                        @else
+                                                            {{ $product['min_variant_price'] }}đ
+                                                        @endif
+                                                    </span>
+                                                @endif
                                             @else
-                                                <span class="theme-color"> {{ number_format($product['price']) }}đ</span>
+                                                @if ($product['is_sale'] && $product['sale_price'] !== null)
+                                                    <del>{{ $product['price'] }}đ</del><br>
+                                                    <span class="theme-color"> {{ $product['sale_price'] }}đ </span>
+                                                @else
+                                                    <span class="theme-color"> {{ $product['price'] }}đ </span>
+                                                @endif
                                             @endif
                                         </td>
                                     @endforeach
                                 </tr>
-                                <tr>
+                                {{-- stock --}}
+                                {{-- <tr>
                                     <th>Availability</th>
                                     <td class="text-content">In Stock</td>
                                     <td class="text-content">In Stock</td>
                                     <td class="text-content">In Stock</td>
 
-                                </tr>
+                                </tr> --}}
 
                                 {{-- rating --}}
                                 {{-- <tr>
@@ -179,93 +217,62 @@
                                 </tr> --}}
                                 <tr>
                                     <th>Rating</th>
-                                    <td>
-                                        <div class="compare-rating">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span class="text-content">(20 Raring)</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="compare-rating">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star"></i>
-                                                </li>
-                                            </ul>
-                                            <span class="text-content">(25 Raring)</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="compare-rating">
-                                            <ul class="rating">
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                                <li>
-                                                    <i data-feather="star" class="fill"></i>
-                                                </li>
-                                            </ul>
-                                            <span class="text-content">(50 Raring)</span>
-                                        </div>
-                                    </td>
+                                    @foreach ($productsData as $product)
+                                        <td>
+                                            <div class="compare-rating">
+                                                <ul class="rating">
+                                                    @if ($product['rating_avg'] > 0)
+                                                        @for ($i = 0; $i < floor($product['rating_avg']); $i++)
+                                                            <li>
+                                                                <i data-feather="star" class="fill"></i>
+                                                            </li>
+                                                        @endfor
+                                                        @if ($product['rating_avg'] - floor($product['rating_avg']) >= 0.5)
+                                                            <li>
+                                                                <i data-feather="star-half"></i>
+                                                            </li>
+                                                        @endif
+                                                        @for ($i = ceil($product['rating_avg']); $i < 5; $i++)
+                                                            <li>
+                                                                <i data-feather="star" class=""></i>
+                                                            </li>
+                                                        @endfor
+                                                    @else
+                                                        <span class="text-content">Chưa có đánh giá</span>
+                                                    @endif
 
+
+                                                </ul>
+                                                @if ($product['rating_avg'] > 0)
+                                                    <span class="text-content">({{ $product['rating_avg'] }} Raring)</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    @endforeach
                                 </tr>
 
-                                <tr>
+                                {{-- <tr>
                                     <th>Weight</th>
                                     <td class="text-content">5.00kg</td>
                                     <td class="text-content">1.00kg</td>
                                     <td class="text-content">0.75kg</td>
 
-                                </tr>
+                                </tr> --}}
 
                                 <tr>
-                                    <th>Purchase</th>
+                                    <th></th>
                                     @foreach ($productsData as $product)
                                         <td>
-                                            <button onclick="location.href = '#';"
-                                                class="btn btn-animation btn-sm w-100">Add To Cart</button>
+                                            {{-- <button onclick="location.href = 'javascript:void(0)'" data-bs-toggle="modal"
+                                                data-bs-target="#view" data-id={{ $product['id'] }}
+                                                class="btn btn-animation btn-sm w-100">Add To Cart</button> --}}
+                                            <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#view"
+                                                data-id={{ $product['id'] }} class="btn btn-animation btn-sm w-100">
+                                                Add To Cart
+                                            </a>
                                         </td>
                                     @endforeach
                                 </tr>
-
                                 <tr>
                                     <th></th>
 
@@ -314,6 +321,96 @@
 @endsection
 
 @section('modal')
+    <!-- Quick View Modal Box Start -->
+    <div class="modal fade theme-modal view-modal" id="view" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header p-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-sm-4 g-2" id="productDetails">
+                        <div class="col-lg-6">
+                            <div class="slider-image">
+                                <img id="prdThumbnail" src="" class="img-fluid blur-up lazyload" alt="">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="right-sidebar-modal">
+                                <h4 class="title-name" id='prdName'></h4>
+                                <h4 class="price" id='prdPrice'></h4>
+
+                                <div class="product-rating" id="prdRating">
+                                    <ul class="rating">
+
+                                    </ul>
+                                    {{-- <span class="ms-2">8 Reviews</span> --}}
+                                    <span class="ms-2 text-danger" id="prdSoldCount"></span>
+                                </div>
+
+                                <div class="product-stock">
+                                    <span> </span>
+                                </div>
+
+                                <div class="product-detail">
+                                    <h4>Product Details :</h4>
+                                    <p id='prdDescription'></p>
+                                </div>
+
+                                <ul class="brand-list">
+                                    <li>
+                                        <div class="brand-box">
+                                            <h5>Brand:</h5>
+                                            <h6 id = 'prdBrand'></h6>
+                                        </div>
+                                    </li>
+
+                                    {{-- <li>
+                                        <div class="brand-box">
+                                            <h5>Product Code:</h5>
+                                            <h6>W0690034</h6>
+                                        </div>
+                                    </li> --}}
+
+                                    <li>
+                                        <div class="brand-box">
+                                            <h5>Category:</h5>
+                                            <h6 id="prdCategories"></h6>
+                                        </div>
+                                    </li>
+                                </ul>
+
+
+                                <div id="productVariants">
+
+                                </div>
+
+                                <div class="modal-button">
+                                    <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
+                                        @csrf
+                                        <input type="hidden" name="product_id" id="cartProductId">
+                                        <input type="hidden" name="product_variant_id" id="cartProductVariantId">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn btn-md add-cart-button icon">Thêm vào giỏ
+                                            hàng</button>
+                                    </form>
+                                    <button
+                                        class="btn theme-bg-color view-button icon text-white fw-bold btn-md detail-product-button">
+                                        View More Details
+                                    </button>
+                                    {{-- <a href="{{ route('products', $listProductCate) }}" class="btn theme-bg-color view-button icon text-white fw-bold btn-md">Chi tiết sản phẩm</a> --}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Quick View Modal Box End -->
 @endsection
 @push('js')
     <script>
@@ -354,7 +451,8 @@
                     icon: 'success',
                     title: 'Đã xóa!',
                     text: 'Sản phẩm đã được xóa khỏi so sánh',
-                    timer: 1500
+                    timer: 1000,
+                    showConfirmButton: false
                 }).then(() => {
                     // Reload trang sau khi SweetAlert đóng
                     window.location.reload(true);
@@ -382,6 +480,7 @@
             }
             return cookieValue;
         }
+
 
         // Hàm set cookie
         function setCookie(name, value, days) {
@@ -433,5 +532,303 @@
             updateCompareCountBadgeCookie(); // GỌI HÀM CẬP NHẬT BADGE DỰA TRÊN COOKIE TRỰC TIẾP
         }
         updateCompareCount();
+        // end compare
+
+
+        // detail modal 
+        // Hàm định dạng giá tiền sang VNĐ
+        function formatPrice(price) {
+            const number = parseFloat(price);
+            return isNaN(number) ? "0 đ" : number.toLocaleString('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            });
+        }
+
+        $(document).ready(function() {
+            $('.detail-product-button').click(function() {
+                const productId = $('#view').data('product-id');
+
+                if (productId) {
+                    const productDetailUrl = "{{ route('products', ['product' => ':productId']) }}"
+                        .replace(':productId', productId);
+                    location.href = productDetailUrl;
+                } else {
+                    console.error("Không tìm thấy product_id...");
+                    alert("Lỗi:...");
+                }
+            });
+            // Thông báo alert (giữ nguyên)
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: "{{ session('success') }}",
+                    timer: 1500,
+                    showConfirmButton: true
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: "{{ session('error') }}",
+                    showConfirmButton: true
+                });
+            @endif
+
+            // Khai báo biến toàn cục để lưu trữ variantMap
+            let globalVariantMap = {};
+
+            $('a[data-bs-target="#view"]').click(function() {
+                const productId = $(this).data('id');
+                $('#view').data('product-id', productId);
+                $('#cartProductId').val(productId);
+
+                $.ajax({
+                    url: '/api/productListCate/' + productId,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        // Cập nhật thông tin cơ bản của sản phẩm
+                        $('#prdName').text(response.name);
+                        $('#prdDescription').html(response.short_description);
+                        $('#prdBrand').text(response.brand);
+                        $('#prdCategories').text(response.categories);
+
+                        // Xử lý rating
+                        const avgRating = response.avgRating || 0;
+                        $('#prdRating ul.rating').html(
+                            Array.from({
+                                    length: 5
+                                }, (_, i) =>
+                                `<li><i data-feather="star" class="${i < avgRating ? 'fill' : ''}"></i></li>`
+                            ).join('')
+                        );
+                        feather.replace();
+
+                        // Đã bán
+                        $('#prdSoldCount').text(`Đã bán (${response.sold_count})`);
+
+                        // Xử lý biến thể sản phẩm
+                        const variants = response.productVariants || [];
+                        console.log("response.productVariants from service:", response
+                            .productVariants); // In ra toàn bộ mảng productVariants
+
+                        $('#productVariants').empty();
+
+                        // Lọc các biến thể active
+                        const activeVariants = variants.filter(variant => variant.is_active ===
+                            1);
+
+                        if (activeVariants.length > 0) {
+                            // Cập nhật globalVariantMap với các biến thể active
+                            activeVariants.forEach(variant => {
+                                const key = variant.attribute_values
+                                    .map(attr => attr.id)
+                                    .sort((a, b) => a - b)
+                                    .join('-');
+                                globalVariantMap[key] = {
+                                    id: variant.id,
+                                    price: variant.price,
+                                    thumbnail: variant.thumbnail,
+                                    product_stock: variant.product_stock,
+                                    is_sale: variant.is_sale || 0,
+                                    sale_price: variant.sale_price || 0,
+                                    display_price: variant.display_price || variant
+                                        .price,
+                                    original_price: variant.original_price ||
+                                        variant.price,
+                                    sold_count: variant.sold_count,
+                                };
+                            });
+                            console.log("Global Variant Map updated:", globalVariantMap);
+
+                            // Tạo map thuộc tính từ các biến thể active
+                            const attributes = {};
+                            activeVariants.forEach(variant => {
+                                variant.attribute_values.forEach(attr => {
+                                    const attrSlug = attr.attributes_slug;
+                                    if (!attributes[attrSlug]) {
+                                        attributes[attrSlug] = new Map();
+                                    }
+                                    attributes[attrSlug].set(attr.id, attr
+                                        .attribute_value);
+                                });
+                            });
+
+                            // Tạo HTML cho dropdown thuộc tính
+                            let attributesHtml = '';
+                            Object.entries(attributes).forEach(([attrSlug, valuesMap]) => {
+                                let sampleAttrValue = activeVariants.reduce((found,
+                                    variant) => {
+                                    return found || variant.attribute_values
+                                        .find(av => av.attributes_slug ===
+                                            attrSlug);
+                                }, null);
+
+                                attributesHtml += `
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>${sampleAttrValue ? sampleAttrValue.attributes_name : attrSlug.split('-').join(' ')}</label>
+                                            <select class="form-control variant-attribute" data-attribute="${attrSlug}">
+                                                ${Array.from(valuesMap).map(([id, value]) =>
+                                                    `<option value="${id}">${value}</option>`
+                                                ).join('')}
+                                            </select>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            $('#productVariants').html(
+                                `<div class="row">${attributesHtml}</div>`);
+
+                            // Tìm biến thể giá thấp nhất từ activeVariants
+                            const lowestVariant = activeVariants.reduce((prev, curr) => {
+                                const prevDisplayPrice = prev.is_sale && prev
+                                    .display_price ? prev.display_price : prev
+                                    .original_price;
+                                const currDisplayPrice = curr.is_sale && curr
+                                    .display_price ? curr.display_price : curr
+                                    .original_price;
+                                return parseFloat(prevDisplayPrice) < parseFloat(
+                                    currDisplayPrice) ? prev : curr;
+                            });
+
+                            // Cập nhật thông tin ban đầu
+                            updateProductInfo(lowestVariant, response.is_sale);
+                            setSelectedAttributes(lowestVariant.attribute_values);
+                            updateStockInfo(lowestVariant);
+                            $('#cartProductVariantId').val(lowestVariant.id);
+
+                            // Xử lý sự kiện thay đổi dropdown
+                            $('.variant-attribute').change(function() {
+                                const selectedValues = getSelectedAttributes();
+                                const variantKey = selectedValues.sort((a, b) => a - b)
+                                    .join('-');
+                                const variant = globalVariantMap[variantKey];
+                                // **THÊM console.log ĐỂ KIỂM TRA variant TRONG CHANGE EVENT**
+                                console.log("change event - variantKey:",
+                                    variantKey); // In ra variantKey
+                                console.log("change event - variant:",
+                                    variant); // In ra object variant tìm được
+                                if (variant) {
+                                    $('#cartProductVariantId').val(variant.id);
+                                    updateProductInfo(variant, response.is_sale);
+                                    updateStockInfo(variant);
+                                    // **XOÁ thông báo lỗi (nếu có) khi tìm thấy variant**
+                                    $('#variant-not-found-message')
+                                        .hide(); // Ẩn thông báo lỗi
+                                } else {
+                                    console.log("Không tìm thấy biến thể cho key:",
+                                        variantKey);
+                                    $('#cartProductVariantId').val('');
+                                    // **HIỂN THỊ thông báo lỗi khi không tìm thấy variant**
+                                    $('#prdPrice').html(
+                                        '<p class="text-danger" id="variant-not-found-message">Biến thể không có sẵn</p>'
+                                    ); // Hiển thị thông báo lỗi ở khu vực giá
+                                    $('.product-stock span').text(
+                                        ''); // Xóa thông tin kho
+                                    $('#prdSoldCount').text(''); // Xóa thông tin đã bán
+                                }
+                            });
+                        } else {
+                            // Xử lý khi không có biến thể active
+                            let priceHtml;
+                            if (response.is_sale && response.display_price) {
+                                priceHtml =
+                                    `${formatPrice(response.display_price)} <small><del>${formatPrice(response.original_price)}</del></small>`;
+                            } else {
+                                priceHtml = formatPrice(response.original_price || 0);
+                            }
+                            $('#prdPrice').html(priceHtml);
+                            $('#prdThumbnail').attr('src', response.thumbnail ||
+                                '/path/to/default-image.jpg');
+                            $('.product-stock span').text(`Kho: ${response.stock || 0}`);
+                            $('#cartProductVariantId').val('');
+                        }
+                    },
+                    error: () => alert('Không tìm thấy sản phẩm')
+                });
+            });
+
+            // Hàm cập nhật giá và thumbnail
+            function updateProductInfo(variant, isSale) {
+                let priceHtml;
+                const isVariantOnSale = isSale && variant.display_price && variant.original_price && parseFloat(
+                    variant.display_price) < parseFloat(variant.original_price);
+                if (isVariantOnSale) {
+                    priceHtml =
+                        `${formatPrice(variant.display_price)} <small><del>${formatPrice(variant.original_price)}</del></small>`;
+                } else {
+                    priceHtml = formatPrice(variant.original_price || 0);
+                }
+                $('#prdPrice').html(priceHtml);
+                $('#prdThumbnail').attr('src', variant.thumbnail);
+            }
+
+            // Hàm chọn giá trị thuộc tính trong dropdown
+            function setSelectedAttributes(attributes) {
+                attributes.forEach(attr => {
+                    const attrSlug = attr.attributes_slug;
+                    $(`select[data-attribute="${attrSlug}"]`).val(attr.id);
+                });
+            }
+
+            // Hàm lấy các giá trị thuộc tính đã chọn
+            function getSelectedAttributes() {
+                const selected = [];
+                $('.variant-attribute').each(function() {
+                    const val = $(this).val();
+                    if (val) selected.push(val);
+                });
+                return selected;
+            }
+
+            // Hàm cập nhật thông tin kho
+            function updateStockInfo(variant) {
+                if (variant) { // **KIỂM TRA variant CÓ TỒN TẠI**
+                    const stock = variant.product_stock ? variant.product_stock.stock : 0;
+                    $('.product-stock span').text(`Kho: ${stock}`);
+                    // **THÊM console.log ĐỂ KIỂM TRA variant.sold_count**
+                    console.log("updateStockInfo - variant:", variant); // In ra toàn bộ object variant
+                    console.log("updateStockInfo - variant.sold_count:", variant
+                        .sold_count); // In ra giá trị sold_count
+                    $('#prdSoldCount').text(`Đã bán biến thể (${variant.sold_count || 0})`);
+                } else {
+                    $('.product-stock span').text(''); // Xóa thông tin kho khi không có variant
+                    $('#prdSoldCount').text(''); // Xóa thông tin đã bán khi không có variant
+                }
+            }
+
+            // Thêm vào giỏ hàng
+            $('.add-cart-button').click(function() {
+                const productId = $('#view').data('product-id');
+                const hasVariants = $('#productVariants .variant-attribute').length > 0;
+                let cartData;
+
+                if (hasVariants) {
+                    const selectedValues = getSelectedAttributes();
+                    const variantKey = selectedValues.sort((a, b) => a - b).join('-');
+                    const selectedVariant = globalVariantMap[variantKey];
+                    if (!selectedVariant) {
+                        alert('Vui lòng chọn đầy đủ thuộc tính sản phẩm');
+                        return;
+                    }
+                    cartData = {
+                        product_id: productId,
+                        product_variant_id: selectedVariant.id,
+                        quantity: 1
+                    };
+                } else {
+                    cartData = {
+                        product_id: productId,
+                        quantity: 1
+                    };
+                }
+                this.submit();
+            }); // end modal-addToCard
+        }); // end document
     </script>
 @endpush

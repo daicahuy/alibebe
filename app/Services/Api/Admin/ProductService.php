@@ -31,6 +31,12 @@ class ProductService
         $this->productVariantRepository = $productVariantRepository;
     }
 
+    public function getAll()
+    {
+        $data = $this->productRepository->getAll();
+        return $data;
+    }
+
     public function storeSingle($data)
     {
         try {

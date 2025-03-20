@@ -7,6 +7,7 @@ use App\Models\Comment;
 use App\Models\CommentReply;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Review;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Carbon;
@@ -188,19 +189,28 @@ END');
 
 
 
+            // if (isset($filters['rating'])) { //filter rating
+            //     $ratingFilter = $filters['rating'];
+            //     // Log::info('Rating filter:' . $ratingFilter);
+            //     if (is_array($ratingFilter)) { // nhiều rating
+            //         $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+            //             $q->whereIn('rating', $ratingFilter);
+            //         });
+            //     } else if (is_numeric($ratingFilter)) { // chỉ chọn một rating
+            //         $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+            //             $q->whereIn('rating', '=', $ratingFilter);
+            //         });
+            //     }
+            // } //end filter rating
             if (isset($filters['rating'])) { //filter rating
                 $ratingFilter = $filters['rating'];
-                // Log::info('Rating filter:' . $ratingFilter);
-                if (is_array($ratingFilter)) { // nhiều rating
-                    $query->whereHas('reviews', function ($q) use ($ratingFilter) {
-                        $q->whereIn('rating', $ratingFilter);
-                    });
-                } else if (is_numeric($ratingFilter)) { // chỉ chọn một rating
-                    $query->whereHas('reviews', function ($q) use ($ratingFilter) {
-                        $q->whereIn('rating', '=', $ratingFilter);
-                    });
+                if (!is_array($ratingFilter)) {
+                    $ratingFilter = [$ratingFilter];
                 }
-            } //end filter rating
+                $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+                    $q->whereIn('rating', $ratingFilter);
+                });
+            }
 
 
 
@@ -303,266 +313,397 @@ END');
 
     public function getTrendingProducts()
     {
-        return $this->model->trending()->latest()->get();
+        return $this->model->trending()->get();
     }
-
-    public function getBestSellerProductsToday()
+    public function getBestSellerProductsToday($limit = 12)
     {
-        $today = Carbon::today();
-
-        return DB::table('order_items')
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->join('order_order_status', 'order_order_status.order_id', '=', 'orders.id') // Join trạng thái đơn hàng
-            ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id') // Lấy thông tin biến thể
-            ->leftJoin('reviews', function ($join) {
-                $join->on('reviews.product_id', '=', 'products.id')
-                    ->where('reviews.is_active', 1);
-            })
-            ->leftJoin(DB::raw('(SELECT product_id, SUM(stock) as total_stock FROM product_stocks GROUP BY product_id) as ps'), function ($join) {
-                $join->on('ps.product_id', '=', 'products.id');
-            })
-            ->whereDate('orders.created_at', $today)
-            ->where('products.is_active', 1)
-            ->where('order_order_status.order_status_id', 6) // Chỉ lấy đơn hàng có trạng thái "Hoàn thành"
-            ->select(
-                'products.id',
-                DB::raw('GROUP_CONCAT(DISTINCT products.name ORDER BY order_items.product_variant_id DESC SEPARATOR " | ") as product_names'),
-                'products.slug',
-                DB::raw('COALESCE(product_variants.price, products.price) as price'), // Lấy giá sản phẩm hoặc biến thể
-                DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'), // Lấy giá khuyến mãi
-                'products.thumbnail',
-                'products.is_active',
-                  // Tổng số lượng đã bán từ trước đến giờ (không lọc theo ngày)
-            DB::raw('
-            (SELECT SUM(
-                CASE 
-                    WHEN oi.product_variant_id IS NOT NULL 
-                    THEN oi.quantity_variant
-                    ELSE oi.quantity 
-                END
-            ) 
-            FROM order_items oi
-            JOIN orders o ON oi.order_id = o.id
-            JOIN order_order_status oos ON oos.order_id = o.id
-            WHERE oi.product_id = products.id 
-            AND oos.order_status_id = 6
-            ) as total_sold
-        '),  // Tổng số lượng đã bán từ trước đến giờ (không lọc theo ngày)
-                DB::raw('
-                    (SELECT SUM(
+        $today = Carbon::today()->toDateString(); // 'YYYY-MM-DD'
+    
+        $totalSoldSubQuery = "
+            (SELECT COALESCE(SUM(order_items.quantity), 0) + COALESCE(SUM(order_items.quantity_variant), 0)
+            FROM order_items
+            JOIN orders ON order_items.order_id = orders.id
+            JOIN order_order_status ON orders.id = order_order_status.order_id
+            JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
+            WHERE order_statuses.name = 'Hoàn thành'
+            AND DATE(orders.created_at) = '{$today}'
+            AND (
+                order_items.product_id = products.id 
+                OR order_items.product_variant_id IN (
+                    SELECT id FROM product_variants WHERE product_variants.product_id = products.id
+                )
+            )) as total_sold";
+    
+        $averageRatingSubQuery = "
+            (SELECT COALESCE(AVG(reviews.rating), 0)
+            FROM reviews
+            WHERE reviews.product_id = products.id AND reviews.is_active = 1) as average_rating";
+    
+        $displayPriceSubQuery = "
+            (CASE
+                WHEN products.type = 1 THEN (
+                    SELECT 
                         CASE 
-                            WHEN oi.product_variant_id IS NOT NULL 
-                            THEN oi.quantity_variant
-                            ELSE oi.quantity 
+                            WHEN products.is_sale = 1 THEN 
+                                CASE 
+                                    WHEN MIN(product_variants.sale_price) > 0 THEN MIN(product_variants.sale_price) 
+                                    ELSE MIN(product_variants.price) 
+                                END
+                            ELSE MIN(product_variants.price)
                         END
-                    ) 
-                    FROM order_items oi
-                    JOIN orders o ON oi.order_id = o.id
-                    JOIN order_order_status oos ON oos.order_id = o.id
-                    WHERE oi.product_id = products.id 
-                    AND oos.order_status_id = 6
-                    ) as total_sold
-                '),  // Cập nhật cách tính số lượng bán
-                DB::raw('ROUND(COALESCE(AVG(reviews.rating), 0), 1) as average_rating'),
-                DB::raw('COUNT(DISTINCT reviews.id) as total_reviews'),
-                DB::raw('products.views as views_count'), // Thêm lượt xem
-                DB::raw('COALESCE(ps.total_stock, 0) as stock_quantity')
-            )
-            ->groupBy(
-                'products.id',
-                'products.slug',
-                'product_variants.price',
-                'product_variants.sale_price', // Thêm group by giá của biến thể
-                'products.price',
-                'products.sale_price',
-                'products.thumbnail',
-                'products.is_active',
-                'ps.total_stock',
-                'products.views'
-            )
-            ->orderByDesc('total_sold')
-            ->limit(12)
-            ->get();
-    }
-
-
-
-
-    public function getBestSellingProducts()
-    {
-        return DB::table('order_items')
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->join('order_order_status', function ($join) {
-                $join->on('orders.id', '=', 'order_order_status.order_id')
-                    ->where('order_order_status.order_status_id', '=', 6);
-            })
-            ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->leftJoin('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
-            ->leftJoin('attribute_value_product_variant', 'product_variants.id', '=', 'attribute_value_product_variant.product_variant_id')
-            ->leftJoin('attribute_values', 'attribute_value_product_variant.attribute_value_id', '=', 'attribute_values.id')
-            ->select(
-                DB::raw('IFNULL(product_variants.id, products.id) as product_id'),
-                DB::raw('IFNULL(CONCAT(products.name, " - ", GROUP_CONCAT(attribute_values.value SEPARATOR ", ")), products.name) as product_name'),
-                DB::raw('IFNULL(product_variants.price, products.price) as price'),
-                DB::raw('IFNULL(
-                CASE 
-                    WHEN product_variants.thumbnail LIKE "http%" THEN product_variants.thumbnail
-                    ELSE CONCAT("/storage/", product_variants.thumbnail) 
-                END,
-                CASE 
-                    WHEN products.thumbnail LIKE "http%" THEN products.thumbnail
-                    ELSE CONCAT("/storage/", products.thumbnail) 
-                END
-            ) as thumbnail'),
-                DB::raw('SUM(order_items.quantity) as total_sold'),
-                DB::raw('products.views as views_count') // Thêm lượt xem
-            )
-            ->groupBy('product_id', 'products.name', 'price', 'thumbnail', 'products.views')
-            ->orderByDesc('total_sold')
-            ->limit(24)
-            ->get();
-    }
-
-  public function getPopularProducts()
-{
-    $popularProducts = DB::table('order_items')
-        ->join('products', 'order_items.product_id', '=', 'products.id')
-        ->leftJoin('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id') // Lấy thông tin biến thể
-        ->join('orders', 'order_items.order_id', '=', 'orders.id')
-        ->join('order_order_status', function ($join) {
-            $join->on('orders.id', '=', 'order_order_status.order_id')
-                ->where('order_order_status.order_status_id', 6); // Chỉ tính đơn hàng Hoàn thành
-        })
-        ->leftJoin('reviews', function ($join) {
-            $join->on('reviews.product_id', '=', 'products.id')
-                ->where('reviews.is_active', 1);
-        })
-        ->select(
-            'products.id',
-            'products.thumbnail',
-            DB::raw('COALESCE(product_variants.price, products.price) as price'),
-            DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'),
-            'products.name',
-            DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
-            DB::raw('
-                SUM(
-                    CASE 
-                        WHEN order_items.product_variant_id IS NOT NULL 
-                        THEN order_items.quantity_variant
-                        ELSE order_items.quantity 
+                    FROM product_variants
+                    WHERE product_variants.product_id = products.id 
+                    AND product_variants.is_active = 1
+                    AND product_variants.price > 0
+                )
+                ELSE 
+                    CASE
+                        WHEN products.is_sale = 1 THEN 
+                            CASE 
+                                WHEN products.sale_price > 0 THEN products.sale_price
+                                ELSE products.price 
+                            END
+                        ELSE products.price
                     END
-                ) as total_sold
-            '),
-            DB::raw('products.views as views_count')
-        )
-        ->groupBy(
+            END) as display_price";
+    
+        $originalPriceSubQuery = "
+            (CASE
+                WHEN products.type = 1 THEN (
+                    SELECT 
+                        CASE 
+                            WHEN COUNT(*) > 0 THEN MAX(product_variants.price) 
+                            ELSE products.price  
+                        END
+                    FROM product_variants
+                    WHERE product_variants.product_id = products.id 
+                    AND product_variants.is_active = 1
+                    AND product_variants.price > 0
+                )
+                ELSE products.price
+            END) as original_price";
+    
+            return Product::query()
+            ->selectRaw("
+                products.id, 
+                products.name, 
+                products.thumbnail, 
+                {$displayPriceSubQuery}, 
+                {$originalPriceSubQuery}, 
+                products.sale_price, 
+                products.views, 
+                products.slug, 
+                COALESCE(product_stocks.stock, 0) as stock_quantity, 
+                {$totalSoldSubQuery}, 
+                {$averageRatingSubQuery}
+            ")
+            ->leftJoin('product_stocks', 'product_stocks.product_id', '=', 'products.id')
+            ->where('products.is_active', 1)
+            ->having('total_sold', '>', 0) // ✅ Chỉ lấy sản phẩm có lượt bán
+            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.sale_price', 'products.views', 'product_stocks.stock')
+            ->orderByDesc('total_sold')
+            ->limit($limit)
+            ->get();
+    }
+    
+    
+
+    public function getBestSellingProduct($limit = 12)
+    {
+        $query = $this->model->query();
+    
+        // Tổng số lượng bán (bao gồm cả sản phẩm đơn và biến thể)
+        $totalSoldSubQuery = DB::raw('(
+            SELECT COALESCE(SUM(order_items.quantity), 0) + COALESCE(SUM(order_items.quantity_variant), 0)
+            FROM order_items
+            JOIN orders ON order_items.order_id = orders.id
+            JOIN order_order_status ON orders.id = order_order_status.order_id
+            JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
+            WHERE order_statuses.name = "Hoàn thành"
+            AND (
+                order_items.product_id = products.id 
+                OR order_items.product_variant_id IN (
+                    SELECT id FROM product_variants WHERE product_variants.product_id = products.id
+                )
+            )
+        ) as total_sold');
+    
+        // Trung bình đánh giá
+        $averageRatingSubQuery = DB::raw('(
+            SELECT COALESCE(AVG(reviews.rating), 0)
+            FROM reviews
+            WHERE reviews.product_id = products.id AND reviews.is_active = 1
+        ) as average_rating');
+    
+        // ✅ Giá hiển thị (display_price)
+        $displayPriceSubQuery = DB::raw('(
+            CASE
+                WHEN products.type = 1 THEN (  -- Sản phẩm có biến thể
+                    SELECT 
+                        CASE 
+                            WHEN products.is_sale = 1 THEN 
+                                CASE 
+                                    WHEN MIN(product_variants.sale_price) > 0 THEN MIN(product_variants.sale_price) 
+                                    ELSE MIN(product_variants.price) 
+                                END
+                            ELSE 
+                                MIN(product_variants.price)
+                        END
+                    FROM product_variants
+                    WHERE product_variants.product_id = products.id 
+                    AND product_variants.is_active = 1
+                    AND product_variants.price > 0
+                )
+                ELSE  -- Sản phẩm đơn (type = 0)
+                    CASE
+                        WHEN products.is_sale = 1 THEN 
+                            CASE 
+                                WHEN products.sale_price > 0 THEN products.sale_price
+                                ELSE products.price 
+                            END
+                        ELSE 
+                            products.price
+                    END
+            END
+        ) as display_price');
+    
+        // ✅ Giá gốc (original_price)
+        $originalPriceSubQuery = DB::raw('(
+            CASE
+                WHEN products.type = 1 THEN ( -- Sản phẩm có biến thể
+                    SELECT 
+                        CASE 
+                            WHEN COUNT(*) > 0 THEN MAX(product_variants.price) 
+                            ELSE products.price  
+                        END
+                    FROM product_variants
+                    WHERE product_variants.product_id = products.id 
+                    AND product_variants.is_active = 1
+                    AND product_variants.price > 0
+                )
+                ELSE products.price
+            END
+        ) as original_price');
+    
+        $query->select(
             'products.id',
             'products.name',
             'products.thumbnail',
-            'product_variants.price',
-            'product_variants.sale_price',
-            'products.price',
+            $displayPriceSubQuery,
+            $originalPriceSubQuery,
             'products.sale_price',
-            'products.views'
+            'products.views',
+            'products.slug',
+            DB::raw('COALESCE(product_stocks.stock, 0) as stock_quantity'),
+            $totalSoldSubQuery,
+            $averageRatingSubQuery
         )
+        ->leftJoin('product_stocks', 'product_stocks.product_id', '=', 'products.id')
+        ->where('products.is_active', 1)
+        ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.sale_price', 'products.views', 'product_stocks.stock')
         ->orderByDesc('total_sold')
-        ->limit(12)
-        ->get();
-
-    // Nếu không có sản phẩm nào bán thành công, lấy sản phẩm mới nhất hoặc có nhiều lượt xem nhất
-    if ($popularProducts->isEmpty()) {
-        return DB::table('products')
-            ->select(
-                'products.id',
-                'products.name',
-                'products.thumbnail',
-                DB::raw('COALESCE(products.price, 0) as price'),
-                DB::raw('COALESCE(products.sale_price, 0) as sale_price'),
-                DB::raw('0 as average_rating'),
-                DB::raw('0 as total_sold'),
-                DB::raw('products.views as views_count')
-            )
-            ->orderByDesc('products.created_at') // Lấy sản phẩm mới nhất
-            ->limit(12)
-            ->get();
+        ->limit($limit);
+    
+        return $query->get();
     }
+    
+    
 
-    return $popularProducts;
-}
+    public function getPopularProducts($limit = 12)
+    {
+        $query = Product::query();
+    
+        // Tổng số lượng bán được (bao gồm cả sản phẩm đơn và biến thể)
+        $totalSoldSubQuery = DB::raw('(
+            SELECT COALESCE(SUM(order_items.quantity), 0) + COALESCE(SUM(order_items.quantity_variant), 0)
+            FROM order_items
+            JOIN orders ON order_items.order_id = orders.id
+            JOIN order_order_status ON orders.id = order_order_status.order_id
+            JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
+            WHERE order_statuses.name = "Hoàn thành"
+            AND (
+                order_items.product_id = products.id 
+                OR order_items.product_variant_id IN (
+                    SELECT id FROM product_variants WHERE product_variants.product_id = products.id
+                )
+            )
+        ) as total_sold');
+    
+        // Trung bình đánh giá
+        $averageRatingSubQuery = DB::raw('(
+            SELECT COALESCE(AVG(reviews.rating), 0)
+            FROM reviews
+            WHERE reviews.product_id = products.id AND reviews.is_active = 1
+        ) as average_rating');
+    
+        // ✅ Giá hiển thị (display_price)
+        $displayPriceSubQuery = DB::raw('(
+            CASE
+                WHEN products.type = 1 THEN (  -- Sản phẩm có biến thể
+                    SELECT 
+                        CASE 
+                            WHEN products.is_sale = 1 THEN 
+                                CASE 
+                                    WHEN MIN(product_variants.sale_price) > 0 THEN MIN(product_variants.sale_price) 
+                                    ELSE MIN(product_variants.price) 
+                                END
+                            ELSE 
+                                MIN(product_variants.price)
+                        END
+                    FROM product_variants
+                    WHERE product_variants.product_id = products.id 
+                    AND product_variants.is_active = 1
+                    AND product_variants.price > 0
+                )
+                ELSE  -- Sản phẩm đơn (type = 0)
+                    CASE
+                        WHEN products.is_sale = 1 THEN 
+                            CASE 
+                                WHEN products.sale_price > 0 THEN products.sale_price
+                                ELSE products.price 
+                            END
+                        ELSE 
+                            products.price
+                    END
+            END
+        ) as display_price');
+    
+        // ✅ Giá gốc (original_price)
+        $originalPriceSubQuery = DB::raw('(
+            CASE
+                WHEN products.type = 1 THEN ( -- Sản phẩm có biến thể
+                    SELECT 
+                        CASE 
+                            WHEN COUNT(*) > 0 THEN MAX(product_variants.price) 
+                            ELSE products.price  
+                        END
+                    FROM product_variants
+                    WHERE product_variants.product_id = products.id 
+                    AND product_variants.is_active = 1
+                    AND product_variants.price > 0
+                )
+                ELSE products.price
+            END
+        ) as original_price');
+    
+        $query->select(
+            'products.id',
+            'products.name',
+            'products.thumbnail',
+            'products.slug',
+            $displayPriceSubQuery,
+            $originalPriceSubQuery,
+            'products.sale_price',
+            'products.views',
+            DB::raw('COALESCE(product_stocks.stock, 0) as stock_quantity'),
+            $totalSoldSubQuery,
+            $averageRatingSubQuery
+        )
+        ->leftJoin('product_stocks', 'product_stocks.product_id', '=', 'products.id')
+        ->where('products.is_active', 1)
+        ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.sale_price', 'products.views', 'product_stocks.stock')
+        ->orderByDesc('total_sold')
+        ->limit($limit);
+    
+        $popularProducts = $query->get();
+        return $popularProducts;
+    }
+    
+    
+    
 
+    
     public function getUserRecommendations($userId)
     {
-        // Lấy danh sách sản phẩm hoặc biến thể mà user đã mua trong các đơn hoàn thành
-        $purchasedProducts = DB::table('orders')
-            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
-            ->join('order_order_status', function ($join) {
-                $join->on('orders.id', '=', 'order_order_status.order_id')
-                    ->where('order_order_status.order_status_id', 6); // Chỉ lấy đơn hoàn thành
-            })
-            ->where('orders.user_id', $userId)
-            ->pluck('order_items.product_id') // Lấy ID sản phẩm đã mua
+        // 🔹 Lấy danh sách sản phẩm đã mua trong các đơn hàng hoàn thành
+        $purchasedProducts = Order::where('user_id', $userId)
+            ->whereHas('orderStatuses', fn($query) => $query->where('order_status_id', 6))
+            ->with('orderItems.product')
+            ->get()
+            ->pluck('orderItems.*.product_id')
+            ->flatten()
+            ->unique()
             ->toArray();
-
-        // Nếu chưa mua sản phẩm nào => gợi ý sản phẩm phổ biến
+    
+        // 🔹 Nếu chưa mua sản phẩm nào, gợi ý sản phẩm phổ biến
         if (empty($purchasedProducts)) {
-            return $this->getPopularProducts();
+            return $this->getTrendingProducts();
         }
-
-        // Truy vấn sản phẩm gợi ý dựa trên lịch sử mua hàng
-        $suggestedProducts = DB::table('order_items as oi1')
-            ->join('order_items as oi2', function ($join) use ($purchasedProducts) {
-                $join->on('oi1.order_id', '=', 'oi2.order_id')
-                    ->whereIn('oi1.product_id', $purchasedProducts)
-                    ->whereColumn('oi1.product_id', '!=', 'oi2.product_id'); // Lọc ra sản phẩm khác đã mua cùng đơn hàng
-            })
-            ->join('orders', 'oi2.order_id', '=', 'orders.id')
-            ->join('order_order_status', function ($join) {
-                $join->on('orders.id', '=', 'order_order_status.order_id')
-                    ->where('order_order_status.order_status_id', 6); // Chỉ lấy từ đơn hàng Hoàn thành
-            })
-            ->join('products', 'products.id', '=', 'oi2.product_id')
-            ->leftJoin('product_variants', 'product_variants.id', '=', 'oi2.product_variant_id') // Lấy thông tin biến thể
-            ->leftJoin('reviews', function ($join) {
-                $join->on('reviews.product_id', '=', 'products.id')
-                    ->where('reviews.is_active', 1);
-            })
+    
+        // 🔹 Lấy danh sách sản phẩm gợi ý theo nhiều tiêu chí
+        $suggestedProducts = Product::whereHas('orderItems.order', function ($query) use ($purchasedProducts) {
+            $query->whereHas('orderItems', fn($q) => $q->whereIn('product_id', $purchasedProducts))
+                ->whereHas('orderStatuses', fn($q) => $q->where('order_status_id', 6));
+        })
+            ->whereNotIn('id', $purchasedProducts)
+            ->limit(6)
+            ->pluck('id')
+            ->toArray();
+    
+        $categoryProducts = Product::whereHas('categories.products', fn($q) => $q->whereIn('id', $purchasedProducts))
+            ->whereNotIn('id', array_merge($purchasedProducts, $suggestedProducts))
+            ->limit(4)
+            ->pluck('id')
+            ->toArray();
+    
+        $brandProducts = Product::whereHas('brand.products', fn($q) => $q->whereIn('id', $purchasedProducts))
+            ->whereNotIn('id', array_merge($purchasedProducts, $suggestedProducts, $categoryProducts))
+            ->limit(4)
+            ->pluck('id')
+            ->toArray();
+    
+        $accessoryProducts = Product::whereHas('productAccessories', fn($query) => $query->whereIn('id', $purchasedProducts))
+            ->whereNotIn('id', array_merge($purchasedProducts, $suggestedProducts, $categoryProducts, $brandProducts))
+            ->limit(4)
+            ->pluck('id')
+            ->toArray();
+    
+        // 🔹 Tổng hợp danh sách ID sản phẩm
+        $allSuggestedProductIds = array_merge($suggestedProducts, $categoryProducts, $brandProducts, $accessoryProducts);
+    
+        // 🔹 Truy vấn sản phẩm theo danh sách ID, với đầy đủ thông tin như getPopularProducts
+        return Product::query()
             ->select(
                 'products.id',
                 'products.name',
                 'products.thumbnail',
-                DB::raw('COALESCE(product_variants.price, products.price) as price'), // Lấy giá sản phẩm hoặc biến thể
-                DB::raw('COALESCE(product_variants.sale_price, products.sale_price) as sale_price'), // Lấy giá khuyến mãi
-                DB::raw('COALESCE(AVG(reviews.rating), 0) as average_rating'),
-                DB::raw('COUNT(oi2.product_id) as frequency'), // Đếm số lần sản phẩm xuất hiện cùng với sản phẩm đã mua
-                DB::raw('products.views as views_count'),
-                DB::raw('
-                SUM(
-                    CASE 
-                        WHEN oi2.product_variant_id IS NOT NULL 
-                        THEN oi2.quantity_variant
-                        ELSE oi2.quantity 
-                    END
-                ) as total_sold
-            ') // Tính số lượng bán của sản phẩm hoặc biến thể
-            )
-            ->groupBy(
-                'products.id',
-                'products.name',
-                'products.thumbnail',
-                'product_variants.price',
-                'product_variants.sale_price',
                 'products.price',
+                'products.slug',
                 'products.sale_price',
-                'products.views'
+                'products.views',
+                'products.is_sale',
+                DB::raw('(SELECT COALESCE(SUM(order_items.quantity), 0) + COALESCE(SUM(order_items.quantity_variant), 0)
+                          FROM order_items
+                          JOIN orders ON order_items.order_id = orders.id
+                          JOIN order_order_status ON orders.id = order_order_status.order_id
+                          JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
+                          WHERE order_statuses.name = "Hoàn thành"
+                          AND (order_items.product_id = products.id 
+                               OR order_items.product_variant_id IN (SELECT id FROM product_variants WHERE product_variants.product_id = products.id))) as total_sold'),
+                DB::raw('(SELECT COALESCE(AVG(reviews.rating), 0) FROM reviews WHERE reviews.product_id = products.id AND reviews.is_active = 1) as average_rating'),
+                DB::raw('(SELECT COALESCE(product_stocks.stock, 0) FROM product_stocks WHERE product_stocks.product_id = products.id) as stock_quantity'),
+                DB::raw('(CASE
+                            WHEN products.type = 1 THEN (
+                                SELECT CASE 
+                                    WHEN products.is_sale = 1 THEN (CASE WHEN MIN(product_variants.sale_price) > 0 THEN MIN(product_variants.sale_price) ELSE MIN(product_variants.price) END)
+                                    ELSE MIN(product_variants.price) 
+                                END FROM product_variants WHERE product_variants.product_id = products.id AND product_variants.is_active = 1 AND product_variants.price > 0)
+                            ELSE (CASE 
+                                    WHEN products.is_sale = 1 THEN (CASE WHEN products.sale_price > 0 THEN products.sale_price ELSE products.price END)
+                                    ELSE products.price
+                                  END)
+                        END) as display_price')
             )
-            ->orderByDesc('frequency') // Ưu tiên sản phẩm xuất hiện nhiều cùng với sản phẩm đã mua
+            ->whereIn('products.id', $allSuggestedProductIds)
+            ->where('products.is_active', 1)
+            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price', 'products.is_sale')
+            ->orderByDesc('total_sold')
             ->limit(12)
             ->get();
-
-        // Nếu không tìm thấy sản phẩm => gợi ý sản phẩm phổ biến
-        return $suggestedProducts->isNotEmpty() ? $suggestedProducts : $this->getPopularProducts();
     }
+    
+
+
 
 
 
@@ -580,6 +721,8 @@ END');
             'price',
             'is_active',
             'type',
+            'is_sale',
+            'sale_price'
         )
             ->with(['categories', 'productStock', 'productVariants.productStock'])
             ->where(['deleted_at' => null, 'is_active' => 1])
@@ -628,7 +771,7 @@ END');
         $products->getCollection()->each(function ($product) {
             // Lấy tổng stock quantity thông qua Accessor (thuộc tính ảo) đã được eager load quan hệ!**
             $stockQuantity = $product->totalStockQuantity;
-            $product->stock_quantity = $stockQuantity;
+            $product->stock = $stockQuantity;
         });
 
         // dd($products);
@@ -660,6 +803,8 @@ END');
                 'price',
                 'is_active',
                 'type',
+                'is_sale',
+                'sale_price',
             )
             ->with([
                 'categories' => function ($query) {
@@ -708,6 +853,8 @@ END');
                 'price',
                 'is_active',
                 'type',
+                'is_sale',
+                'sale_price',
             )
             ->with([
                 'categories' => function ($query) {
@@ -1029,13 +1176,13 @@ END');
             ->limit($limit * 2)
             ->get();
         $relatedProducts = $relatedProducts->concat($relatedByPriceBrandCategory);
-        Log::info('Step 1 Related Products Count: ' . $relatedProducts->count());
+        // Log::info('Step 1 Related Products Count: ' . $relatedProducts->count());
 
 
 
         if ($relatedProducts->count() < $limit) {
-            Log::info('Count before Step 2 Check: ' . $relatedProducts->count());
-            Log::info('Entering Step 2');
+            // Log::info('Count before Step 2 Check: ' . $relatedProducts->count());
+            // Log::info('Entering Step 2');
             // **Bước 2: Nếu chưa đủ sản phẩm, tìm thêm theo DANH MỤC (Ưu tiên thứ ba) - ĐÃ SỬA ĐỔI**
             $productCategoryIds = $product->categories->pluck('id');
             $relatedByCategory = Product::with('reviews', 'productVariants', 'categories')
@@ -1223,10 +1370,54 @@ END');
 
     public function getProductsWithDetailsByIds(array $productIds, array $with = [])
     {
-        return $this->model->with($with)
+        return $this->model->with([
+            'attributeValues' => function ($query) {
+                $query->where('is_active', 1);
+            },
+            'productVariants.attributeValues' => function ($query) {
+                $query->where('is_active', 1);
+            }
+        ])
             ->whereIn('id', $productIds)
-            ->where('is_active', 1)
+            // ->where('is_active', 1)
             ->get();
+    }
+
+    public function searchProductsByName(string $query, int $limit = 10)
+    {
+        return Product::query()
+            ->where('name', 'LIKE', '%' . $query . '%')
+            ->orWhereHas('brand', function ($q) use ($query) {
+                $q->where('name', 'LIKE', '%' . $query . '%');
+            })
+            ->orWhereHas('categories', function ($q) use ($query) {
+                $q->where('name', 'LIKE', '%' . $query . '%');
+            })
+            ->orWhereHas('attributeValues', function ($q) use ($query) {
+                $q->where('value', 'LIKE', '%' . $query . '%');
+            })
+            ->where('is_active', 1)
+            ->with(['brand:id,name', 'categories:id,name', 'attributeValues:id,value']) // Eager load để tránh N+1 queries (tùy chọn)
+            ->limit($limit)
+            ->pluck('name');
+    }
+    
+    public function searchProducts(string $query)
+    {
+        return Product::query()
+            ->where('name', 'LIKE', '%' . $query . '%')
+            ->orWhereHas('brand', function ($q) use ($query) {
+                $q->where('name', 'LIKE', '%' . $query . '%');
+            })
+            ->orWhereHas('categories', function ($q) use ($query) {
+                $q->where('name', 'LIKE', '%' . $query . '%');
+            })
+            // ->orWhereHas('attributeValues', function ($q) use ($query) {
+            //     $q->where('value', 'LIKE', '%' . $query . '%');
+            // })
+            ->where('is_active', 1)
+            ->with(['brand', 'categories','productVariants' ])
+            ->paginate(10); 
     }
 
 }

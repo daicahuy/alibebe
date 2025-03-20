@@ -30,7 +30,7 @@ class CompareController extends Controller
 
         $productsData = $this->compareService->getComparedProductsData($compareList);
         // dd($productsData);
-        
+
 
         return view('client.pages.compare', [
             'productsData' => $productsData,

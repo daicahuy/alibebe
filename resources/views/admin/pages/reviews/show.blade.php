@@ -112,7 +112,7 @@
             <div class="title-header option-title">
                 <h5><i class="fa-solid fa-filter"></i>Lọc</h5>
             </div>
-            <form method="GET" action="{{ route('admin.reviews.show', $product->id) }}" id="reviewFilterForm">
+            <form method="GET" action="{{ route('admin.reviews.show', $product->slug) }}" id="reviewFilterForm">
                 <div class="mb-3">
                     <label for="searchReviews" class="form-label">Tìm kiếm đáng giá</label>
                     <input type="text" name="search" class="form-control" id="searchReviews"

@@ -280,11 +280,15 @@
 
 @push('js_library')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 @endpush
 
 @push('js')
     <script>
         $(document).ready(function() {
+
+
+
             $('#modalUpload').on('shown.bs.modal', function() {
                 //Xử lý khi modal được hiển thị
                 $('.btn-cancel').click(function() {
@@ -340,6 +344,17 @@
             const pathSegments = window.location.pathname.split('/');
             const orderId = pathSegments[pathSegments.length - 1];
 
+            // Enable pusher logging - don't include this in production
+            Pusher.logToConsole = true;
+
+            var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+            });
+
+            var channel = pusher.subscribe('order-status.' + orderId);
+            channel.bind('event-change-status', function(data) {
+                fillOrderDetails(orderId)
+            });
 
             function fillOrderDetails(orderId) {
 
@@ -583,32 +598,32 @@
                         const orderStatuses = [{
                                 id: 1,
                                 name: "Chờ xử lý",
-                                next: [2, 7]
+                                next: [1, 2, 7]
                             },
                             {
                                 id: 2,
                                 name: "Đang xử lý",
-                                next: [3, 7]
+                                next: [2, 3, 7]
                             },
                             {
                                 id: 3,
                                 name: "Đang giao hàng",
-                                next: [4, 5, 7]
+                                next: [3, 4, 5, 7]
                             },
                             {
                                 id: 4,
                                 name: "Đã giao hàng",
-                                next: [6, 7]
+                                next: [4, 6, 7]
                             },
                             {
                                 id: 5,
                                 name: "Giao hàng thất bại",
-                                next: [7]
+                                next: [5, 7]
                             },
                             {
                                 id: 6,
                                 name: "Hoàn thành",
-                                next: [7]
+                                next: [6, 7]
                             },
                             {
                                 id: 7,
@@ -666,10 +681,17 @@
                             $(".span-completed").removeClass("active");
                             $(".orderStatus").addClass("active");
                         }
+                        const currentValue = $('.orderStatus').val();
 
                         $('.orderStatus').on('change', function() {
 
                             const selectedValue = parseInt($(this).val());
+
+                            if (!confirm('Bạn có chắn chắn muốn thay đổi trạng thái?')) {
+                                $('.orderStatus').val(currentValue);
+                                updateSelectStatus();
+                                return;
+                            }
 
                             if (selectedValue === 4) { // Nếu chọn "Đã giao hàng" (id 4)
 
@@ -728,7 +750,12 @@
 
 
 
+            // echo.channel('order-status.' + orderId)
+            //     .listen('OrderStatusUpdated', (e) => {
+            //         console.log('Order status updated:', e.status);
 
+            //         fillOrderDetails(orderId)
+            //     });
 
 
             if (!isNaN(parseInt(orderId))) {
@@ -773,4 +800,5 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script src="{{ asset('js/utility.js') }}"></script>
+    //
 @endpush

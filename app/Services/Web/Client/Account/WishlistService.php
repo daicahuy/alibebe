@@ -89,5 +89,9 @@ class WishlistService
         // Kiểm tra sản phẩm đã có trong wishlist của người dùng hay chưa
         return $this->wishlistRepository->findByUserAndProduct($userLogin, $productId);
     }
-    
+    public function count()
+{
+    return $this->wishlistRepository->countWishlists();
+}
+
 }

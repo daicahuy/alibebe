@@ -26,7 +26,7 @@ use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Admin\CommentController;
 use App\Http\Controllers\Web\Client\AccountController as ClientAccountController;
 use App\Http\Controllers\Web\Client\DetailProductController;
-
+use App\Http\Controllers\Web\Client\HomeController as ClientHomeController;
 use Illuminate\Http\Request;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
@@ -46,6 +46,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+
+Route::get('/search/suggestions', [ClientHomeController::class, 'getSuggestions']);
 // Route for searching users
 Route::get('admin/chats/search-users', [ChatController::class, 'searchUsers'])
     ->name('api.admin.chats.search-users');
@@ -81,7 +83,7 @@ Route::prefix('/categories')
     ->group(function () {
 
         Route::patch('/{category}/active', 'toggleActive')->name('toggleActive'); // Cập nhật trạng thái active
-
+    
     });
 
 Route::prefix('/attributes')
@@ -100,10 +102,14 @@ Route::prefix('/attributes')
 
 
 Route::prefix('/refund-orders')
-    ->name('api.refund-orders.')
+    ->name('api.refund_orders.')
     ->group(function () {
         Route::get('/list', [ApiRefundOrderController::class, 'index'])->name('index');
         Route::get('/{id}', [ApiRefundOrderController::class, 'getDataOrderRefund'])->name('getDataOrderRefund');
+        Route::post('/changeStatus', [ApiRefundOrderController::class, 'changeStatus'])->name('changeStatus');
+        Route::post('/changeStatusWithImg', [ApiRefundOrderController::class, 'changeStatusWithImg'])->name('changeStatusWithImg');
+        Route::post('/createOrderRefund', [ApiRefundOrderController::class, 'createOrderRefund'])->name('createOrderRefund');
+        Route::post('/getOrdersRefundByUser', [ApiRefundOrderController::class, 'getOrdersRefundByUser'])->name('getOrdersRefundByUser');
     });
 
 Route::prefix('/orders')
@@ -118,6 +124,7 @@ Route::prefix('/orders')
         Route::post('/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');
         Route::post('/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
     });
+
 
 Route::post('/orders/uploadImgConfirm/{idOrder}', [OrderController::class, 'uploadImgConfirm'])->name('uploadImgConfirm');
 Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');
@@ -186,6 +193,7 @@ Route::get('/product/{id}', action: [HomeController::class, 'detailModal']);
 Route::prefix('/products')
     ->name('api.products.')
     ->group(function () {
+        Route::get('/', [ProductController::class, 'getAll'])->name('getAll');
         Route::post('/single', [ProductController::class, 'storeSingle'])->name('storeSingle');
         Route::post('/variant', [ProductController::class, 'storeVariant'])->name('storeVariant');
         Route::put('/single/{id}', [ProductController::class, 'updateSingle'])->name('updateSingle')->where(['id' => '[0-9]+']);
@@ -206,12 +214,5 @@ Route::prefix('compare')
     // ->middleware(StartSession::class)
     ->group(function () {
         Route::post('/add-with-check/{productId}', [CompareController::class, 'addTocompareWithCheck'])->name('add.with.check');
-        // Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
-
-        // Route::get('/get-compare-products',[CompareController::class,'getComparedProducts'])->name('get_compared_products');
-        // Route::post('/add/{productId}', [CompareController::class, 'addToCompare'])->name('add'); 
-        // Route::post('/remove/{productId}', [CompareController::class, 'removeFromCompare'])->name('remove'); 
-        // Route::get('/count', [CompareController::class, 'getCompareCount'])->name('count'); 
-        // Route::get('/products', [CompareController::class, 'getComparedProducts'])->name('products'); // Route lấy danh sách sản phẩm so sánh 
-        // Route::post('/clear', [CompareController::class, 'clearCompareSession'])->name('clear'); 
+        Route::get('/compareDetail/{id}', [CompareController::class, 'detailModal']);
     });

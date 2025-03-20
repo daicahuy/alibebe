@@ -26,16 +26,12 @@ class HomeController extends Controller
         $bestSellProductsToday = $this->HomeService->getBestSellerProductsToday();
         $topCategoriesInweek = $this->HomeService->topCategoriesInWeek();
         $bestSellingProducts = $this->HomeService->getBestSellingProduct();
-        // dd($bestSellingProducts);
+        $productForYou = $this->HomeService->productForYou();
+
         $wishlistProductIds = $this->wishlistRepository->getWishlistForUserLogin()
         ->pluck('product_id')
         ->toArray();
         $aiSuggestedProducts = $userId ? $this->HomeService->getAIFakeSuggest($userId) : $this->HomeService->getTrendingProduct();
-
-        if ($aiSuggestedProducts->isEmpty()) {
-            $aiSuggestedProducts = $this->getPopularProducts(); // Nếu AI không gợi ý được, lấy sản phẩm phổ biến
-        }
-
         return view('client.pages.index',
             compact('categories',
             'trendingProducts',
@@ -43,7 +39,8 @@ class HomeController extends Controller
             'topCategoriesInweek',
             'bestSellingProducts',
             'aiSuggestedProducts',
-            'wishlistProductIds'
+            'wishlistProductIds',
+            'productForYou'
         ));
     }
     public function header()  {
@@ -53,6 +50,29 @@ class HomeController extends Controller
             $categoryIds = $categoryIds->merge($category->getAllChildrenIds());
         }
         return view('client.layoutspartials.header',compact('categories','categoryIds'));
+    }
+    
+    public function getSuggestions(Request $request)
+    {
+        $query = $request->input('query'); 
+
+        if ($query) {
+            $suggestions = $this->HomeService->getSuggestions($query);
+            return response()->json($suggestions);
+        }
+
+        return response()->json();
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        $results = $this->HomeService->getProductsByQuery($query);
+        $wishlistProductIds = $this->wishlistRepository->getWishlistForUserLogin()
+        ->pluck('product_id')
+        ->toArray();
+        // dd($results);
+        return view('client.pages.tim-kiem', compact('query','results','wishlistProductIds'));
     }
     
 }

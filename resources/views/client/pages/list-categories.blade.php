@@ -187,7 +187,7 @@
                                         <div id="collapseSix" class="accordion-collapse collapse show">
                                             <div class="accordion-body">
 
-                                                <ul class="category-list custom-padding">
+                                                {{-- <ul class="category-list custom-padding">
                                                     @foreach ($listStar as $start)
                                                         <li>
                                                             <div class="form-check ps-0 m-0 category-list-box">
@@ -216,9 +216,33 @@
                                                             </div>
                                                         </li>
                                                     @endforeach
+                                                </ul> --}}
 
-
-
+                                                <ul class="category-list custom-padding">
+                                                    @foreach ($listStar as $ratingValue)
+                                                        <li>
+                                                            <div class="form-check ps-0 m-0 category-list-box">
+                                                                <input class="checkbox_animated" type="checkbox"
+                                                                       id="rating-{{ $ratingValue }}" name="rating[]"
+                                                                       value="{{ $ratingValue }}"
+                                                                       {{ isset($currentFilters['rating']) && in_array($ratingValue, (array) $currentFilters['rating']) ? 'checked' : '' }}>
+                                                                <div class="form-check-label">
+                                                                    <ul class="rating">
+                                                                        @for ($i = 0; $i < 5; $i++)
+                                                                            <li>
+                                                                                @if ($i < $ratingValue)
+                                                                                    <i data-feather="star" class="fill"></i>
+                                                                                @else
+                                                                                    <i data-feather="star"></i>
+                                                                                @endif
+                                                                            </li>
+                                                                        @endfor
+                                                                    </ul>
+                                                                    <span class="text-content">({{ $ratingValue }} Star)</span>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    @endforeach
                                                 </ul>
 
                                             </div>
@@ -408,7 +432,7 @@
                                 <div class="product-box-3 h-100 wow fadeInUp">
                                     <div class="product-header">
                                         <div class="product-image">
-                                            <a href="{{ route('products', $item->id) }}">
+                                            <a href="{{ route('products', $item->slug) }}">
                                                 <img src="{{ Storage::url($item->thumbnail) }}"
                                                     class="img-fluid blur-up lazyload" alt="">
                                             </a>
@@ -416,7 +440,8 @@
                                             <ul class="product-option">
                                                 <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                                                     <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                        data-bs-target="#view" data-id={{ $item->id }}>
+                                                        data-bs-target="#view" data-id={{ $item->id }}
+                                                        data-slug="{{ $item->slug }}">
                                                         <i data-feather="eye"></i>
                                                     </a>
                                                 </li>
@@ -456,7 +481,7 @@
                                             @else
                                                 <span class="text-muted">Không có danh mục</span>
                                             @endif
-                                            <a href="{{ route('products', $item->id) }}">
+                                            <a href="{{ route('products', $item->slug) }}">
                                                 <h5 class="name">{{ $item->name }}</h5>
                                             </a>
                                             <p class="text-content mt-1 mb-2 product-content">
@@ -503,28 +528,10 @@
                                             <div class="add-to-cart-box bg-white">
                                                 <a href="javascript:void(0)" data-bs-toggle="modal"
                                                     data-bs-target="#view" data-id={{ $item->id }}
+                                                    data-slug="{{ $item->slug }}"
                                                     class="btn btn-add-cart addcart-button">
                                                     Thêm vào giỏ hàng
                                                 </a>
-                                                {{-- <button class="btn btn-add-cart addcart-button" >Add
-                                                    <span class="add-icon bg-light-gray">
-                                                        <i class="fa-solid fa-plus"></i>
-                                                    </span>
-                                                </button>
-                                                <div class="cart_qty qty-box">
-                                                    <div class="input-group bg-white">
-                                                        <button type="button" class="qty-left-minus bg-gray"
-                                                            data-type="minus" data-field="">
-                                                            <i class="fa fa-minus"></i>
-                                                        </button>
-                                                        <input class="form-control input-number qty-input" type="text"
-                                                            name="quantity" value="0">
-                                                        <button type="button" class="qty-right-plus bg-gray"
-                                                            data-type="plus" data-field="">
-                                                            <i class="fa fa-plus"></i>
-                                                        </button>
-                                                    </div>
-                                                </div> --}}
                                             </div>
                                         </div>
                                     </div>
@@ -682,8 +689,9 @@
                                         <button type="submit" class="btn btn-md add-cart-button icon">Thêm vào giỏ
                                             hàng</button>
                                     </form>
-                                    <button class="btn theme-bg-color view-button icon text-white fw-bold btn-md detail-product-button">
-                                        View More Details
+                                    <button
+                                        class="btn theme-bg-color view-button icon text-white fw-bold btn-md detail-product-button">
+                                        Xem chi tiết sản phẩm
                                     </button>
                                     {{-- <a href="{{ route('products', $listProductCate) }}" class="btn theme-bg-color view-button icon text-white fw-bold btn-md">Chi tiết sản phẩm</a> --}}
                                 </div>
@@ -715,18 +723,23 @@
         }
 
         $(document).ready(function() {
-            $('.detail-product-button').click(function() {
-            const productId = $('#view').data('product-id');
-
-            if (productId) {
-                const productDetailUrl = "{{ route('products', ['product' => ':productId']) }}".replace(':productId', productId);
-                location.href = productDetailUrl;
-            } else {
-                console.error("Không tìm thấy product_id...");
-                alert("Lỗi:...");
-            }
-        });
-            // Thông báo alert (giữ nguyên)
+            // $('.detail-product-button').click(function() {
+            //     // const productId = $('#view').data('product-id');
+            //     const productSlug = $('#view').data('product-slug');
+            //     console.log("Giá trị productSlug khi nút được click:", productSlug);
+            //     if (productSlug) {
+            //         const productDetailUrl = "{{ route('products', ['product' => ':slug']) }}".replace(
+            //             ':slug', productSlug);
+            //         location.href = productDetailUrl;
+            //     } else {
+            //         console.error(
+            //             "Không tìm thấy productSlug để chuyển hướng đến trang chi tiết sản phẩm.");
+            //         alert(
+            //             "Lỗi: Không thể chuyển đến trang chi tiết sản phẩm. Không tìm thấy Slug sản phẩm."
+            //             );
+            //     }
+            // });
+            // // Thông báo alert (giữ nguyên)
             @if (session('success'))
                 Swal.fire({
                     icon: 'success',
@@ -751,7 +764,10 @@
 
             $('a[data-bs-target="#view"]').click(function() {
                 const productId = $(this).data('id');
+                const productSlug = $(this).data('slug');
+
                 $('#view').data('product-id', productId);
+                $('#view').data('product-slug', productSlug);
                 $('#cartProductId').val(productId);
 
                 $.ajax({
@@ -921,6 +937,23 @@
                 });
             });
 
+            // view detial product
+            $('.detail-product-button').click(function() {
+                const productSlug = $('#view').data('product-slug');
+
+                if (productSlug) {
+                    const productDetailUrl = "{{ route('products', ['product' => ':slug']) }}".replace(
+                        ':slug', productSlug);
+                    location.href = productDetailUrl;
+                } else {
+                    console.error(
+                        "Không tìm thấy productSlug để chuyển hướng đến trang chi tiết sản phẩm.");
+                    alert(
+                        "Lỗi: Không thể chuyển đến trang chi tiết sản phẩm. Không tìm thấy Slug sản phẩm."
+                    );
+                }
+            });
+
             // Hàm cập nhật giá và thumbnail
             function updateProductInfo(variant, isSale) {
                 let priceHtml;
@@ -999,7 +1032,7 @@
             }); // end modal-addToCard
 
 
-            
+
             // comapre cookie
             const compareCookieName = 'compare_list'; // Tên cookie để lưu danh sách so sánh
 
@@ -1067,6 +1100,13 @@
                     setCookie(compareCookieName, JSON.stringify(compareList), 30); // Lưu lại vào cookie
                     updateCompareCountBadgeCookie(); // Cập nhật badge số lượng
                     updateCompareButtonStatus(productId, false); // Cập nhật trạng thái nút (icon)
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: 'Đã xóa sản phẩm khỏi danh sách so sánh.',
+                        showConfirmButton: false,
+                        timer: 1000 // Tự động đóng thông báo sau 1.5 giây (1500ms)
+                    });
                 }
             }
 
@@ -1142,8 +1182,7 @@
 
                 if (currentState === 'unselected') {
                     console.log(`  Action: Add product to compare`);
-                    addProductToCompare(productId,
-                        productCategoryId); // **ĐẢM BẢO DÒNG NÀY KHÔNG BỊ COMMENT VÀ GÕ ĐÚNG CHÍNH TẢ**
+                    addProductToCompare(productId, productCategoryId);
                 } else {
                     console.log(`  Action: Remove product from compare`);
                     removeFromCompareCookie(productId);
@@ -1181,8 +1220,8 @@
                                 icon: 'success',
                                 title: 'Thành công!',
                                 text: 'Sản phẩm đã được thêm vào danh sách so sánh.',
-                                showConfirmButton: true, // Ẩn nút "OK" mặc định
-                                // timer: 1500 // Tự động đóng thông báo sau 1.5 giây (1500ms)
+                                showConfirmButton: false,
+                                timer: 1000 // Tự động đóng thông báo sau 1.5 giây (1500ms)
                             });
                         } else if (response.status === 'error') {
                             // Backend báo lỗi (ví dụ: không cùng danh mục)
@@ -1191,7 +1230,6 @@
                         }
                     },
                     error: function(xhr, status, error) {
-                        // **CALLBACK ERROR ĐÃ ĐƯỢC CHỈNH SỬA Ở CÁC BƯỚC TRƯỚC - GIỮ NGUYÊN**
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             Swal.fire({
                                 icon: 'error',
@@ -1210,233 +1248,8 @@
                 });
             }
 
-            //             function addProductToCompare(productId, productCategoryId) { // GIỮ NGUYÊN tham số
-            //                 console.log(
-            //         "[addProductToCompare] Hàm addProductToCompare ĐƯỢC GỌI! productId:",
-            //         productId,
-            //         "productCategoryId:",
-            //         productCategoryId
-            //     );
-            //                 // Gửi AJAX request lên backend để THÊM sản phẩm vào so sánh
-            //     $.ajax({
-            //         url: '/api/compare/add/' + productId, // **API endpoint MỚI để THÊM sản phẩm**
-            //         method: 'POST', // Sử dụng method POST
-            //         // Không cần gửi data compareList nữa, vì backend tự quản lý cookie
-            //         success: function(response) {
-            //             if (response.status === 'success') {
-            //                 // Backend đã thêm sản phẩm thành công vào cookie
-            //                 // Cập nhật UI (badge số lượng, trạng thái nút)
-            //                 updateCompareCountBadgeCookie(); // Cập nhật badge số lượng
-            //                 // **CHỈNH SỬA 2: BỌC updateCompareButtonStatus TRONG requestAnimationFrame (khi THÊM sản phẩm)**
-            //                 requestAnimationFrame(() => { // **<-- THÊM requestAnimationFrame VÀO ĐÂY**
-            //                     updateCompareButtonStatus(productId, true);
-            //                 });
-            //                 Swal.fire({ // Hiển thị thông báo thành công (tùy chọn)
-            //                     icon: 'success',
-            //                     title: 'Thành công!',
-            //                     text: 'Sản phẩm đã được thêm vào danh sách so sánh.',
-            //                     showConfirmButton: true,
-            //                 });
-            //             } else if (response.status === 'error') {
-            //                 // Backend báo lỗi (ví dụ: không cùng danh mục, quá số lượng)
-            //                 alert(response.message); // Hiển thị thông báo lỗi từ backend
-            //                 console.error('[addProductToCompare] Lỗi từ server:', response);
-            //             }
-            //         },
-            //         error: function(xhr, status, error) {
-            //             // Xử lý lỗi AJAX request (mạng, server) - GIỮ NGUYÊN phần XỬ LÝ LỖI NÀY
-            //             if (xhr.responseJSON && xhr.responseJSON.message) {
-            //                 Swal.fire({
-            //                     icon: 'error',
-            //                     title: 'Lỗi!',
-            //                     text: xhr.responseJSON.message,
-            //                 });
-            //             } else {
-            //                 Swal.fire({
-            //                     icon: 'error',
-            //                     title: 'Lỗi!',
-            //                     text: 'Lỗi khi thêm sản phẩm vào so sánh. Vui lòng thử lại sau.',
-            //                 });
-            //             }
-            //             console.error('[addProductToCompare] Lỗi AJAX request:', error);
-            //         }
-            //     });
-            // }
-
-
-
-            // Compare so sánh sesion
-
-            //         var comparedProducts = [];
-            //         updateCompareCount();
-            //         updateCompareButtonInitialStatus();
-
-            //         $('.compare-toggle').click(function(e) {
-            //             e.preventDefault();
-            //             var productId = $(this).data('product-id');
-            //             var productCategoryId = $(this).data('product-category-id');
-            //             if (isProductAlreadyCompared(productId)) {
-            //                 //Đã sanh, bỏ
-            //                 removeProductFromCompare(productId);
-            //             } else {
-            //                 //chưa chọn, thêm 
-            //                 if (comparedProducts.length >= 3) {
-            //                     alert('So sánh tối đa 3 sản phẩm.');
-            //                     return;
-            //                 }
-
-            //                 if (comparedProducts.length > 0) {
-            //                     // Check category 
-            //                     var firstProductCategoryId = comparedProducts[0].category_id;
-            //                     if (productCategoryId != firstProductCategoryId) {
-            //                         alert('Vui lòng chọn sản phẩm cùng danh mục.');
-            //                         return;
-            //                     }
-            //                 }
-            //                 addProductToCompare(productId, productCategoryId);
-            //             }
-            //         }); //end compare-toggle
-
-
-            //         function addProductToCompare(productId, productCategoryId) {
-            //             $.ajax({
-            //                 url: '/api/compare/add/' + productId,
-            //                 method: 'POST',
-            //                 xhrFields: {
-            //     withCredentials: true // Cho phép gửi cookie
-            // },
-            //                 headers: {
-            //                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            //                 },
-            //                 success: function(response) {
-            //                     comparedProducts.push({
-            //                         id: productId,
-            //                         category_id: productCategoryId
-            //                     });
-            //                     updateCompareButtonStatus(productId, true);
-            //                     console.log(
-            //                         '[addProductToCompare] Sau khi gọi updateCompareButtonStatus, productId:',
-            //                         productId);
-            //                     updateCompareCount();
-            //                 },
-            //                 error: function(xhr, status, error) {
-            //                     var erroMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr
-            //                         .responseJSON.message : 'Có lỗi khi thêm sản phẩm.';
-            //                     alert(erroMessage);
-            //                 }
-            //             });
-
-            //         }
-
-
-            //         function removeProductFromCompare(productId) {
-            //             $.ajax({
-            //                 url: '/api/compare/remove/' + productId,
-            //                 method: 'POST',
-            //                 xhrFields: {
-            //     withCredentials: true // Cho phép gửi cookie
-            // },
-            //                 headers: {
-            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            //     },
-            //                 success: function(response) {
-            //                     comparedProducts = comparedProducts.filter(product => product.id !== productId);
-            //                     updateCompareButtonStatus(productId, false);
-            //                     updateCompareCount();
-            //                 },
-            //                 error: function(error) {
-            //                     console.error('Lỗi xóa sản phẩm.', error);
-            //                 }
-            //             });
-            //         }
-
-            //         function isProductAlreadyCompared(productId) { // Hàm kiểm tra sản phẩm đã so sánh
-            //             return comparedProducts.some(product => product.id === productId);
-            //         }
-
-            //         function getComparedProductsFromSession() {
-            //             return [];
-            //         }
-
-
-            //         // function saveComparedProductsToSession() {
-
-            //         // }
-
-
-            //         function updateCompareCount() {
-            //             $.ajax({
-            //                 url: '/api/compare/count',
-            //                 method: 'GET',
-            //                 xhrFields: {
-            //     withCredentials: true // Cho phép gửi cookie
-            // },
-            //                 success: function(response) {
-            //                     var compareCount = response.count || 0;
-            //                     console.log('Số sản phẩm so sanh (từ server): ' + compareCount);
-            //                     console.log('**[updateCompareCount] Thành công, count từ server:** ' +
-            //                         compareCount);
-            //                     var compareBadge = $('.header-compare .badge-compare').text(compareCount);
-            //                     if (compareCount > 0) {
-            //                         // Nếu số lượng lớn hơn 0, HIỂN THỊ badge và cập nhật số
-            //                         compareBadge.text(compareCount); // Cập nhật số lượng trên badge
-            //                         compareBadge.show(); // Hiển thị badge (nếu đang ẩn)
-            //                     } else {
-            //                         // Nếu số lượng bằng 0, ẨN badge
-            //                         compareBadge.hide(); // Ẩn badge
-            //                     }
-            //                 },
-            //                 error: function(error) {
-            //                     console.error('**[updateCompareCount] Lỗi khi lấy số lượng:**', error);
-            //                 }
-            //             });
-            //         }
-
-            //         function updateCompareButtonStatus(productId, isCompared) {
-            //             var compareButton = $('.compare-toggle[data-product-id="' + productId + '"]');
-            //             if (compareButton.length) {
-            //                 if (isCompared) {
-            //                     compareButton.find('.icon-refresh').hide();
-            //                     compareButton.find('.icon-check').show();
-            //                     compareButton.attr('data-state', 'selected');
-            //                 } else {
-            //                     compareButton.find('.icon-check').hide();
-            //                     compareButton.find('.icon-refresh').show();
-            //                     compareButton.attr('data-state', 'unselected');
-            //                 }
-
-            //                 feather.replace();
-            //             }
-            //         }
-
-
-            //         function updateCompareButtonInitialStatus() { //cập nhật button ban đầu
-            //             $.ajax({
-            //                 url: '/api/compare/products',
-            //                 method: 'GET',
-            //                 xhrFields: {
-            //     withCredentials: true // Cho phép gửi cookie
-            // },
-            //                 success: function(response) {
-            //                     comparedProducts = response.products.map(product => ({
-            //                         id: product.id,
-            //                         category_id: product.category_id
-            //                     }));
-            //                     comparedProducts.forEach(function(product) {
-            //                         updateCompareButtonStatus(product.id, true); //khi load lại trang
-            //                     });
-            //                     updateCompareCount();
-            //                 },
-            //                 error: function(error) {
-            //                     console.error('Lỗi khi lấy danh sách so sánh ban đầu:', error);
-            //                 }
-            //             });
-            //         }
-
-            //         feather.replace(); // load lại icon 
 
         }); // end document
-
 
 
         // wish list - của Bảo

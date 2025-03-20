@@ -14,8 +14,21 @@ class ReviewRepository extends BaseRepository
     }
     public function getAllReviews()
     {
-        $start = $this->model->select('id', 'rating')->distinct('rating')->orderBy('rating', 'DESC')->get();
+        $start = $this->model->select('rating')->distinct('rating')->orderBy('rating', 'DESC')->get();
         return $start;
+    }
+    public function getCategoryProductRatings($categoryId)
+    {
+        return $this->model->select('rating')
+            ->distinct('rating')
+            ->whereHas('product', function ($query) use ($categoryId) {
+                $query->whereHas('categories', function ($q) use ($categoryId) {
+                    $q->where('id', $categoryId);
+                });
+            })
+            ->orderBy('rating', 'DESC')
+            ->pluck('rating')
+            ->toArray();
     }
     public function getReviewProducts($search = null, $startDate = null, $endDate = null)
     {
@@ -92,14 +105,16 @@ class ReviewRepository extends BaseRepository
     }
 
     public function userHasPurchasedProduct($userId, $productId)
-    {
-        return Order::where('user_id', $userId)
-            ->where('is_paid', 1)
-            ->whereHas('orderItems', function ($query) use ($productId) {
-                $query->where('product_id', $productId);
-            })
-            ->exists();
-    }
+{
+    return Order::where('user_id', $userId)
+        ->whereHas('orderStatuses', function ($query) {
+            $query->where('id', 6); // Kiểm tra order_status_id = 6 (Hoàn thành)
+        })
+        ->whereHas('orderItems', function ($query) use ($productId) {
+            $query->where('product_id', $productId);
+        })
+        ->exists();
+}
 
     public function getLatestReview($productId, $userId)
     {

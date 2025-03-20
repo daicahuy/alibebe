@@ -18,4 +18,6 @@ final class OrderStatusType extends Enum
     const FAILED_DELIVERY = 5;  // Giao hàng thất bại
     const COMPLETED = 6;        // Hoàn thành
     const CANCEL = 7;           // Đã hủy
+    const RETURN = 8;
+
 }

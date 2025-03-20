@@ -16,7 +16,9 @@ class RefundItem extends Model
         'name',
         'name_variant',
         'quantity',
-        'refund_amount',
+        'quantity_variant',
+        'price',
+        'price_variant',
     ];
 
     public function refund()

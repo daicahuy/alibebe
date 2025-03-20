@@ -113,22 +113,29 @@
 
                         <div class="middle-box">
                             <div class="search-box">
-                                <div class="input-group">
-                                    <input type="search" class="form-control" placeholder="I'm searching for...">
-                                    <button class="btn" type="button" id="button-addon2">
-                                        <i data-feather="search"></i>
-                                    </button>
-                                </div>
+                                <form action="{{ route('search') }}" method="GET">
+                                    <div class="input-group">
+                                        <input type="search" class="form-control" id="searchInput" name="query"
+                                            placeholder="Im searching for..." autocomplete="off"
+                                            value="{{ request('query') }}">
+                                        <button class="btn" type="submit" id="button-addon2">
+                                            <i data-feather="search"></i>
+                                        </button>
+                                    </div>
+                                    <ul id="suggestions" class="suggestions-list"
+                                        style="position: absolute; top: 100%; left: 0; width: 100%; background-color: white; border: 1px solid #ccc; border-top: none; list-style-type: none; padding: 0; margin: 0; display: none; z-index: 10; overflow-y: auto; max-height: 200px;">
+                                    </ul>
+                                </form>
                             </div>
                         </div>
-
                         <div class="rightside-box">
                             <div class="search-full w-100">
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <i data-feather="search" class="font-light"></i>
                                     </span>
-                                    <input type="text" class="form-control search-type" placeholder="Search here..">
+                                    <input type="text" class="form-control search-type"
+                                        placeholder="Search here..">
                                     <span class="input-group-text close-search">
                                         <i data-feather="x" class="font-light"></i>
                                     </span>
@@ -191,12 +198,122 @@
                                         position: relative;
                                         top: -1px;
                                     }
+
+                                    .search-box {
+                                        position: relative;
+                                        /* Để định vị tuyệt đối cho danh sách gợi ý */
+                                        width: 100%;
+                                        /* Hoặc một kích thước cố định nếu cần */
+                                        max-width: 600px;
+                                        /* Ví dụ, giới hạn chiều rộng tối đa */
+                                        margin: 0 auto;
+                                        /* Để căn giữa nếu cần */
+                                    }
+
+                                    /*  cho input group (nếu bạn đang sử dụng Bootstrap hoặc tương tự) */
+                                    .input-group {
+                                        display: flex;
+                                        border: 1px solid #ccc;
+                                        /* Ví dụ về border cho input group */
+                                        border-radius: 5px;
+                                        /* Bo tròn góc */
+                                        overflow: hidden;
+                                        /* Ẩn border thừa */
+                                    }
+
+                                    /*  ô input tìm kiếm */
+                                    #searchInput {
+                                        flex-grow: 1;
+                                        /* Để input chiếm phần lớn chiều rộng */
+                                        padding: 10px;
+                                        border: none;
+                                        outline: none;
+                                    }
+
+                                    /*  nút tìm kiếm */
+                                    #button-addon2 {
+                                        background-color: #ffa53b;
+                                        /* Màu nền nhạt */
+                                        color: white;
+                                        border: none;
+                                        padding: 10px 15px;
+                                        cursor: pointer;
+                                    }
+
+                                    #button-addon2:hover {
+                                        background-color: #e9ecef;
+                                    }
+
+                                    #button-addon2 i {
+                                        /*  cho icon tìm kiếm (nếu bạn đang dùng Feather Icons) */
+                                        display: inline-block;
+                                        width: 16px;
+                                        height: 16px;
+                                        stroke-width: 3;
+                                        stroke: currentColor;
+                                        fill: none;
+                                        vertical-align: middle;
+                                    }
+
+                                    /*  cho danh sách gợi ý */
+                                    .suggestions-list {
+                                        position: absolute;
+                                        top: 100%;
+                                        /* Hiển thị ngay dưới input */
+                                        left: 0;
+                                        width: 100%;
+                                        /* Chiều rộng bằng input */
+                                        background-color: white;
+                                        border: 1px solid #ccc;
+                                        border-top: none;
+                                        list-style-type: none;
+                                        padding: 0;
+                                        margin: 0;
+                                        display: none;
+                                        /* Ẩn ban đầu */
+                                        z-index: 10;
+                                        /* Đảm bảo hiển thị trên các phần tử khác */
+                                        overflow-y: auto;
+                                        /* Thêm thanh cuộn nếu nhiều gợi ý */
+                                        max-height: 200px;
+                                        /* Chiều cao tối đa của danh sách gợi ý */
+                                        border-radius: 0 0 5px 5px;
+                                        /* Bo tròn góc dưới */
+                                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                                        /* Hiệu ứng đổ bóng nhẹ */
+                                    }
+
+                                    /*  cho từng mục gợi ý */
+                                    .suggestions-list li {
+                                        display: block;
+                                        /* Đảm bảo mỗi gợi ý là một dòng */
+                                        padding: 10px 15px;
+                                        cursor: pointer;
+                                        white-space: nowrap;
+                                        /* Ngăn văn bản xuống dòng */
+                                        overflow: hidden;
+                                        /* Ẩn phần văn bản bị tràn */
+                                        text-overflow: ellipsis;
+                                        /* Hiển thị dấu ba chấm */
+                                    }
+
+                                    /*  khi hover vào mục gợi ý */
+                                    .suggestions-list li:hover {
+                                        background-color: #f0f0f0;
+                                    }
                                 </style>
                                 <li class="right-side">
-                                    <a href="wishlist.html" class="btn p-0 position-relative header-wishlist">
+                                    <a href="{{ route('account.wishlist') }}"
+                                        class="btn p-0 position-relative header-wishlist">
                                         <i data-feather="heart"></i>
+                                        <span
+                                            class="wishlist-count badge bg-danger position-absolute top-0 start-100 translate-middle">
+                                            {{ $wishlistCount ?? 0 }}
+                                        </span>
                                     </a>
                                 </li>
+
+
                                 <li class="right-side">
                                     <div class="onhover-dropdown header-badge">
                                         <button type="button" class="btn p-0 position-relative header-wishlist">
@@ -288,14 +405,15 @@
                                                                     value="{{ $cartItem->productVariant?->sale_price > 0 ? $cartItem->productVariant->sale_price : null }}">
                                                                 <h6><span class="input-number" name="quantity"
                                                                         data-max-stock="{{ $cartItem->productVariant?->productStock?->stock ?? ($cartItem->product?->productStock?->stock ?? 1) }}">{{ $cartItem->quantity }}
-                                                                        </span>x
+                                                                    </span>x
                                                                     {{ number_format($salePrice, 0, ',', '.') }}đ
                                                                     @if ($salePrice < $price)
                                                                         <del
                                                                             class="text-content">{{ number_format($price, 0, ',', '.') }}đ</del>
                                                                     @endif
                                                                 </h6>
-                                                                <input type="hidden" class="sale_price" value="{{ $salePrice }}" >
+                                                                <input type="hidden" class="sale_price"
+                                                                    value="{{ $salePrice }}">
 
 
                                                                 <form method="POST"
@@ -314,23 +432,24 @@
                                                 @endforeach
 
                                             </ul>
+                                            @if (!auth()->check() || !$cartItems->isEmpty())
+                                                <div class="price-box">
+                                                    <h5>Tổng cộng :</h5>
+                                                    <h4 class="theme-color fw-bold total-dropdown-price">
+                                                        {{ number_format($totalSum, 0, ',', '.') }}đ
+                                                    </h4>
+                                                </div>
 
-                                            <div class="price-box">
-                                                <h5>Tổng cộng :</h5>
-                                                <h4 class="theme-color fw-bold total-dropdown-price">
-                                                    {{ number_format($totalSum, 0, ',', '.') }}đ
-                                                </h4>
-                                            </div>
 
-
-                                            <div class="button-group">
-                                                {{-- <a href="{{ route('cart', ['user' => auth()->id()]) }}"
+                                                <div class="button-group">
+                                                    {{-- <a href="{{ route('cart', ['user' => auth()->id()]) }}"
                                                     class="btn btn-sm cart-button">Giỏ hàng</a> --}}
-                                                <a href="{{ route('cartCheckout') }}"
-                                                    class="btn btn-sm cart-button theme-bg-color
+                                                    <a href="{{ route('cartCheckout') }}"
+                                                        class="btn btn-sm cart-button theme-bg-color
                                                 text-white">Thanh
-                                                    toán</a>
-                                            </div>
+                                                        toán</a>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </li>
@@ -374,8 +493,7 @@
                                                     <button
                                                         class="btn btn-sm cart-button theme-bg-color
                                                 text-white product-box-contain"
-                                                        id="verifyButton">Gửi lại mã xác
-                                                        minh</button>
+                                                        id="verifyButton">Gửi xác minh</button>
                                                     <p id="statusText"></p>
                                                     <p id="timer"></p>
                                                 </div>
@@ -420,7 +538,7 @@
                         <a href="{{ route('categories') }}">
                             <button class="dropdown-category">
                                 <i data-feather="align-left"></i>
-                                <span>All Categories</span>
+                                <span>Danh Mục</span>
                             </button>
                         </a>
 
@@ -439,8 +557,8 @@
                                             <img src="{{ Storage::url($category->icon) }}"
                                                 alt="{{ $category->name }}">
                                             <h6>{{ $category->name }}</h6>
-                            
-                                            @if($category->categories->count() > 0)
+
+                                            @if ($category->categories->count() > 0)
                                                 <i class="fa-solid fa-angle-right"></i>
                                             @endif
                                         </a>
@@ -463,7 +581,7 @@
                                     </li>
                                 @endforeach
                             </ul>
-                            
+
                         </div>
                     </div>
 
@@ -1027,85 +1145,162 @@
         }
     </script>
     <script>
-     function updateCartSessionForHeader() {
-    console.log("⚡ Hàm updateCartSessionForHeader() được gọi");
+        function updateCartSessionForHeader() {
+            console.log("⚡ Hàm updateCartSessionForHeader() được gọi");
 
-    let selectedProducts = [];
-    let totalSum = 0;
+            let selectedProducts = [];
+            let totalSum = 0;
 
-    $(".drop-cart").each(function() {
-        let row = $(this);
-        let cartItemId = row.data("id");
-        let qty = parseInt(row.find(".input-number").text()) || 1;
-        let productId = row.data("product-id") || null;
-        let productVariantId = row.data("product-variant-id") || null;
-        let productName = row.find("h5").text().trim();
-        let nameVariant = row.find(".selected-variation").text().trim() || null;
-        let imageUrl = row.find(".drop-image img").attr("src") || "";
+            $(".drop-cart").each(function() {
+                let row = $(this);
+                let cartItemId = row.data("id");
+                let qty = parseInt(row.find(".input-number").text()) || 1;
+                let productId = row.data("product-id") || null;
+                let productVariantId = row.data("product-variant-id") || null;
+                let productName = row.find("h5").text().trim();
+                let nameVariant = row.find(".selected-variation").text().trim() || null;
+                let imageUrl = row.find(".drop-image img").attr("src") || "";
 
-        if (imageUrl.startsWith("http")) {
-            let url = new URL(imageUrl);
-            imageUrl = url.pathname.replace("/storage/", "").replace(/^\/+/, "");
+                if (imageUrl.startsWith("http")) {
+                    let url = new URL(imageUrl);
+                    imageUrl = url.pathname.replace("/storage/", "").replace(/^\/+/, "");
+                }
+
+                let originalPrice = parseInt(row.find(".price").val()) || 0;
+                let salePrice = parseInt(row.find(".old_price").val()) || 0;
+                let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
+                let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
+
+                let finalPrice = salePrice > 0 ? salePrice : originalPrice;
+                let oldPrice = salePrice > 0 ? originalPrice : null;
+
+                let finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
+                let oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
+
+                selectedProducts.push({
+                    id: cartItemId,
+                    product_id: productId,
+                    product_variant_id: productVariantId,
+                    name: productName,
+                    name_variant: nameVariant,
+                    image: imageUrl,
+                    price: finalPrice,
+                    old_price: oldPrice,
+                    price_variant: productVariantId ? finalPriceVariant : null,
+                    old_price_variant: productVariantId ? oldPriceVariant : null,
+                    quantity: productVariantId ? null : qty,
+                    quantity_variant: productVariantId ? qty : null,
+                });
+
+                totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
+            });
+
+            console.log("📤 Dữ liệu gửi lên server:", selectedProducts);
+            console.log("📤 Tổng tiền gửi lên server:", totalSum);
+
+            $.ajax({
+                url: "{{ route('cart.saveSession') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    selectedProducts: selectedProducts,
+                    total: totalSum
+                },
+                success: function(response) {
+                    console.log("✅ Giỏ hàng header cập nhật thành công!", response);
+                },
+                error: function(xhr, status, error) {
+                    console.log("❌ Lỗi khi cập nhật giỏ hàng:", xhr.responseText);
+                }
+            });
+
         }
-
-        let originalPrice = parseInt(row.find(".price").val()) || 0;
-        let salePrice = parseInt(row.find(".old_price").val()) || 0;
-        let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
-        let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
-
-        let finalPrice = salePrice > 0 ? salePrice : originalPrice;
-        let oldPrice = salePrice > 0 ? originalPrice : null;
-
-        let finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
-        let oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
-
-        selectedProducts.push({
-            id: cartItemId,
-            product_id: productId,
-            product_variant_id: productVariantId,
-            name: productName,
-            name_variant: nameVariant,
-            image: imageUrl,
-            price: finalPrice,
-            old_price: oldPrice,
-            price_variant: productVariantId ? finalPriceVariant : null,
-            old_price_variant: productVariantId ? oldPriceVariant : null,
-            quantity: productVariantId ? null : qty,
-            quantity_variant: productVariantId ? qty : null,
+        
+        $(document).ready(function() {
+            $(".button-group .cart-button.theme-bg-color").on("click", function() {
+                console.log("⚡ Nút Thanh toán được click");
+                updateCartSessionForHeader();
+            });
         });
 
-        totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
-    });
 
-    console.log("📤 Dữ liệu gửi lên server:", selectedProducts);
-    console.log("📤 Tổng tiền gửi lên server:", totalSum);
+        // wishList
+        function updateWishlistCount(count) {
+            document.querySelector(".wishlist-count").textContent = count;
+        }
 
-    $.ajax({
-    url: "{{ route('cart.saveSession') }}",
-    type: "POST",
-    data: {
-        _token: "{{ csrf_token() }}",
-        selectedProducts: selectedProducts,
-        total: totalSum
-    },
-    success: function(response) {
-        console.log("✅ Giỏ hàng header cập nhật thành công!", response);
-    },
-    error: function(xhr, status, error) {
-        console.log("❌ Lỗi khi cập nhật giỏ hàng:", xhr.responseText);
-    }
-});
+        document.querySelectorAll(".wishlist-button").forEach(button => {
+            button.addEventListener("click", function() {
+                let productId = this.dataset.id;
 
-}
-$(document).ready(function () {
-    $(".button-group .cart-button.theme-bg-color").on("click", function () {
-        console.log("⚡ Nút Thanh toán được click");
-        updateCartSessionForHeader();
-    });
-});
-
-
-
+                fetch(`/wishlist/toggle/${productId}`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                            "Content-Type": "application/json"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.result) {
+                            updateWishlistCount(data.wishlistCount);
+                        }
+                    })
+                    .catch(error => console.error("Error updating wishlist:", error));
+            });
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const suggestionsList = document.getElementById('suggestions');
+            const searchBox = searchInput.closest('.search-box');
+            const searchForm = searchInput.closest('form');
+        
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                suggestionsList.innerHTML = '';
+        
+                if (query.length < 2) {
+                    suggestionsList.style.display = 'none';
+                    return;
+                }
+        
+                fetch(`/api/search/suggestions?query=${query}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            data.forEach(suggestion => {
+                                const listItem = document.createElement('li');
+                                listItem.textContent = suggestion;
+                                listItem.addEventListener('click', function() {
+                                    searchInput.value = suggestion;
+                                    suggestionsList.style.display = 'none';
+                                    searchForm.submit(); // Tự động submit form khi chọn gợi ý
+                                });
+                                suggestionsList.appendChild(listItem);
+                            });
+                            suggestionsList.style.display = 'block';
+                        } else {
+                            suggestionsList.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching suggestions:', error);
+                        suggestionsList.style.display = 'none';
+                    });
+            });
+        
+            // Ẩn gợi ý khi click ra ngoài
+            document.addEventListener('click', function(event) {
+                if (!searchBox.contains(event.target)) {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+        });
     </script>
- 
 @endpush

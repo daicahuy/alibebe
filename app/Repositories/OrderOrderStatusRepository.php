@@ -18,9 +18,6 @@ class OrderOrderStatusRepository extends BaseRepository
     public function changeStatusOrder($idOrder, int $idStatus)
     {
 
-
-
-
         return DB::transaction(function () use ($idOrder, $idStatus) {
             if (is_array($idOrder)) {
                 foreach ($idOrder as $orderId) {
