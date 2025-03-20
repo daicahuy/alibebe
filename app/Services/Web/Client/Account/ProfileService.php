@@ -62,6 +62,12 @@ class ProfileService
                     'nullable',
                     'string',
                     'max:255' // Địa chỉ mới nếu không có mặc định
+                ],
+                'phone_number' => [
+                    'nullable',
+                    'string',
+                    'regex:/^[0-9]{10,11}$/',  // Kiểm tra số điện thoại 10-11 số
+                    Rule::unique('users')->ignore($this->accountRepository->findUserLogin()->id),
                 ]
             ],
             [
@@ -102,11 +108,13 @@ class ProfileService
                 } else if (!empty($data['address'])) {
                     // Nếu có địa chỉ cũ được chọn, đặt nó là mặc định
                     $oldDefaultAddress = $this->userAddressRepository->findById($data['address']);
-                    if ($oldDefaultAddress) {
+                    if ($oldDefaultAddress && $oldDefaultAddress->is_default == 0) {
+
+                        $oldDefaultAddress->update(['is_default' => 1]);
+
                         if ($addressDefault) {
                             $addressDefault->update(['is_default' => 0]);
                         }
-                        $oldDefaultAddress->update(['is_default' => 1]);
                     }
                 }
 
@@ -193,20 +201,26 @@ class ProfileService
         try {
             $user = $this->accountRepository->findUserLogin();
 
-            // Kiểm tra mật khẩu cũ có đúng không
-            if (!Hash::check($data['current_password'], $user->password)) {
-                return [
-                    'status' => false,
-                    'message' => 'Mật khẩu cũ không đúng!'
-                ];
-            }
+            // Kiểm tra xem người dùng đăng nhập bằng Google và chưa có mật khẩu
+            $isGoogleUserWithoutPassword = $user->google_id && !$user->password;
 
-            // Không cho phép nhập mật khẩu mới giống mật khẩu cũ
-            if (Hash::check($data['new_password'], $user->password)) {
-                return [
-                    'status' => false,
-                    'message' => 'Vui lòng không nhập lại mật khẩu cũ!'
-                ];
+            // Nếu không phải người dùng Google hoặc người dùng đã có mật khẩu
+            if (!$isGoogleUserWithoutPassword) {
+                // Kiểm tra mật khẩu cũ có đúng không
+                if (!isset($data['current_password']) || !Hash::check($data['current_password'], $user->password)) {
+                    return [
+                        'status' => false,
+                        'message' => 'Mật khẩu cũ không đúng!'
+                    ];
+                }
+
+                // Không cho phép nhập mật khẩu mới giống mật khẩu cũ
+                if (Hash::check($data['new_password'], $user->password)) {
+                    return [
+                        'status' => false,
+                        'message' => 'Vui lòng không nhập lại mật khẩu cũ!'
+                    ];
+                }
             }
 
             // Cập nhật mật khẩu mới
@@ -214,9 +228,13 @@ class ProfileService
                 'password' => Hash::make($data['new_password'])
             ]);
 
+            $message = $isGoogleUserWithoutPassword ?
+                'Đã tạo mật khẩu thành công! Vui lòng đăng nhập lại.' :
+                'Cập nhật mật khẩu thành công! Vui lòng đăng nhập lại.';
+
             return [
                 'status' => true,
-                'message' => 'Cập nhật mật khẩu thành công! Vui lòng đăng nhập lại.',
+                'message' => $message,
                 'logout_required' => true
             ];
         } catch (\Throwable $th) {

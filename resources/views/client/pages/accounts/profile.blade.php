@@ -238,6 +238,14 @@
                                         <label for="address">{{ __('form.user_addresses') }}</label>
                                     </div>
                                 @endif
+                                <!-- Thêm trường số điện thoại nếu chưa có -->
+                                @if (empty($user->phone_number))
+                                    <div class="form-floating theme-form-floating mt-3">
+                                        <input type="text" class="form-control" name="phone_number" id="phone_number"
+                                            value="{{ old('phone_number') }}" placeholder="Nhập số điện thoại">
+                                        <label for="phone_number">{{ __('form.user.phone_number') }}</label>
+                                    </div>
+                                @endif
 
                                 <!-- Submit and Cancel Buttons -->
                                 <div class="modal-footer mt-3">
@@ -268,21 +276,27 @@
                     <form id="password-form" method="POST" action="{{ route('account.update-password') }}">
                         @csrf
                         @method('PATCH')
-                        <div class="mb-3">
-                            <label for="old-password" class="form-label">Mật Khẩu Cũ</label>
-                            <input type="password" class="form-control" name="current_password" id="old-password"
-                                value="{{ old('current_password') }}">
-                        </div>
+
+                        @if (!auth()->user()->google_id || auth()->user()->password)
+                            <div class="mb-3">
+                                <label for="old-password" class="form-label">Mật Khẩu Cũ</label>
+                                <input type="password" class="form-control" name="current_password" id="old-password"
+                                    value="{{ old('current_password') }}">
+                            </div>
+                        @endif
+
                         <div class="mb-3">
                             <label for="new-password" class="form-label">Mật Khẩu Mới</label>
                             <input type="password" class="form-control" name="new_password" id="new-password"
                                 value="{{ old('new_password') }}">
                         </div>
+
                         <div class="mb-3">
                             <label for="confirm-password" class="form-label">Xác Nhận Mật Khẩu Mới</label>
                             <input type="password" class="form-control" name="password_confirmation"
                                 id="confirm-password">
                         </div>
+
                         <button type="submit" class="btn theme-bg-color text-white btn-sm fw-bold mt-lg-0 mt-3">Lưu Mật
                             Khẩu</button>
                     </form>

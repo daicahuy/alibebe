@@ -22,13 +22,25 @@ class UpdateAccountPasswordRequest extends FormRequest
      */
     public function rules(): array
     {
+        $user = auth()->user();
+        $isGoogleUserWithoutPassword = $user->google_id && !$user->password;
+
+        // Nếu người dùng đăng nhập bằng Google và chưa có mật khẩu
+        if ($isGoogleUserWithoutPassword) {
+            return [
+                'new_password' => ['required', 'min:6'],
+                'password_confirmation' => ['required', 'same:new_password'],
+            ];
+        }
+
+        // Cho người dùng thông thường hoặc người dùng Google đã có mật khẩu
         return [
             'current_password' => ['required'],
             'new_password' => ['required', 'min:6'],
-            'password_confirmation' => ['required'], // Bắt buộc nhập lại mật khẩu
+            'password_confirmation' => ['required', 'same:new_password'],
         ];
     }
-    
+
     public function messages(): array
     {
         return [
