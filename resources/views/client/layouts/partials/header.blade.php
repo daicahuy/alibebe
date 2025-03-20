@@ -113,8 +113,8 @@
 
                         <div class="middle-box">
                             <div class="search-box">
-                                <form action="{{ route('search') }}" method="GET">
-                                    <div class="input-group">
+                                <form action="{{ route('search') }}" method="GET" class="w-100">
+                                    <div class="input-group d-flex align-items-center flex-nowrap">
                                         <input type="search" class="form-control" id="searchInput" name="query"
                                             placeholder="Im searching for..." autocomplete="off"
                                             value="{{ request('query') }}">
@@ -1218,66 +1218,93 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const suggestionsList = document.getElementById('suggestions');
-            const searchBox = searchInput.closest('.search-box');
-            const searchForm = searchInput.closest('form');
+    const searchInput = document.getElementById('searchInput');
+    const suggestionsList = document.getElementById('suggestions');
+    const searchBox = searchInput.closest('.search-box');
+    const searchForm = searchInput.closest('form');
 
-            searchInput.addEventListener('input', function() {
-                const query = this.value.trim();
-                suggestionsList.innerHTML = '';
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        suggestionsList.innerHTML = '';
 
-                if (query.length < 2) {
-                    suggestionsList.style.display = 'none';
-                    return;
+        if (query.length < 2) {
+            suggestionsList.style.display = 'none';
+            return;
+        }
+
+        fetch(`/api/search/suggestions?query=${query}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.length > 0) {
+                    data.forEach(product => {
+                        const listItem = document.createElement('li');
+                        listItem.classList.add('suggestion-item');
 
-                fetch(`/api/search/suggestions?query=${query}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data && data.length > 0) {
-                            data.forEach(suggestion => {
-                                const listItem = document.createElement('li');
-                                listItem.textContent = suggestion;
-                                listItem.addEventListener('click', function() {
-                                    searchInput.value = suggestion;
-                                    suggestionsList.style.display = 'none';
-                                    searchForm
-                                .submit(); // Tự động submit form khi chọn gợi ý
-                                });
-                                suggestionsList.appendChild(listItem);
-                            });
-                            suggestionsList.style.display = 'block';
-                        } else {
-                            suggestionsList.style.display = 'none';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching suggestions:', error);
-                        suggestionsList.style.display = 'none';
+                        const image = document.createElement('img');
+                        image.src = `/storage/${product.thumbnail}`;
+                        image.alt = product.name;
+                        image.style.width = '30px';
+                        image.style.height = '30px';
+                        image.style.marginRight = '5px';
+                        image.style.verticalAlign = 'middle';
+
+                        const link = document.createElement('a');
+                        link.href = `/products/${product.slug}`;
+                        link.textContent = product.name;
+                        link.style.textDecoration = 'none';
+                        link.style.color = '#333';
+
+                        listItem.appendChild(image);
+                        listItem.appendChild(link);
+
+                        listItem.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            const selectedProductName = product.name; // Get the name of the clicked product
+                            localStorage.setItem('selectedSuggestionName', selectedProductName); // Store the name
+                            window.location.href = link.href;
+                        });
+
+                        suggestionsList.appendChild(listItem);
                     });
-            });
-
-            // Ẩn gợi ý khi click ra ngoài
-            document.addEventListener('click', function(event) {
-                if (!searchBox.contains(event.target)) {
+                    suggestionsList.style.display = 'block';
+                } else {
                     suggestionsList.style.display = 'none';
                 }
+            })
+            .catch(error => {
+                console.error('Error fetching suggestions:', error);
+                suggestionsList.style.display = 'none';
             });
-        });
+    });
 
-        $(document).ready(function() {
-            $(".button-group .cart-button.theme-bg-color").on("click", function() {
-                console.log("⚡ Nút Thanh toán được click");
-                updateCartSessionForHeader();
-            });
-        });
+    // Khôi phục tên sản phẩm đã chọn khi trang được load
+    window.onload = function() {
+        const selectedName = localStorage.getItem('selectedSuggestionName');
+        if (selectedName) {
+            searchInput.value = selectedName;
+            localStorage.removeItem('selectedSuggestionName');
+        }
+    };
 
+    // Ẩn gợi ý khi click ra ngoài
+    document.addEventListener('click', function(event) {
+        if (!searchBox.contains(event.target)) {
+            suggestionsList.style.display = 'none';
+        }
+    });
+});
+
+$(document).ready(function() {
+    $(".button-group .cart-button.theme-bg-color").on("click", function() {
+        console.log("⚡ Nút Thanh toán được click");
+        updateCartSessionForHeader();
+    });
+});
 
         // wishList
         function updateWishlistCount(count) {

@@ -1352,23 +1352,24 @@ END');
     }
 
     public function searchProductsByName(string $query, int $limit = 10)
-    {
-        return Product::query()
-            ->where('name', 'LIKE', '%' . $query . '%')
-            ->orWhereHas('brand', function ($q) use ($query) {
-                $q->where('name', 'LIKE', '%' . $query . '%');
-            })
-            ->orWhereHas('categories', function ($q) use ($query) {
-                $q->where('name', 'LIKE', '%' . $query . '%');
-            })
-            ->orWhereHas('attributeValues', function ($q) use ($query) {
-                $q->where('value', 'LIKE', '%' . $query . '%');
-            })
-            ->where('is_active', 1)
-            ->with(['brand:id,name', 'categories:id,name', 'attributeValues:id,value']) // Eager load để tránh N+1 queries (tùy chọn)
-            ->limit($limit)
-            ->pluck('name');
-    }
+{
+    return Product::query()
+        ->where('name', 'LIKE', '%' . $query . '%')
+        ->orWhereHas('brand', function ($q) use ($query) {
+            $q->where('name', 'LIKE', '%' . $query . '%');
+        })
+        ->orWhereHas('categories', function ($q) use ($query) {
+            $q->where('name', 'LIKE', '%' . $query . '%');
+        })
+        ->orWhereHas('attributeValues', function ($q) use ($query) {
+            $q->where('value', 'LIKE', '%' . $query . '%');
+        })
+        ->where('is_active', 1)
+        ->with(['brand:id,name', 'categories:id,name', 'attributeValues:id,value']) // Eager load
+        ->select('id', 'name', 'slug', 'thumbnail') // Chọn cả trường thumbnail
+        ->limit($limit)
+        ->get();
+}
     public function searchProducts(string $query)
     {
         return Product::query()
