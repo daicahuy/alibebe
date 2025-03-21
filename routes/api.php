@@ -75,7 +75,7 @@ Route::get('/products/{id}', [DetailProductController::class, 'getProductDetail'
 
 // Route::post('/comments', [DetailProductController::class, 'storeComment']);
 // Route::post('/reply-comments', [DetailProductController::class, 'storeReply']);
-Route::patch('/products/{product}/active', [ProductController::class, 'toggleActive']);
+// Route::patch('/products/{product}/active', [ProductController::class, 'toggleActive']);
 
 Route::prefix('/categories')
     ->name('api.categories.')
@@ -198,6 +198,7 @@ Route::prefix('/products')
         Route::post('/variant', [ProductController::class, 'storeVariant'])->name('storeVariant');
         Route::put('/single/{id}', [ProductController::class, 'updateSingle'])->name('updateSingle')->where(['id' => '[0-9]+']);
         Route::put('/variant/{id}', [ProductController::class, 'updateVariant'])->name('updateVariant')->where(['id' => '[0-9]+']);
+        Route::patch('/{id}/active', [ProductController::class, 'toggleActive'])->name('toggleActive')->where(['id' => '[0-9]+']);;
     });
 
 // STOCK

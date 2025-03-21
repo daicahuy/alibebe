@@ -848,6 +848,7 @@ END');
             ->select(
                 'id',
                 'sku',
+                'slug',
                 'thumbnail',
                 'name',
                 'price',

@@ -167,7 +167,8 @@
                                         class="btn p-0 position-relative header-compare">
                                         <i data-feather="refresh-cw"></i>
                                         <span
-                                            class="position-absolute top-0 start-100 translate-middle badge-compare">0
+                                            class="position-absolute top-0 start-100 translate-middle badge-compare"
+                                            id="compare-count-badge">0
                                         </span>
                                     </a>
                                 </li>

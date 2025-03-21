@@ -7,6 +7,7 @@ use App\Http\Requests\ListCategoriesFilterRequest;
 use App\Models\Category;
 use App\Repositories\WishlistRepository;
 use App\Services\Web\Admin\CategoryService;
+use App\Services\Web\Client\CompareService;
 use App\Services\Web\Client\ListCategoriesService;
 use Illuminate\Http\Request;
 use Storage;
@@ -15,10 +16,12 @@ class ListCategoriesController extends Controller
 {
     protected ListCategoriesService $listCategoriesService;
     protected WishlistRepository $wishlistRepository;
-    public function __construct(ListCategoriesService $listCategoriesService, WishlistRepository $wishlistRepository)
+    protected CompareService $compareService;
+    public function __construct(ListCategoriesService $listCategoriesService, WishlistRepository $wishlistRepository, CompareService $compareService)
     {
         $this->listCategoriesService = $listCategoriesService;
         $this->wishlistRepository = $wishlistRepository;
+        $this->compareService = $compareService;
     }
     public function index(ListCategoriesFilterRequest $request, $slug = null)
     {
@@ -48,7 +51,12 @@ class ListCategoriesController extends Controller
         $listStar = $this->listCategoriesService->getAllReviews($slug ? $category->id : null);
         $listVariantAttributes = $this->listCategoriesService->listVariantAttributes($slug ? $category->id : null);
 
-        // dd($listStar); 
+        // dd($request->cookies->get('compare_list'));
+        // compare
+        $compareCookie = $request->cookie('compare_list');
+        $compareCount = $this->compareService->CompareCount($compareCookie);
+        // dd($request); 
+
 
         return view('client.pages.list-categories', compact(
             'listParentCategories',
@@ -57,7 +65,8 @@ class ListCategoriesController extends Controller
             'listStar',
             'sortBy',
             'currentFilters',
-            'wishlistProductIds'
+            'wishlistProductIds',
+            'compareCount',
         ));
     }
 

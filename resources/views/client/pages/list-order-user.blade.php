@@ -1256,6 +1256,45 @@
             fetchOrders();
 
         })
+         // comapre-count
+         function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.startsWith(name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            function updateCompareCountBadge() {
+                const compareCookieName = 'compare_list';
+                const compareListCookie = getCookie(compareCookieName);
+                let compareCount = 0;
+                if (compareListCookie) {
+                    try {
+                        const compareList = JSON.parse(compareListCookie);
+                        compareCount = compareList.length;
+                    } catch (error) {
+                        console.error('Lỗi khi parse cookie compare_list:', error);
+                    }
+                }
+                $('#compare-count-badge').text(compareCount);
+                if (compareCount > 0) {
+                    $('#compare-count-badge').show(); // Hoặc sử dụng class để hiển thị
+                } else {
+                    $('#compare-count-badge').hide(); // Hoặc sử dụng class để ẩn
+                }
+            }
+
+            // Gọi hàm này khi trang sản phẩm được tải
+            updateCompareCountBadge(); //end compare
     </script>
 
     <script src="{{ asset('js/utility.js') }}"></script>
