@@ -235,6 +235,7 @@
 @push('js_library')
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.2/jquery.twbsPagination.min.js"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 @endpush
 
 @push('js')
@@ -265,6 +266,16 @@
 
             function renderHtmlModalOrderRefund(dataOrderRefund) {
 
+                Pusher.logToConsole = true;
+
+                var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                    cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+                });
+
+                var channel = pusher.subscribe('order-refund-status.' + dataOrderRefund.id);
+                channel.bind('event-change-status-refund', function(data) {
+                    callApiGetDataOrderRefund()
+                });
 
                 $('#button-box-footer').empty();
                 $("#modalConfirm #admin_reason_div").empty();
@@ -696,6 +707,25 @@
 
             }
 
+
+            let changedOrderIds = [];
+            let debounceTimer;
+
+            function handleStatusChange(orderId) {
+
+                if (!changedOrderIds.includes(orderId)) {
+                    changedOrderIds.push(orderId);
+                }
+
+
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+
+                    fetchOrders();
+                    changedOrderIds = [];
+                }, 2000);
+            }
+
             function renderTable(orders, totalPages) {
                 $("#orderTable tbody").empty();
 
@@ -708,6 +738,18 @@
                 } else {
                     orders.forEach(order => {
                         let statusClass;
+
+                        Pusher.logToConsole = true;
+
+                        var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                            cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+                        });
+
+                        var channel = pusher.subscribe('order-refund-status.' + order.id);
+                        channel.bind('event-change-status-refund', function(data) {
+                            handleStatusChange(data.orderId)
+                        });
+
 
                         // Xác định màu sắc của badge dựa trên trạng thái đơn hàng
                         switch (order.status) {
@@ -842,6 +884,17 @@
             $("#search").on('input', debouncedGetOrderRefund)
 
             fetchOrders();
+
+            Pusher.logToConsole = true;
+
+            var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+            });
+
+            var channel = pusher.subscribe('order-refund-create-update');
+            channel.bind('event-create-order-refund', function(data) {
+                fetchOrders()
+            });
 
 
 

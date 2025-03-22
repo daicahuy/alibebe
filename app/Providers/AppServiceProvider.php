@@ -25,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+
         Paginator::useBootstrapFive();
         View::composer('admin.layouts.partials.header', function ($view) {
             $view->with('user', Auth::user());
@@ -35,16 +37,16 @@ class AppServiceProvider extends ServiceProvider
             $cartItems = [];
 
             if (Auth::check()) {
-            $cartItemService = app(CartItemService::class); 
-            $cartItems = $cartItemService->getAllCartItem();
-        }
+                $cartItemService = app(CartItemService::class);
+                $cartItems = $cartItemService->getAllCartItem();
+            }
             $view->with('cartItems', $cartItems);
         });
-         // Đưa danh mục cha - con vào client header
+        // Đưa danh mục cha - con vào client header
         View::composer('client.layouts.partials.header', function ($view) {
-            $homeService = app(HomeService::class); 
+            $homeService = app(HomeService::class);
             $categories = $homeService->getAllCategories();
-            
+
             // Lấy danh sách ID danh mục con
             $categoryIds = collect();
             foreach ($categories as $category) {
@@ -54,9 +56,9 @@ class AppServiceProvider extends ServiceProvider
             $view->with(compact('categories', 'categoryIds'));
         });
 
-          // Luôn có số lượng wishlist trên toàn bộ trang
-          View::composer('*', function ($view) {
-            $wishlistService = app(WishlistService::class); 
+        // Luôn có số lượng wishlist trên toàn bộ trang
+        View::composer('*', function ($view) {
+            $wishlistService = app(WishlistService::class);
             $wishlistCount = Auth::check() ? $wishlistService->count() : 0;
             $view->with('wishlistCount', $wishlistCount);
         });
