@@ -455,10 +455,10 @@
 @endpush
 
 @push('js')
-<script>
-    let sessionData = <?php echo json_encode(session('selectedProducts')); ?>;
-    console.log(sessionData); // Kiểm tra dữ liệu trên console
-</script>
+    <script>
+        let sessionData = <?php echo json_encode(session('selectedProducts')); ?>;
+        console.log(sessionData); // Kiểm tra dữ liệu trên console
+    </script>
 
 
     <script>
@@ -1055,7 +1055,8 @@
                     //chưa thanh toán
                     dataSaveOrder.payment_id = $("input[name='payment-type']:checked").val();
                     dataSaveOrder.is_paid = 0;
-
+                    // console.log("ordersItem: ", ordersItem);
+                    // return;
                     $.ajax({
                         url: 'http://127.0.0.1:8000/api/createOrder',
                         type: 'POST',
@@ -1065,8 +1066,7 @@
                             _token: '{{ csrf_token() }}' // Laravel CSRF token
                         },
                         success: function(response) {
-                            // console.log("Order: ", response);
-                            // return;
+
                             if (response.status == 200) {
                                 window.location.href = '/page_successfully';
                             } else {

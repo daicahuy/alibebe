@@ -144,35 +144,37 @@ class AddressService
     public function updateIdDefault()
     {
         try {
-
             $addressId = request('address_id');
-
-            $addressDefault  = $this->accountRepository->getUserProfileData()->defaultAddress;
-
+            $userProfile = $this->accountRepository->getUserProfileData();
             $address = $this->userAddressRepository->findById($addressId);
-
-            if ($address->is_default !== 1) {
+            
+            // Check if the address exists and is not already default
+            if ($address && $address->is_default !== 1) {
+                // Update the new address to be default
                 $address->update([
                     'is_default' => 1
                 ]);
-
-                $addressDefault->update([
-                    'is_default' => 0
-                ]);
+                
+                // Only update the old default address if it exists
+                if ($userProfile->defaultAddress) {
+                    $userProfile->defaultAddress->update([
+                        'is_default' => 0
+                    ]);
+                }
             }
-
+            
             return [
                 'status' => true,
                 'message' => 'Chỉnh Sửa Địa Chỉ Mặc Định Thành Công !'
             ];
         } catch (\Throwable $th) {
-            // Ghi log lỗi
+            // Log the error
             Log::error("Error in AddressService::updateIdDefault", [
                 'message' => $th->getMessage(),
-                'data' => $addresses ?? 'No user data'
+                'data' => $userProfile ?? 'No user data'
             ]);
-
-            // Trả về phản hồi lỗi
+            
+            // Return error response
             return [
                 'status' => false,
                 'message' => 'Có lỗi xảy ra, vui lòng thử lại!'

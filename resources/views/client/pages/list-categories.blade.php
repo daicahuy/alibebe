@@ -1061,7 +1061,8 @@
                     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
                     expires = "; expires=" + date.toUTCString();
                 }
-                document.cookie = name + "=" + (value || "") + expires + "; path=/";
+                document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=127.0.0.1";
+    console.log('Cookie set (without port):', document.cookie);
             }
 
             // Hàm xóa cookie
@@ -1084,6 +1085,7 @@
                     compareList.push(productId); // Thêm sản phẩm vào list
                     setCookie(compareCookieName, JSON.stringify(compareList),
                         30); // Lưu lại vào cookie (JSON string, hết hạn sau 30 ngày)
+                        // console.log('Cookie compare_list đã được thiết lập:', document.cookie);
                     updateCompareCountBadgeCookie(); // Cập nhật badge số lượng
                 }
             }
@@ -1246,7 +1248,7 @@
                         console.error('[addProductToCompare] Lỗi AJAX request:', error);
                     }
                 });
-            }
+            } // end compare
 
 
         }); // end document

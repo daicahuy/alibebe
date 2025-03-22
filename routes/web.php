@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\Admin\CategoryController;
 use App\Http\Controllers\Web\Admin\CommentController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Web\Admin\DashboardController;
+use App\Http\Controllers\Web\Admin\InventoryController;
 use App\Http\Controllers\Web\Admin\OrderController;
 use App\Http\Controllers\web\admin\OrderRefundController;
 use App\Http\Controllers\Web\Admin\ProductController;
@@ -295,6 +296,18 @@ Route::prefix('/admin')
             Route::post('/bulk-restore', 'bulkRestore')->name('bulkRestore');
 
             Route::post('/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
+        });
+
+        // INVENTORY
+        Route::prefix('/inventory')
+            ->name('inventory.')
+            ->controller(InventoryController::class)
+            ->group(function () {
+
+            Route::get('/', 'index')->name('index');
+
+            Route::get('/history', 'history')->name('history');
+
         });
 
         // ATTRIBUTES

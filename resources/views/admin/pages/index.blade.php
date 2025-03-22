@@ -447,5 +447,25 @@
         $("#end_date_input_2").click(function() {
             $("#end_date_input_2").open();
         });
+
+        $(document).ready(function() {
+            @if(session('success'))
+            Toastify({
+                text: "{{ session('success') }}",
+                duration: 2000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: "linear-gradient(to right, #00b09b, #96c93d)",
+                },
+            }).showToast();
+            setTimeout(function() {
+                window.location.href = 'admin';
+            }, 500);
+        @endif
+
+        })
     </script>
 @endpush
