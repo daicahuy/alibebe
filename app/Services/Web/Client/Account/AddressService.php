@@ -3,6 +3,7 @@
 namespace App\Services\Web\Client\Account;
 
 use App\Enums\OrderStatusType;
+use App\Models\UserAddress;
 use App\Repositories\AccountRepository;
 use App\Repositories\OrderRepository;
 use App\Repositories\UserAddressRepository;
@@ -49,7 +50,8 @@ class AddressService
             'phone_number' => [
                 'nullable',
                 'string',
-                'max:20'
+                'max:11',
+                'regex:/^[0-9]{10,11}$/'
             ],
             'is_default' => [
                 'nullable',
@@ -57,6 +59,7 @@ class AddressService
                 Rule::in([0, 1])
             ]
         ]);
+
         try {
             // Lấy thông tin người dùng đang đăng nhập
             $userLogin = $this->accountRepository->findUserLogin();
@@ -85,9 +88,10 @@ class AddressService
             $address = $this->userAddressRepository->create($data);
 
             // Nếu địa chỉ mới là mặc định và đã có địa chỉ mặc định, thì cập nhật địa chỉ cũ
-            $addressDefault = $this->accountRepository->getUserProfileData()->defaultAddress;
-            if ($address->is_default == 1 && $addressDefault) {
-                $addressDefault->update(['is_default' => 0]);
+            if ($address->is_default == 1) {
+                UserAddress::where('user_id', $userId)
+                    ->where('id', '<>', $address->id)
+                    ->update(['is_default' => 0]);
             }
 
             return [
@@ -108,7 +112,6 @@ class AddressService
             ];
         }
     }
-
     public function deleteAddress($id)
     {
         try {
@@ -147,14 +150,14 @@ class AddressService
             $addressId = request('address_id');
             $userProfile = $this->accountRepository->getUserProfileData();
             $address = $this->userAddressRepository->findById($addressId);
-            
+
             // Check if the address exists and is not already default
             if ($address && $address->is_default !== 1) {
                 // Update the new address to be default
                 $address->update([
                     'is_default' => 1
                 ]);
-                
+
                 // Only update the old default address if it exists
                 if ($userProfile->defaultAddress) {
                     $userProfile->defaultAddress->update([
@@ -162,7 +165,7 @@ class AddressService
                     ]);
                 }
             }
-            
+
             return [
                 'status' => true,
                 'message' => 'Chỉnh Sửa Địa Chỉ Mặc Định Thành Công !'
@@ -173,7 +176,7 @@ class AddressService
                 'message' => $th->getMessage(),
                 'data' => $userProfile ?? 'No user data'
             ]);
-            
+
             // Return error response
             return [
                 'status' => false,
@@ -198,7 +201,8 @@ class AddressService
             'phone_number' => [
                 'nullable',
                 'string',
-                'max:20'
+                'max:11',
+                'regex:/^[0-9]{10,11}$/'
             ],
             'is_default' => [
                 'nullable',

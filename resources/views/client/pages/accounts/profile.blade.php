@@ -19,25 +19,6 @@
             <div class="profile-name-detail">
                 <div class="d-sm-flex align-items-center d-block">
                     <h3>{{ $user->fullname }}</h3>
-                    <div class="product-rating profile-rating">
-                        <ul class="rating">
-                            <li>
-                                <i data-feather="star" class="fill"></i>
-                            </li>
-                            <li>
-                                <i data-feather="star" class="fill"></i>
-                            </li>
-                            <li>
-                                <i data-feather="star" class="fill"></i>
-                            </li>
-                            <li>
-                                <i data-feather="star"></i>
-                            </li>
-                            <li>
-                                <i data-feather="star"></i>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
 
                 <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#editProfile">Chỉnh Sửa</a>
@@ -277,7 +258,7 @@
                         @csrf
                         @method('PATCH')
 
-                        @if (!auth()->user()->google_id || auth()->user()->password)
+                        @if (auth()->user()->is_change_password === 1)
                             <div class="mb-3">
                                 <label for="old-password" class="form-label">Mật Khẩu Cũ</label>
                                 <input type="password" class="form-control" name="current_password" id="old-password"

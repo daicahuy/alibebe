@@ -49,7 +49,7 @@ class ProfileService
                     Rule::in([0, 1, 2]) // 0: Khác, 1: Nam, 2: Nữ
                 ],
                 'birthday' => [
-                    'required',
+                    'nullable',
                     'date',
                     'before_or_equal:today'
                 ],
@@ -201,8 +201,8 @@ class ProfileService
         try {
             $user = $this->accountRepository->findUserLogin();
 
-            // Kiểm tra xem người dùng đăng nhập bằng Google và chưa có mật khẩu
-            $isGoogleUserWithoutPassword = $user->google_id && !$user->password;
+            // Kiểm tra xem người dùng đăng nhập bằng Google và chưa đổi mật khẩu
+            $isGoogleUserWithoutPassword = $user->google_id && $user->is_change_password == 0;
 
             // Nếu không phải người dùng Google hoặc người dùng đã có mật khẩu
             if (!$isGoogleUserWithoutPassword) {
@@ -223,9 +223,9 @@ class ProfileService
                 }
             }
 
-            // Cập nhật mật khẩu mới
             $user->update([
-                'password' => Hash::make($data['new_password'])
+                'password' => Hash::make($data['new_password']),
+                'is_change_password' => 1
             ]);
 
             $message = $isGoogleUserWithoutPassword ?
