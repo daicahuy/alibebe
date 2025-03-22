@@ -99,7 +99,7 @@ class ChatSessionRepository extends BaseRepository
             ->where('status', ChatSessionStatusType::OPEN);
 
         // Hạn chế quyền truy cập dựa trên vai trò của người dùng
-        if ($user->role == UserRoleType::EMPLOYEE || $user->role == UserRoleType::ADMIN) {
+        if ($user->role == UserRoleType::EMPLOYEE) {
             // Nhân viên chỉ truy cập được các phiên mà họ được gán hoặc chưa được gán
             $query->where(function ($q) use ($user) {
                 $q->where('employee_id', $user->id)
@@ -135,6 +135,12 @@ class ChatSessionRepository extends BaseRepository
         }
 
         return $query->first();
+    }
+
+    public function getChatSessionWithRelations($sessionId)
+    {
+        return $this->model->with(['customer', 'employee'])
+            ->findOrFail($sessionId);
     }
 
     // Cập nhật trạng thái của phiên trò chuyện (mở, đóng, v.v.)

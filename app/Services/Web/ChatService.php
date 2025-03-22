@@ -5,6 +5,7 @@ namespace App\Services\Web;
 use App\Enums\ChatSessionStatusType;
 use App\Enums\MessageType;
 use App\Enums\UserRoleType;
+use App\Events\NewMessageSent;
 use App\Models\Message;
 use App\Repositories\ChatSessionRepository;
 use App\Repositories\MessageRepository;
@@ -114,17 +115,24 @@ class ChatService
             $message = request('message');
             $type = request('type') ?? MessageType::TEXT;
 
-            // tạo tin nhắn mưới trong phiên chat
-            $this->messageRepository->create([
+            // Thay thế đoạn tạo message cũ
+            $message = $this->messageRepository->create([
                 'chat_session_id' => $sessionId,
                 'sender_id' => $sender_id,
                 'message' => $message,
                 'type' => $type
             ]);
 
+            // Load chat session với relationships
+            $chatSession = $this->chatSessionRepository->getChatSessionWithRelations($sessionId);
+
+            // Broadcast event
+            event(new NewMessageSent($message, $chatSession));
+
             return [
                 'status' => true,
-                'message' => 'Gửi tin nhắn thành công!'
+                'message' => 'Gửi tin nhắn thành công!',
+                'data' => $message->load('sender')
             ];
         } catch (\Throwable $th) {
             Log::error(
@@ -387,16 +395,21 @@ class ChatService
                 $sessionId = $session->id;
             }
 
-            $this->messageRepository->create([
+
+            $message = $this->messageRepository->create([
                 'chat_session_id' => $sessionId,
                 'sender_id' => $userId,
                 'message' => $message,
                 'type' => $type
             ]);
 
+            $chatSession = $this->chatSessionRepository->getChatSessionWithRelations($sessionId);
+            event(new NewMessageSent($message, $chatSession));
+
             return [
                 'status' => true,
-                'message' => 'Tin nhắn đã được gửi'
+                'message' => 'Tin nhắn đã được gửi',
+                'data' => $message->load('sender')
             ];
         } catch (\Exception $e) {
             Log::error('Client send message error: ' . $e->getMessage());

@@ -20,7 +20,8 @@
             </div>
 
             <!-- Khu vực tin nhắn -->
-            <div id="chatMessages" class="flex-grow-1 p-2 overflow-auto bg-light border-bottom" style="height: 450px; max-height: 450px;">
+            <div id="chatMessages" class="flex-grow-1 p-2 overflow-auto bg-light border-bottom"
+                style="height: 450px; max-height: 450px;">
                 @foreach ($chatSession->messages as $message)
                     @if ($message->sender_id == $chatSession->customer_id)
                         <!-- Tin nhắn của khách hàng -->
@@ -102,3 +103,80 @@
         @endif
     </script>
 @endsection
+
+@push('js_library')
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+@endpush
+
+@push('js')
+    <script>
+        Pusher.logToConsole = true;
+
+        const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
+            cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
+            forceTLS: true,
+            authEndpoint: '/broadcasting/auth',
+            auth: {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').textContent
+                }
+            }
+        });
+
+        // Subscribe kênh chat
+        const channel = pusher.subscribe('private-chat.{{ $chatSession->id }}');
+
+        // Bind sự kiện nhận tin nhắn mới
+        channel.bind('message.sent', function(data) {
+            // Tạo thời gian hiển thị tin nhắn theo định dạng giờ:phút
+            const time = new Date(data.created_at).toLocaleTimeString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            let messageHtml = '';
+
+            // Kiểm tra sender_id: nếu bằng với customer_id, tin nhắn của khách hàng
+            if (data.sender.id == {{ $chatSession->customer_id }}) {
+                messageHtml = `
+        <div class="d-flex mb-2">
+            <img src="{{ $chatSession->customer->avatar ? Storage::url($chatSession->customer->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($chatSession->customer->fullname))) . '?d=mp' }}"
+                alt="Customer" class="rounded-circle me-2 img-fluid" style="width: 40px; height: 40px;">
+            <div class="bg-white border rounded p-2 shadow-sm position-relative w-75">
+                <p class="mb-1 small">${data.message}</p>
+                <small class="text-muted position-absolute end-0 bottom-0 me-2 mb-1" style="font-size: 10px;">
+                    ${time}
+                </small>
+            </div>
+        </div>
+        `;
+            } else {
+                // Ngược lại tin nhắn của admin
+                messageHtml = `
+        <div class="d-flex mb-2 justify-content-end">
+            <div class="bg-primary text-white border rounded p-2 shadow-sm position-relative w-75">
+                <p class="mb-1 small">${data.message}</p>
+                <small class="text-white-50 position-absolute end-0 bottom-0 me-2 mb-1" style="font-size: 10px;">
+                    ${time}
+                </small>
+            </div>
+            <img src="{{ $chatSession->employee && $chatSession->employee->avatar ? Storage::url($chatSession->employee->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($chatSession->employee->fullname ?? 'admin'))) . '?d=mp' }}"
+                alt="Admin" class="rounded-circle ms-2 border border-light" style="width: 40px; height: 40px;">
+        </div>
+        `;
+            }
+
+            // Thêm tin nhắn mới vào container chat
+            $('#chatMessages').append(messageHtml);
+            // Cuộn xuống cuối container để hiển thị tin nhắn mới
+            $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+        });
+
+        // Cuộn xuống dưới cùng
+        function scrollToBottom() {
+            const container = $('#chatMessages');
+            container.scrollTop(container[0].scrollHeight);
+        }
+        scrollToBottom();
+    </script>
+@endpush

@@ -114,8 +114,69 @@
     </style>
 @endauth
 
+@push('js_library')
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+@endpush
+
 @push('js')
     <script>
+        Pusher.logToConsole = true;
+
+        const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
+            cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
+            forceTLS: true,
+            authEndpoint: '/broadcasting/auth',
+            auth: {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                }
+            }
+        });
+
+        // Subscribe kênh chat
+        const channel = pusher.subscribe('private-chat.2');
+
+        channel.bind('message.sent', function(data) {
+            const loggedInUserId = {{ auth()->id() ? auth()->id() : 0 }};
+
+            // Tạo thời gian hiển thị tin nhắn theo định dạng giờ:phút
+            const time = new Date(data.created_at).toLocaleTimeString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Xác định tin nhắn đến từ người dùng hay admin
+            let messageHtml = '';
+            if (data.sender.id == loggedInUserId) {
+                // Tin nhắn của chính người dùng (hiển thị bên phải)
+                messageHtml = `
+            <div class="user-message">
+                <div class="user-text">
+                    ${data.message}
+                    <span class="message-time">${time}</span>
+                </div>
+            </div>
+        `;
+            } else {
+                // Tin nhắn từ admin (hiển thị bên trái)
+                messageHtml = `
+            <div class="admin-message">
+                <div class="admin-initial">A</div>
+                <div class="admin-text">
+                    ${data.message}
+                    <span class="message-time">${time}</span>
+                </div>
+            </div>
+        `;
+            }
+
+            // Thêm tin nhắn mới vào khung chat
+            $('#chatMessages').append(messageHtml);
+            // Tự động cuộn xuống cuối khung chat
+            $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
+        });
+
+
         $(document).ready(function() {
             const loggedInUserId = {{ auth()->id() ? auth()->id() : 0 }};
 
@@ -153,7 +214,8 @@
                         user_id: loggedInUserId
                     },
                     success: (response) => {
-                        console.log(response)
+                        window.currentChatSessionId = response.session.id;
+
                         if (response.status) {
                             displayChatMessages(response.messages);
                         } else {
