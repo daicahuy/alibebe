@@ -282,6 +282,9 @@ return [
         'image' => 'Hình ảnh',
     ],
 
+    'inventory' => 'Kho',
+    'inventory_manager' => 'Quản lý kho',
+    'history_import_stock' => 'Lịch sử nhập kho',
     'product_stocks' => 'Tồn kho',
     'product_stock_status' => 'Trạng thái kho',
     'product_stock_status_all' => 'Tất cả trạng thái kho',
