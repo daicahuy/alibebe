@@ -177,7 +177,7 @@
                 <p class="nav-link " style="cursor: pointer">Đã hủy</p>
             </li>
             <li class="nav-item tab" data-status="{{ OrderStatusType::RETURN }}">
-                <p class="nav-link " style="cursor: pointer"><a href="{{ route('hoanhang') }}">Hoàn hàng</a></p>
+                <p class="nav-link " style="cursor: pointer">Hoàn hàng</p>
             </li>
         </ul>
 
@@ -299,6 +299,56 @@
     </div>
     <!-- Return Order Modal End -->
 @endsection
+
+
+<div class="modal fade theme-modal view-modal" id="reasonModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header p-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div id="address-container" class="flex justify-between">
+                        <div class="flex items-start">
+                            <div>
+                                <h4 class="mt-3">Lý do:</h4>
+                                <textarea id="reason" class="form-control" disabled></textarea>
+                                <div id="reason_reject_admin"></div>
+                                <p>Hình ảnh minh chứng:</p>
+                                <img src="http://127.0.0.1:8000/storage/products/product_2.png" alt="Product"
+                                    class="me-3" id="img-reason"
+                                    style="width: 100px; height: 100px; object-fit: cover;"><br>
+                                <div id="div-reason-admin">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalShowFailOrComplate" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="btn-close" id="btn-cancel-modal-Show" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center" id="body-show">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @push('js_library')
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.2/jquery.twbsPagination.min.js"></script>
@@ -315,6 +365,17 @@
             let activeTab = null;
             let currentPage = 1;
             const itemsPerPage = 5;
+
+            function getStatusInVietnamese(status) {
+                const statusMap = {
+                    'pending': 'Đang chờ',
+                    'receiving': 'Chờ vận chuyển',
+                    'completed': 'Hoàn thành',
+                    'rejected': 'Bị từ chối',
+                    'failed': 'Thất bại'
+                };
+                return statusMap[status] || status; // Trả về giá trị gốc nếu không tìm thấy
+            }
 
             function fetchOrders(search = null) {
 
@@ -364,6 +425,260 @@
                 });
             }
 
+            function rederOrderRefunds(orders, totalPages) {
+                const listCard = document.getElementById("listCard");
+                listCard.innerHTML = "";
+
+                if (orders.length === 0) {
+                    listCard.innerHTML = `
+            <div class="d-flex justify-center items-center" style="justify-content: center;">
+                <h4>Không có đơn hàng</h4>
+            </div>
+        `;
+                    return;
+                }
+
+                orders.forEach(order => {
+                    let statusClass;
+                    switch (order.status) {
+                        case 'completed':
+                            statusClass = 'bg-success'; // Xanh
+                            break;
+                        case 'rejected':
+                        case 'failed':
+                            statusClass = 'bg-danger'; // Đỏ
+                            break;
+                        case 'pending':
+                            statusClass = 'bg-warning'; // Vàng
+                            break;
+                        default:
+                            statusClass = 'bg-secondary'; // Màu khác nếu cần
+                    }
+                    let orderHTML = `
+            <div class="order-card">
+                    
+                    <div class="d-flex justify-content-between align-items-center p-2">
+                    <h4 class="ml-3 d-block">ID: ${order.order.code}</h4>
+
+                    <div class="d-flex align-items-center">
+                        <div class="d-flex" style="align-items:center">
+                            ${order.status == "failed" ? `
+                                                                    
+                                                                    <h5 class="show-fail" style="cursor: pointer;" data-failreason="${order.fail_reason}" data-imgfailorcompleted="${order.img_fail_or_completed}">Xem lý do thất bại</h5>
+                                                                    ` :""}
+                            ${order.status == "completed" ? `
+                                                                    
+                                                                    <h5 class="show-complate" style="cursor: pointer;" data-imgfailorcompleted="${order.img_fail_or_completed}">Xem minh chứng</h5>
+                                                                    ` :""}
+                            <span class="badge bg-warning complete ms-2 btn-show-reason"  id="" data-reason="${order.reason}" data-reasonimg="${order.reason_image}" data-adminreason="${order.admin_reason}"  style="font-size: 1.2em;cursor: pointer;background-color: rgb(7 255 16) !important;">
+                                Lý do
+                            </span>
+                        </div>
+                        <span class="badge ${statusClass} ms-2" style="font-size: 1.2em; ">
+                            ${getStatusInVietnamese(order.status)}
+                        </span>
+
+
+
+                    </div>
+                </div>
+                    `
+
+                    orderHTML += order.refund_items.map(item => {
+                        const imageUrl =
+                            `{{ Storage::url('${item.product.thumbnail}') }}`;
+                        return `
+                        
+                        <div class="d-flex flex-row"
+                    style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
+                    <div class="order-body d-flex">
+                        <img src="${imageUrl}" alt="Product" class="me-3"
+                            style="width: 100px; height: 100px; object-fit: cover;">
+                        <div class="d-flex flex-row" style="justify-content: space-between">
+                            <div>
+                                <a href="/products/${item.product.slug}" class="mb-1">${item.name}</a>
+                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                    ${
+                                        item.variant_id
+                                            ? `Phân loại hàng: ${item.name_variant}`
+                                            : ""
+                                    }
+                                </p>
+                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                    x${
+                                        item.variant_id
+                                            ? item.quantity_variant
+                                            : item.quantity
+                                    }
+                                </p>
+                                <div style="margin-right: 15px">
+                                         <span class="price-new ms-2">
+                                    ${
+                                        item.variant_id
+                                            ? formatCurrency(item.price_variant)
+                                            : formatCurrency(item.price)
+                                    }₫
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row" style="margin-right: 15px">
+                        <span>Thành tiền:</span>
+                        <p class="price-new">${item.variant_id?`${formatCurrency(parseFloat(item.price_variant)*parseInt(item.quantity_variant))}`:`${formatCurrency(parseFloat(item.price)*parseInt(item.quantity))}`}₫</p>
+                    </div>
+                </div>    
+                        
+                        `
+
+                    })
+
+                    orderHTML += `
+                    
+                    <div class="order-footer">
+                    <div class="">
+                        <p style="margin: 0">Tên khách hàng: ${order.user.fullname}</p>
+                        <p style="margin: 0">STK: ${order.bank_account}</p>
+                        <p style="margin: 0">Tên người nhận: ${order.user_bank_name}</p>
+                        <p style="margin: 0">Ngân hàng: ${order.bank_name}</p>
+                    </div>
+                    <div>
+                        <div>
+                            <div>
+                                <span>Tổng tiền: </span>
+                                <span class="price-new">${formatCurrency(order.total_amount)}đ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                    `
+                    listCard.innerHTML += orderHTML;
+
+
+                })
+                $(".btn-show-reason").on('click', function() {
+                    $("#div-reason-admin").empty();
+                    const reason = $(this).data("reason");
+                    const reasonimg = $(this).data("reasonimg");
+                    const adminreason = $(this).data("adminreason");
+                    const imageUrl =
+                        `{{ Storage::url('${reasonimg}') }}`;
+                    console.log(reason);
+
+
+                    $("#reasonModal #reason").val(reason);
+                    $("#reasonModal #img-reason").attr("src", imageUrl);
+                    if (adminreason) {
+                        $("#div-reason-admin").append(`
+                                    <h4 class="mt-3">Lý do từ chối:</h4>
+                                    <textarea id="admin-reason" class="form-control" disabled>${adminreason}</textarea>
+                            `)
+                    }
+
+
+
+
+                    $("#reasonModal").modal('show');
+                })
+
+
+                $(".show-complate, .show-fail").on('click', function() {
+
+                    const img_fail_or_completed = $(this).data("imgfailorcompleted")
+                    const fail_reason = $(this).data("failreason")
+
+                    $("#modalShowFailOrComplate #body-show").empty()
+
+                    if (fail_reason) {
+                        const imageUrl =
+                            `{{ Storage::url('${img_fail_or_completed}') }}`;
+                        $("#modalShowFailOrComplate #body-show").append(`
+                        <div class="form-floating mb-3">
+                    <textarea class="form-control" placeholder="Nhập lý do thất bại" name="fail_reason" id="fail_reason" disable style="height: 100px">${fail_reason}</textarea>
+                    <label for="fail_reason">Lý do thất bại</label>
+                </div>
+                    <div class="mb-3">
+                        <div id="" class="mt-3">
+                            <img src="${imageUrl}" alt="Preview Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
+                        </div>
+                    </div>
+                        `)
+                    } else {
+                        const imageUrl =
+                            `{{ Storage::url('${img_fail_or_completed}') }}`;
+                        $("#modalShowFailOrComplate #body-show").append(`
+                    <div class="mb-3">
+                        <div id="" class="mt-3">
+                            <img src="${imageUrl}" alt="Preview Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
+                        </div>
+                    </div>
+                        `)
+                    }
+
+                    $("#modalShowFailOrComplate").modal('show');
+
+                })
+
+                $("#modalShowFailOrComplate #btn-cancel-modal-Show").on("click", function(event) {
+                    event.preventDefault(); // Ngăn hành động mặc định
+                    $("#modalShowFailOrComplate").modal("hide"); // Chỉ đóng imageModal
+                });
+
+
+            }
+
+
+            function fetchOrdersRefund(search = null) {
+
+                $("#loading-icon").show();
+                // Gọi API
+                $.ajax({
+                    url: '{{ route('api.refund_orders.getOrdersRefundByUser') }}',
+                    method: "POST",
+                    data: {
+                        search: search,
+                        user_id: dataUser.id,
+                        page: currentPage,
+                        limit: itemsPerPage,
+                    },
+                    success: function(response) {
+
+                        console.log(response);
+
+
+                        rederOrderRefunds(response.refundOrders, response.totalPages);
+
+
+
+                        if (response
+                            .totalPages
+                        ) { // giả sử response có thuộc tính totalRecords chứa tổng số bản ghi
+                            $('#pagination').twbsPagination({
+                                totalPages: response.totalPages,
+                                visiblePages: 3,
+                                startPage: currentPage, // Duy trì trang hiện tại
+                                onPageClick: function(event, page) {
+                                    currentPage = page;
+                                    fetchOrdersRefund();
+                                }
+                            });
+                        }
+
+
+
+
+                    },
+                    error: function() {
+                        alert("Error fetching data from API");
+                    },
+                    complete: function() {
+                        $("#loading-icon")
+                            .hide(); // Ẩn icon loading khi API hoàn tất (thành công hoặc thất bại)
+                    }
+                });
+            }
+
             function debounce(func, delay) {
                 let timeout;
                 return function(...args) {
@@ -375,8 +690,12 @@
 
             const debouncedGetOrderList = debounce(function() {
                 const search = $("#inputSearchOrder").val();
+                if (activeTab == 8) {
+                    fetchOrdersRefund(search);
+                } else {
 
-                fetchOrders(search);
+                    fetchOrders(search);
+                }
             }, 400); // Delay 300ms
 
             $("#inputSearchOrder").on('input', debouncedGetOrderList)
@@ -388,9 +707,13 @@
 
                 activeTab = $(this).data("status");
 
-                currentPage = 1; // Reset về trang đầu tiên
+                currentPage = 1;
                 $('#pagination').twbsPagination('destroy');
-                fetchOrders();
+                if (activeTab == 8) {
+                    fetchOrdersRefund();
+                } else {
+                    fetchOrders();
+                }
             });
             let changedOrderIds = [];
             let debounceTimer;
@@ -658,9 +981,9 @@
                     </div>
                     <div class="d-flex" style="margin-right: 15px;flex-direction: column;">
                         ${showReviewButton ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <a href="/products/${item.product.slug}?order_id=${item.order_id}" class="text" style="align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;">Đánh giá</a>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `:""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <a href="/products/${item.product.slug}?order_id=${item.order_id}" class="text" style="align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;">Đánh giá</a>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `:""}
                         <div class="d-flex flex-row " style="align-items: center;justify-content: center;justify-items: center;">
                             <span>Thành tiền: </span> <p class="price-new" style="margin-bottom: unset">${item.product_variant_id ? formatCurrency(parseFloat(item.quantity_variant) * parseFloat(item.price_variant)) : formatCurrency(parseFloat(item.quantity) * parseFloat(item.price))}₫</p>
                             </div>
@@ -689,34 +1012,34 @@
                 <div class="d-flex flex-row">
                     ${showRefundButton ? `
 
-                                                                                                    <button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund="${order.id}" style="background-color: red; color: #fff;">
-                                                                                                            Hoàn hàng
-                                                                                                        </button>
+                                                                                                                                                                                                                                <button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund="${order.id}" style="background-color: red; color: #fff;">
+                                                                                                                                                                                                                                        Hoàn hàng
+                                                                                                                                                                                                                                    </button>
 
-                                                                                                    `:""}
+                                                                                                                                                                                                                                `:""}
     ${
         order.order_statuses[0].id === 1
             ? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}">Hủy hàng</button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `
             : order.order_statuses[0].id === 4
             ? `
-                                                                            <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
-                                                                            Đã nhận
-                                                                            </button>
-                                                                            <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
-                                                                            `
+                                                                                                                                                                                                                                        <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
+                                                                                                                                                                                                                                        Đã nhận
+                                                                                                                                                                                                                                        </button>
+                                                                                                                                                                                                                                        <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
+                                                                                                                                                                                                                                        `
             : ""
     }
 </div>
                 <div>
                     <div>${order.coupon_discount_type ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                                                                                                    <span>Giảm giá: </span>
-                                                                                                <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
-                                                                                                </div>
-                                                                                                    
-                                                                                                    
-                                                                                                    `:""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                    <span>Giảm giá: </span>
+                                                                                                                                                                                                                                <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
+                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                    `:""}
                     <div>
                         <span>Tổng tiền: </span>
                     <span class="price-new">${formatCurrency(order.total_amount)}₫</span>

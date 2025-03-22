@@ -21,6 +21,8 @@ class Refund extends Model
         'reason_image',
         'admin_reason',
         'status',
+        'fail_reason',
+        'img_fail_or_completed'
     ];
 
     public function refundItems()

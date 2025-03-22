@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\api\PaymentOnlineController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\VNPayController;
 use App\Http\Controllers\Api\CartItemController as ApiCartItemController;
 use App\Http\Controllers\Api\OrderController as ApiOrderController;
@@ -52,8 +53,7 @@ Route::get('/', [HomeController::class, 'index'])->name('index');
 Route::get('/categories/{slug?}', [ListCategoriesController::class, 'index'])->name('categories');
 Route::get('/compare', [CompareController::class, 'getComparedProducts'])->name('compare.page');
 Route::post('/compare/remove-product/{productId}', [CompareController::class, 'removeProduct'])->name('compare.removeProduct');
-// Route::post('/compare/add', [CompareController::class, 'addToCompare'])->name('compare.add');
-// Route::post('/compare/remove{slug}', [CompareController::class, 'removeToCompare'])->name('compare.remove');
+Route::post('/chatbot/send', [ChatbotController::class, 'sendMessage']);
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
 Route::get('/list-order', [ListOrderController::class, 'index'])->middleware(['auth'])->name('listOrder');
@@ -285,9 +285,9 @@ Route::prefix('/admin')
 
             Route::put('/restore/{product}', 'restore')->name('restore');
 
-            Route::delete('/delete{product}', 'delete')->name('delete');
+            Route::delete('/delete/{product}', 'delete')->name('delete');
 
-            Route::delete('/destroy{product}', 'destroy')->name('destroy');
+            Route::delete('/destroy/{product}', 'destroy')->name('destroy');
 
             //Bulk
             Route::post('/bulk-trash', 'bulkTrash')->name('bulkTrash');
@@ -480,7 +480,7 @@ Route::prefix('/admin')
 
             Route::get('/', 'index')->name('index');
 
-            Route::get('/{product}', 'show')->name('show')->where(['product' => '[0-9]+']);
+            Route::get('/{product}', 'show')->name('show')->where(['product' => '[a-zA-Z0-9-_]+']);
         });
 
 

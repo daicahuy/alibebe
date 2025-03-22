@@ -14,8 +14,21 @@ class ReviewRepository extends BaseRepository
     }
     public function getAllReviews()
     {
-        $start = $this->model->select('id', 'rating')->distinct('rating')->orderBy('rating', 'DESC')->get();
+        $start = $this->model->select('rating')->distinct('rating')->orderBy('rating', 'DESC')->get();
         return $start;
+    }
+    public function getCategoryProductRatings($categoryId)
+    {
+        return $this->model->select('rating')
+            ->distinct('rating')
+            ->whereHas('product', function ($query) use ($categoryId) {
+                $query->whereHas('categories', function ($q) use ($categoryId) {
+                    $q->where('id', $categoryId);
+                });
+            })
+            ->orderBy('rating', 'DESC')
+            ->pluck('rating')
+            ->toArray();
     }
     public function getReviewProducts($search = null, $startDate = null, $endDate = null)
     {

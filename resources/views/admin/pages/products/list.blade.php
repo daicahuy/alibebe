@@ -27,7 +27,15 @@
                             <div class="d-flex align-items-center">
                                 <h5>{{ __('form.products') }}</h5>
                             </div>
-                            <div>
+                            <div class="d-flex">
+                                <a class="align-items-center btn btn-theme me-2 disabled" id="import-stock-btn" href="#!">
+                                    <i class="ri-add-line"></i>
+                                    {{ __('form.stock_movement.import') }}
+                                </a>
+                                <a class="align-items-center btn btn-theme me-2" id="import-stock-by-excel-btn" href="#!">
+                                    <i class="ri-add-line"></i>
+                                    {{ __('form.stock_movement.import') . ' ' . __('message.by_excel') }}
+                                </a>
                                 <a class="align-items-center btn btn-theme d-flex"
                                     href="{{ route('admin.products.create') }}">
                                     <i class="ri-add-line"></i>
@@ -243,7 +251,7 @@
                                                                 class="btn-edit"><i class="ri-pencil-line"></i></a>
                                                         </li>
                                                         <li>
-                                                            <form action="{{ route('admin.products.delete', $product) }}"
+                                                            <form action="{{ route('admin.products.delete', $product->id) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('DELETE')
@@ -274,6 +282,111 @@
 
                     </div>
 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-import-stock" tabindex="-1" aria-hidden="true">
+        <div class="overlay">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content">
+                    <form id="form-import-stock" action="{{ route('api.products.getAll') }}" method="GET">
+                        <div class="modal-body text-center" style="overflow-y: auto; max-height: 92vh;">
+                            <h3 class="modal-title my-4">Nhập kho</h3>
+                            {{-- Product Single --}}
+                            <div class="py-3 px-2">
+                                <div class="border">
+                                    <div class="form-group align-items-center g-3 p-3 row">
+                                        <div class="col-7">
+                                            <label class="form-label-title mb-0 w-100" style="text-align: left;" for="icon">
+                                                Tên sản phẩm:
+                                            </label>
+                                            <div>
+                                                <input type="text" name="" class="form-control disabled" value="Tủ lạnh Casper 95 lít RO-95PG" disabled>
+                                                <div class="invalid-feedback text-start"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <label class="form-label-title mb-0 w-100" style="text-align: left;" for="icon">
+                                                SKU:
+                                            </label>
+                                            <div>
+                                                <input type="text" name="" class="form-control disabled" value="SPBT002" disabled>
+                                                <div class="invalid-feedback text-start"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2">
+                                            <label class="form-label-title mb-0 w-100" style="text-align: left;" for="icon">
+                                                Số lượng:
+                                            </label>
+                                            <div>
+                                                <input type="number" name="" class="form-control" value="">
+                                                <div class="invalid-feedback text-start"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Product Variant --}}
+                            <div class="py-3 px-2">
+                                <div class="border">
+                                    <div class="form-group align-items-center g-3 p-3 row">
+                                        <div class="col-12">
+                                            <label class="form-label-title mb-0 w-100" style="text-align: left;" for="icon">
+                                                Tên sản phẩm:
+                                            </label>
+                                            <div>
+                                                <input type="text" name="" class="form-control disabled" value="Tủ lạnh Casper 95 lít RO-95PG" disabled>
+                                                <div class="invalid-feedback text-start"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <table class="table all-package theme-table no-footer">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ __('form.product_variant.sku') }}
+                                                <th>{{ __('form.product_variants') }}</th>
+                                                </th>
+                                                <th>{{ __('form.stock_movement.quantity') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="variant">
+    
+                                                <td class="form-group">
+                                                    SPBT001
+                                                    <div class="invalid-feedback"></div>
+                                                </td>
+    
+                                                <td class="form-group">
+                                                    <div>
+                                                        Xanh | 256 GB
+                                                        <input type="hidden" value="1" name="">
+                                                    </div>
+                                                    <div class="invalid-feedback text-start"></div>
+                                                </td>
+    
+                                                <td class="form-group">
+                                                    <input type="number" name="" class="form-control">
+                                                    <div class="invalid-feedback text-start"></div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="button-box justify-content-end">
+                                <button class="btn btn-md btn-secondary fw-bold" id="btn-cancel-import-stock" type="button">
+                                    {{ __('message.cancel') }}
+                                </button>
+                                <button class="btn btn-md btn-theme fw-bold btn-action" type="submit">
+                                    Xác nhận
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -321,8 +434,10 @@
             function toggleBulkActionButton() {
                 if ($('.checkbox-input:checked').length > 0) {
                     $('#btn-move-to-trash-all').removeClass('visually-hidden'); // checkbox => hiện
+                    $('#import-stock-btn').removeClass('disabled')
                 } else {
                     $('#btn-move-to-trash-all').addClass('visually-hidden'); //  ẩn
+                    $('#import-stock-btn').addClass('disabled')
                 }
             }
 
@@ -463,7 +578,6 @@
 
             // thông báo sw2
 
-
             // alert
             // Kiểm tra session flash message
             let message = "{{ session('msg') }}";
@@ -477,7 +591,28 @@
                 });
             }
 
+            $('#import-stock-btn').on('click', function(e) {
+                e.preventDefault();
+                $('#modal-import-stock').modal('show');
+            })
 
+            $('#btn-cancel-import-stock').on('click', function(e) {
+                e.preventDefault();
+                $('#modal-import-stock').modal('hide');
+            })
+
+            $('#form-import-stock').on('submit', function(e) {
+                e.preventDefault();
+                handleImportProducts()
+            })
+
+            function handleImportProducts() {
+                const selectedIds = [];
+                $('.checkbox-input:checked').each(function() {
+                    selectedIds.push($(this).val());
+                });
+                console.log(selectedIds);
+            }
         });
     </script>
 @endpush

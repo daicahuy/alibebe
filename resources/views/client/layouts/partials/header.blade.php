@@ -493,8 +493,7 @@
                                                     <button
                                                         class="btn btn-sm cart-button theme-bg-color
                                                 text-white product-box-contain"
-                                                        id="verifyButton">Gửi lại mã xác
-                                                        minh</button>
+                                                        id="verifyButton">Gửi xác minh</button>
                                                     <p id="statusText"></p>
                                                     <p id="timer"></p>
                                                 </div>
@@ -1291,6 +1290,13 @@
         }
     };
 
+        $(document).ready(function() {
+            $(".button-group .cart-button.theme-bg-color").on("click", function() {
+                console.log("⚡ Nút Thanh toán được click");
+                updateCartSessionForHeader();
+            });
+        });
+
     // Ẩn gợi ý khi click ra ngoài
     document.addEventListener('click', function(event) {
         if (!searchBox.contains(event.target)) {
@@ -1329,6 +1335,59 @@ $(document).ready(function() {
                         }
                     })
                     .catch(error => console.error("Error updating wishlist:", error));
+            });
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const suggestionsList = document.getElementById('suggestions');
+            const searchBox = searchInput.closest('.search-box');
+            const searchForm = searchInput.closest('form');
+        
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                suggestionsList.innerHTML = '';
+        
+                if (query.length < 2) {
+                    suggestionsList.style.display = 'none';
+                    return;
+                }
+        
+                fetch(`/api/search/suggestions?query=${query}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            data.forEach(suggestion => {
+                                const listItem = document.createElement('li');
+                                listItem.textContent = suggestion;
+                                listItem.addEventListener('click', function() {
+                                    searchInput.value = suggestion;
+                                    suggestionsList.style.display = 'none';
+                                    searchForm.submit(); // Tự động submit form khi chọn gợi ý
+                                });
+                                suggestionsList.appendChild(listItem);
+                            });
+                            suggestionsList.style.display = 'block';
+                        } else {
+                            suggestionsList.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching suggestions:', error);
+                        suggestionsList.style.display = 'none';
+                    });
+            });
+        
+            // Ẩn gợi ý khi click ra ngoài
+            document.addEventListener('click', function(event) {
+                if (!searchBox.contains(event.target)) {
+                    suggestionsList.style.display = 'none';
+                }
             });
         });
     </script>

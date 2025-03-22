@@ -78,7 +78,7 @@ class HomeService
     }
     public function getBestSellingProduct()
     {
-        return $this->productRepository->getBestSellingProducts();
+        return $this->productRepository->getBestSellingProduct();
     }
     public function getAIFakeSuggest($userId)
     {

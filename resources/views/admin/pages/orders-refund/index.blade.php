@@ -27,6 +27,18 @@
             }
         }
 
+        .price-old {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .price-new {
+            color: red;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
         .overlay {
             position: fixed;
             top: 0;
@@ -155,21 +167,23 @@
                                             <tr>
                                                 <td class="text-start fw-semibold">Trạng thái</td>
                                                 <td class="text-start">
-                                                    <div class="status-pending"><span id="status"></span></div>
+                                                    <div class="status"><span id="status"></span></div>
                                                 </td>
                                             </tr><!---->
 
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="mt-2" id="admin_reason_div">
+                                <form id="formCompltedOrFail" method="POST" enctype="multipart/form-data">
+                                    <div class="mt-2" id="admin_reason_div">
 
 
-                                </div>
-                                <div class="mt-2">
-                                    <div class="button-box" id="button-box-footer">
+                                    </div>
+                                    <div class="mt-2">
+                                        <div class="button-box" id="button-box-footer">
+                                        </div><!---->
                                     </div><!---->
-                                </div><!---->
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -198,68 +212,17 @@
 
     <div class="modal fade" id="modalConfirmProduct" tabindex="-1" aria-hidden="true">
         <div class="overlay">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 800px">
                 <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
                     <div class="modal-body text-center">
                         <div class="modal-content" id="modalConfirm">
                             <div class="modal-header">
-                                <h3 class="mb-1 fw-semibold">Hoàn hàng</h3><app-button><button fdprocessedid="b2b4oc"
+                                <h3 class="mb-1 fw-semibold">Sản phẩm hoàn</h3><app-button><button fdprocessedid="b2b4oc"
                                         class="btn btn-close" id="payout_close_btn_product" type="submit">
                                     </button></app-button>
                             </div>
-                            <div class="modal-body">
-                                <div class="border rounded-3">
-                                    <input type="text" hidden id="idOrderRefund">
-                                    <table class="table all-package theme-table no-footer">
-                                        <tbody><!---->
-                                            <tr>
-                                                <td class="text-start fw-semibold">Lý do </td>
-                                                <td class="text-start" id="reason"></td>
-                                            </tr><!---->
-                                            <tr>
-                                                <td class="text-start fw-semibold">Hình ảnh</td>
-                                                <td class="text-start"><img src="" alt=""
-                                                        id="reason-thumbnail-image" class="thumbnail-image"
-                                                        style="width: 50px; height: 50px;"></td>
-                                            </tr><!---->
-                                            <tr>
-                                                <td class="text-start fw-semibold">Giá trị hoàn</td>
-                                                <td class="text-start" id="total_amount"></td>
-                                            </tr><!---->
-                                            <tr>
-                                                <td class="text-start fw-semibold">Số điện thoại liên hệ</td>
-                                                <td class="text-start" id="phone_number"></td>
-                                            </tr><!---->
-                                            <tr>
-                                                <td class="text-start fw-semibold">Tên người thụ hưởng </td>
-                                                <td class="text-start" id="user_bank_name"></td>
-                                            </tr><!---->
-                                            <tr>
-                                                <td class="text-start fw-semibold">Tên ngân hàng </td>
-                                                <td class="text-start"id="bank_name"></td>
-                                            </tr><!---->
-                                            <tr>
-                                                <td class="text-start fw-semibold">Số tài khoản </td>
-                                                <td class="text-start" id="bank_account"></td>
-                                            </tr><!---->
-                                            <tr>
-                                                <td class="text-start fw-semibold">Trạng thái</td>
-                                                <td class="text-start">
-                                                    <div class="status-pending"><span id="status"></span></div>
-                                                </td>
-                                            </tr><!---->
+                            <div class="modal-body" id="listItem">
 
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="mt-2" id="admin_reason_div">
-
-
-                                </div>
-                                <div class="mt-2">
-                                    <div class="button-box" id="button-box-footer">
-                                    </div><!---->
-                                </div><!---->
                             </div>
                         </div>
                     </div>
@@ -289,7 +252,20 @@
                 }
             }
 
+            function getStatusInVietnamese(status) {
+                const statusMap = {
+                    'pending': 'Đang chờ',
+                    'receiving': 'Chờ vận chuyển',
+                    'completed': 'Hoàn thành',
+                    'rejected': 'Bị từ chối',
+                    'failed': 'Thất bại'
+                };
+                return statusMap[status] || status; // Trả về giá trị gốc nếu không tìm thấy
+            }
+
             function renderHtmlModalOrderRefund(dataOrderRefund) {
+
+
                 $('#button-box-footer').empty();
                 $("#modalConfirm #admin_reason_div").empty();
                 $("#modalConfirm #admin_reason_div").append(`<div class="form-floating">
@@ -312,7 +288,8 @@
                 $("#modalConfirm #bank_name").text(dataOrderRefund.bank_name ? dataOrderRefund.bank_name : "")
                 $("#modalConfirm #bank_account").text(dataOrderRefund.bank_account ? dataOrderRefund.bank_account :
                     "")
-                $("#modalConfirm #status").text(dataOrderRefund.status ? dataOrderRefund.status : "")
+                $("#modalConfirm #status").text(dataOrderRefund.status ? getStatusInVietnamese(dataOrderRefund
+                    .status) : "")
                 if (dataOrderRefund.status == 'rejected' || dataOrderRefund.status == 'pending') {
                     $("#modalConfirm #admin_reason").val(dataOrderRefund.admin_reason ? dataOrderRefund
                         .admin_reason :
@@ -334,6 +311,116 @@
                                                 type="submit" fdprocessedid="qq0uf9">
                                                 <div> Đông ý </div>
                                             </button></app-button>`)
+                }
+
+                if (dataOrderRefund.status == 'receiving') {
+                    $("#modalConfirm #admin_reason_div").append(`
+                    
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" placeholder="Nhập lý do thất bại" name="fail_reason" id="fail_reason" style="height: 100px"></textarea>
+                            <label for="fail_reason">Lý do thất bại</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="img_fail_or_completed" class="form-label">Tải lên ảnh</label>
+                            <input class="form-control" type="file" id="img_fail_or_completed" name="img_fail_or_completed">
+                            <div id="image_preview" class="mt-3">
+                            <!-- Preview ảnh sẽ được hiển thị ở đây -->
+                        </div>
+                        </div>
+                    `);
+
+                    $('#button-box-footer').append(`<app-button><button class="btn btn-md  fw-bold"
+                                                style="background-color: red; color: #fff;" disabled
+                                                id="failed_btn" type="submit" fdprocessedid="hbnu3">
+                                                <div> Thất bại </div>
+                                            </button></app-button>
+                                        <app-button>
+                                            <button class="btn btn-md btn-theme fw-bold" id="completed_btn" disabled
+                                                type="submit" fdprocessedid="qq0uf9">
+                                                <div> Hoàn thành </div>
+                                            </button></app-button>
+                                        `)
+
+                    $('#fail_reason, #img_fail_or_completed').on('input change', function() {
+                        const reason = $('#fail_reason').val().trim(); //
+                        const hasFile = $('#img_fail_or_completed').val();
+                        const failedButton = $('#failed_btn');
+                        const completedButton = $('#completed_btn');
+
+
+                        if (reason.length > 0) {
+                            failedButton.prop('disabled', false);
+                        } else {
+                            failedButton.prop('disabled', true);
+                        }
+
+
+                        if (reason.length === 0 && hasFile) {
+                            completedButton.prop('disabled', false);
+                        } else {
+                            completedButton.prop('disabled', true);
+                        }
+                    });
+
+                    $('#img_fail_or_completed').on('change', function() {
+                        const file = this.files[0];
+                        const previewContainer = $('#image_preview');
+
+                        // Xóa nội dung cũ của preview
+                        previewContainer.empty();
+
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                // Hiển thị ảnh preview
+                                previewContainer.append(`
+                        <img src="${e.target.result}" alt="Preview Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
+                    `);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+
+                }
+
+                if (dataOrderRefund.status == 'completed') {
+
+                    const imageUrl =
+                        `{{ Storage::url('${dataOrderRefund.img_fail_or_completed}') }}`;
+                    $("#modalConfirm #admin_reason_div").append(`
+
+                        <div class="mb-3">
+                            <div id="" class="mt-3">
+                                <img src="${imageUrl}" alt="Preview Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
+                            </div>
+                        </div>
+                    `);
+                }
+
+                if (dataOrderRefund.status == 'failed') {
+
+                    if (dataOrderRefund.img_fail_or_completed) {
+
+                        const imageUrl =
+                            `{{ Storage::url('${dataOrderRefund.img_fail_or_completed}') }}`;
+                        $("#modalConfirm #admin_reason_div").append(`
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" placeholder="Nhập lý do thất bại" name="fail_reason" id="fail_reason" disable style="height: 100px">${dataOrderRefund.fail_reason}</textarea>
+                            <label for="fail_reason">Lý do thất bại</label>
+                        </div>
+                            <div class="mb-3">
+                                <div id="" class="mt-3">
+                                    <img src="${imageUrl}" alt="Preview Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
+                                </div>
+                            </div>
+                        `);
+                    } else {
+                        $("#modalConfirm #admin_reason_div").append(`
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" placeholder="Nhập lý do thất bại" name="fail_reason" id="fail_reason" disable style="height: 100px">${dataOrderRefund.fail_reason}</textarea>
+                            <label for="fail_reason">Lý do thất bại</label>
+                        </div>`);
+                    }
                 }
 
                 $('#admin_reason').on('input', function() {
@@ -438,7 +525,44 @@
 
                 })
 
+                $("#modalConfirm #formCompltedOrFail").off('submit').on('submit', function(event) {
+                    event.preventDefault();
 
+                    const formData = new FormData(this);
+                    formData.append('id_order_refund', JSON.stringify(dataOrderRefund.id));
+                    console.log(formData);
+                    $.ajax({
+                        url: '{{ route('api.refund_orders.changeStatusWithImg') }}',
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
+
+                            if (response.status == 200) {
+                                Toastify({
+                                    text: "Thao tác thành công",
+                                    duration: 2000,
+                                    newWindow: true,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    stopOnFocus: true,
+                                    style: {
+                                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                    },
+                                }).showToast();
+                                callApiGetDataOrderRefund(dataOrderRefund.id)
+                                fetchOrders();
+
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                error);
+                        }
+                    });
+                })
 
             }
 
@@ -490,6 +614,61 @@
             }
 
 
+            function renderHtmlModalProductOrderRefund(listItems) {
+                $("#modalConfirmProduct #listItem").empty();
+                let orderHTML = ``;
+
+                orderHTML += listItems.map(item => {
+                    const imageUrl =
+                        `{{ Storage::url('${item.product.thumbnail}') }}`;
+                    return `
+                        
+                        <div class="d-flex flex-row"
+                    style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
+                    <div class="order-body d-flex">
+                        <img src="${imageUrl}" alt="Product" class="me-3"
+                            style="width: 100px; height: 100px; object-fit: cover;">
+                        <div class="d-flex flex-row" style="justify-content: space-between">
+                            <div style="text-align: left">
+                                <a href="/products/${item.product.slug}" class="mb-1">${item.name}</a>
+                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                    ${
+                                        item.variant_id
+                                            ? `Phân loại hàng: ${item.name_variant}`
+                                            : ""
+                                    }
+                                </p>
+                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                    x${
+                                        item.variant_id
+                                            ? item.quantity_variant
+                                            : item.quantity
+                                    }
+                                </p>
+                                <div style="margin-right: 15px">
+                                         <span class="price-new ms-2">
+                                    ${
+                                        item.variant_id
+                                            ? formatCurrency(item.price_variant)
+                                            : formatCurrency(item.price)
+                                    }₫
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row" style="margin-right: 15px">
+                        <span>Thành tiền:</span>
+                        <p class="price-new">${item.variant_id?`${formatCurrency(parseFloat(item.price_variant)*parseInt(item.quantity_variant))}`:`${formatCurrency(parseFloat(item.price)*parseInt(item.quantity))}`}₫</p>
+                    </div>
+                </div>    
+                        
+                        `
+                })
+                $("#modalConfirmProduct #listItem").append(orderHTML)
+
+            }
+
             function callApiGetDataProductOrderRefund(idOrderRefund) {
 
                 $.ajax({
@@ -498,7 +677,8 @@
                     dataType: 'json',
                     success: function(response) {
                         if (response.status == 200) {
-                            renderHtmlModalOrderRefund(response.dataOrderRefund)
+                            renderHtmlModalProductOrderRefund(response.dataOrderRefund
+                                .refund_items)
 
                         } else {
                             alert('Something error happened');
@@ -527,7 +707,23 @@
           `);
                 } else {
                     orders.forEach(order => {
+                        let statusClass;
 
+                        // Xác định màu sắc của badge dựa trên trạng thái đơn hàng
+                        switch (order.status) {
+                            case 'completed':
+                                statusClass = 'bg-success'; // Xanh
+                                break;
+                            case 'rejected':
+                            case 'failed':
+                                statusClass = 'bg-danger'; // Đỏ
+                                break;
+                            case 'pending':
+                                statusClass = 'bg-warning'; // Vàng
+                                break;
+                            default:
+                                statusClass = 'bg-info'; // Màu khác nếu cần
+                        }
 
                         $("#orderTable tbody").append(`
                     <tr data-id="${order.id}">
@@ -540,7 +736,7 @@
                         </td>
                         <td class="cursor-pointer">
                             <div>
-                                <div class="status-approved"><span>${order.status}</span></div>
+                                <div class="status-approved"><span class="${statusClass}" style="border: unset">${getStatusInVietnamese(order.status)}</span></div>
                             </div>
                         </td>
                         <td class="cursor-pointer">${convertDate(order.created_at)}
@@ -594,7 +790,7 @@
                 $('#button-box-footer').empty();
                 $('#modalConfirm').modal('hide');
 
-            })
+            });
             $('#payout_close_btn_product').on('click', function(event) {
                 event.stopPropagation();
                 $('#modalConfirmProduct').modal('hide');

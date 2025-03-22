@@ -187,9 +187,8 @@
                                                             <a href="{{ route('admin.products.edit', $hidden->id) }}"
                                                                 class="btn-edit"><i class="ri-pencil-line"></i></a>
                                                         </li>
-
                                                         <li>
-                                                            <form action="{{ route('admin.products.delete', $hidden) }}"
+                                                            <form action="{{ route('admin.products.delete', $hidden->id) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('DELETE')
