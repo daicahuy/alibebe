@@ -174,6 +174,9 @@
         body {
             overflow-x: hidden;
         }
+        .input-group {
+            border: 1px solid rgb(248, 248, 248) !important;
+        }
     </style>
 @endpush
 @section('content')
@@ -268,7 +271,7 @@
                                                 <div class="product-detail">
                                                     <ul>
                                                         <li class="name">
-                                                            <a class="name_product" href="/fastkart/product/fresh-pear">
+                                                            <a class="name_product" href="{{ route('products', $cartItem->product->slug) }}">
                                                                 {{ Str::limit($cartItem->productVariant->product->name ?? $cartItem->product->name, 20, '...') }}
                                                             </a>
                                                         </li>
@@ -290,26 +293,36 @@
                                         </td>
 
                                         @php
-                                            // Nếu sản phẩm có biến thể, lấy giá từ biến thể, nếu không thì lấy từ product
-                                            $price = $cartItem->productVariant->price ?? $cartItem->product->price;
-                                            // Kiểm tra nếu biến thể tồn tại và có sale_price > 0 thì lấy sale_price của biến thể, nếu không thì lấy sale_price của product
-                                            $salePrice = null;
-                                            if ($cartItem->productVariant?->sale_price > 0) {
+                                        // Kiểm tra nếu biến thể tồn tại và đang hoạt động (is_active = 1), thì lấy giá từ biến thể, nếu không thì lấy từ product
+                                        $price = ($cartItem->productVariant && $cartItem->productVariant->is_active == 1) 
+                                            ? $cartItem->productVariant->price 
+                                            : $cartItem->product->price;
+                                    
+                                        // Xác định giá sale (ưu tiên biến thể nếu nó đang hoạt động)
+                                        if ($cartItem->productVariant && $cartItem->productVariant->is_active == 1) {
+                                            if (!is_null($cartItem->productVariant->sale_price) && $cartItem->productVariant->sale_price > 0) {
+                                                // Nếu biến thể có sale_price hợp lệ, dùng nó
                                                 $salePrice = $cartItem->productVariant->sale_price;
-                                            } elseif (
-                                                $cartItem->product?->sale_price > 0 &&
-                                                $cartItem->product?->is_sale == 1
-                                            ) {
-                                                $salePrice = $cartItem->product->sale_price;
                                             } else {
-                                                $salePrice = $price; // Nếu không có giảm giá, salePrice bằng giá gốc
+                                                // Nếu không có sale_price, lấy giá gốc của biến thể
+                                                $salePrice = $cartItem->productVariant->price;
                                             }
-                                            $saving = $price - $salePrice;
-
-                                            // Tính tổng tiền sản phẩm này
-                                            $sumOnePrd = $cartItem->quantity * $salePrice;
-                                            $totalSum += $sumOnePrd;
-                                        @endphp
+                                        } else if ($cartItem->product?->sale_price > 0 && $cartItem->product?->is_sale == 1) {
+                                            // Nếu product có sale_price và đang sale, dùng nó
+                                            $salePrice = $cartItem->product->sale_price;
+                                        } else {
+                                            // Nếu không có giảm giá, dùng giá gốc (price)
+                                            $salePrice = $price;
+                                        }
+                                    
+                                        // Tính số tiền tiết kiệm
+                                        $saving = $price - $salePrice;
+                                    
+                                        // Tính tổng tiền sản phẩm này
+                                        $sumOnePrd = $cartItem->quantity * $salePrice;
+                                        $totalSum += $sumOnePrd;
+                                    @endphp
+                                    
                                         {{-- <input type="hi" class="original-price" value="{{ $cartItem->productVariant->price ?? $cartItem->product->price}}">
                                             <input type="text" class="sale-price" value="{{ $cartItem->productVariant?->sale_price > 0
                                                     ? $cartItem->productVariant->sale_price
@@ -322,7 +335,8 @@
                                             value="{{ $cartItem->productVariant?->price > 0 ? $cartItem->productVariant->price : null }}">
                                         <input type="hidden" class="old_price_variant"
                                             value="{{ $cartItem->productVariant?->sale_price > 0 ? $cartItem->productVariant->sale_price : null }}">
-
+                                            <input type="hidden" class="is_sale"
+                                            value="{{ $cartItem->product->is_sale}}">
                                         <td class="price">
                                             <h4 class="table-title text-content">Giá</h4>
                                             <h5>
@@ -598,6 +612,8 @@
                     let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
                     let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
 
+                    let isSale = parseInt(row.find(".is_sale").val());
+
                     let finalPrice, oldPrice;
                     let finalPriceVariant, oldPriceVariant;
 
@@ -622,6 +638,7 @@
                         old_price_variant: productVariantId ? oldPriceVariant : null,
                         quantity: productVariantId ? null : qty,
                         quantity_variant: productVariantId ? qty : null,
+                        is_sale:isSale
                     });
 
                     totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
@@ -678,6 +695,7 @@
                         // Lấy giá của biến thể
                         let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
                         let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
+                        let isSale = parseInt(row.find(".is_sale").val());
 
                         let finalPrice, oldPrice;
                         let finalPriceVariant, oldPriceVariant;
@@ -703,6 +721,7 @@
                             old_price_variant: productVariantId ? oldPriceVariant : null,
                             quantity: productVariantId ? null : qty,
                             quantity_variant: productVariantId ? qty : null,
+                            is_sale:isSale
                         });
 
                         totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
@@ -731,6 +750,7 @@
                     // Lấy giá của biến thể
                     let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
                     let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
+                    let isSale = parseInt(row.find(".is_sale").val());
 
                     let finalPrice, oldPrice;
                     let finalPriceVariant, oldPriceVariant;
@@ -756,6 +776,7 @@
                         old_price_variant: productVariantId ? oldPriceVariant : null,
                         quantity: productVariantId ? null : qty,
                         quantity_variant: productVariantId ? qty : null,
+                        is_sale:isSale
                     });
 
                     totalSum2 += (productVariantId ? finalPriceVariant : finalPrice) * qty;
@@ -875,6 +896,7 @@
                     // Lấy giá của biến thể
                     let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
                     let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
+                    let isSale = parseInt(row.find(".is_sale").val());
 
                     let finalPrice, oldPrice;
                     let finalPriceVariant, oldPriceVariant;
@@ -900,6 +922,7 @@
                         old_price_variant: productVariantId ? oldPriceVariant : null,
                         quantity: productVariantId ? null : qty,
                         quantity_variant: productVariantId ? qty : null,
+                        is_sale:isSale
                     });
 
                     totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;

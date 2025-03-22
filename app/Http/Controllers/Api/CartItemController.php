@@ -133,6 +133,7 @@ class CartItemController extends Controller
                 'old_price' => isset($product['old_price']) ? $product['old_price'] : null,
                 'price_variant' => $product['price_variant'] ?? 0,
                 'old_price_variant' => isset($product['old_price_variant']) ? $product['old_price_variant'] : null,
+                'is_sale' => $product['is_sale'] ?? 0,
             ];
         }
         session(['selectedProducts' => $selectedProducts]);

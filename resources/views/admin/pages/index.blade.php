@@ -11,6 +11,14 @@
 @endpush
 
 @push('css')
+<style>
+    .custom-dt-picker .form-control {
+    border: 1px solid #919191;
+}
+.custom-dt-picker .btn {
+    border: 1px solid #919191 !important;
+}
+</style>
 @endpush
 
 
@@ -20,9 +28,38 @@
 {{-- ================================== --}}
 
 @section('content')
-    <div class="row">
-        <section class="dashboard-tiles">
-            <div class="container-fluid">
+<div class="row">
+    <section class="dashboard-tiles">
+        <div class="container-fluid">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="d-flex justify-content-center align-items-center me-4">
+                        <p class="mb-0 me-2 fw-bold">{{ __('message.from') }}</p>
+                        <div class="input-group custom-dt-picker">
+                            <input placeholder="YYY-MM-DD"
+                                id="start_date_input"
+                                class="form-control form-date">
+                            <button type="button"
+                                class="btn btn-outline-secondary">
+                                <i class="ri-calendar-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center me-4">
+                        <p class="mb-0 me-2 fw-bold">{{ __('message.to') }}</p>
+                        <div class="input-group custom-dt-picker">
+                            <input placeholder="YYY-MM-DD"
+                                id="end_date_input"
+                                class="form-control form-date">
+                            <button type="button"
+                                class="btn btn-outline-secondary">
+                                <i class="ri-calendar-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <button type="submit" class="btn btn-primary" data-bs-original-title="" title="" fdprocessedid="yl65za">Lọc</button>
+                    </div>
+                </div>
                 <div class="row g-3 ">
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
@@ -74,32 +111,10 @@
                                         <div class="title-header">
                                             <div class="w-100 d-flex align-items-center justify-content-between">
                                                 <h5>{{ __('message.revenue_and_orders') }}</h5>
-                                                <div class="d-flex justify-content-center align-items-center">
-                                                    <div class="d-flex justify-content-center align-items-center me-4">
-                                                        <p class="mb-0 me-2 fw-bold">{{ __('message.from') }}</p>
-                                                        <div class="input-group custom-dt-picker">
-                                                            <input placeholder="YYY-MM-DD"
-                                                                id="start_date_input"
-                                                                class="form-control form-date">
-                                                            <button type="button"
-                                                                class="btn btn-outline-secondary">
-                                                                <i class="ri-calendar-line"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex justify-content-center align-items-center">
-                                                        <p class="mb-0 me-2 fw-bold">{{ __('message.to') }}</p>
-                                                        <div class="input-group custom-dt-picker">
-                                                            <input placeholder="YYY-MM-DD"
-                                                                id="end_date_input"
-                                                                class="form-control form-date">
-                                                            <button type="button"
-                                                                class="btn btn-outline-secondary">
-                                                                <i class="ri-calendar-line"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                <div>{!! $chart->container() !!}</div>
+                                                {{ $chart->script() }}
+                                                
+                                                
                                             </div>
                                         </div>
                                         <div style="min-height: 360px;">
@@ -427,6 +442,12 @@
 @endpush
 
 @push('js')
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/10.3.3/highcharts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/10.3.3/modules/exporting.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/10.3.3/modules/export-data.js"></script>
+
+
     <script>
         $(".form-date").flatpickr({
             dateFormat: "Y-m-d"
