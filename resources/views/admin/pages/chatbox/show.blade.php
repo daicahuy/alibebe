@@ -128,6 +128,15 @@
 
         // Bind sự kiện nhận tin nhắn mới
         channel.bind('message.sent', function(data) {
+
+            onst currentUserId = {{ auth()->id() }}; // Lấy ID của admin hiện tại
+
+            // Nếu tin nhắn do chính admin gửi, bỏ qua không hiển thị lại
+            if (data.sender_id == currentUserId) {
+                console.log("Bỏ qua tin nhắn do chính admin gửi.");
+                return;
+            }
+
             // Tạo thời gian hiển thị tin nhắn theo định dạng giờ:phút
             const time = new Date(data.created_at).toLocaleTimeString('vi-VN', {
                 hour: '2-digit',
@@ -135,41 +144,43 @@
             });
 
             let messageHtml = '';
-
-            // Kiểm tra sender_id: nếu bằng với customer_id, tin nhắn của khách hàng
-            if (data.sender.id == {{ $chatSession->customer_id }}) {
+            // Kiểm tra sender: nếu sender.id bằng với customer_id thì đó là tin nhắn của khách hàng
+            if ((data.sender && data.sender.id == {{ $chatSession->customer_id }}) || data.sender_id ==
+                {{ $chatSession->customer_id }}) {
+                console.log('Tin nhắn của khách hàng được nhận.');
                 messageHtml = `
-        <div class="d-flex mb-2">
-            <img src="{{ $chatSession->customer->avatar ? Storage::url($chatSession->customer->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($chatSession->customer->fullname))) . '?d=mp' }}"
-                alt="Customer" class="rounded-circle me-2 img-fluid" style="width: 40px; height: 40px;">
-            <div class="bg-white border rounded p-2 shadow-sm position-relative w-75">
-                <p class="mb-1 small">${data.message}</p>
-                <small class="text-muted position-absolute end-0 bottom-0 me-2 mb-1" style="font-size: 10px;">
-                    ${time}
-                </small>
+            <div class="d-flex mb-2">
+                <img src="{{ $chatSession->customer->avatar ? Storage::url($chatSession->customer->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($chatSession->customer->fullname))) . '?d=mp' }}"
+                    alt="Customer" class="rounded-circle me-2 img-fluid" style="width: 40px; height: 40px;">
+                <div class="bg-white border rounded p-2 shadow-sm position-relative w-75">
+                    <p class="mb-1 small">${data.message}</p>
+                    <small class="text-muted position-absolute end-0 bottom-0 me-2 mb-1" style="font-size: 10px;">
+                        ${time}
+                    </small>
+                </div>
             </div>
-        </div>
         `;
             } else {
-                // Ngược lại tin nhắn của admin
                 messageHtml = `
-        <div class="d-flex mb-2 justify-content-end">
-            <div class="bg-primary text-white border rounded p-2 shadow-sm position-relative w-75">
-                <p class="mb-1 small">${data.message}</p>
-                <small class="text-white-50 position-absolute end-0 bottom-0 me-2 mb-1" style="font-size: 10px;">
-                    ${time}
-                </small>
+            <div class="d-flex mb-2 justify-content-end">
+                <div class="bg-primary text-white border rounded p-2 shadow-sm position-relative w-75">
+                    <p class="mb-1 small">${data.message}</p>
+                    <small class="text-white-50 position-absolute end-0 bottom-0 me-2 mb-1" style="font-size: 10px;">
+                        ${time}
+                    </small>
+                </div>
+                <img src="{{ $chatSession->employee && $chatSession->employee->avatar ? Storage::url($chatSession->employee->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($chatSession->employee->fullname ?? 'admin'))) . '?d=mp' }}"
+                    alt="Admin" class="rounded-circle ms-2 border border-light" style="width: 40px; height: 40px;">
             </div>
-            <img src="{{ $chatSession->employee && $chatSession->employee->avatar ? Storage::url($chatSession->employee->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($chatSession->employee->fullname ?? 'admin'))) . '?d=mp' }}"
-                alt="Admin" class="rounded-circle ms-2 border border-light" style="width: 40px; height: 40px;">
-        </div>
         `;
             }
 
-            // Thêm tin nhắn mới vào container chat
+            // Append tin nhắn mới vào container chat
             $('#chatMessages').append(messageHtml);
             // Cuộn xuống cuối container để hiển thị tin nhắn mới
             $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+
+            console.log('=== End of event ===');
         });
 
         // Cuộn xuống dưới cùng

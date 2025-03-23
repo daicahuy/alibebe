@@ -43,6 +43,10 @@ class ChatService
         try {
             $chatSession = $this->chatSessionRepository->getChatSession($chatSessionId);
 
+            if($chatSession) {
+                $this->messageRepository->markAllSessionMessagesAsRead($chatSessionId,Auth()->id());
+            }
+
             return $chatSession;
         } catch (\Throwable $th) {
             // Ghi log lỗi
