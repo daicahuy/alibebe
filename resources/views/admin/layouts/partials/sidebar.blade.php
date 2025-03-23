@@ -1,3 +1,9 @@
+<style>
+    .hide-element {
+        display: none;
+    }
+</style>
+
 <div class="sidebar-wrapper">
     <div>
         <!-- START LOGO -->
@@ -102,6 +108,8 @@
                                     <i class="ri-article-line"></i>
                                     <div class="sidebar-main-link">{{ __('form.orders') }}</div>
                                 </div>
+                                <div class="p-2" id="div_count_order">
+                                </div>
                             </span>
                         </a>
                     </li>
@@ -112,6 +120,8 @@
                                 <div class="d-flex align-items-center">
                                     <i class="ri-exchange-dollar-line"></i>
                                     <div class="sidebar-main-link">Hoàn hàng</div>
+                                </div>
+                                <div class="p-2" id="div_count_order_refund">
                                 </div>
                             </span>
                         </a>
@@ -206,3 +216,82 @@
         <!-- END SIDEBAR MAIN -->
     </div>
 </div>
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+
+        function updateCountOrder(count) {
+            $("#div_count_order").empty();
+
+            if (count > 0) {
+                $("#div_count_order").append(`
+                <span class="badge bg-warning ml-2" id="">${count}</span>
+
+                `)
+            }
+        }
+
+        function fetchPendingOrderCount() {
+            $.ajax({
+                url: '{{ route('api.orders.countPending') }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                    updateCountOrder(data.count);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching pending order count:', error);
+                }
+            });
+        }
+
+        function updateCountOrderRefund(count) {
+            $("#div_count_order_refund").empty();
+
+            if (count > 0) {
+                $("#div_count_order_refund").append(`
+                <span class="badge bg-warning ml-2" id="">${count}</span>
+
+                `)
+            }
+        }
+
+        function fetchPendingOrderRefundCount() {
+            $.ajax({
+                url: '{{ route('api.refund_orders.countPending') }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                    updateCountOrderRefund(data.count);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching pending order count:', error);
+                }
+            });
+        }
+
+        Pusher.logToConsole = true;
+
+        var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+            cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+        });
+
+        var channel = pusher.subscribe('order-pending-count');
+        channel.bind('pending-count-updated', function(data) {
+            updateCountOrder(data.count)
+        });
+        var channel2 = pusher.subscribe('order-refund-pending-count');
+        channel2.bind('order-refund-pending-count-updated', function(data) {
+            updateCountOrderRefund(data.count)
+        });
+
+
+        fetchPendingOrderCount();
+        fetchPendingOrderRefundCount();
+
+
+    })
+</script>

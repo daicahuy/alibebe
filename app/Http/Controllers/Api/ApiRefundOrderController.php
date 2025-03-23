@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Events\OrderRefundPendingCountUpdated;
 use App\Events\RefundOrderCreate;
 use App\Events\RefundOrderUpdateStatus;
 use App\Http\Controllers\Controller;
@@ -108,6 +109,7 @@ class ApiRefundOrderController extends Controller
                     ->where('id', $idRefund)
                     ->update(['admin_reason' => $adminReason, 'status' => 'rejected']);
                 event(new RefundOrderUpdateStatus($idRefund, 'rejected'));
+                event(new OrderRefundPendingCountUpdated());
                 return response()->json([
                     "message" => "OK Admin Reason",
                     "status" => Response::HTTP_OK
@@ -118,6 +120,8 @@ class ApiRefundOrderController extends Controller
                     ->where('id', $idRefund)
                     ->update(['status' => 'receiving']);
                 event(new RefundOrderUpdateStatus($idRefund, 'receiving'));
+                event(new OrderRefundPendingCountUpdated());
+
 
                 return response()->json([
                     "message" => "OK Admin receiving",
@@ -147,6 +151,8 @@ class ApiRefundOrderController extends Controller
                 ->where('id', $idOrder)
                 ->update(['status' => 'cancel']);
             event(new RefundOrderUpdateStatus($idOrder, 'cancel'));
+            event(new OrderRefundPendingCountUpdated());
+
             return response()->json([
                 "message" => "OK Admin Reason",
                 "status" => Response::HTTP_OK
@@ -291,6 +297,8 @@ class ApiRefundOrderController extends Controller
                 ->update(["is_refund" => "0"]);
 
             event(new RefundOrderCreate($orderRefund));
+            event(new OrderRefundPendingCountUpdated());
+
 
             DB::commit();
             return response()->json(["data" => $dataItemProduct, "status" => Response::HTTP_OK]);
@@ -369,10 +377,14 @@ class ApiRefundOrderController extends Controller
             if ($fail_reason) {
                 Refund::where("id", $id_order_refund)->update(["fail_reason" => $fail_reason, "img_fail_or_completed" => $data['img_fail_or_completed'], "status" => "failed"]);
                 event(new RefundOrderUpdateStatus($id_order_refund, 'failed'));
+                event(new OrderRefundPendingCountUpdated());
+
 
             } else {
                 Refund::where("id", $id_order_refund)->update(["img_fail_or_completed" => $data['img_fail_or_completed'], "status" => "completed"]);
                 event(new RefundOrderUpdateStatus($id_order_refund, 'completed'));
+                event(new OrderRefundPendingCountUpdated());
+
 
             }
 
@@ -385,6 +397,20 @@ class ApiRefundOrderController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function countPending(Request $request)
+    {
+        try {
+            $count = Refund::query()->where("status", 'pending')->count();
+            return response()->json(['count' => $count]);
+        } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'An error occurred: ' . $th->getMessage(),
                 'status' => Response::HTTP_INTERNAL_SERVER_ERROR,

@@ -104,6 +104,7 @@ Route::prefix('/refund-orders')
     ->group(function () {
         Route::get('/list', [ApiRefundOrderController::class, 'index'])->name('index');
         Route::get('/{id}', [ApiRefundOrderController::class, 'getDataOrderRefund'])->name('getDataOrderRefund');
+        Route::get('/list/countPending', [ApiRefundOrderController::class, 'countPending'])->name('countPending');
         Route::post('/changeStatus', [ApiRefundOrderController::class, 'changeStatus'])->name('changeStatus');
         Route::post('/changeStatusCancelOrder', [ApiRefundOrderController::class, 'changeStatusCancelOrder'])->name('changeStatusCancelOrder');
         Route::post('/changeStatusWithImg', [ApiRefundOrderController::class, 'changeStatusWithImg'])->name('changeStatusWithImg');
@@ -118,6 +119,7 @@ Route::prefix('/orders')
         Route::get('/list', [OrderController::class, 'index'])->name('index');
         Route::post('/listByUser', [OrderController::class, 'getOrdersByUser'])->name('getOrdersByUser');
         Route::get('/list/count', [OrderController::class, 'countByStatus'])->name('countByStatus');
+        Route::get('/list/countPending', [OrderController::class, 'countPending'])->name('countPending');
         Route::post('/updateOrderStatus', [OrderController::class, 'changeStatusOrder'])->name('changeStatusOrder');
         Route::post('/updateOrderStatusWithUserCheck', [OrderController::class, 'updateOrderStatusWithUserCheck'])->name('updateOrderStatusWithUserCheck');
         Route::post('/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');

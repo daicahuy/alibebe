@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\OrderCreateUpdate;
+use App\Events\OrderPendingCountUpdated;
 use App\Exceptions\DiscountCodeException;
 use App\Http\Controllers\Controller;
 use App\Jobs\CreateOrder;
@@ -210,7 +211,7 @@ class OrderCustomerControllerApi extends Controller
             ]);
 
             event(new OrderCreateUpdate($order));
-
+            event(new OrderPendingCountUpdated());
 
 
             session()->forget('selectedProducts');

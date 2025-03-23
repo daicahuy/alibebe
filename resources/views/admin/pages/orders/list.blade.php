@@ -174,6 +174,47 @@
             border-radius: 7% !important;
             background: unset !important;
         }
+
+        .table-responsive {
+            overflow: hidden;
+            /* Ẩn cuộn ngoài */
+        }
+
+        .order-table {
+            width: 100%;
+            /* Chiều rộng của bảng vào 100% */
+            border-collapse: collapse;
+            /* Kết hợp các đường viền */
+        }
+
+        .order-table thead {
+            position: sticky;
+            /* Định vị cố định */
+            top: 0;
+            /* Đặt ở đỉnh trang */
+            background: white;
+            /* Màu nền cho bảng */
+            z-index: 10;
+            /* Đảm bảo header nằm trên nội dung khác */
+        }
+
+        .table-responsive tbody {
+            display: block;
+            /* Chuyển tbody thành block để cuộn được */
+            overflow-y: auto;
+            /* Cho phép cuộn theo chiều dọc */
+            height: 300px;
+            /* Chiều cao tối đa của tbody (thay đổi theo nhu cầu) */
+        }
+
+        .table-responsive tr {
+            display: table;
+            /* Giữ css của hàng */
+            table-layout: fixed;
+            /* Giữ cấu trúc hàng */
+            width: 100%;
+            /* Chiều rộng 100% cho hàng */
+        }
     </style>
 @endpush
 
@@ -278,16 +319,12 @@
     </div>
     {{-- End lọc --}}
 
-
-
-
-
     {{-- Start Body Order --}}
     <div class="card card-table mt-2">
 
         <div class="card-body">
             <div class="title-header option-title"
-                style="display: flex; justify-content: space-between; align-items: center;">
+                style="display: flex; padding-bottom: unset; justify-content: space-between; align-items: center;">
                 <h5>{{ __('message.list_orders') }}<span id="count_selected_item"></span></h5>
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
                     <div id="select-change-status-items"></div>
@@ -735,7 +772,7 @@
 
                         $("#orderTable tbody").append(`
                         <tr data-id="${order.id}">
-                                <td>
+                                <td class="sm-width">
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" value=${order.id} id="checkbox-${order.id}"
                                         class="custom-control-input checkbox_animated checkbox-input">
@@ -744,7 +781,7 @@
                                 <td class="px-4 py-2"><p
                                         class="font-semibold uppercase text-xs">${ order.code }</p></td>
                                 <td class="px-4 py-2"><span class="text-sm">${ convertDate(order.created_at) }</span></td>
-                                <td class="px-4 py-2 text-xs" style="text-align: left">
+                                <td class="px-4 py-2 text-xs" style="width: 280px; text-align: left;">
                                     <span class="block">
 													<b>{{ __('form.order.fullname') }}: </b>
 													${order.fullname}
@@ -780,16 +817,16 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                                                        <div class="status-pending">
-                                                                                                                        <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                                                        </div>
-                                                                                                                        </div>
+                                                                                                                                                                <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                                                                                                                <div class="status-pending">
+                                                                                                                                                                <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                                                                                                                </div>
+                                                                                                                                                                </div>
 
 
-                                                                                                                        ` : `
+                                                                                                                                                                ` : `
 
-                                                                                                                        `}
+                                                                                                                                                                `}
                                         <li>
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
