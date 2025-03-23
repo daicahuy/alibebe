@@ -594,7 +594,7 @@
                 {
                     id: 3,
                     name: "Đang giao hàng",
-                    next: [3, 4, 5, 7],
+                    next: [3, 4, 5],
                     unnextList: [5, 7]
                 },
                 {
@@ -780,16 +780,16 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                                                    <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                                                    <div class="status-pending">
-                                                                                                                    <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                                                    </div>
-                                                                                                                    </div>
+                                                                                                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                                                                        <div class="status-pending">
+                                                                                                                        <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                                                                        </div>
+                                                                                                                        </div>
 
 
-                                                                                                                    ` : `
+                                                                                                                        ` : `
 
-                                                                                                                    `}
+                                                                                                                        `}
                                         <li>
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">

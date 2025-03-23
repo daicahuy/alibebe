@@ -139,10 +139,15 @@
                                                 <td class="text-start" id="reason"></td>
                                             </tr><!---->
                                             <tr>
-                                                <td class="text-start fw-semibold">Hình ảnh</td>
+                                                <td class="text-start fw-semibold">Hình ảnh/video</td>
                                                 <td class="text-start"><img src="" alt=""
                                                         id="reason-thumbnail-image" class="thumbnail-image"
-                                                        style="width: 50px; height: 50px;"></td>
+                                                        style="width: 50px; height: 50px;display: none;">
+                                                    <video id="reason-thumbnail-video" class="thumbnail-video"
+                                                        style="width: 200px; height: 100px; display: none;" controls>
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                </td>
                                             </tr><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Giá trị hoàn</td>
@@ -257,9 +262,10 @@
                 const statusMap = {
                     'pending': 'Đang chờ',
                     'receiving': 'Chờ vận chuyển',
-                    'completed': 'Hoàn thành',
+                    'completed': 'Hoàn hàng thành công',
                     'rejected': 'Bị từ chối',
-                    'failed': 'Thất bại'
+                    'failed': 'Thất bại',
+                    'cancel': 'Hủy'
                 };
                 return statusMap[status] || status; // Trả về giá trị gốc nếu không tìm thấy
             }
@@ -287,8 +293,21 @@
                     `{{ Storage::url('${dataOrderRefund.reason_image}') }}`; //Laravel Blade syntax
                 //Chuyển đổi thành Javascript string
                 const jsImageUrl = imageUrl.replace(/\{\{\s*|\s*\}\}/g, '');
-                $("#modalConfirm #reason-thumbnail-image").attr("src",
-                    jsImageUrl);
+                const isVideo = jsImageUrl.match(/\.(mp4|mov|avi|wmv|mkv)$/i);
+
+                if (isVideo) {
+                    // Ẩn hình ảnh và hiển thị video
+                    $("#modalConfirm #reason-thumbnail-image").hide();
+                    $("#modalConfirm #reason-thumbnail-video")
+                        .attr("src", jsImageUrl)
+                        .show();
+                } else {
+                    // Ẩn video và hiển thị hình ảnh
+                    $("#modalConfirm #reason-thumbnail-video").hide();
+                    $("#modalConfirm #reason-thumbnail-image")
+                        .attr("src", jsImageUrl)
+                        .show();
+                }
                 $("#modalConfirm #reason").text(dataOrderRefund.reason ? dataOrderRefund.reason : "")
                 $("#modalConfirm #idOrderRefund").val(dataOrderRefund.id)
                 $("#modalConfirm #total_amount").text(`${formatCurrency(dataOrderRefund.total_amount)}đ`)
@@ -575,6 +594,8 @@
                     });
                 })
 
+
+
             }
 
             $('.thumbnail-image').on('click', function() {
@@ -757,11 +778,16 @@
                                 statusClass = 'bg-success'; // Xanh
                                 break;
                             case 'rejected':
+                                statusClass = 'bg-danger'; // Đỏ
+                                break;
                             case 'failed':
                                 statusClass = 'bg-danger'; // Đỏ
                                 break;
                             case 'pending':
                                 statusClass = 'bg-warning'; // Vàng
+                                break;
+                            case 'cancel':
+                                statusClass = 'bg-danger'; // Vàng
                                 break;
                             default:
                                 statusClass = 'bg-info'; // Màu khác nếu cần
@@ -830,6 +856,11 @@
             $('#payout_close_btn').on('click', function(event) {
                 event.stopPropagation();
                 $('#button-box-footer').empty();
+                const videoElement = $('#reason-thumbnail-video').get(0); // Lấy phần tử video
+                if (videoElement) {
+                    videoElement.pause(); // Tạm dừng video
+                    videoElement.currentTime = 0; // Đặt thời gian phát về 0 (tùy chọn)
+                }
                 $('#modalConfirm').modal('hide');
 
             });

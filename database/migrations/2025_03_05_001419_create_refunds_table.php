@@ -29,7 +29,8 @@ return new class extends Migration {
                 'receiving',
                 'completed',
                 'rejected',
-                'failed'
+                'failed',
+                'cancel'
             ])->default('pending');
             $table->timestamps();
 

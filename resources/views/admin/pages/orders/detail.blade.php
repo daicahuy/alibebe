@@ -608,7 +608,7 @@
                             {
                                 id: 3,
                                 name: "Đang giao hàng",
-                                next: [3, 4, 5, 7]
+                                next: [3, 4, 5]
                             },
                             {
                                 id: 4,

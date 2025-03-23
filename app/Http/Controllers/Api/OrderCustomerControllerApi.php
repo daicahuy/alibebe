@@ -13,6 +13,7 @@ use App\Models\HistoryOrderStatus;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderOrderStatus;
+use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\User;
 use DB;
@@ -38,6 +39,11 @@ class OrderCustomerControllerApi extends Controller
 
             if (!$userCheckVerify->email_verified_at) {
                 return response()->json(["status" => "error", "message" => "Xác minh trước khi mua hàng!"]);
+            }
+
+            if (!$dataOrderCustomer['fullname']) {
+                return response()->json(["status" => "error", "message" => "Vui lòng nhập địa chỉ người nhận"]);
+
             }
 
             if ($couponCode) {
@@ -109,14 +115,31 @@ class OrderCustomerControllerApi extends Controller
                     $productStock = ProductStock::where('product_variant_id', $item['product_variant_id'])
                         ->lockForUpdate()
                         ->first();
+
+                    $product_product_variant_id = Product::where('id', $item['product_id'])->where('is_active', 1)
+                        ->lockForUpdate()
+                        ->first();
                     if (!$productStock || $productStock->stock < $item['quantity']) {
                         DB::rollBack();
                         return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn đủ số lượng trong kho"]);
+                    }
+                    if (!$product_product_variant_id) {
+                        DB::rollBack();
+                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn được lưu hành"]);
                     }
                 } else {
                     $productStock = ProductStock::where('product_id', $item['product_id'])
                         ->lockForUpdate()
                         ->first();
+
+                    $product_product_id = Product::where('id', $item['product_id'])->where('is_active', 1)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (!$product_product_id) {
+                        DB::rollBack();
+                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " không còn được lưu hành"]);
+                    }
                     if (!$productStock || $productStock->stock < $item['quantity']) {
                         DB::rollBack();
                         $productName = is_string($item['name']) ? $item['name'] : 'Sản phẩm không xác định'; // xử lý nếu không phải string
@@ -154,13 +177,7 @@ class OrderCustomerControllerApi extends Controller
                     if ($cartItem->quantity == $item['quantity_variant']) {
                         $cartItem->delete();
                     } else {
-
-
-                        $quantityCartItems = $cartItem->quantity;
-                        $coupon->quantity = (INT) $quantityCartItems - (INT) $item['quantity_variant'];
-
-                        $cartItem->save();
-
+                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
                     }
                 } else {
                     $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
@@ -169,10 +186,8 @@ class OrderCustomerControllerApi extends Controller
                     if ($cartItem->quantity == $item['quantity']) {
                         $cartItem->delete();
                     } else {
-                        $quantityCartItems = $cartItem->quantity;
-                        $coupon->quantity = (INT) $quantityCartItems - (INT) $item['quantity'];
+                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
 
-                        $cartItem->save();
 
                     }
                 }
