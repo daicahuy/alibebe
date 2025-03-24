@@ -120,7 +120,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{route('auth.admin.logout')}}">
+                            <a onclick="return confirm('Bạn muốn đăng xuất?')" href="{{route('auth.admin.logout')}}">
                                 <i class="ri-logout-box-line"></i>
                                 <span>Đăng xuất</span>
                             </a>

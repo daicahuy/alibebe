@@ -52,22 +52,37 @@
                                 </div>
                             </span>
                             <div class="according-menu">
-                                @if (Request::is('admin/products*') ||
-                                        Request::is('admin/attribute*') ||
-                                        Request::is('admin/brands*') ||
-                                        Request::is('admin/tags*'))
+                                @if (Request::is('admin/products*')
+                                    || Request::is('admin/inventory*')
+                                    || Request::is('admin/attribute*')
+                                    || Request::is('admin/brands*')
+                                    || Request::is('admin/tags*')
+                                )
                                     <i class="ri-arrow-down-s-line"></i>
                                 @else
                                     <i class="ri-arrow-right-s-line"></i>
                                 @endif
                             </div>
                         </a>
-                        <ul class="sidebar-submenu" @style(['display: block;' => Request::is('admin/products*') || Request::is('admin/attribute*') || Request::is('admin/brands*') || Request::is('admin/tags*')])>
+                        <ul class="sidebar-submenu" @style([
+                            'display: block;' => Request::is('admin/products*')
+                            || Request::is('admin/inventory*')
+                            || Request::is('admin/attribute*')
+                            || Request::is('admin/brands*')
+                            || Request::is('admin/tags*')
+                        ])>
                             <li>
                                 <a href="{{ route('admin.products.index') }}"
                                     class="{{ Request::is('admin/products*') ? 'active' : '' }}">
                                     <div>{{ __('form.product_manager') }}</div>
                                     {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
+                                </a>
+                                <ul class="sidebar-submenu"></ul>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.inventory.index') }}"
+                                    class="{{ Request::is('admin/inventory*') ? 'active' : '' }}">
+                                    <div>{{ __('form.inventory_manager') }}</div>
                                 </a>
                                 <ul class="sidebar-submenu"></ul>
                             </li>
@@ -146,12 +161,6 @@
                                 </a>
                                 <ul class="sidebar-submenu"></ul>
                             </li>
-                            {{-- <li>
-                                <a href="/fastkart-admin/role">
-                                    <div>Role</div>
-                                </a>
-                                <ul class="sidebar-submenu"></ul>
-                            </li> --}}
                         </ul>
                     </li>
                     <li class="sidebar-list">

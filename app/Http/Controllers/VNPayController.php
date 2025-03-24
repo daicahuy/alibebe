@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderCreateUpdate;
 use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\CouponUser;
@@ -327,7 +328,7 @@ class VNPayController extends Controller
 
                     $user->loyalty_points = $user->loyalty_points + 10;
                     $user->save();
-
+                    event(new OrderCreateUpdate($order));
                     DB::commit();
                     session()->forget('selectedProducts');
                     session()->forget('totalPrice');

@@ -392,7 +392,7 @@
                         limit: itemsPerPage,
                     },
                     success: function(response) {
-
+                        console.log("123", dataUser)
                         renderTable(response.orders, response.totalPages);
 
 
@@ -425,6 +425,25 @@
                 });
             }
 
+
+            let changedOrderRefundIds = [];
+            let debounceTimerRefund;
+
+            function handleStatusChangeRefund(orderId) {
+
+                if (!changedOrderRefundIds.includes(orderId)) {
+                    changedOrderRefundIds.push(orderId);
+                }
+
+
+                clearTimeout(debounceTimerRefund);
+                debounceTimerRefund = setTimeout(() => {
+
+                    fetchOrdersRefund();
+                    changedOrderRefundIds = [];
+                }, 2000);
+            }
+
             function rederOrderRefunds(orders, totalPages) {
                 const listCard = document.getElementById("listCard");
                 listCard.innerHTML = "";
@@ -440,6 +459,18 @@
 
                 orders.forEach(order => {
                     let statusClass;
+
+                    Pusher.logToConsole = true;
+
+                    var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                        cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+                    });
+
+                    var channel = pusher.subscribe('order-refund-status.' + order.id);
+                    channel.bind('event-change-status-refund', function(data) {
+                        handleStatusChangeRefund(data.orderId)
+                    });
+
                     switch (order.status) {
                         case 'completed':
                             statusClass = 'bg-success'; // Xanh
@@ -463,13 +494,13 @@
                     <div class="d-flex align-items-center">
                         <div class="d-flex" style="align-items:center">
                             ${order.status == "failed" ? `
-                                                                    
-                                                                    <h5 class="show-fail" style="cursor: pointer;" data-failreason="${order.fail_reason}" data-imgfailorcompleted="${order.img_fail_or_completed}">Xem lý do thất bại</h5>
-                                                                    ` :""}
+                                                                                                                                                
+                                                                                                                                                <h5 class="show-fail" style="cursor: pointer;" data-failreason="${order.fail_reason}" data-imgfailorcompleted="${order.img_fail_or_completed}">Xem lý do thất bại</h5>
+                                                                                                                                                ` :""}
                             ${order.status == "completed" ? `
-                                                                    
-                                                                    <h5 class="show-complate" style="cursor: pointer;" data-imgfailorcompleted="${order.img_fail_or_completed}">Xem minh chứng</h5>
-                                                                    ` :""}
+                                                                                                                                                
+                                                                                                                                                <h5 class="show-complate" style="cursor: pointer;" data-imgfailorcompleted="${order.img_fail_or_completed}">Xem minh chứng</h5>
+                                                                                                                                                ` :""}
                             <span class="badge bg-warning complete ms-2 btn-show-reason"  id="" data-reason="${order.reason}" data-reasonimg="${order.reason_image}" data-adminreason="${order.admin_reason}"  style="font-size: 1.2em;cursor: pointer;background-color: rgb(7 255 16) !important;">
                                 Lý do
                             </span>
@@ -730,7 +761,7 @@
 
                     fetchOrders();
                     changedOrderIds = [];
-                }, 1000);
+                }, 2000);
             }
 
 
@@ -882,7 +913,9 @@
                     Pusher.logToConsole = true;
 
                     var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
-                        cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+                        cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+
+
                     });
 
                     var channel = pusher.subscribe('order-status.' + order.id);
@@ -981,9 +1014,9 @@
                     </div>
                     <div class="d-flex" style="margin-right: 15px;flex-direction: column;">
                         ${showReviewButton ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <a href="/products/${item.product.slug}?order_id=${item.order_id}" class="text" style="align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;">Đánh giá</a>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `:""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <a href="/products/${item.product.slug}?order_id=${item.order_id}" class="text" style="align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;">Đánh giá</a>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `:""}
                         <div class="d-flex flex-row " style="align-items: center;justify-content: center;justify-items: center;">
                             <span>Thành tiền: </span> <p class="price-new" style="margin-bottom: unset">${item.product_variant_id ? formatCurrency(parseFloat(item.quantity_variant) * parseFloat(item.price_variant)) : formatCurrency(parseFloat(item.quantity) * parseFloat(item.price))}₫</p>
                             </div>
@@ -1012,34 +1045,34 @@
                 <div class="d-flex flex-row">
                     ${showRefundButton ? `
 
-                                                                                                                                                                                                                                <button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund="${order.id}" style="background-color: red; color: #fff;">
-                                                                                                                                                                                                                                        Hoàn hàng
-                                                                                                                                                                                                                                    </button>
+                                                                                                                                                                                                                                                                                                            <button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund="${order.id}" style="background-color: red; color: #fff;">
+                                                                                                                                                                                                                                                                                                                    Hoàn hàng
+                                                                                                                                                                                                                                                                                                                </button>
 
-                                                                                                                                                                                                                                `:""}
+                                                                                                                                                                                                                                                                                                            `:""}
     ${
         order.order_statuses[0].id === 1
             ? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}">Hủy hàng</button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `
             : order.order_statuses[0].id === 4
             ? `
-                                                                                                                                                                                                                                        <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
-                                                                                                                                                                                                                                        Đã nhận
-                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                        <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
-                                                                                                                                                                                                                                        `
+                                                                                                                                                                                                                                                                                                                    <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
+                                                                                                                                                                                                                                                                                                                    Đã nhận
+                                                                                                                                                                                                                                                                                                                    </button>
+                                                                                                                                                                                                                                                                                                                    <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
+                                                                                                                                                                                                                                                                                                                    `
             : ""
     }
 </div>
                 <div>
                     <div>${order.coupon_discount_type ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                    <span>Giảm giá: </span>
-                                                                                                                                                                                                                                <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
-                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                    `:""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                <span>Giảm giá: </span>
+                                                                                                                                                                                                                                                                                                            <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
+                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                `:""}
                     <div>
                         <span>Tổng tiền: </span>
                     <span class="price-new">${formatCurrency(order.total_amount)}₫</span>
@@ -1256,6 +1289,45 @@
             fetchOrders();
 
         })
+         // comapre-count
+         function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.startsWith(name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            function updateCompareCountBadge() {
+                const compareCookieName = 'compare_list';
+                const compareListCookie = getCookie(compareCookieName);
+                let compareCount = 0;
+                if (compareListCookie) {
+                    try {
+                        const compareList = JSON.parse(compareListCookie);
+                        compareCount = compareList.length;
+                    } catch (error) {
+                        console.error('Lỗi khi parse cookie compare_list:', error);
+                    }
+                }
+                $('#compare-count-badge').text(compareCount);
+                if (compareCount > 0) {
+                    $('#compare-count-badge').show(); // Hoặc sử dụng class để hiển thị
+                } else {
+                    $('#compare-count-badge').hide(); // Hoặc sử dụng class để ẩn
+                }
+            }
+
+            // Gọi hàm này khi trang sản phẩm được tải
+            updateCompareCountBadge(); //end compare
     </script>
 
     <script src="{{ asset('js/utility.js') }}"></script>

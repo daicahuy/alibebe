@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\Api;
 
+use App\Events\OrderCreateUpdate;
 use App\Exceptions\DiscountCodeException;
 use App\Http\Controllers\Controller;
 use App\Jobs\CreateOrder;
@@ -95,7 +96,8 @@ class OrderCustomerControllerApi extends Controller
                 'note' => $dataOrderCustomer['note'],
                 'payment_id' => $dataOrderCustomer['payment_id'],
                 'total_amount' => $dataOrderCustomer['total_amount_discounted'],
-                'is_paid' => $dataOrderCustomer['is_paid'], // Giả sử đơn hàng chưa được thanh toán
+                'is_paid' => $dataOrderCustomer['is_paid'],
+                'is_refund' => "1",
                 'coupon_id' => isset($coupon) ? $coupon->id : null,
                 'coupon_discount_value' => $dataOrderCustomer["coupon_discount_value"],
                 'coupon_discount_type' => $dataOrderCustomer["coupon_discount_type"],
@@ -117,7 +119,8 @@ class OrderCustomerControllerApi extends Controller
                         ->first();
                     if (!$productStock || $productStock->stock < $item['quantity']) {
                         DB::rollBack();
-                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " không còn đủ số lượng trong kho"]);
+                        $productName = is_string($item['name']) ? $item['name'] : 'Sản phẩm không xác định'; // xử lý nếu không phải string
+                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $productName . " không còn đủ số lượng trong kho"]);
                     }
                 }
 
@@ -191,10 +194,16 @@ class OrderCustomerControllerApi extends Controller
                 "order_id" => $order->id,
             ]);
 
-            DB::commit();
+            event(new OrderCreateUpdate($order));
+
+
 
             session()->forget('selectedProducts');
             session()->forget('totalPrice');
+            DB::commit();
+
+
+
 
             return response()->json(["status" => Response::HTTP_OK, "Messager" => "Đơn hàng đã thành công"]);
 

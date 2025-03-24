@@ -84,7 +84,7 @@
                                     @else
                                         <span class="text-muted">Không có danh mục</span>
                                     @endif
-                                    <a href="{{ route('products', $product->id) }}">
+                                    <a href="{{ route('products', $product->slug) }}">
                                         <h5 class="name">{{ $product->name }}</h5>
                                     </a>
                                     <p class="text-content mt-1 mb-2 product-content">

@@ -180,15 +180,16 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.products.show', $hidden->id) }}"
+                                                            <a href="{{ route('admin.products.show', $hidden->slug) }}"
                                                                 class="btn-detail"><i class="ri-eye-line"></i></a>
                                                         </li>
                                                         <li>
-                                                            <a href="{{ route('admin.products.edit', $hidden->id) }}"
+                                                            <a href="{{ route('admin.products.edit', $hidden->slug) }}"
                                                                 class="btn-edit"><i class="ri-pencil-line"></i></a>
                                                         </li>
                                                         <li>
-                                                            <form action="{{ route('admin.products.delete', $hidden->id) }}"
+                                                            <form
+                                                                action="{{ route('admin.products.delete', $hidden->id) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('DELETE')
