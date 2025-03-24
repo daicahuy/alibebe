@@ -12,11 +12,14 @@
             <div class="d-flex align-items-center justify-content-between p-2 bg-primary text-white rounded-top shadow"
                 style="height: 60px;">
                 <div class="d-flex align-items-center">
-                    <img src="{{ Storage::url($chatSession->customer->avatar) }}" alt="User"
+                    <img src="{{ Storage::url($chatSession->customer->avatar)  }}" alt="User"
                         class="rounded-circle me-2 img-fluid" style="width: 40px; height: 40px;">
                     <span class="fs-6 fw-bold">{{ $chatSession->customer->fullname }}</span>
                 </div>
-                <a class="btn btn-outline-light btn-sm rounded-pill" href="{{ route('admin.chats.index') }}">Thoát</a>
+                <form action="{{ route('admin.chats.exit', $chatSession->id) }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-light btn-sm rounded-pill">Thoát</button>
+                </form>                
             </div>
 
             <!-- Khu vực tin nhắn -->
@@ -129,10 +132,10 @@
         // Bind sự kiện nhận tin nhắn mới
         channel.bind('message.sent', function(data) {
 
-            onst currentUserId = {{ auth()->id() }}; // Lấy ID của admin hiện tại
+            const currentUserId = {{ auth()->id() }}; // Lấy ID của admin hiện tại
 
             // Nếu tin nhắn do chính admin gửi, bỏ qua không hiển thị lại
-            if (data.sender_id == currentUserId) {
+            if (data.sender.id == currentUserId) {
                 console.log("Bỏ qua tin nhắn do chính admin gửi.");
                 return;
             }

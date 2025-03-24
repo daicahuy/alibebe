@@ -278,9 +278,7 @@ class ChatService
                 ];
             }
 
-            $chatSession->update([
-                'status' => ChatSessionStatusType::OPEN
-            ]);
+            $this->chatSessionRepository->updateChatSessionStatus($chatSession->id,ChatSessionStatusType::OPEN);
 
             return [
                 'status' => true,
@@ -371,7 +369,7 @@ class ChatService
 
             if (!$session) {
                 $newSession = $this->startChat($userId);
-                $session = $this->chatSessionRepository->getChatSession($newSession['session_id']);
+                $session = $this->chatSessionRepository->getChatSession($newSession['session_id'],$userId);
             }
 
             return [
@@ -382,7 +380,7 @@ class ChatService
                 'customer' => $session->customer
             ];
         } catch (\Exception $e) {
-            Log::error('Client session error: ' . $e->getMessage());
+            Log::error('Client session error: ' . $e);
             return $this->formatError('Không thể khởi tạo phiên chat');
         }
     }

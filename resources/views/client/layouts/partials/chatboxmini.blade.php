@@ -1,117 +1,119 @@
 @auth
-    <div class="container" style="margin-left: 30px">
-        <!-- Chat Widget Start -->
-        <div id="chatWidget" class="chat-widget position-fixed bottom-0 start-0 shadow-lg bg-white rounded-3 d-none"
-            style="width: 350px; z-index: 10000; margin-bottom: 40px; margin-left: 40px;">
-            <div class="text-white d-flex justify-content-between align-items-center p-3 rounded-top"
-                style="background: #0da487 !important;">
-                <span>Nhắn Tin Hỗ Trợ</span>
-                <button class="btn-close text-white" id="toggleChat"></button>
-            </div>
-            <div class="chat-body overflow-auto p-3" id="chatBody" style="height: 300px;">
-                <div id="chatMessages" class="chat-messages">
-                    <div class="text-center text-muted">Chưa có tin nhắn nào</div>
+    @if (auth()->user()->role === 0)
+        <div class="container" style="margin-left: 30px">
+            <!-- Chat Widget Start -->
+            <div id="chatWidget" class="chat-widget position-fixed bottom-0 start-0 shadow-lg bg-white rounded-3 d-none"
+                style="width: 350px; z-index: 10000; margin-bottom: 40px; margin-left: 40px;">
+                <div class="text-white d-flex justify-content-between align-items-center p-3 rounded-top"
+                    style="background: #0da487 !important;">
+                    <span>Nhắn Tin Hỗ Trợ</span>
+                    <button class="btn-close text-white" id="toggleChat"></button>
                 </div>
+                <div class="chat-body overflow-auto p-3" id="chatBody" style="height: 300px;">
+                    <div id="chatMessages" class="chat-messages">
+                        <div class="text-center text-muted">Chưa có tin nhắn nào</div>
+                    </div>
+                </div>
+                <form id="chatForm" class="chat-footer d-flex p-3 border-top">
+                    <input type="text" id="messageInput" class="form-control me-2 rounded-pill shadow-sm"
+                        placeholder="Nhập tin nhắn...">
+                    <button type="submit" class="btn btn-theme rounded-pill shadow-sm">Gửi</button>
+                </form>
             </div>
-            <form id="chatForm" class="chat-footer d-flex p-3 border-top">
-                <input type="text" id="messageInput" class="form-control me-2 rounded-pill shadow-sm"
-                    placeholder="Nhập tin nhắn...">
-                <button type="submit" class="btn btn-theme rounded-pill shadow-sm">Gửi</button>
-            </form>
+
+            <!-- Button mở chat -->
+            <button id="openChat" class="btn position-fixed"
+                style="bottom: 90px; left: 40px; width: 50px; height: 50px; border-radius: 50%; background-color: #0da487; color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); z-index: 10000;">
+                <i class="fas fa-comments"></i>
+            </button>
         </div>
+        <style>
+            /* Chat container */
+            .chat-body {
+                background-color: #f8f9fa;
+            }
 
-        <!-- Button mở chat -->
-        <button id="openChat" class="btn position-fixed"
-            style="bottom: 90px; left: 40px; width: 50px; height: 50px; border-radius: 50%; background-color: #0da487; color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); z-index: 10000;">
-            <i class="fas fa-comments"></i>
-        </button>
-    </div>
-    <style>
-        /* Chat container */
-        .chat-body {
-            background-color: #f8f9fa;
-        }
+            /* Tin nhắn từ admin */
+            .admin-message {
+                display: flex;
+                align-items: flex-start;
+                margin-bottom: 8px;
+            }
 
-        /* Tin nhắn từ admin */
-        .admin-message {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
+            .admin-initial {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background-color: #007bff;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                margin-right: 8px;
+                flex-shrink: 0;
+            }
 
-        .admin-initial {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background-color: #007bff;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            margin-right: 8px;
-            flex-shrink: 0;
-        }
+            .admin-text {
+                background-color: white;
+                padding: 8px 12px;
+                border-radius: 4px;
+                max-width: 85%;
+                word-break: break-word;
+                margin-top: 4px;
+            }
 
-        .admin-text {
-            background-color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            max-width: 85%;
-            word-break: break-word;
-            margin-top: 4px;
-        }
+            /* Tin nhắn từ người dùng */
+            .user-message {
+                display: flex;
+                justify-content: flex-end;
+                margin-bottom: 8px;
+            }
 
-        /* Tin nhắn từ người dùng */
-        .user-message {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 8px;
-        }
+            .user-text {
+                background-color: #0da487;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 4px;
+                max-width: 85%;
+                word-break: break-word;
+                margin-top: 4px;
+                position: relative;
+            }
 
-        .user-text {
-            background-color: #0da487;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            max-width: 85%;
-            word-break: break-word;
-            margin-top: 4px;
-            position: relative;
-        }
+            /* Thời gian tin nhắn */
+            .message-time {
+                font-size: 11px;
+                color: #6c757d;
+                display: inline-block;
+                margin-left: 8px;
+            }
 
-        /* Thời gian tin nhắn */
-        .message-time {
-            font-size: 11px;
-            color: #6c757d;
-            display: inline-block;
-            margin-left: 8px;
-        }
+            .user-message .message-time {
+                color: rgba(255, 255, 255, 0.8);
+            }
 
-        .user-message .message-time {
-            color: rgba(255, 255, 255, 0.8);
-        }
+            /* Trạng thái tin nhắn */
+            .message-status {
+                font-size: 11px;
+                color: rgba(255, 255, 255, 0.7);
+                display: block;
+                text-align: right;
+                margin-top: 2px;
+            }
 
-        /* Trạng thái tin nhắn */
-        .message-status {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
-            display: block;
-            text-align: right;
-            margin-top: 2px;
-        }
+            /* Nút gửi */
+            .btn-theme {
+                background-color: #0da487;
+                color: white;
+            }
 
-        /* Nút gửi */
-        .btn-theme {
-            background-color: #0da487;
-            color: white;
-        }
-
-        .btn-theme:hover {
-            background-color: #0b9277;
-            color: white;
-        }
-    </style>
+            .btn-theme:hover {
+                background-color: #0b9277;
+                color: white;
+            }
+        </style>
+    @endif
 @endauth
 
 @push('js_library')
@@ -135,18 +137,27 @@
 
         $(document).ready(function() {
             const loggedInUserId = {{ auth()->id() ? auth()->id() : 0 }};
+            // Kiểm tra trạng thái chat widget khi load trang
+            if (localStorage.getItem('chatOpen') === 'true') {
+                $('#chatWidget').removeClass('d-none').fadeIn();
+                $('#openChat').hide();
+                getChatSession(); // Lấy phiên chat và tin nhắn
+            }
 
-            // Mở/đóng chat
+            // Mở chat: lưu trạng thái vào localStorage
             $('#openChat').click(() => {
                 $('#chatWidget').removeClass('d-none').fadeIn();
                 $('#openChat').fadeOut();
+                localStorage.setItem('chatOpen', 'true'); // lưu trạng thái mở
                 getChatSession();
             });
 
+            // Đóng chat: cập nhật trạng thái lưu vào localStorage
             $('#toggleChat').click(() => {
                 $('#chatWidget').fadeOut(() => {
                     $('#chatWidget').addClass('d-none');
                     $('#openChat').fadeIn();
+                    localStorage.setItem('chatOpen', 'false'); // lưu trạng thái đóng
                 });
             });
 
@@ -171,51 +182,56 @@
                     },
                     success: (response) => {
                         window.currentChatSessionId = response.session.id;
-                        // Subscribe kênh chat
-                        const channel = pusher.subscribe(`private-chat.${window.currentChatSessionId}`);
 
-                        channel.bind('message.sent', function(data) {
-                            const loggedInUserId = {{ auth()->id() ? auth()->id() : 0 }};
+                        const channelName = `private-chat.${window.currentChatSessionId}`;
+                        let channel = pusher.channel(channelName);
 
-                            if (data.sender.id === loggedInUserId) return;
+                        if (!channel) {
+                            channel = pusher.subscribe(channelName);
 
-                            // Tạo thời gian hiển thị tin nhắn theo định dạng giờ:phút
-                            const time = new Date(data.created_at).toLocaleTimeString('vi-VN', {
-                                hour: '2-digit',
-                                minute: '2-digit'
+                            channel.bind('message.sent', function(data) {
+                                const loggedInUserId = {{ auth()->id() ? auth()->id() : 0 }};
+
+                                if (data.sender.id === loggedInUserId) return;
+
+                                // Tạo thời gian hiển thị tin nhắn theo định dạng giờ:phút
+                                const time = new Date(data.created_at).toLocaleTimeString(
+                                    'vi-VN', {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    });
+
+                                // Xác định tin nhắn đến từ người dùng hay admin
+                                let messageHtml = '';
+                                if (data.sender.id == loggedInUserId) {
+                                    // Tin nhắn của chính người dùng (hiển thị bên phải)
+                                    messageHtml = `
+            <div class="user-message">
+                <div class="user-text">
+                    ${data.message}
+                    <span class="message-time">${time}</span>
+                </div>
+            </div>
+        `;
+                                } else {
+                                    // Tin nhắn từ admin (hiển thị bên trái)
+                                    messageHtml = `
+            <div class="admin-message">
+                <div class="admin-initial">A</div>
+                <div class="admin-text">
+                    ${data.message}
+                    <span class="message-time">${time}</span>
+                </div>
+            </div>
+        `;
+                                }
+
+                                // Thêm tin nhắn mới vào khung chat
+                                $('#chatMessages').append(messageHtml);
+                                // Tự động cuộn xuống cuối khung chat
+                                $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
                             });
-
-                            // Xác định tin nhắn đến từ người dùng hay admin
-                            let messageHtml = '';
-                            if (data.sender.id == loggedInUserId) {
-                                // Tin nhắn của chính người dùng (hiển thị bên phải)
-                                messageHtml = `
-                                    <div class="user-message">
-                                        <div class="user-text">
-                                            ${data.message}
-                                            <span class="message-time">${time}</span>
-                                        </div>
-                                    </div>
-                                `;
-                                                            } else {
-                                                                // Tin nhắn từ admin (hiển thị bên trái)
-                                                                messageHtml = `
-                                    <div class="admin-message">
-                                        <div class="admin-initial">A</div>
-                                        <div class="admin-text">
-                                            ${data.message}
-                                            <span class="message-time">${time}</span>
-                                        </div>
-                                    </div>
-                                `;
-                            }
-
-                            // Thêm tin nhắn mới vào khung chat
-                            $('#chatMessages').append(messageHtml);
-                            // Tự động cuộn xuống cuối khung chat
-                            $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
-                        });
-
+                        }
 
                         if (response.status) {
                             displayChatMessages(response.messages);

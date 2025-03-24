@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ChatSessionStatusType;
 use App\Enums\UserRoleType;
+use App\Models\ChatSession;
 use App\Services\Web\ChatService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -125,6 +126,19 @@ class ChatController extends Controller
         }
 
         return redirect()->back()->with('error', $result['message']);
+    }
+
+    /**
+     * thoát phiên chat cho nhân viên
+     */
+    public function exitChat($sessionId) {
+        $chat = ChatSession::findOrFail($sessionId);
+
+        $chat->update([
+            'employee_id' => null
+        ]);
+
+        return redirect()->route('admin.chats.index')->with('success', 'Đã thoát chat.');
     }
 
     /**

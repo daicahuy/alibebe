@@ -202,6 +202,8 @@ Route::prefix('/admin')
                 
                 //admin.chats.start-chat
                 Route::post('/chat-session/start', 'startChat')->name('start-chat');
+
+                Route::post('/chat-session/{chat}/exit', 'exitChat')->name('exit');
             });
 
 
