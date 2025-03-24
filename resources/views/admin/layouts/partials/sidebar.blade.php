@@ -188,6 +188,16 @@
                         </a>
                     </li>
                     <li class="sidebar-list">
+                        @php
+                            use App\Models\Message;
+                            use App\Enums\UserRoleType;
+
+                            $unreadMessagesCount = Message::whereNull('read_at')
+                                ->whereHas('sender', function ($query) {
+                                    $query->where('role', UserRoleType::CUSTOMER);
+                                })
+                                ->count();
+                        @endphp
                         <a href="{{ route('admin.chats.index') }}"
                             class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/chats*') ? 'active' : '' }}">
                             <span>
@@ -195,7 +205,7 @@
                                     <i class="ri-mail-line"></i>
                                     <div class="sidebar-main-link">{{ __('form.messages') }}</div>
                                 </div>
-                                <span class="badge bg-warning ml-2">5</span> <!-- Số lượng tin nhắn giả định -->
+                                <span class="badge bg-warning ml-2">{{ $unreadMessagesCount }}</span>
                             </span>
                         </a>
                     </li>

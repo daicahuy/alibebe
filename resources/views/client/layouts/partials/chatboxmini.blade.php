@@ -25,6 +25,7 @@
             <button id="openChat" class="btn position-fixed"
                 style="bottom: 90px; left: 40px; width: 50px; height: 50px; border-radius: 50%; background-color: #0da487; color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); z-index: 10000;">
                 <i class="fas fa-comments"></i>
+                <!-- Badge sẽ được thêm realtime nếu có tin chưa đọc -->
             </button>
         </div>
         <style>
@@ -112,6 +113,12 @@
                 background-color: #0b9277;
                 color: white;
             }
+            
+            /* Badge trên nút mở chat */
+            #openChat .badge {
+                font-size: 10px;
+                line-height: 16px;
+            }
         </style>
     @endif
 @endauth
@@ -137,11 +144,14 @@
 
         $(document).ready(function() {
             const loggedInUserId = {{ auth()->id() ? auth()->id() : 0 }};
+
             // Kiểm tra trạng thái chat widget khi load trang
             if (localStorage.getItem('chatOpen') === 'true') {
                 $('#chatWidget').removeClass('d-none').fadeIn();
                 $('#openChat').hide();
                 getChatSession(); // Lấy phiên chat và tin nhắn
+                // Nếu mở chat, reset badge của nút mở chat
+                $('#openChat').find('.badge').remove();
             }
 
             // Mở chat: lưu trạng thái vào localStorage
@@ -150,6 +160,8 @@
                 $('#openChat').fadeOut();
                 localStorage.setItem('chatOpen', 'true'); // lưu trạng thái mở
                 getChatSession();
+                // Reset badge khi mở chat
+                $('#openChat').find('.badge').remove();
             });
 
             // Đóng chat: cập nhật trạng thái lưu vào localStorage
@@ -169,10 +181,11 @@
                 $('#messageInput').val('');
             });
 
-            // Hàm lấy tin nhắn
+            // Hàm lấy tin nhắn và đăng ký realtime
             function getChatSession() {
                 $('#chatMessages').html(
-                    '<div class="text-center py-3"><div class="spinner-border text-primary"></div></div>');
+                    '<div class="text-center py-3"><div class="spinner-border text-primary"></div></div>'
+                );
 
                 $.ajax({
                     url: '/api/client/chat/session',
@@ -183,53 +196,56 @@
                     success: (response) => {
                         window.currentChatSessionId = response.session.id;
 
+                        // Đăng ký kênh realtime cho phiên chat hiện tại
                         const channelName = `private-chat.${window.currentChatSessionId}`;
                         let channel = pusher.channel(channelName);
-
                         if (!channel) {
                             channel = pusher.subscribe(channelName);
-
+                            
                             channel.bind('message.sent', function(data) {
-                                const loggedInUserId = {{ auth()->id() ? auth()->id() : 0 }};
-
+                                // Nếu tin nhắn gửi bởi chính người dùng, không xử lý
                                 if (data.sender.id === loggedInUserId) return;
 
-                                // Tạo thời gian hiển thị tin nhắn theo định dạng giờ:phút
-                                const time = new Date(data.created_at).toLocaleTimeString(
-                                    'vi-VN', {
+                                // Nếu chat widget đang mở, hiển thị tin nhắn vào khung chat
+                                if (!$('#chatWidget').hasClass('d-none')) {
+                                    const time = new Date(data.created_at).toLocaleTimeString('vi-VN', {
                                         hour: '2-digit',
                                         minute: '2-digit'
                                     });
-
-                                // Xác định tin nhắn đến từ người dùng hay admin
-                                let messageHtml = '';
-                                if (data.sender.id == loggedInUserId) {
-                                    // Tin nhắn của chính người dùng (hiển thị bên phải)
-                                    messageHtml = `
-            <div class="user-message">
-                <div class="user-text">
-                    ${data.message}
-                    <span class="message-time">${time}</span>
-                </div>
-            </div>
-        `;
+                                    let messageHtml = '';
+                                    if (data.sender.id == loggedInUserId) {
+                                        messageHtml = `
+                                            <div class="user-message">
+                                                <div class="user-text">
+                                                    ${data.message}
+                                                    <span class="message-time">${time}</span>
+                                                </div>
+                                            </div>
+                                        `;
+                                    } else {
+                                        messageHtml = `
+                                            <div class="admin-message">
+                                                <div class="admin-initial">A</div>
+                                                <div class="admin-text">
+                                                    ${data.message}
+                                                    <span class="message-time">${time}</span>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }
+                                    $('#chatMessages').append(messageHtml);
+                                    $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
                                 } else {
-                                    // Tin nhắn từ admin (hiển thị bên trái)
-                                    messageHtml = `
-            <div class="admin-message">
-                <div class="admin-initial">A</div>
-                <div class="admin-text">
-                    ${data.message}
-                    <span class="message-time">${time}</span>
-                </div>
-            </div>
-        `;
+                                    // Nếu chat widget đang đóng, cập nhật badge trên nút mở chat
+                                    // Ở đây giả sử tin nhắn mới đến từ admin (role != loggedInUserId)
+                                    let badge = $('#openChat').find('.badge');
+                                    if(badge.length > 0) {
+                                        let count = parseInt(badge.text());
+                                        badge.text(count + 1);
+                                    } else {
+                                        $('#openChat').append(`<span class="badge bg-danger position-absolute top-0 start-100 translate-middle">1</span>`);
+                                    }
                                 }
-
-                                // Thêm tin nhắn mới vào khung chat
-                                $('#chatMessages').append(messageHtml);
-                                // Tự động cuộn xuống cuối khung chat
-                                $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
                             });
                         }
 
@@ -251,23 +267,20 @@
                     minute: '2-digit'
                 });
                 const tempMessageHtml = `
-        <div id="${tempId}" class="user-message">
-            <div class="user-text">
-                ${message}
-                <span class="message-time">
-                    ${tempTime} 
-                    <i class="fas fa-spinner fa-spin"></i>
-                </span>
-                <span class="message-status">Đang gửi...</span>
-            </div>
-        </div>
-    `;
-
-                // Thêm tin nhắn tạm vào khung chat
+                    <div id="${tempId}" class="user-message">
+                        <div class="user-text">
+                            ${message}
+                            <span class="message-time">
+                                ${tempTime} 
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                            <span class="message-status">Đang gửi...</span>
+                        </div>
+                    </div>
+                `;
                 $('#chatMessages').append(tempMessageHtml);
                 $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
 
-                // Gửi tin nhắn qua AJAX
                 $.ajax({
                     url: '/api/client/chat/messages',
                     type: 'POST',
@@ -278,13 +291,11 @@
                     },
                     success: (response) => {
                         if (response.status) {
-                            // Cập nhật tin nhắn tạm khi gửi thành công
                             $(`#${tempId} .fa-spinner`).replaceWith(
                                 '<i class="fas fa-check-circle text-success"></i>'
                             );
                             $(`#${tempId} .message-status`).text('Đã gửi');
                         } else {
-                            // Cập nhật nếu thất bại (có thể hiển thị icon lỗi)
                             $(`#${tempId} .fa-spinner`).replaceWith(
                                 '<i class="fas fa-exclamation-circle text-danger"></i>'
                             );
@@ -293,7 +304,6 @@
                         }
                     },
                     error: (xhr) => {
-                        // Xử lý lỗi AJAX
                         $(`#${tempId} .fa-spinner`).replaceWith(
                             '<i class="fas fa-exclamation-circle text-danger"></i>'
                         );
@@ -302,6 +312,7 @@
                     }
                 });
             }
+
             // Hiển thị tin nhắn
             function displayChatMessages(messages) {
                 const container = $('#chatMessages');
@@ -322,7 +333,6 @@
                     let messageHtml = '';
 
                     if (isUserMessage) {
-                        // Tin nhắn người dùng (bên phải)
                         messageHtml = `
                             <div class="user-message">
                                 <div class="user-text">
@@ -332,7 +342,6 @@
                             </div>
                         `;
                     } else {
-                        // Tin nhắn admin (bên trái)
                         messageHtml = `
                             <div class="admin-message">
                                 <div class="admin-initial">A</div>
@@ -347,7 +356,6 @@
                     container.append(messageHtml);
                 });
 
-                // Tự động cuộn xuống dưới
                 $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
             }
 

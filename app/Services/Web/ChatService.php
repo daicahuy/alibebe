@@ -43,8 +43,8 @@ class ChatService
         try {
             $chatSession = $this->chatSessionRepository->getChatSession($chatSessionId);
 
-            if($chatSession) {
-                $this->messageRepository->markAllSessionMessagesAsRead($chatSessionId,Auth()->id());
+            if ($chatSession) {
+                $this->messageRepository->markAllSessionMessagesAsRead($chatSessionId, Auth()->id());
             }
 
             return $chatSession;
@@ -278,7 +278,7 @@ class ChatService
                 ];
             }
 
-            $this->chatSessionRepository->updateChatSessionStatus($chatSession->id,ChatSessionStatusType::OPEN);
+            $this->chatSessionRepository->updateChatSessionStatus($chatSession->id, ChatSessionStatusType::OPEN);
 
             return [
                 'status' => true,
@@ -369,7 +369,7 @@ class ChatService
 
             if (!$session) {
                 $newSession = $this->startChat($userId);
-                $session = $this->chatSessionRepository->getChatSession($newSession['session_id'],$userId);
+                $session = $this->chatSessionRepository->getChatSession($newSession['session_id'], $userId);
             }
 
             return [
