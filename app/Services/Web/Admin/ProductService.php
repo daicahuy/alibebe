@@ -375,7 +375,7 @@ class ProductService
                 //     $hidden->price_range = $hidden->price ? number_format($hidden->price, 0, ',', '.') . ' VND' : '';
                 // }
 
-                // Giá sản phẩm
+                // Giá sản phẩm biến thể
                 if ($hidden->type == 1) {
                     $minPrice = null;
                     $maxPrice = null;
@@ -383,7 +383,7 @@ class ProductService
                     $maxSalePrice = null;
 
                     foreach ($hidden->productVariants as $variant) {
-                        if ($variant->is_active == 0) { // biến thể active
+                        if ($variant->is_active == 0 || $variant->is_active == 1) { // biến thể active
 
                             // Giá gốc
                             if ($minPrice === null || $variant->price < $minPrice) {
@@ -469,12 +469,13 @@ class ProductService
             if (!$product) {
                 return ['success' => false, 'message' => 'Sản phẩm không tồn tại trong thùng rác.'];
             }
-            if ($this->orderItemRepository->hasOrderItems($productId)) {
-                return [
-                    'success' => false,
-                    'message' => 'Sản phẩm này không thể xóa vĩnh viễn vì đang có trong đơn hàng. Vui lòng kiểm tra lại.'
-                ];
-            }
+            // Đã kiểm tra khi xóa mềm
+            // if ($this->orderItemRepository->hasOrderItems($productId)) {
+            //     return [
+            //         'success' => false,
+            //         'message' => 'Sản phẩm này không thể xóa vĩnh viễn vì đang có trong đơn hàng. Vui lòng kiểm tra lại.'
+            //     ];
+            // }
             DB::beginTransaction();
             try {
 

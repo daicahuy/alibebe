@@ -260,7 +260,7 @@
                                                         $cartItem->productVariant->product->thumbnail ??
                                                         $cartItem->product->thumbnail;
                                                 @endphp
-                                                <a class="product-image" href="/fastkart/product/fresh-pear">
+                                                <a class="product-image" href="{{ route('products', $cartItem->product->slug) }}">
                                                     <img alt="product" class="img-fluid"
                                                         src="{{ Storage::url($thumbnail) }}">
                                                 </a>
@@ -294,9 +294,12 @@
                                             $price = $cartItem->productVariant->price ?? $cartItem->product->price;
                                             // Kiểm tra nếu biến thể tồn tại và có sale_price > 0 thì lấy sale_price của biến thể, nếu không thì lấy sale_price của product
                                             $salePrice = null;
-                                            if ($cartItem->productVariant?->sale_price > 0 && $cartItem->productVariant?->is_sale) {
+                                            if ($cartItem->productVariant?->sale_price > 0) {
                                                 $salePrice = $cartItem->productVariant->sale_price;
-                                            } elseif ($cartItem->product?->sale_price > 0 && $cartItem->product?->is_sale == 1) {
+                                            } elseif (
+                                                $cartItem->product?->sale_price > 0 &&
+                                                $cartItem->product?->is_sale == 1
+                                            ) {
                                                 $salePrice = $cartItem->product->sale_price;
                                             } else {
                                                 $salePrice = $price; // Nếu không có giảm giá, salePrice bằng giá gốc
@@ -944,6 +947,47 @@
                 updateTotalPrice(); // Cập nhật tổng tiền ngay khi chọn tất cả
             });
             toggleCheckoutButton();
+
+            // comapre-count
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.startsWith(name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            function updateCompareCountBadge() {
+                const compareCookieName = 'compare_list';
+                const compareListCookie = getCookie(compareCookieName);
+                let compareCount = 0;
+                if (compareListCookie) {
+                    try {
+                        const compareList = JSON.parse(compareListCookie);
+                        compareCount = compareList.length;
+                    } catch (error) {
+                        console.error('Lỗi khi parse cookie compare_list:', error);
+                    }
+                }
+                $('#compare-count-badge').text(compareCount);
+                if (compareCount > 0) {
+                    $('#compare-count-badge').show(); // Hoặc sử dụng class để hiển thị
+                } else {
+                    $('#compare-count-badge').hide(); // Hoặc sử dụng class để ẩn
+                }
+            }
+
+            // Gọi hàm này khi trang sản phẩm được tải
+            updateCompareCountBadge(); //end compare
+
         });
     </script>
 @endpush

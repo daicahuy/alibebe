@@ -183,6 +183,25 @@ class CompareService
 
     }
 
+    public function CompareCount($compareCookie)
+    {
+        // $compareCookie = $request->cookie('compare_list');
+        $compareCount = 0;
+
+        if ($compareCookie) {
+
+            $compareList = json_decode($compareCookie, true);
+            if (is_array($compareList)) {
+                $compareCount = count($compareList);
+            }
+
+        }
+
+        return $compareCount;
+
+
+    }
+
 
 
 

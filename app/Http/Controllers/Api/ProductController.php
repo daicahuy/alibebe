@@ -45,7 +45,7 @@ class ProductController extends ApiBaseController
     public function storeVariant(StoreProductVariantRequest $request)
     {
         $response = $this->productService->storeVariant($request->validated());
-        
+
         if ($response['success']) {
             return $this->sendSuccess(
                 statusCode: Response::HTTP_CREATED,
@@ -71,7 +71,7 @@ class ProductController extends ApiBaseController
         }
 
         $response = $this->productService->updateSingle($product, $request->validated());
-        
+
         if ($response['success']) {
             return $this->sendSuccess(
                 statusCode: Response::HTTP_OK,
@@ -97,7 +97,7 @@ class ProductController extends ApiBaseController
         }
 
         $response = $this->productService->updateVariant($product, $request->validated());
-        
+
         if ($response['success']) {
             return $this->sendSuccess(
                 statusCode: Response::HTTP_CREATED,
@@ -111,20 +111,21 @@ class ProductController extends ApiBaseController
         );
     }
 
-    public function toggleActive(Request $request, Product $product)
+    public function toggleActive(Request $request, $id) // Thay vì Product $product
     {
-        $isActive = $request->input('is_active'); // Nhận giá trị is_active từ request
 
-        $product->is_active = $isActive; // Gán giá trị cho thuộc tính is_active
-        $product->save(); // Lưu thay đổi
+        $product = Product::findOrFail($id); // Tìm kiếm sản phẩm theo ID
+
+        $isActive = $request->input('is_active');
+
+        $product->is_active = $isActive;
+        $product->save();
 
         $this->childIsActive($product, $isActive);
 
         return response()->json([
             'success' => true,
             'message' => 'Cập nhật trạng thái thành công',
-            // 'is_active' => $category->is_active,
-            // 'category_id' => $category->id
         ]);
     }
 

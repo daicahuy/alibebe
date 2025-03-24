@@ -183,7 +183,7 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <form action="{{ route('admin.products.restore', $trash) }}"
+                                                            <form action="{{ route('admin.products.restore', $trash->id) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('PUT')
@@ -194,7 +194,7 @@
                                                         </li>
 
                                                         <li>
-                                                            <form action="{{ route('admin.products.destroy', $trash) }}"
+                                                            <form action="{{ route('admin.products.destroy', $trash->id) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('DELETE')
