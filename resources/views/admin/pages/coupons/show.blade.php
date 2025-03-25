@@ -138,19 +138,6 @@
                             </div>
                         </div>
                         {{-- Tab 2: Bảng Ràng Buộc --}}
-                        @php
-                            $fieldsMapping = [
-                                'coupon_id' => 'Id Mã Giảm Giá',
-                                'updated_at' => 'Cập Nhật Lần Cuối',
-                                'deleted_at' => 'Đã Xóa',
-                                'created_at' => 'Ngày Tạo',
-                                'valid_categories' => 'Danh Mục Hợp Lệ',
-                                'valid_products' => 'Sản Phẩm Hợp Lệ',
-                                'max_discount_value' => 'Hạn Mức Tối Đa',
-                                'min_order_value' => 'Giá Trị Đơn Hàng Tối Thiểu',
-                            ];
-                        @endphp
-
                         <div class="tab-pane fade" id="bindings" role="tabpanel" aria-labelledby="restriction">
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover table-borderless align-middle">
@@ -162,42 +149,52 @@
                                         </tr>
                                     </thead>
 
+                                    @php
+                                        $fieldsMapping = [
+                                            'coupon_id' => 'Id Mã Giảm Giá',
+                                            'updated_at' => 'Cập Nhật Lần Cuối',
+                                            'deleted_at' => 'Đã Xóa',
+                                            'created_at' => 'Ngày Tạo',
+                                            'valid_categories' => 'Danh Mục Hợp Lệ',
+                                            'valid_products' => 'Sản Phẩm Hợp Lệ',
+                                            'max_discount_value' => 'Hạn Mức Tối Đa',
+                                            'min_order_value' => 'Giá Trị Đơn Hàng Tối Thiểu',
+                                        ];
+                                        $skipKeys = [
+                                            'updated_at',
+                                            'deleted_at',
+                                            'created_at',
+                                            'valid_categories',
+                                            'valid_products',
+                                        ];
+                                    @endphp
+
                                     @foreach ($coupon->restriction->toArray() as $key => $value)
+                                        @if (in_array($key, $skipKeys))
+                                            @continue
+                                        @endif
                                         <tbody class="table-light">
-                                            <td>
-                                                {{ $fieldsMapping[$key] ?? ucfirst(str_replace('_', ' ', $key)) }}
-                                            </td>
-                                            <td>
-                                                @switch($key)
-                                                    @case('updated_at')
-                                                    @case('deleted_at')
+                                            <tr>
+                                                <td>
+                                                    {{ $fieldsMapping[$key] ?? ucfirst(str_replace('_', ' ', $key)) }}
+                                                </td>
+                                                <td>
+                                                    @switch($key)
+                                                        @case('updated_at')
+                                                        @case('deleted_at')
 
-                                                    @case('created_at')
-                                                        {{ isset($value) ? $value : 'N/A' }}
-                                                    @break
+                                                        @case('created_at')
+                                                            {{ isset($value) ? $value : 'N/A' }}
+                                                        @break
 
-                                                    {{-- @case('valid_categories')
-                                                        <ul>
-                                                            @foreach ($coupon->categories as $category)
-                                                                <li>{{ $category->name }}</li>
-                                                            @endforeach
-                                                        </ul>
-                                                    @break
-
-                                                    @case('valid_products')
-                                                        <ul>
-                                                            @foreach ($coupon->products as $product)
-                                                                <li>{{ $product->name }}</li>
-                                                            @endforeach
-                                                        </ul>
-                                                    @break --}}
-
-                                                    @default
-                                                        {{ $value }}
-                                                @endswitch
-                                            </td>
+                                                        @default
+                                                            {{ $value }}
+                                                    @endswitch
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     @endforeach
+
                                 </table>
                             </div>
                         </div>
