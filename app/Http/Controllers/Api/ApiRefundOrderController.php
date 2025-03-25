@@ -178,7 +178,7 @@ class ApiRefundOrderController extends Controller
             $rules = [
                 'reason' => 'required|string',
                 'reason_image' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:20480',
-                'bank_account' => 'required|string|max:255',
+                'bank_account' => 'required|string|max:255|regex:/^\d+$/',
                 'user_bank_name' => 'required|string|max:100',
                 'bank_name' => 'required|string|max:255',
                 'phone_number' => 'required|string|max:20',
@@ -193,6 +193,8 @@ class ApiRefundOrderController extends Controller
                 'reason_image.mimes' => 'Hình ảnh hoặc video phải có định dạng jpeg, png, jpg, gif, mp4, mov hoặc avi.',
                 'reason_image.max' => 'Kích thước tệp không được vượt quá 20MB.',
                 'bank_account.required' => 'Số tài khoản là bắt buộc.',
+                'bank_account.max' => 'Số tài khoản tối đa là 255 ký tự.',
+                'bank_account.regex' => 'Số tài khoản phải chỉ chứa các chữ số.',
                 'user_bank_name.required' => 'Tên người nhận là bắt buộc.',
                 'bank_name.required' => 'Tên ngân hàng là bắt buộc.',
                 'phone_number.required' => 'Số điện thoại liên hệ là bắt buộc.',
@@ -410,6 +412,71 @@ class ApiRefundOrderController extends Controller
         try {
             $count = Refund::query()->where("status", 'pending')->count();
             return response()->json(['count' => $count]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function sentConfirmBank(Request $request)
+    {
+        try {
+            $idOrderRefund = $request->input('id_order_refund');
+            $status = $request->input('status');
+
+            Refund::where('id', $idOrderRefund)->update(["bank_account_status" => $status]);
+            event(new RefundOrderUpdateStatus($idOrderRefund, 'receiving'));
+
+            return response()->json(["status" => Response::HTTP_OK, "idOrderRefund" => $idOrderRefund]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function confirmBank(Request $request)
+    {
+        try {
+            $rules = [
+                'bank_account' => 'required|string|max:255|regex:/^\d+$/',
+                'user_bank_name' => 'required|string|max:100',
+                'bank_name' => 'required|string|max:255',
+                ''
+            ];
+
+            // Định nghĩa các thông báo lỗi
+            $messages = [
+                'bank_account.required' => 'Số tài khoản là bắt buộc.',
+                'bank_account.max' => 'Số tài khoản tối đa là 255 ký tự.',
+                'bank_account.regex' => 'Số tài khoản phải chỉ chứa các chữ số.',
+                'user_bank_name.required' => 'Tên người nhận là bắt buộc.',
+                'user_bank_name.max' => 'Tên người nhận tối đa là 100 ký tự',
+                'bank_name.required' => 'Tên ngân hàng là bắt buộc.',
+                'bank_name.max' => 'Tên ngân hàng tối đa là 255 ký tự',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => Response::HTTP_BAD_REQUEST,
+                    'errors' => $validator->errors()->toArray(),
+                    "data" => $request->all()
+                ]);
+            }
+
+            Refund::where('id', $request->input('idOrder'))->update(["bank_account_status" => "verified", "bank_account" => $request->input('bank_account'), "bank_name" => $request->input('bank_name'), "user_bank_name" => $request->input('user_bank_name')]);
+            event(new RefundOrderUpdateStatus($request->input('idOrder'), 'receiving'));
+
+            return response()->json(["status" => Response::HTTP_OK, "data" => $request->all()]);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'An error occurred: ' . $th->getMessage(),

@@ -110,6 +110,8 @@ Route::prefix('/refund-orders')
         Route::post('/changeStatusWithImg', [ApiRefundOrderController::class, 'changeStatusWithImg'])->name('changeStatusWithImg');
         Route::post('/createOrderRefund', [ApiRefundOrderController::class, 'createOrderRefund'])->name('createOrderRefund');
         Route::post('/getOrdersRefundByUser', [ApiRefundOrderController::class, 'getOrdersRefundByUser'])->name('getOrdersRefundByUser');
+        Route::post('/sentConfirmBank', [ApiRefundOrderController::class, 'sentConfirmBank'])->name('sentConfirmBank');
+        Route::post('/confirmBank', [ApiRefundOrderController::class, 'confirmBank'])->name('confirmBank');
     });
 
 Route::prefix('/orders')

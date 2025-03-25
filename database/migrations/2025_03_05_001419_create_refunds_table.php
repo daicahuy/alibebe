@@ -32,6 +32,11 @@ return new class extends Migration {
                 'failed',
                 'cancel'
             ])->default('pending');
+            $table->enum('bank_account_status', [
+                'unverified',
+                'sent',
+                'verified'
+            ])->default('unverified');
             $table->timestamps();
 
 

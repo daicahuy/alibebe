@@ -169,13 +169,15 @@
                                                 <td class="text-start fw-semibold">Số tài khoản </td>
                                                 <td class="text-start" id="bank_account"></td>
                                             </tr><!---->
+                                            <tr class="" id="div_comfirm_bank" style="display: none">
+
+                                            </tr><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Trạng thái</td>
                                                 <td class="text-start">
                                                     <div class="status"><span id="status"></span></div>
                                                 </td>
                                             </tr><!---->
-
                                         </tbody>
                                     </table>
                                 </div>
@@ -270,6 +272,16 @@
                 return statusMap[status] || status; // Trả về giá trị gốc nếu không tìm thấy
             }
 
+            function getStatusBank(status) {
+                const statusMap = {
+                    'unverified': 'Chưa xác nhận tài khoản',
+                    'sent': 'Chờ xác nhận tài khoản',
+                    'verified': 'Đã xác nhân tài khoản',
+
+                };
+                return statusMap[status] || status; // Trả về giá trị gốc nếu không tìm thấy
+            }
+
             function renderHtmlModalOrderRefund(dataOrderRefund) {
 
                 Pusher.logToConsole = true;
@@ -344,6 +356,65 @@
                 }
 
                 if (dataOrderRefund.status == 'receiving') {
+                    $("#div_comfirm_bank").empty()
+                    $("#div_comfirm_bank").show();
+
+                    if (dataOrderRefund.bank_account_status == "unverified") {
+
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id=""><button id="btn_confirm_bank" class="btn btn-primary">Gửi xác nhận</button></td>
+                        `)
+                    } else if (dataOrderRefund.bank_account_status == "sent") {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã gửi xác nhận</td>
+                        `)
+                    } else {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã xác nhận</td>
+                        `)
+                    }
+
+
+                    $("#btn_confirm_bank").on('click', function() {
+                        $.ajax({
+                            url: '{{ route('api.refund_orders.sentConfirmBank') }}',
+                            type: 'POST',
+                            data: {
+                                id_order_refund: dataOrderRefund.id,
+                                status: 'sent'
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toastify({
+                                        text: "Thao tác thành công",
+                                        duration: 2000,
+                                        newWindow: true,
+                                        close: true,
+                                        gravity: "top",
+                                        position: "right",
+                                        stopOnFocus: true,
+                                        style: {
+                                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                        },
+                                    }).showToast();
+                                    callApiGetDataOrderRefund(dataOrderRefund.id)
+                                    fetchOrders()
+                                }
+                            },
+                            error: function(error) {
+                                console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                    error);
+                            }
+                        });
+
+
+                    })
+
+
+
                     $("#modalConfirm #admin_reason_div").append(`
                     
                         <div class="form-floating mb-3">
@@ -385,7 +456,8 @@
                         }
 
 
-                        if (reason.length === 0 && hasFile) {
+                        if (reason.length === 0 && hasFile && dataOrderRefund.bank_account_status ==
+                            "verified") {
                             completedButton.prop('disabled', false);
                         } else {
                             completedButton.prop('disabled', true);
@@ -615,10 +687,6 @@
                 }
             });
 
-
-
-
-
             function callApiGetDataOrderRefund(idOrderRefund) {
 
                 $.ajax({
@@ -804,7 +872,9 @@
                         </td>
                         <td class="cursor-pointer">
                             <div>
-                                <div class="status-approved"><span class="${statusClass}" style="border: unset">${getStatusInVietnamese(order.status)}</span></div>
+                                <div class="status-approved"><span class="${statusClass}" style="border: unset">${getStatusInVietnamese(order.status)}</span>
+                                    ${order.status == "receiving" ? `<span style="border: unset; margin-top: 6px; color: red">${getStatusBank(order.bank_account_status)}</span>`:""}
+                                    </div>
                             </div>
                         </td>
                         <td class="cursor-pointer">${convertDate(order.created_at)}
@@ -841,11 +911,6 @@
 
                         $('#modalConfirmProduct').modal('show');
                     });
-
-
-
-
-
 
 
                 }
@@ -926,9 +991,6 @@
             channel.bind('event-create-order-refund', function(data) {
                 fetchOrders()
             });
-
-
-
         })
     </script>
     <script src="{{ asset('js/utility.js') }}"></script>
