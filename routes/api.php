@@ -112,6 +112,7 @@ Route::prefix('/refund-orders')
         Route::post('/getOrdersRefundByUser', [ApiRefundOrderController::class, 'getOrdersRefundByUser'])->name('getOrdersRefundByUser');
         Route::post('/sentConfirmBank', [ApiRefundOrderController::class, 'sentConfirmBank'])->name('sentConfirmBank');
         Route::post('/confirmBank', [ApiRefundOrderController::class, 'confirmBank'])->name('confirmBank');
+        Route::post('/userCheckReceivedBank', [ApiRefundOrderController::class, 'userCheckReceivedBank'])->name('userCheckReceivedBank');
     });
 
 Route::prefix('/orders')

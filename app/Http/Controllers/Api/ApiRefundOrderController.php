@@ -486,4 +486,26 @@ class ApiRefundOrderController extends Controller
         }
     }
 
+    public function userCheckReceivedBank(Request $request)
+    {
+        try {
+            $statusCheckReceived = $request->input('statusCheckReceived');
+            $idOrder = $request->input('idOrder');
+
+
+            Refund::where('id', $idOrder)->update(["is_send_money" => $statusCheckReceived]);
+
+            event(new RefundOrderUpdateStatus($idOrder, 'receiving'));
+
+            return response()->json(["status" => Response::HTTP_OK, "data" => $request->all()]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
 }

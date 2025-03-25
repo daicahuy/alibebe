@@ -269,7 +269,7 @@
                     'failed': 'Thất bại',
                     'cancel': 'Hủy'
                 };
-                return statusMap[status] || status; // Trả về giá trị gốc nếu không tìm thấy
+                return statusMap[status] || status; //
             }
 
             function getStatusBank(status) {
@@ -279,7 +279,7 @@
                     'verified': 'Đã xác nhân tài khoản',
 
                 };
-                return statusMap[status] || status; // Trả về giá trị gốc nếu không tìm thấy
+                return statusMap[status] || status;
             }
 
             function renderHtmlModalOrderRefund(dataOrderRefund) {
@@ -302,19 +302,19 @@
                                         <label for="floatingTextarea2">Lý do từ chối</label>
                                     </div>`)
                 const imageUrl =
-                    `{{ Storage::url('${dataOrderRefund.reason_image}') }}`; //Laravel Blade syntax
-                //Chuyển đổi thành Javascript string
+                    `{{ Storage::url('${dataOrderRefund.reason_image}') }}`;
+
                 const jsImageUrl = imageUrl.replace(/\{\{\s*|\s*\}\}/g, '');
                 const isVideo = jsImageUrl.match(/\.(mp4|mov|avi|wmv|mkv)$/i);
 
                 if (isVideo) {
-                    // Ẩn hình ảnh và hiển thị video
+
                     $("#modalConfirm #reason-thumbnail-image").hide();
                     $("#modalConfirm #reason-thumbnail-video")
                         .attr("src", jsImageUrl)
                         .show();
                 } else {
-                    // Ẩn video và hiển thị hình ảnh
+
                     $("#modalConfirm #reason-thumbnail-video").hide();
                     $("#modalConfirm #reason-thumbnail-image")
                         .attr("src", jsImageUrl)
@@ -340,9 +340,13 @@
                     $("#modalConfirm #admin_reason_div").empty()
                 }
                 if (dataOrderRefund.status == 'rejected') {
+                    $("#div_comfirm_bank").empty()
+
                     $("#modalConfirm #admin_reason").attr("disabled", true);
                 }
                 if (dataOrderRefund.status == 'pending') {
+                    $("#div_comfirm_bank").empty()
+
                     $('#button-box-footer').append(`<app-button><button class="btn btn-md  fw-bold"
                                                 style="background-color: red; color: #fff;" disabled
                                                 id="withdrawal_rejected_btn" type="submit" fdprocessedid="hbnu3">
@@ -443,7 +447,7 @@
                                         `)
 
                     $('#fail_reason, #img_fail_or_completed').on('input change', function() {
-                        const reason = $('#fail_reason').val().trim(); //
+                        const reason = $('#fail_reason').val().trim();
                         const hasFile = $('#img_fail_or_completed').val();
                         const failedButton = $('#failed_btn');
                         const completedButton = $('#completed_btn');
@@ -468,13 +472,13 @@
                         const file = this.files[0];
                         const previewContainer = $('#image_preview');
 
-                        // Xóa nội dung cũ của preview
+
                         previewContainer.empty();
 
                         if (file) {
                             const reader = new FileReader();
                             reader.onload = function(e) {
-                                // Hiển thị ảnh preview
+
                                 previewContainer.append(`
                         <img src="${e.target.result}" alt="Preview Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
                     `);
@@ -486,7 +490,26 @@
                 }
 
                 if (dataOrderRefund.status == 'completed') {
+                    $("#div_comfirm_bank").empty()
+                    $("#div_comfirm_bank").show();
 
+                    if (dataOrderRefund.bank_account_status == "unverified") {
+
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id=""><button id="btn_confirm_bank" class="btn btn-primary">Gửi xác nhận</button></td>
+                        `)
+                    } else if (dataOrderRefund.bank_account_status == "sent") {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã gửi xác nhận</td>
+                        `)
+                    } else {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã xác nhận</td>
+                        `)
+                    }
                     const imageUrl =
                         `{{ Storage::url('${dataOrderRefund.img_fail_or_completed}') }}`;
                     $("#modalConfirm #admin_reason_div").append(`
@@ -500,7 +523,26 @@
                 }
 
                 if (dataOrderRefund.status == 'failed') {
+                    $("#div_comfirm_bank").empty()
+                    $("#div_comfirm_bank").show();
 
+                    if (dataOrderRefund.bank_account_status == "unverified") {
+
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id=""><button id="btn_confirm_bank" class="btn btn-primary">Gửi xác nhận</button></td>
+                        `)
+                    } else if (dataOrderRefund.bank_account_status == "sent") {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã gửi xác nhận</td>
+                        `)
+                    } else {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã xác nhận</td>
+                        `)
+                    }
                     if (dataOrderRefund.img_fail_or_completed) {
 
                         const imageUrl =
@@ -527,16 +569,16 @@
 
                 $('#admin_reason').on('input', function() {
                     const reason = $(this).val()
-                        .trim(); // Lấy giá trị trong textarea và loại bỏ khoảng trắng
-                    const rejectButton = $('#withdrawal_rejected_btn'); // Nút "Từ chối"
-                    const approvedButton = $('#withdrawal_approved_btn'); // Nút "Từ chối"
+                        .trim();
+                    const rejectButton = $('#withdrawal_rejected_btn');
+                    const approvedButton = $('#withdrawal_approved_btn');
 
                     if (reason.length > 0) {
-                        // Nếu lý do từ chối không trống, bật nút "Từ chối"
+
                         rejectButton.prop('disabled', false);
                         approvedButton.prop('disabled', true);
                     } else {
-                        // Nếu lý do từ chối trống, disable nút "Từ chối"
+
                         rejectButton.prop('disabled', true);
                         approvedButton.prop('disabled', false);
                     }
@@ -629,6 +671,9 @@
 
                 $("#modalConfirm #formCompltedOrFail").off('submit').on('submit', function(event) {
                     event.preventDefault();
+                    if (!confirm("Bạn chắc chắn với thao tác này không?")) {
+                        return;
+                    }
 
                     const formData = new FormData(this);
                     formData.append('id_order_refund', JSON.stringify(dataOrderRefund.id));
@@ -874,6 +919,7 @@
                             <div>
                                 <div class="status-approved"><span class="${statusClass}" style="border: unset">${getStatusInVietnamese(order.status)}</span>
                                     ${order.status == "receiving" ? `<span style="border: unset; margin-top: 6px; color: red">${getStatusBank(order.bank_account_status)}</span>`:""}
+                                    ${order.status == "completed" && order.is_send_money == 0 ? `<span style="border: unset; margin-top: 6px; color: red">Xung đột</span>`:""}
                                     </div>
                             </div>
                         </td>
