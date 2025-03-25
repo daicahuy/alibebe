@@ -60,19 +60,28 @@
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
-                                <h6>{{ __('message.total_revenue') }}</h6>
-                                <h3>$1,346.42</h3>
+                                <h6>{{ __('message.total_orders_completed') }}</h6>
+                                <h3>11</h3>
                             </div>
-                            <div class="icon-box"><i class="ri-wallet-line"></i></div>
+                            <div class="icon-box"><i class="ri-check-line"></i></div>
                         </div>
                     </div>
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
-                                <h6>{{ __('message.total_orders_completed') }}</h6>
-                                <h3>11</h3>
+                                <h6>Tổng đơn hủy</h6>
+                                <h3>99</h3>
                             </div>
-                            <div class="icon-box"><i class="ri-file-text-line"></i></div>
+                            <div class="icon-box"><i class="ri-close-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h6>Tổng đơn hoàn</h6>
+                                <h3>99</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-restart-line"></i></div>
                         </div>
                     </div>
                     <div class="col-xl-3 col-sm-6">
@@ -112,7 +121,10 @@
 
                                             </div>
                                         </div>
-                                        <div id="columnChart" style="min-height: 360px;"></div>
+                                        
+                                        
+
+
                                     </div>
                                 </div>
                             </div>
@@ -365,7 +377,6 @@
                                                
                                             </div>
                                         </div>
-                                        <div id="splineChart" style="min-height: 360px;"></div>
                                         
                                     </div>
                                 </div>
@@ -392,16 +403,8 @@
 @endpush
 
 @push('js')
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script>
-       document.addEventListener("DOMContentLoaded", function () {
-        // Biểu đồ đường spline
-        Highcharts.chart('splineChart', {!! json_encode($splineChart->options) !!});
-
-        // Biểu đồ cột doanh thu & đơn hàng
-        Highcharts.chart('columnChart', {!! json_encode($columnChart->options) !!});
-    });
+    
         $(".form-date").flatpickr({
             dateFormat: "Y-m-d"
         });

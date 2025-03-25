@@ -11,12 +11,13 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $chart = new Analysis(); // Khởi tạo biểu đồ mẫu
-        return view('admin.pages.index', compact('chart'));
+        $splineChart = (new Analysis())->getSplineChart();
+        $columnChart = (new Analysis())->getColumnChart();
+        return view('admin.pages.index', compact('splineChart', 'columnChart'));
     }
 
-    public function index2()
+    public function indexNhanVien()
     {
-        return view('admin.pages.index2');
+        return view('admin.pages.indexNhanVien');
     }
 }

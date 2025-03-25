@@ -33,14 +33,14 @@
                         </a>
                     </li>
                     <li class="sidebar-list">
-                        <a href="{{ route('admin.index') }}"
+                        <a href="{{ route('admin.indexNhanVien') }}"
                             class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin') ? 'active' : '' }}">
                             <span>
                                 <div class="d-flex align-items-center">
                                     <i class="ri-home-line"></i>
                                     <div class="sidebar-main-link">{{ __('message.dashboard') }}</div>
                                 </div>
-                            </span> chi tiết
+                            </span> nhân viên
                         </a>
                     </li>
                     <li class="sidebar-list">

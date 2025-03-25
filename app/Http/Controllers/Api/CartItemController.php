@@ -71,15 +71,22 @@ class CartItemController extends Controller
             $cartItem->quantity = $request->quantity;
             $cartItem->save();
 
-          
 
+            // Lấy giá trị is_sale của sản phẩm hoặc biến thể
+            $isSale = $cartItem->productVariant
+                ? $cartItem->productVariant->is_sale
+                : $cartItem->product->is_sale;
             // Kiểm tra sản phẩm có biến thể hay không
             if ($cartItem->productVariant) {
                 // Nếu có biến thể, ưu tiên sale_price, nếu null thì lấy price
                 $productPrice = $cartItem->productVariant->sale_price ?? $cartItem->productVariant->price;
             } else {
-                // Nếu không có biến thể, ưu tiên sale_price của sản phẩm, nếu null thì lấy price
-                $productPrice = $cartItem->product->sale_price ?? $cartItem->product->price;
+                // Nếu không có biến thể, ưu tiên sale_price nếu is_sale = 1, ngược lại lấy old_price
+                if ($isSale == 1) {
+                    $productPrice = $cartItem->product->sale_price ?? $cartItem->product->price;
+                } else {
+                    $productPrice = $cartItem->product->old_price ?? $cartItem->product->price; // Nếu không sale thì lấy old_price
+                }
             }
 
             // Tính tổng tiền sản phẩm này
@@ -134,6 +141,7 @@ class CartItemController extends Controller
                 'price_variant' => $product['price_variant'] ?? 0,
                 'old_price_variant' => isset($product['old_price_variant']) ? $product['old_price_variant'] : null,
                 'is_sale' => $product['is_sale'] ?? 0,
+                'stock' => $product['stock'],
             ];
         }
         session(['selectedProducts' => $selectedProducts]);

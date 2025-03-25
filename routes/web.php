@@ -174,7 +174,7 @@ Route::prefix('/admin')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
-        Route::get('/2', [DashboardController::class, 'index2'])->name('index2');
+        Route::get('/nhanvien', [DashboardController::class, 'indexNhanVien'])->name('indexNhanVien');
 
 
         Route::prefix('/chats')
