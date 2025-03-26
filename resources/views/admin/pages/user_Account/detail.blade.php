@@ -39,7 +39,7 @@
                                         <div class="tab-content mt-3" id="myTabContent">
                                             <div class="tab-pane fade show active" id="profile" role="tabpanel"
                                                 aria-labelledby="profile-tab">
-                                                <form
+                                                <form id="profile_form"
                                                     action="{{ route('admin.account.updateProvider', ['user' => $user->id]) }}"
                                                     method="POST"
                                                 enctype="multipart/form-data"
@@ -111,10 +111,11 @@
                                                                     </div>
                                                                     </app-form-fields></div>
 
-                                                    <app-button><button class="btn btn-theme ms-auto mt-4" id="profile_btn"
-                                                            type="submit" fdprocessedid="yhhr32">
-                                                            <div>Lưu</div>
-                                                        </button></app-button>
+                                                                        <app-button>
+                                                                            <button class="btn btn-theme ms-auto mt-4" id="profile_btn" type="submit" disabled>
+                                                                                <div>Lưu</div>
+                                                                            </button>
+                                                                        </app-button>
 
                                                 </form><!---->
                                             </div><!---->
@@ -198,6 +199,30 @@
 
 @push('js')
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("profile_form");
+    const saveButton = document.getElementById("profile_btn");
+
+    // Lưu giá trị ban đầu của form
+    const initialFormData = new FormData(form);
+    const initialData = Object.fromEntries(initialFormData.entries());
+
+    function checkFormChanged() {
+        const currentFormData = new FormData(form);
+        const currentData = Object.fromEntries(currentFormData.entries());
+
+        // So sánh giá trị hiện tại với giá trị ban đầu
+        const isChanged = Object.keys(initialData).some(
+            key => initialData[key] !== currentData[key]
+        );
+
+        saveButton.disabled = !isChanged;
+    }
+
+    // Lắng nghe sự thay đổi của các input trong form
+    form.addEventListener("input", checkFormChanged);
+    form.addEventListener("change", checkFormChanged);
+});
     $(document).ready(function () {
 
         @if(session('success'))
