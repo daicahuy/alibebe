@@ -717,18 +717,18 @@
 
             $('.thumbnail-image').on('click', function() {
                 console.log('Image');
-                var imageSrc = $(this).attr('src'); // Lấy src của hình ảnh nhỏ
-                $('#modalImage').attr('src', imageSrc); // Đặt src cho hình ảnh phóng to
-                $('#imageModal').modal('show'); // Hiển thị modal hình ảnh
+                var imageSrc = $(this).attr('src'); //
+                $('#modalImage').attr('src', imageSrc);
+                $('#imageModal').modal('show');
             });
 
             $("#btn-close-modal-img, #btn-cancel-modal-img").on("click", function(event) {
-                event.preventDefault(); // Ngăn hành động mặc định
-                $("#imageModal").modal("hide"); // Chỉ đóng imageModal
+                event.preventDefault();
+                $("#imageModal").modal("hide");
             });
             $("#imageModal").on("hidden.bs.modal", function(event) {
                 if ($("#modalConfirm").hasClass("show")) {
-                    $("body").addClass("modal-open"); // Giữ trạng thái cuộn của modalConfirm
+                    $("body").addClass("modal-open");
                 }
             });
 

@@ -41,7 +41,10 @@ class User extends Authenticatable
         'status',
         'email_verified_at',
         'code_verified_email',
-        'code_verified_at'
+        'code_verified_at',
+        'bank_name',
+        'user_bank_name',
+        'bank_account'
     ];
 
 
@@ -142,7 +145,7 @@ class User extends Authenticatable
 
     public function coupons()
     {
-        return $this->belongsToMany(Coupon::class,'coupon_users', 'user_id', 'coupon_id')->withPivot('created_at', 'updated_at');
+        return $this->belongsToMany(Coupon::class, 'coupon_users', 'user_id', 'coupon_id')->withPivot('created_at', 'updated_at');
     }
 
     public function reviews()

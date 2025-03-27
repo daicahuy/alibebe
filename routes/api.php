@@ -127,12 +127,15 @@ Route::prefix('/orders')
         Route::post('/updateOrderStatusWithUserCheck', [OrderController::class, 'updateOrderStatusWithUserCheck'])->name('updateOrderStatusWithUserCheck');
         Route::post('/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');
         Route::post('/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
+        Route::post('changeStatusRefundMoney', [OrderController::class, 'changeStatusRefundMoney'])->name('changeStatusRefundMoney');
+        Route::post('userCheckRefundMoney', [OrderController::class, 'userCheckRefundMoney'])->name('userCheckRefundMoney');
     });
 
 
 Route::post('/orders/uploadImgConfirm/{idOrder}', [OrderController::class, 'uploadImgConfirm'])->name('uploadImgConfirm');
 Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');
 Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->name('getOrderDetail');
+Route::get('/orders/getOrder/{idOrder}', [OrderController::class, 'getOrder'])->name('getOrder');
 
 
 Route::get("/payment/list", [PaymentController::class, 'getPaymentList'])->middleware(['guest'])->name('getPaymentList');

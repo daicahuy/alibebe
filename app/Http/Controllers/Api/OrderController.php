@@ -342,4 +342,50 @@ class OrderController extends Controller
             ]);
         }
     }
+
+    public function getOrder(int $idOrder)
+    {
+
+        $order = Order::query()->where("id", $idOrder)->with(["user"])->first();
+
+        return response()->json([
+            "status" => Response::HTTP_OK,
+            "order" => $order
+        ]);
+    }
+
+    public function changeStatusRefundMoney(Request $request)
+    {
+        try {
+            $orderId = $request->input('order_id');
+            $status = $request->input('status');
+
+            Order::where("id", $orderId)->update(["is_refund_cancel" => $status]);
+            return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+    public function userCheckRefundMoney(Request $request)
+    {
+        try {
+            $orderId = $request->input('order_id');
+            $status = $request->input('status');
+
+            Order::where("id", $orderId)->update(["check_refund_cancel" => $status]);
+            return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
 }

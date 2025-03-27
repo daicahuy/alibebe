@@ -515,6 +515,43 @@
             </div>
         </form>
     @endcomponent
+
+    @component('components.modal.confirm', [
+        'id' => 'modalShowRefundBank',
+        'title' => 'Xem thông tin hoàn tiền',
+    ])
+        <div id="modalFormShowRefundBank">
+            <table class="table all-package theme-table no-footer">
+                <tbody><!---->
+                    <tr>
+                        <td class="text-start fw-semibold">Giá trị hoàn</td>
+                        <td class="text-start" id="total_amount"></td>
+                    </tr>
+                    <tr>
+                        <td class="text-start fw-semibold">Tên người thụ hưởng </td>
+                        <td class="text-start" id="user_bank_name"></td>
+                    </tr>
+                    <tr>
+                        <td class="text-start fw-semibold">Tên ngân hàng </td>
+                        <td class="text-start"id="bank_name"></td>
+                    </tr>
+                    <tr>
+                        <td class="text-start fw-semibold">Số tài khoản </td>
+                        <td class="text-start" id="bank_account"></td>
+                    </tr>
+                    <input type="hidden" hidden id="idorder" value="">
+                </tbody>
+            </table>
+            <div class="button-box justify-content-end">
+                <button class="btn btn-md btn-secondary fw-bold btn-cancel" type="button">
+                    {{ __('message.cancel') }}
+                </button>
+                <button class="btn btn-md btn-theme fw-bold btn-action" id="btn_send_money">
+                    Đã chuyển tiền
+                </button>
+            </div>
+        </div>
+    @endcomponent
 @endsection
 
 
@@ -800,7 +837,7 @@
                                 <td class="px-4 py-2"><span
                                         class="text-sm font-semibold">${ formatCurrency(order.total_amount) }</span></td>
                                         <td class="px-4 py-2"><span
-                                        class="text-sm font-semibold">${ order.is_paid == 1 ? "Đã thanh toán" : "Chưa thanh toán" }</span></td>
+                                        class="text-sm font-semibold">${ order.is_paid == 1 ? "Đã thanh toán" : "Chưa thanh toán" }</br></span>${ order.is_refund_cancel == 0 ? "<p style='color:red'>Chờ hoàn tiền</p>" : "" }${ order.is_refund_cancel == 1 ? `<p style='color:red'>Đã hoàn tiền</br>${order.check_refund_cancel == 0 ? "(Khách chưa nhận được tiền)":""}</p>` : "" }</td>
                                 <td class="px-4 py-2 text-xs">
 
                                     
@@ -817,17 +854,21 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                                                                                                <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                                                                                                <div class="status-pending">
-                                                                                                                                                                <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                                                                                                </div>
-                                                                                                                                                                </div>
+                                                                                                                                                                                <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                                                                                                                                <div class="status-pending">
+                                                                                                                                                                                <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                                                                                                                                </div>
+                                                                                                                                                                                </div>
 
 
-                                                                                                                                                                ` : `
+                                                                                                                                                                                ` : `
 
-                                                                                                                                                                `}
+                                                                                                                                                                                `}
                                         <li>
+                                            ${order.is_refund_cancel != null ? `
+                                                                                                                                                                                                            <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
+                                                                                                                                                                                                                <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
+                                                                                                                                                                                                            `:""}
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
                                                 <i class="ri-eye-line"></i>
@@ -851,6 +892,89 @@
 
                         $('#modalConfirm').modal('show');
                     });
+
+                    async function callApiGetOrder(orderId) {
+                        await $.ajax({
+                            url: `http://127.0.0.1:8000/api/orders/getOrder/${orderId}`,
+                            type: 'get',
+
+                            success: function(response) {
+                                const order = response.order
+
+                                $("#modalShowRefundBank #total_amount").text(`${formatCurrency(order
+                                    .total_amount)}đ`)
+                                $("#modalShowRefundBank #user_bank_name").text(order.user
+                                    .user_bank_name)
+                                $("#modalShowRefundBank #bank_name").text(order.user
+                                    .bank_name)
+                                $("#modalShowRefundBank #bank_account").text(order.user
+                                    .bank_account)
+                                $("#modalShowRefundBank #idorder").val(order.id)
+
+                                if (order.is_refund_cancel == 1) {
+                                    $("#modalShowRefundBank #btn_send_money").attr(
+                                        "disabled", true);
+                                }
+
+                            },
+                            error: function(error) {
+                                console.error(
+                                    "Lỗi lấy order",
+                                    error);
+                            }
+                        });
+                    }
+
+                    $(".show_modal_refund_bank").on("click", async function() {
+                        const orderId = $(this).data(
+                            'idorder');
+
+                        await callApiGetOrder(orderId)
+
+                        $("#modalShowRefundBank").modal("show")
+                    })
+
+                    $("#modalShowRefundBank #btn_send_money").off("click").on("click", async function() {
+                        const idOrder = $("#modalShowRefundBank #idorder").val();
+                        if (!confirm('Bạn có chắc chắn thao tác này không?')) {
+                            return;
+                        }
+
+                        await $.ajax({
+                            url: '{{ route('api.orders.changeStatusRefundMoney') }}',
+                            type: 'POST',
+                            data: {
+                                order_id: idOrder,
+                                status: 1
+                            },
+                            success: function(response) {
+
+                                if (response.status == 200) {
+                                    Toastify({
+                                        text: "Thao tác thành công",
+                                        duration: 2000,
+                                        newWindow: true,
+                                        close: true,
+                                        gravity: "top",
+                                        position: "right",
+                                        stopOnFocus: true,
+                                        style: {
+                                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                        },
+                                    }).showToast();
+                                    callApiGetOrder(idOrder)
+                                    fetchOrders();
+
+                                }
+                            },
+                            error: function(error) {
+                                console.error(
+                                    "Lỗi cập nhật trạng thái đơn hàng:",
+                                    error);
+                            }
+                        });
+
+                    })
                 }
             }
 

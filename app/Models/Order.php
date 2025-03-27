@@ -26,6 +26,8 @@ class Order extends Model
         'coupon_description',
         'coupon_discount_type',
         'coupon_discount_value',
+        'is_refund_cancel',
+        'check_refund_cancel'
     ];
 
 
