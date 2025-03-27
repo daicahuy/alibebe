@@ -53,7 +53,6 @@
                             </span>
                             <div class="according-menu">
                                 @if (Request::is('admin/products*')
-                                    || Request::is('admin/inventory*')
                                     || Request::is('admin/attribute*')
                                     || Request::is('admin/brands*')
                                     || Request::is('admin/tags*')
@@ -66,7 +65,6 @@
                         </a>
                         <ul class="sidebar-submenu" @style([
                             'display: block;' => Request::is('admin/products*')
-                            || Request::is('admin/inventory*')
                             || Request::is('admin/attribute*')
                             || Request::is('admin/brands*')
                             || Request::is('admin/tags*')
@@ -76,13 +74,6 @@
                                     class="{{ Request::is('admin/products*') ? 'active' : '' }}">
                                     <div>{{ __('form.product_manager') }}</div>
                                     {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
-                                </a>
-                                <ul class="sidebar-submenu"></ul>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.inventory.index') }}"
-                                    class="{{ Request::is('admin/inventory*') ? 'active' : '' }}">
-                                    <div>{{ __('form.inventory_manager') }}</div>
                                 </a>
                                 <ul class="sidebar-submenu"></ul>
                             </li>
@@ -104,6 +95,41 @@
                                 <a href="{{ route('admin.tags.index') }}"
                                     class="{{ Request::is('admin/tags*') ? 'active' : '' }}">
                                     <div>{{ __('form.tags') }}</div>
+                                </a>
+                                <ul class="sidebar-submenu"></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-list">
+                        <a class="debar-link link-nav sidebar-link sidebar-title">
+                            <span>
+                                <div class="d-flex align-items-center"><i class="ri-inbox-archive-line"></i>
+                                    <div class="sidebar-main-link">{{ __('form.inventory') }}</div>
+                                </div>
+                            </span>
+                            <div class="according-menu">
+                                @if (Request::is('admin/inventory*')
+                                )
+                                    <i class="ri-arrow-down-s-line"></i>
+                                @else
+                                    <i class="ri-arrow-right-s-line"></i>
+                                @endif
+                            </div>
+                        </a>
+                        <ul class="sidebar-submenu" @style([
+                            'display: block;' => Request::is('admin/inventory*')
+                        ])>
+                            <li>
+                                <a href="{{ route('admin.inventory.index') }}"
+                                    class="{{ Request::is('admin/inventory') ? 'active' : '' }}">
+                                    <div>{{ __('form.inventory_manager') }}</div>
+                                </a>
+                                <ul class="sidebar-submenu"></ul>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.inventory.history') }}"
+                                    class="{{ Request::is('admin/inventory/history') ? 'active' : '' }}">
+                                    <div>{{ __('form.inventory_history') }}</div>
                                 </a>
                                 <ul class="sidebar-submenu"></ul>
                             </li>

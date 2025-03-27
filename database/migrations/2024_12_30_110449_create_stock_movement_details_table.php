@@ -3,6 +3,7 @@
 use App\Enums\StockMovementType;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,11 +16,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stock_movements', function (Blueprint $table) {
+        Schema::create('stock_movement_details', function (Blueprint $table) {
             $table->id();
-            $table->string('code_number')->unique();
-            $table->foreignIdFor(User::class)->constrained();
-            $table->tinyInteger('type')->default(StockMovementType::IMPORT);
+            $table->foreignIdFor(StockMovement::class)->constrained();
+            $table->foreignIdFor(Product::class)->nullable()->constrained();
+            $table->foreignIdFor(ProductVariant::class)->nullable()->constrained();
+            $table->integer('quantity');
             $table->timestamps();
         });
     }
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stock_movements');
+        Schema::dropIfExists('stock_movement_details');
     }
 };

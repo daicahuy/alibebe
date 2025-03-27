@@ -272,7 +272,7 @@ Route::prefix('/admin')
 
             Route::get('/trash', 'trash')->name('trash');
 
-            Route::get('/show/{slug}', 'show')->name('show');
+            Route::get('/show/{product}', 'show')->name('show');
 
             Route::get('/hidden', 'hidden')->name('hidden');
 
@@ -280,7 +280,7 @@ Route::prefix('/admin')
 
             Route::post('/', 'store')->name('store');
 
-            Route::get('/edit/{slug}', 'edit')->name('edit');
+            Route::get('/edit/{product}', 'edit')->name('edit');
 
             Route::put('/{product}', 'update')->name('update');
 
@@ -307,6 +307,8 @@ Route::prefix('/admin')
             Route::get('/', 'index')->name('index');
 
             Route::get('/history', 'history')->name('history');
+
+            Route::get('/history/{stockMovement}', 'detail')->name('detail');
 
         });
 

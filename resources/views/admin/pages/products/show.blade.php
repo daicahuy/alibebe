@@ -675,7 +675,7 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex justify-content-end">
-                                                <a class="btn btn-warning ms-auto mt-4" href="{{ route('admin.products.edit', $product->slug) }}">
+                                                <a class="btn btn-warning ms-auto mt-4" href="{{ route('admin.products.edit', $product->id) }}">
                                                     <div>{{ __('message.edit') }}</div>
                                                 </a>
                                             </div>

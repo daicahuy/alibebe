@@ -205,8 +205,7 @@ Route::prefix('/products')
 Route::prefix('stocks')
     ->name('api.stocks.')
     ->group(function () {
-        Route::post('/import-single', [StockController::class, 'importSingle'])->name('importSingle');
-        Route::post('/import-variant', [StockController::class, 'importVariant'])->name('importVariant');
+        Route::post('/import', [StockController::class, 'importStock'])->name('importStock');
     });
 
 // compare

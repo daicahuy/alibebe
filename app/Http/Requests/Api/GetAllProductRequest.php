@@ -5,7 +5,7 @@ namespace App\Http\Requests\Api;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreStockProductVariantRequest extends FormRequest
+class GetAllProductRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,18 +23,16 @@ class StoreStockProductVariantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', Rule::exists('users', 'id')],
-            'variants' => ['required', 'array'],
-            'variants.*.id' => ['required', Rule::exists('product_variants', 'id')],
-            'variants.*.quantity' => ['nullable', 'numeric', 'integer', 'gt:0'],
+            'productIds' => 'required|array',
+            'productIds.*' => ['integer', Rule::exists('products', 'id')],
         ];
     }
 
     public function attributes()
     {
         return [
-            'variants.*.id' => 'Id',
-            'variants.*.quantity' => 'Số Lượng',
+            'productIds' => 'Mã sản phẩm',
+            'productIds.*' => 'Mã sản phẩm',
         ];
     }
 }
