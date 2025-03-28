@@ -203,6 +203,8 @@ Route::prefix('/admin')
                 
                 //admin.chats.start-chat
                 Route::post('/chat-session/start', 'startChat')->name('start-chat');
+
+                Route::post('/chat-session/{chat}/exit', 'exitChat')->name('exit');
             });
 
 
@@ -548,5 +550,7 @@ Route::prefix('/admin')
             Route::delete('/force-destroy-selected', 'forceDestroySelected')->name('force-destroy-selected');
 
             Route::get('/search', 'searchCoupon')->name('search');
+
+            Route::put('/{coupon}/fast-update','updateUsageLimitOrEndDate')->name('fast-update');
         });
     });

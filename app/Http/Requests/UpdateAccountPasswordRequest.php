@@ -23,7 +23,7 @@ class UpdateAccountPasswordRequest extends FormRequest
     public function rules(): array
     {
         $user = auth()->user();
-        $isGoogleUserWithoutPassword = $user->google_id && !$user->password;
+        $isGoogleUserWithoutPassword = $user->google_id && $user->is_change_password == 0;
 
         // Nếu người dùng đăng nhập bằng Google và chưa có mật khẩu
         if ($isGoogleUserWithoutPassword) {

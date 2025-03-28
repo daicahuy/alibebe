@@ -26,7 +26,6 @@ class MessageRepository extends BaseRepository
     {
         $message = $this->model->find($messageId);
         $message->update([
-            'is_read' => 1,
             'read_at' => now()
         ]);
 
@@ -46,7 +45,7 @@ class MessageRepository extends BaseRepository
                           ->where('status', ChatSessionStatusType::OPEN);
                 })
                 ->where('sender_id', '!=', $userId)
-                ->where('is_read', 0)
+                ->whereNull('read_at')
                 ->get();
         }
         
@@ -57,7 +56,7 @@ class MessageRepository extends BaseRepository
                       ->where('status', ChatSessionStatusType::OPEN);
             })
             ->where('sender_id', '!=', $userId)
-            ->where('is_read', 0)
+            ->whereNull('read_at')
             ->get();
     }
     
@@ -67,9 +66,8 @@ class MessageRepository extends BaseRepository
         return $this->model
             ->where('chat_session_id', $sessionId)
             ->where('sender_id', '!=', $userId)
-            ->where('is_read', 0)
+            ->whereNull('read_at')
             ->update([
-                'is_read' => 1,
                 'read_at' => now()
             ]);
     }

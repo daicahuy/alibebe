@@ -14,5 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         //
         'chatbot/send',
+        'broadcasting/*',
+        '/broadcasting/auth' 
     ];
 }
