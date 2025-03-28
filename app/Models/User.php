@@ -42,7 +42,10 @@ class User extends Authenticatable
         'email_verified_at',
         'code_verified_email',
         'code_verified_at',
-        'is_change_password'
+        'is_change_password',
+        'bank_name',
+        'user_bank_name',
+        'bank_account'
     ];
 
 

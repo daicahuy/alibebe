@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Events\OrderRefundPendingCountUpdated;
 use App\Events\RefundOrderCreate;
 use App\Events\RefundOrderUpdateStatus;
 use App\Http\Controllers\Controller;
@@ -108,6 +109,7 @@ class ApiRefundOrderController extends Controller
                     ->where('id', $idRefund)
                     ->update(['admin_reason' => $adminReason, 'status' => 'rejected']);
                 event(new RefundOrderUpdateStatus($idRefund, 'rejected'));
+                event(new OrderRefundPendingCountUpdated());
                 return response()->json([
                     "message" => "OK Admin Reason",
                     "status" => Response::HTTP_OK
@@ -118,6 +120,8 @@ class ApiRefundOrderController extends Controller
                     ->where('id', $idRefund)
                     ->update(['status' => 'receiving']);
                 event(new RefundOrderUpdateStatus($idRefund, 'receiving'));
+                event(new OrderRefundPendingCountUpdated());
+
 
                 return response()->json([
                     "message" => "OK Admin receiving",
@@ -136,6 +140,35 @@ class ApiRefundOrderController extends Controller
         }
     }
 
+    public function changeStatusCancelOrder(Request $request)
+    {
+        try {
+            $idOrder = $request->input("idOrder");
+
+
+
+            Refund::query()
+                ->where('id', $idOrder)
+                ->update(['status' => 'cancel']);
+            event(new RefundOrderUpdateStatus($idOrder, 'cancel'));
+            event(new OrderRefundPendingCountUpdated());
+
+            return response()->json([
+                "message" => "OK Admin Reason",
+                "status" => Response::HTTP_OK
+            ]);
+
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+
+    }
+
     public function createOrderRefund(Request $request)
     {
 
@@ -144,8 +177,8 @@ class ApiRefundOrderController extends Controller
 
             $rules = [
                 'reason' => 'required|string',
-                'reason_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'bank_account' => 'required|string|max:255',
+                'reason_image' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:20480',
+                'bank_account' => 'required|string|max:255|regex:/^\d+$/',
                 'user_bank_name' => 'required|string|max:100',
                 'bank_name' => 'required|string|max:255',
                 'phone_number' => 'required|string|max:20',
@@ -155,11 +188,13 @@ class ApiRefundOrderController extends Controller
             // Định nghĩa các thông báo lỗi
             $messages = [
                 'reason.required' => 'Lý do hoàn hàng là bắt buộc.',
-                'reason_image.required' => 'Hình ảnh phải là bắt buộc',
-                'reason_image.image' => 'Hình ảnh phải là định dạng hình ảnh.',
-                'reason_image.mimes' => 'Hình ảnh phải có định dạng jpeg, png, jpg hoặc gif.',
-                'reason_image.max' => 'Kích thước hình ảnh không được vượt quá 2MB.',
+                'reason_image.required' => 'Hình ảnh hoặc video là bắt buộc.',
+                'reason_image.file' => 'Tệp phải là hình ảnh hoặc video.',
+                'reason_image.mimes' => 'Hình ảnh hoặc video phải có định dạng jpeg, png, jpg, gif, mp4, mov hoặc avi.',
+                'reason_image.max' => 'Kích thước tệp không được vượt quá 20MB.',
                 'bank_account.required' => 'Số tài khoản là bắt buộc.',
+                'bank_account.max' => 'Số tài khoản tối đa là 255 ký tự.',
+                'bank_account.regex' => 'Số tài khoản phải chỉ chứa các chữ số.',
                 'user_bank_name.required' => 'Tên người nhận là bắt buộc.',
                 'bank_name.required' => 'Tên ngân hàng là bắt buộc.',
                 'phone_number.required' => 'Số điện thoại liên hệ là bắt buộc.',
@@ -216,11 +251,15 @@ class ApiRefundOrderController extends Controller
                         "product_variant_id" => $value["productVariantId"],
                         "order_id" => $dataRefundProducts["order_id"]
                     ])->first();
+                    $item["count"] = $value["count"];
+                    $item["price_total_product"] = $value["price"];
                 } else {
                     $item = OrderItem::where([
                         "product_id" => $value["productId"],
                         "order_id" => $dataRefundProducts["order_id"]
                     ])->first();
+                    $item["count"] = $value["count"];
+                    $item["price_total_product"] = $value["price"];
                 }
 
                 if ($item) {
@@ -229,23 +268,39 @@ class ApiRefundOrderController extends Controller
             }
 
             foreach ($dataItemProduct as $key => $item) {
-                RefundItem::create([
-                    "refund_id" => $orderRefund["id"],
-                    "product_id" => $item["product_id"],
-                    "variant_id" => $item["product_variant_id"],
-                    "name" => $item["name"],
-                    "name_variant" => $item["name_variant"],
-                    "quantity" => $item["quantity"],
-                    "quantity_variant" => $item["quantity_variant"],
-                    "price" => $item["price"],
-                    "price_variant" => $item["price_variant"],
-                ]);
+                if ($item["product_variant_id"]) {
+                    RefundItem::create([
+                        "refund_id" => $orderRefund["id"],
+                        "product_id" => $item["product_id"],
+                        "variant_id" => $item["product_variant_id"],
+                        "name" => $item["name"],
+                        "name_variant" => $item["name_variant"],
+                        "quantity" => $item["quantity"],
+                        "quantity_variant" => $item["count"],
+                        "price" => $item["price"],
+                        "price_variant" => $item["price_variant"],
+                    ]);
+                } else {
+                    RefundItem::create([
+                        "refund_id" => $orderRefund["id"],
+                        "product_id" => $item["product_id"],
+                        "variant_id" => $item["product_variant_id"],
+                        "name" => $item["name"],
+                        "name_variant" => $item["name_variant"],
+                        "quantity" => $item["count"],
+                        "quantity_variant" => $item["quantity_variant"],
+                        "price" => $item["price"],
+                        "price_variant" => $item["price_variant"],
+                    ]);
+                }
             }
 
             Order::where('id', $dataRefundProducts["order_id"])
                 ->update(["is_refund" => "0"]);
 
             event(new RefundOrderCreate($orderRefund));
+            event(new OrderRefundPendingCountUpdated());
+
 
             DB::commit();
             return response()->json(["data" => $dataItemProduct, "status" => Response::HTTP_OK]);
@@ -324,10 +379,14 @@ class ApiRefundOrderController extends Controller
             if ($fail_reason) {
                 Refund::where("id", $id_order_refund)->update(["fail_reason" => $fail_reason, "img_fail_or_completed" => $data['img_fail_or_completed'], "status" => "failed"]);
                 event(new RefundOrderUpdateStatus($id_order_refund, 'failed'));
+                event(new OrderRefundPendingCountUpdated());
+
 
             } else {
                 Refund::where("id", $id_order_refund)->update(["img_fail_or_completed" => $data['img_fail_or_completed'], "status" => "completed"]);
                 event(new RefundOrderUpdateStatus($id_order_refund, 'completed'));
+                event(new OrderRefundPendingCountUpdated());
+
 
             }
 
@@ -340,6 +399,107 @@ class ApiRefundOrderController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function countPending(Request $request)
+    {
+        try {
+            $count = Refund::query()->where("status", 'pending')->count();
+            return response()->json(['count' => $count]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function sentConfirmBank(Request $request)
+    {
+        try {
+            $idOrderRefund = $request->input('id_order_refund');
+            $status = $request->input('status');
+
+            Refund::where('id', $idOrderRefund)->update(["bank_account_status" => $status]);
+            event(new RefundOrderUpdateStatus($idOrderRefund, 'receiving'));
+
+            return response()->json(["status" => Response::HTTP_OK, "idOrderRefund" => $idOrderRefund]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function confirmBank(Request $request)
+    {
+        try {
+            $rules = [
+                'bank_account' => 'required|string|max:255|regex:/^\d+$/',
+                'user_bank_name' => 'required|string|max:100',
+                'bank_name' => 'required|string|max:255',
+                ''
+            ];
+
+            // Định nghĩa các thông báo lỗi
+            $messages = [
+                'bank_account.required' => 'Số tài khoản là bắt buộc.',
+                'bank_account.max' => 'Số tài khoản tối đa là 255 ký tự.',
+                'bank_account.regex' => 'Số tài khoản phải chỉ chứa các chữ số.',
+                'user_bank_name.required' => 'Tên người nhận là bắt buộc.',
+                'user_bank_name.max' => 'Tên người nhận tối đa là 100 ký tự',
+                'bank_name.required' => 'Tên ngân hàng là bắt buộc.',
+                'bank_name.max' => 'Tên ngân hàng tối đa là 255 ký tự',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => Response::HTTP_BAD_REQUEST,
+                    'errors' => $validator->errors()->toArray(),
+                    "data" => $request->all()
+                ]);
+            }
+
+            Refund::where('id', $request->input('idOrder'))->update(["bank_account_status" => "verified", "bank_account" => $request->input('bank_account'), "bank_name" => $request->input('bank_name'), "user_bank_name" => $request->input('user_bank_name')]);
+            event(new RefundOrderUpdateStatus($request->input('idOrder'), 'receiving'));
+
+            return response()->json(["status" => Response::HTTP_OK, "data" => $request->all()]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function userCheckReceivedBank(Request $request)
+    {
+        try {
+            $statusCheckReceived = $request->input('statusCheckReceived');
+            $idOrder = $request->input('idOrder');
+
+
+            Refund::where('id', $idOrder)->update(["is_send_money" => $statusCheckReceived]);
+
+            event(new RefundOrderUpdateStatus($idOrder, 'receiving'));
+
+            return response()->json(["status" => Response::HTTP_OK, "data" => $request->all()]);
+
+        } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'An error occurred: ' . $th->getMessage(),
                 'status' => Response::HTTP_INTERNAL_SERVER_ERROR,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\OrderCreateUpdate;
+use App\Events\OrderPendingCountUpdated;
 use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\CouponUser;
@@ -10,6 +11,7 @@ use App\Models\HistoryOrderStatus;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderOrderStatus;
+use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\User;
 use DB;
@@ -38,6 +40,11 @@ class VNPayController extends Controller
 
             }
 
+            if (!$dataOrderCustomer['fullname']) {
+                return response()->json(["status" => "error", "message" => "Vui lòng nhập địa chỉ người nhận"]);
+
+            }
+
             if ($couponCode) {
                 $coupon = Coupon::where('code', $couponCode)->lockForUpdate()->first();
                 if (!$coupon || (INT) $coupon->usage_limit - (INT) $coupon->usage_count == 0) {
@@ -53,6 +60,13 @@ class VNPayController extends Controller
                     $productStock = ProductStock::where('product_variant_id', $item['product_variant_id'])
                         ->lockForUpdate()
                         ->first();
+                    $product_product_variant_id = Product::where('id', $item['product_id'])->where('is_active', 1)
+                        ->lockForUpdate()
+                        ->first();
+                    if (!$product_product_variant_id) {
+                        DB::rollBack();
+                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn được lưu hành"]);
+                    }
                     if (!$productStock || $productStock->stock < $item['quantity']) {
                         DB::rollBack();
                         return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn đủ số lượng trong kho"]);
@@ -61,9 +75,40 @@ class VNPayController extends Controller
                     $productStock = ProductStock::where('product_id', $item['product_id'])
                         ->lockForUpdate()
                         ->first();
+                    $product_product_id = Product::where('id', $item['product_id'])->where('is_active', 1)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (!$product_product_id) {
+                        DB::rollBack();
+                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " không còn được lưu hành"]);
+                    }
                     if (!$productStock || $productStock->stock < $item['quantity']) {
                         DB::rollBack();
                         return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " không còn đủ số lượng trong kho"]);
+                    }
+                }
+
+
+
+                if ($item["product_variant_id"]) {
+                    $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
+                        ->where('product_variant_id', $item['product_variant_id'])->first();
+
+
+                    if ($cartItem->quantity != $item['quantity_variant']) {
+                        DB::rollBack();
+
+                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
+                    }
+                } else {
+                    $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
+                        ->where('product_id', $item['product_id'])->first();
+
+                    if ($cartItem->quantity != $item['quantity']) {
+                        DB::rollBack();
+
+                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
                     }
                 }
             }
@@ -244,6 +289,13 @@ class VNPayController extends Controller
                             $productStock = ProductStock::where('product_variant_id', $item['product_variant_id'])
                                 ->lockForUpdate()
                                 ->first();
+                            $product_product_variant_id = Product::where('id', $item['product_id'])->where('is_active', 1)
+                                ->lockForUpdate()
+                                ->first();
+                            if (!$product_product_variant_id) {
+                                DB::rollBack();
+                                return redirect('/cart-checkout')->with('error', "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn được lưu hành");
+                            }
                             if (!$productStock || $productStock->stock < $item['quantity']) {
                                 DB::rollBack();
                                 return redirect('/cart-checkout')->with('error', "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn đủ số lượng trong kho");
@@ -253,6 +305,15 @@ class VNPayController extends Controller
                             $productStock = ProductStock::where('product_id', $item['product_id'])
                                 ->lockForUpdate()
                                 ->first();
+                            $product_product_id = Product::where('id', $item['product_id'])->where('is_active', 1)
+                                ->lockForUpdate()
+                                ->first();
+
+                            if (!$product_product_id) {
+                                DB::rollBack();
+                                return redirect('/cart-checkout')->with('error', "Sản phẩm " . $item["name"] . " không còn được lưu hành");
+
+                            }
                             if (!$productStock || $productStock->stock < $item['quantity']) {
                                 DB::rollBack();
                                 return redirect('/cart-checkout')->with('error', "Sản phẩm " . $item["name"] . " không còn đủ số lượng trong kho");
@@ -289,12 +350,7 @@ class VNPayController extends Controller
                             if ($cartItem->quantity == $item['quantity_variant']) {
                                 $cartItem->delete();
                             } else {
-
-
-                                $quantityCartItems = $cartItem->quantity;
-                                $coupon->quantity = (INT) $quantityCartItems - (INT) $item['quantity_variant'];
-
-                                $cartItem->save();
+                                return redirect('/cart-checkout')->with('error', "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " đã bị thay đổi số lượng trong giỏ hàng");
 
                             }
                         } else {
@@ -304,11 +360,7 @@ class VNPayController extends Controller
                             if ($cartItem->quantity == $item['quantity']) {
                                 $cartItem->delete();
                             } else {
-                                $quantityCartItems = $cartItem->quantity;
-                                $coupon->quantity = (INT) $quantityCartItems - (INT) $item['quantity'];
-
-                                $cartItem->save();
-
+                                return redirect('/cart-checkout')->with('error', "Sản phẩm " . $item["name"] . " đã bị thay đổi số lượng trong giỏ hàng");
                             }
                         }
                     }
@@ -329,6 +381,8 @@ class VNPayController extends Controller
                     $user->loyalty_points = $user->loyalty_points + 10;
                     $user->save();
                     event(new OrderCreateUpdate($order));
+                    event(new OrderPendingCountUpdated());
+
                     DB::commit();
                     session()->forget('selectedProducts');
                     session()->forget('totalPrice');

@@ -139,10 +139,15 @@
                                                 <td class="text-start" id="reason"></td>
                                             </tr><!---->
                                             <tr>
-                                                <td class="text-start fw-semibold">Hình ảnh</td>
+                                                <td class="text-start fw-semibold">Hình ảnh/video</td>
                                                 <td class="text-start"><img src="" alt=""
                                                         id="reason-thumbnail-image" class="thumbnail-image"
-                                                        style="width: 50px; height: 50px;"></td>
+                                                        style="width: 50px; height: 50px;display: none;">
+                                                    <video id="reason-thumbnail-video" class="thumbnail-video"
+                                                        style="width: 200px; height: 100px; display: none;" controls>
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                </td>
                                             </tr><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Giá trị hoàn</td>
@@ -164,13 +169,15 @@
                                                 <td class="text-start fw-semibold">Số tài khoản </td>
                                                 <td class="text-start" id="bank_account"></td>
                                             </tr><!---->
+                                            <tr class="" id="div_comfirm_bank" style="display: none">
+
+                                            </tr><!---->
                                             <tr>
                                                 <td class="text-start fw-semibold">Trạng thái</td>
                                                 <td class="text-start">
                                                     <div class="status"><span id="status"></span></div>
                                                 </td>
                                             </tr><!---->
-
                                         </tbody>
                                     </table>
                                 </div>
@@ -257,11 +264,22 @@
                 const statusMap = {
                     'pending': 'Đang chờ',
                     'receiving': 'Chờ vận chuyển',
-                    'completed': 'Hoàn thành',
+                    'completed': 'Hoàn hàng thành công',
                     'rejected': 'Bị từ chối',
-                    'failed': 'Thất bại'
+                    'failed': 'Thất bại',
+                    'cancel': 'Hủy'
                 };
-                return statusMap[status] || status; // Trả về giá trị gốc nếu không tìm thấy
+                return statusMap[status] || status; //
+            }
+
+            function getStatusBank(status) {
+                const statusMap = {
+                    'unverified': 'Chưa xác nhận tài khoản',
+                    'sent': 'Chờ xác nhận tài khoản',
+                    'verified': 'Đã xác nhân tài khoản',
+
+                };
+                return statusMap[status] || status;
             }
 
             function renderHtmlModalOrderRefund(dataOrderRefund) {
@@ -284,11 +302,24 @@
                                         <label for="floatingTextarea2">Lý do từ chối</label>
                                     </div>`)
                 const imageUrl =
-                    `{{ Storage::url('${dataOrderRefund.reason_image}') }}`; //Laravel Blade syntax
-                //Chuyển đổi thành Javascript string
+                    `{{ Storage::url('${dataOrderRefund.reason_image}') }}`;
+
                 const jsImageUrl = imageUrl.replace(/\{\{\s*|\s*\}\}/g, '');
-                $("#modalConfirm #reason-thumbnail-image").attr("src",
-                    jsImageUrl);
+                const isVideo = jsImageUrl.match(/\.(mp4|mov|avi|wmv|mkv)$/i);
+
+                if (isVideo) {
+
+                    $("#modalConfirm #reason-thumbnail-image").hide();
+                    $("#modalConfirm #reason-thumbnail-video")
+                        .attr("src", jsImageUrl)
+                        .show();
+                } else {
+
+                    $("#modalConfirm #reason-thumbnail-video").hide();
+                    $("#modalConfirm #reason-thumbnail-image")
+                        .attr("src", jsImageUrl)
+                        .show();
+                }
                 $("#modalConfirm #reason").text(dataOrderRefund.reason ? dataOrderRefund.reason : "")
                 $("#modalConfirm #idOrderRefund").val(dataOrderRefund.id)
                 $("#modalConfirm #total_amount").text(`${formatCurrency(dataOrderRefund.total_amount)}đ`)
@@ -309,9 +340,13 @@
                     $("#modalConfirm #admin_reason_div").empty()
                 }
                 if (dataOrderRefund.status == 'rejected') {
+                    $("#div_comfirm_bank").empty()
+
                     $("#modalConfirm #admin_reason").attr("disabled", true);
                 }
                 if (dataOrderRefund.status == 'pending') {
+                    $("#div_comfirm_bank").empty()
+
                     $('#button-box-footer').append(`<app-button><button class="btn btn-md  fw-bold"
                                                 style="background-color: red; color: #fff;" disabled
                                                 id="withdrawal_rejected_btn" type="submit" fdprocessedid="hbnu3">
@@ -325,6 +360,65 @@
                 }
 
                 if (dataOrderRefund.status == 'receiving') {
+                    $("#div_comfirm_bank").empty()
+                    $("#div_comfirm_bank").show();
+
+                    if (dataOrderRefund.bank_account_status == "unverified") {
+
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id=""><button id="btn_confirm_bank" class="btn btn-primary">Gửi xác nhận</button></td>
+                        `)
+                    } else if (dataOrderRefund.bank_account_status == "sent") {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã gửi xác nhận</td>
+                        `)
+                    } else {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã xác nhận</td>
+                        `)
+                    }
+
+
+                    $("#btn_confirm_bank").on('click', function() {
+                        $.ajax({
+                            url: '{{ route('api.refund_orders.sentConfirmBank') }}',
+                            type: 'POST',
+                            data: {
+                                id_order_refund: dataOrderRefund.id,
+                                status: 'sent'
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toastify({
+                                        text: "Thao tác thành công",
+                                        duration: 2000,
+                                        newWindow: true,
+                                        close: true,
+                                        gravity: "top",
+                                        position: "right",
+                                        stopOnFocus: true,
+                                        style: {
+                                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                        },
+                                    }).showToast();
+                                    callApiGetDataOrderRefund(dataOrderRefund.id)
+                                    fetchOrders()
+                                }
+                            },
+                            error: function(error) {
+                                console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                    error);
+                            }
+                        });
+
+
+                    })
+
+
+
                     $("#modalConfirm #admin_reason_div").append(`
                     
                         <div class="form-floating mb-3">
@@ -353,7 +447,7 @@
                                         `)
 
                     $('#fail_reason, #img_fail_or_completed').on('input change', function() {
-                        const reason = $('#fail_reason').val().trim(); //
+                        const reason = $('#fail_reason').val().trim();
                         const hasFile = $('#img_fail_or_completed').val();
                         const failedButton = $('#failed_btn');
                         const completedButton = $('#completed_btn');
@@ -366,7 +460,8 @@
                         }
 
 
-                        if (reason.length === 0 && hasFile) {
+                        if (reason.length === 0 && hasFile && dataOrderRefund.bank_account_status ==
+                            "verified") {
                             completedButton.prop('disabled', false);
                         } else {
                             completedButton.prop('disabled', true);
@@ -377,13 +472,13 @@
                         const file = this.files[0];
                         const previewContainer = $('#image_preview');
 
-                        // Xóa nội dung cũ của preview
+
                         previewContainer.empty();
 
                         if (file) {
                             const reader = new FileReader();
                             reader.onload = function(e) {
-                                // Hiển thị ảnh preview
+
                                 previewContainer.append(`
                         <img src="${e.target.result}" alt="Preview Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
                     `);
@@ -395,7 +490,26 @@
                 }
 
                 if (dataOrderRefund.status == 'completed') {
+                    $("#div_comfirm_bank").empty()
+                    $("#div_comfirm_bank").show();
 
+                    if (dataOrderRefund.bank_account_status == "unverified") {
+
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id=""><button id="btn_confirm_bank" class="btn btn-primary">Gửi xác nhận</button></td>
+                        `)
+                    } else if (dataOrderRefund.bank_account_status == "sent") {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã gửi xác nhận</td>
+                        `)
+                    } else {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã xác nhận</td>
+                        `)
+                    }
                     const imageUrl =
                         `{{ Storage::url('${dataOrderRefund.img_fail_or_completed}') }}`;
                     $("#modalConfirm #admin_reason_div").append(`
@@ -409,7 +523,26 @@
                 }
 
                 if (dataOrderRefund.status == 'failed') {
+                    $("#div_comfirm_bank").empty()
+                    $("#div_comfirm_bank").show();
 
+                    if (dataOrderRefund.bank_account_status == "unverified") {
+
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id=""><button id="btn_confirm_bank" class="btn btn-primary">Gửi xác nhận</button></td>
+                        `)
+                    } else if (dataOrderRefund.bank_account_status == "sent") {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã gửi xác nhận</td>
+                        `)
+                    } else {
+                        $("#div_comfirm_bank").append(`
+                            <td class="text-start fw-semibold">Xác nhận số tài khoản</td>
+                            <td class="text-start" id="">Đã xác nhận</td>
+                        `)
+                    }
                     if (dataOrderRefund.img_fail_or_completed) {
 
                         const imageUrl =
@@ -436,16 +569,16 @@
 
                 $('#admin_reason').on('input', function() {
                     const reason = $(this).val()
-                        .trim(); // Lấy giá trị trong textarea và loại bỏ khoảng trắng
-                    const rejectButton = $('#withdrawal_rejected_btn'); // Nút "Từ chối"
-                    const approvedButton = $('#withdrawal_approved_btn'); // Nút "Từ chối"
+                        .trim();
+                    const rejectButton = $('#withdrawal_rejected_btn');
+                    const approvedButton = $('#withdrawal_approved_btn');
 
                     if (reason.length > 0) {
-                        // Nếu lý do từ chối không trống, bật nút "Từ chối"
+
                         rejectButton.prop('disabled', false);
                         approvedButton.prop('disabled', true);
                     } else {
-                        // Nếu lý do từ chối trống, disable nút "Từ chối"
+
                         rejectButton.prop('disabled', true);
                         approvedButton.prop('disabled', false);
                     }
@@ -538,6 +671,9 @@
 
                 $("#modalConfirm #formCompltedOrFail").off('submit').on('submit', function(event) {
                     event.preventDefault();
+                    if (!confirm("Bạn chắc chắn với thao tác này không?")) {
+                        return;
+                    }
 
                     const formData = new FormData(this);
                     formData.append('id_order_refund', JSON.stringify(dataOrderRefund.id));
@@ -575,28 +711,26 @@
                     });
                 })
 
+
+
             }
 
             $('.thumbnail-image').on('click', function() {
                 console.log('Image');
-                var imageSrc = $(this).attr('src'); // Lấy src của hình ảnh nhỏ
-                $('#modalImage').attr('src', imageSrc); // Đặt src cho hình ảnh phóng to
-                $('#imageModal').modal('show'); // Hiển thị modal hình ảnh
+                var imageSrc = $(this).attr('src'); //
+                $('#modalImage').attr('src', imageSrc);
+                $('#imageModal').modal('show');
             });
 
             $("#btn-close-modal-img, #btn-cancel-modal-img").on("click", function(event) {
-                event.preventDefault(); // Ngăn hành động mặc định
-                $("#imageModal").modal("hide"); // Chỉ đóng imageModal
+                event.preventDefault();
+                $("#imageModal").modal("hide");
             });
             $("#imageModal").on("hidden.bs.modal", function(event) {
                 if ($("#modalConfirm").hasClass("show")) {
-                    $("body").addClass("modal-open"); // Giữ trạng thái cuộn của modalConfirm
+                    $("body").addClass("modal-open");
                 }
             });
-
-
-
-
 
             function callApiGetDataOrderRefund(idOrderRefund) {
 
@@ -757,11 +891,16 @@
                                 statusClass = 'bg-success'; // Xanh
                                 break;
                             case 'rejected':
+                                statusClass = 'bg-danger'; // Đỏ
+                                break;
                             case 'failed':
                                 statusClass = 'bg-danger'; // Đỏ
                                 break;
                             case 'pending':
                                 statusClass = 'bg-warning'; // Vàng
+                                break;
+                            case 'cancel':
+                                statusClass = 'bg-danger'; // Vàng
                                 break;
                             default:
                                 statusClass = 'bg-info'; // Màu khác nếu cần
@@ -778,7 +917,10 @@
                         </td>
                         <td class="cursor-pointer">
                             <div>
-                                <div class="status-approved"><span class="${statusClass}" style="border: unset">${getStatusInVietnamese(order.status)}</span></div>
+                                <div class="status-approved"><span class="${statusClass}" style="border: unset">${getStatusInVietnamese(order.status)}</span>
+                                    ${order.status == "receiving" ? `<span style="border: unset; margin-top: 6px; color: red">${getStatusBank(order.bank_account_status)}</span>`:""}
+                                    ${order.status == "completed" && order.is_send_money == 0 ? `<span style="border: unset; margin-top: 6px; color: red">Xung đột</span>`:""}
+                                    </div>
                             </div>
                         </td>
                         <td class="cursor-pointer">${convertDate(order.created_at)}
@@ -817,11 +959,6 @@
                     });
 
 
-
-
-
-
-
                 }
             }
 
@@ -830,6 +967,11 @@
             $('#payout_close_btn').on('click', function(event) {
                 event.stopPropagation();
                 $('#button-box-footer').empty();
+                const videoElement = $('#reason-thumbnail-video').get(0); // Lấy phần tử video
+                if (videoElement) {
+                    videoElement.pause(); // Tạm dừng video
+                    videoElement.currentTime = 0; // Đặt thời gian phát về 0 (tùy chọn)
+                }
                 $('#modalConfirm').modal('hide');
 
             });
@@ -895,9 +1037,6 @@
             channel.bind('event-create-order-refund', function(data) {
                 fetchOrders()
             });
-
-
-
         })
     </script>
     <script src="{{ asset('js/utility.js') }}"></script>

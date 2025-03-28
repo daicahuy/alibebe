@@ -30,6 +30,10 @@ return new class extends Migration {
             $table->rememberToken();
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('code_verified_at')->nullable();
+            $table->string('bank_name', 255)->nullable();
+            $table->string('user_bank_name', 255)->nullable();
+            $table->string('bank_account', 255)->nullable();
+
             $table->timestamps();
         });
     }

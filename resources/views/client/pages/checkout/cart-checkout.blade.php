@@ -112,8 +112,9 @@
     </div>
     <div class="bg-gray-50">
 
-        <main class="mx-auto max-w-7xl px-4 pb-24 pt-16 sm:px-6 lg:px-8">
-            <div class="mx-auto max-w-2xl lg:max-w-none">
+        <main class="container-fluid-lg">
+            <div class="row">
+
                 <h1 class="sr-only">Checkout</h1>
 
                 <div class="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
