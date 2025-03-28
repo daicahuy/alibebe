@@ -5,8 +5,10 @@ namespace App\Repositories;
 use App\Enums\ChatSessionStatusType;
 use App\Enums\UserRoleType;
 use App\Models\ChatSession;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ChatSessionRepository extends BaseRepository
 {
@@ -39,7 +41,7 @@ class ChatSessionRepository extends BaseRepository
         // Quản trị viên có thể xem tất cả các phiên trò chuyện
         if ($user->role == UserRoleType::ADMIN) {
             return $query->paginate($perPage);
-        } elseif ($user->role == UserRoleType::EMPLOYEE || $user->role == UserRoleType::ADMIN) {
+        } elseif ($user->role == UserRoleType::EMPLOYEE) {
             // Nhân viên chỉ xem các phiên mà họ được gán hoặc các phiên chưa được gán và đang mở
             return $query->where(function ($q) use ($user) {
                 $q->where('employee_id', $user->id)
@@ -83,9 +85,13 @@ class ChatSessionRepository extends BaseRepository
     }
 
     // Lấy thông tin chi tiết của một phiên trò chuyện cụ thể
-    public function getChatSession($chatSessionId)
+    public function getChatSession($chatSessionId, $userId = null)
     {
-        $user = auth()->user();  // Lấy người dùng hiện tại
+        if ($userId == null) {
+            $user = Auth::user();
+        } else {
+            $user = User::find($userId);
+        }
 
         // Lấy phiên trò chuyện cùng với các tin nhắn liên quan
         $query = $this->model->with([
@@ -99,7 +105,7 @@ class ChatSessionRepository extends BaseRepository
             ->where('status', ChatSessionStatusType::OPEN);
 
         // Hạn chế quyền truy cập dựa trên vai trò của người dùng
-        if ($user->role == UserRoleType::EMPLOYEE || $user->role == UserRoleType::ADMIN) {
+        if ($user->role == UserRoleType::EMPLOYEE) {
             // Nhân viên chỉ truy cập được các phiên mà họ được gán hoặc chưa được gán
             $query->where(function ($q) use ($user) {
                 $q->where('employee_id', $user->id)
@@ -137,13 +143,19 @@ class ChatSessionRepository extends BaseRepository
         return $query->first();
     }
 
+    public function getChatSessionWithRelations($sessionId)
+    {
+        return $this->model->with(['customer', 'employee'])
+            ->findOrFail($sessionId);
+    }
+
     // Cập nhật trạng thái của phiên trò chuyện (mở, đóng, v.v.)
     public function updateChatSessionStatus($sessionId, $status)
     {
         $session = $this->model->find($sessionId);
         $session->update([
             'status' => $status,
-            'closed_at' => $status == ChatSessionStatusType::CLOSED  ? now() : null,  // Cập nhật thời gian đóng nếu trạng thái là ĐÓNG
+            'closed_date' => $status == ChatSessionStatusType::CLOSED  ? now() : null,  // Cập nhật thời gian đóng nếu trạng thái là ĐÓNG
         ]);
 
         return $session;

@@ -28,14 +28,6 @@
                                 <h5>{{ __('form.products') }}</h5>
                             </div>
                             <div class="d-flex">
-                                <a class="align-items-center btn btn-theme me-2 disabled" id="import-stock-btn" href="#!">
-                                    <i class="ri-add-line"></i>
-                                    {{ __('form.stock_movement.import') }}
-                                </a>
-                                <a class="align-items-center btn btn-theme me-2" id="import-stock-by-excel-btn" href="#!">
-                                    <i class="ri-add-line"></i>
-                                    {{ __('form.stock_movement.import') . ' ' . __('message.by_excel') }}
-                                </a>
                                 <a class="align-items-center btn btn-theme d-flex"
                                     href="{{ route('admin.products.create') }}">
                                     <i class="ri-add-line"></i>
@@ -243,11 +235,11 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.products.show', $product->slug) }}"
+                                                            <a href="{{ route('admin.products.show', $product->id) }}"
                                                                 class="btn-detail"><i class="ri-eye-line"></i></a>
                                                         </li>
                                                         <li>
-                                                            <a href="{{ route('admin.products.edit', $product->slug) }}"
+                                                            <a href="{{ route('admin.products.edit', $product->id) }}"
                                                                 class="btn-edit"><i class="ri-pencil-line"></i></a>
                                                         </li>
                                                         <li>

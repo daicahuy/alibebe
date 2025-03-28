@@ -125,11 +125,6 @@ class Product extends Model
         return $this->hasOne(ProductStock::class, 'product_id', 'id');
     }
 
-    public function getRouteKeyName()
-    {
-        return 'slug'; // Laravel tự động tìm theo slug thay vì id
-    }
-
 
     public function productMovement()
     {

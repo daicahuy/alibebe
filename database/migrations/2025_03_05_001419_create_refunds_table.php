@@ -24,13 +24,21 @@ return new class extends Migration {
             $table->text('img_fail_or_completed')->nullable();
             $table->text('reason_image');
             $table->text('admin_reason')->nullable();
+            $table->boolean('is_send_money')->default(null)->nullable();
+
             $table->enum('status', [
                 'pending',
                 'receiving',
                 'completed',
                 'rejected',
-                'failed'
+                'failed',
+                'cancel'
             ])->default('pending');
+            $table->enum('bank_account_status', [
+                'unverified',
+                'sent',
+                'verified'
+            ])->default('unverified');
             $table->timestamps();
 
 

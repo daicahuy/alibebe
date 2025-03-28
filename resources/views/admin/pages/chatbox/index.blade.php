@@ -160,18 +160,32 @@
 
                 <div class="user-list-content">
                     @foreach ($chatSessions as $chatSession)
-                        <div class="user-item">
+                        @php
+                            // Chỉ đếm tin nhắn của khách hàng (sender_id = customer_id) chưa được đọc (read_at is null)
+                            $unreadCount = $chatSession
+                                ->messages()
+                                ->whereNull('read_at')
+                                ->where('sender_id', $chatSession->customer_id)
+                                ->count();
+                        @endphp
+                        <!-- Thêm attribute data-chat-session-id để JS realtime dễ xử lý -->
+                        <div class="user-item chat-session-item" data-chat-session-id="{{ $chatSession->id }}">
                             <img src="{{ Storage::url($chatSession->customer->avatar) }}" class="user-avatar">
                             <div class="user-info">
                                 <div class="user-name">{{ $chatSession->customer->fullname }}</div>
                                 <div class="user-status">Đang hoạt động</div>
                             </div>
                             <div class="message-item">
-                                <a class="btn btn-primary"
+                                <a class="btn btn-primary position-relative"
                                     href="{{ route('admin.chats.chat-session', ['id' => $chatSession->id]) }}">
                                     Mở Chat
+                                    @if ($unreadCount > 0)
+                                        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">
+                                            {{ $unreadCount }}
+                                        </span>
+                                    @endif
                                 </a>
-                                <!-- Thêm icon xóa -->
+                                <!-- Icon xóa -->
                                 <button type="button" class="btn btn-danger mt-2" data-bs-toggle="modal"
                                     data-bs-target="#deleteMessageModal{{ $chatSession->id }}">
                                     <i class="fas fa-trash-alt"></i>
@@ -185,8 +199,8 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteMessageModalLabel{{ $chatSession->id }}">Xác Nhận
-                                            Xóa</h5>
+                                        <h5 class="modal-title" id="deleteMessageModalLabel{{ $chatSession->id }}">
+                                            Xác Nhận Xóa</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
@@ -220,6 +234,8 @@
 @push('js_library')
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Pusher JS -->
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 @endpush
 
 @push('js')
@@ -236,6 +252,12 @@
             // Debug để kiểm tra jQuery đã load chưa
             console.log('jQuery loaded:', typeof $ !== 'undefined');
 
+            // Sự kiện input với debounce cho tìm kiếm
+            searchInput.on('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(performSearch, 300);
+            });
+
             function performSearch() {
                 const searchTerm = searchInput.val();
                 console.log('Searching for:', searchTerm); // Debug
@@ -244,7 +266,6 @@
                 userListContent.html(
                     '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Đang tìm kiếm...</div>'
                 );
-
 
                 // AJAX request
                 $.ajax({
@@ -263,27 +284,27 @@
                         if (response.success && response.users && response.users.length > 0) {
                             let html = '';
                             response.users.forEach(function(user) {
-                                // Giả sử mỗi đối tượng user có các thuộc tính: id, fullname, avatar
                                 html += `
-                                        <div class="user-item">
-                                            <img src="${user.avatar ? user.avatar : '{{ asset('assets/images/default-avatar.png') }}'}" class="user-avatar">
-                                            <div class="user-info">
-                                                <div class="user-name">${user.fullname}</div>
-                                            </div>
-                                            <div class="message-item">
-                                              <form action="{{ route('admin.chats.start-chat') }}" method="POST">
+                                    <div class="user-item">
+                                        <img src="${user.avatar ? user.avatar : '{{ asset('assets/images/default-avatar.png') }}'}" class="user-avatar">
+                                        <div class="user-info">
+                                            <div class="user-name">${user.fullname}</div>
+                                        </div>
+                                        <div class="message-item">
+                                            <form action="{{ route('admin.chats.start-chat') }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" name="customer_id" value="${user.id}">
                                                 <button type="submit" class="btn btn-primary">Mở Chat</button>
-                                              </form>
-                                            </div>
+                                            </form>
                                         </div>
-                                        `;
+                                    </div>
+                                `;
                             });
                             userListContent.html(html);
                         } else {
                             userListContent.html(
-                                '<div class="text-center p-4">Không tìm thấy người dùng nào</div>');
+                                '<div class="text-center p-4">Không tìm thấy người dùng nào</div>'
+                            );
                         }
                     },
                     error: function(xhr, status, error) {
@@ -295,12 +316,52 @@
                 });
             }
 
-            // Sự kiện input với debounce
-            searchInput.on('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(performSearch, 300);
+            // ------------------ REALTIME UPDATE ------------------
+            // Khởi tạo Pusher
+            Pusher.logToConsole = true;
+            const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
+                cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
+                forceTLS: true,
+                authEndpoint: '/broadcasting/auth',
+                auth: {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
+                    }
+                }
             });
 
+            // Với mỗi chat session trong danh sách, đăng ký kênh riêng dùng data-chat-session-id
+            $('.chat-session-item').each(function() {
+                const chatSessionId = $(this).data('chat-session-id');
+                const channelName = `private-chat.${chatSessionId}`;
+                const channel = pusher.subscribe(channelName);
+
+                channel.bind('message.sent', function(data) {
+                    // Kiểm tra nếu tin nhắn mới đến từ khách hàng
+                    if (data.message && data.sender && data.sender.role === 0) {
+                        // Tìm phần tử chat item dựa trên chatSessionId
+                        const chatItem = $(
+                            `.chat-session-item[data-chat-session-id="${chatSessionId}"]`);
+                        const btn = chatItem.find('a.btn-primary');
+                        let badge = btn.find('.badge');
+
+                        if (badge.length > 0) {
+                            // Nếu badge đã tồn tại, tăng số đếm
+                            let count = parseInt(badge.text());
+                            badge.text(count + 1);
+                        } else {
+                            // Nếu chưa có badge, tạo mới hiển thị số 1
+                            btn.append(
+                                `<span class="badge bg-danger position-absolute top-0 start-100 translate-middle">1</span>`
+                            );
+                        }
+
+                        chatItem.prependTo($('.user-list-content'));
+                    }
+                });
+            });
+            // ------------------------------------------------------
 
             @if (session()->has('success'))
                 Swal.fire({

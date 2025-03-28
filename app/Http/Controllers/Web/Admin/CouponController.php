@@ -208,6 +208,30 @@ class CouponController extends Controller
         }
     }
 
+    public function updateUsageLimitOrEndDate(string $id)
+    {
+        $data = request()->validate([
+            'usage_limit' => [
+                'nullable',
+                'integer',
+                'min:0',
+            ],
+            'end_date' => [
+                'nullable',
+                'date',
+                'after_or_equal:today'
+            ],
+        ]);
+
+        $result = $this->couponService->updateUsageLimitOrEndDate($data, $id);
+
+        if ($result['status']) {
+            return redirect()->route('admin.coupons.index')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+
     // api
     public function apiUpdateStatus($id)
     {

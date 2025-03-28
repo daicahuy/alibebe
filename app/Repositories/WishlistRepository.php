@@ -19,7 +19,10 @@ class WishlistRepository extends BaseRepository
         $authLogin = Auth::id();
 
         return $this->model->where('user_id', $authLogin)
-            ->with('product.brand')
+            ->with([
+                'product.brand',
+                'product.productVariants'
+            ])
             ->latest('id')
             ->paginate(10);
     }

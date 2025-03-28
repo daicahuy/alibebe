@@ -19,25 +19,6 @@
             <div class="profile-name-detail">
                 <div class="d-sm-flex align-items-center d-block">
                     <h3>{{ $user->fullname }}</h3>
-                    <div class="product-rating profile-rating">
-                        <ul class="rating">
-                            <li>
-                                <i data-feather="star" class="fill"></i>
-                            </li>
-                            <li>
-                                <i data-feather="star" class="fill"></i>
-                            </li>
-                            <li>
-                                <i data-feather="star" class="fill"></i>
-                            </li>
-                            <li>
-                                <i data-feather="star"></i>
-                            </li>
-                            <li>
-                                <i data-feather="star"></i>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
 
                 <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#editProfile">Chỉnh Sửa</a>
@@ -277,7 +258,7 @@
                         @csrf
                         @method('PATCH')
 
-                        @if (!auth()->user()->google_id || auth()->user()->password)
+                        @if (auth()->user()->is_change_password === 1)
                             <div class="mb-3">
                                 <label for="old-password" class="form-label">Mật Khẩu Cũ</label>
                                 <input type="password" class="form-control" name="current_password" id="old-password"
@@ -323,44 +304,44 @@
             });
         });
         $(document).ready(function() {
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.startsWith(name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            function updateCompareCountBadge() {
+                const compareCookieName = 'compare_list';
+                const compareListCookie = getCookie(compareCookieName);
+                let compareCount = 0;
+                if (compareListCookie) {
+                    try {
+                        const compareList = JSON.parse(compareListCookie);
+                        compareCount = compareList.length;
+                    } catch (error) {
+                        console.error('Lỗi khi parse cookie compare_list:', error);
+                    }
+                }
+                $('#compare-count-badge').text(compareCount);
+                if (compareCount > 0) {
+                    $('#compare-count-badge').show(); // Hoặc sử dụng class để hiển thị
+                } else {
+                    $('#compare-count-badge').hide(); // Hoặc sử dụng class để ẩn
                 }
             }
-        }
-        return cookieValue;
-    }
 
-    function updateCompareCountBadge() {
-        const compareCookieName = 'compare_list';
-        const compareListCookie = getCookie(compareCookieName);
-        let compareCount = 0;
-        if (compareListCookie) {
-            try {
-                const compareList = JSON.parse(compareListCookie);
-                compareCount = compareList.length;
-            } catch (error) {
-                console.error('Lỗi khi parse cookie compare_list:', error);
-            }
-        }
-        $('#compare-count-badge').text(compareCount);
-        if (compareCount > 0) {
-            $('#compare-count-badge').show(); // Hoặc sử dụng class để hiển thị
-        } else {
-            $('#compare-count-badge').hide(); // Hoặc sử dụng class để ẩn
-        }
-    }
-
-    // Gọi hàm này khi trang sản phẩm được tải
-    updateCompareCountBadge();
-});
+            // Gọi hàm này khi trang sản phẩm được tải
+            updateCompareCountBadge();
+        });
     </script>
 @endpush

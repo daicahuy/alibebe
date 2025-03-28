@@ -24,7 +24,7 @@ class StoreStockProductVariantRequest extends FormRequest
     {
         return [
             'user_id' => ['required', Rule::exists('users', 'id')],
-            'variants' => ['required', 'array', 'min:1'],
+            'variants' => ['required', 'array'],
             'variants.*.id' => ['required', Rule::exists('product_variants', 'id')],
             'variants.*.quantity' => ['nullable', 'numeric', 'integer', 'gt:0'],
         ];
@@ -33,7 +33,6 @@ class StoreStockProductVariantRequest extends FormRequest
     public function attributes()
     {
         return [
-            'quantity' => 'Số Lượng',
             'variants.*.id' => 'Id',
             'variants.*.quantity' => 'Số Lượng',
         ];

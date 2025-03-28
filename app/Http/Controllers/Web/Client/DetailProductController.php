@@ -26,8 +26,9 @@ class DetailProductController extends Controller
         $this->detailProductService = $detailProductService;
         $this->wishlistRepository = $wishlistRepository;
     }
-    public function index(Product $product, Request $request)
+    public function index(string $slug, Request $request)
     {
+        $product = Product::where('slug', $slug)->firstOrFail();
         $detail = $this->detailProductService->getProductDetail($product->id, ['*']);
         $wishlistProductIds = $this->wishlistRepository->getWishlistForUserLogin()
             ->pluck('product_id')

@@ -5,6 +5,7 @@ namespace App\Services\Web;
 use App\Enums\ChatSessionStatusType;
 use App\Enums\MessageType;
 use App\Enums\UserRoleType;
+use App\Events\NewMessageSent;
 use App\Models\Message;
 use App\Repositories\ChatSessionRepository;
 use App\Repositories\MessageRepository;
@@ -41,6 +42,10 @@ class ChatService
     {
         try {
             $chatSession = $this->chatSessionRepository->getChatSession($chatSessionId);
+
+            if ($chatSession) {
+                $this->messageRepository->markAllSessionMessagesAsRead($chatSessionId, Auth()->id());
+            }
 
             return $chatSession;
         } catch (\Throwable $th) {
@@ -114,17 +119,24 @@ class ChatService
             $message = request('message');
             $type = request('type') ?? MessageType::TEXT;
 
-            // tạo tin nhắn mưới trong phiên chat
-            $this->messageRepository->create([
+            // Thay thế đoạn tạo message cũ
+            $message = $this->messageRepository->create([
                 'chat_session_id' => $sessionId,
                 'sender_id' => $sender_id,
                 'message' => $message,
                 'type' => $type
             ]);
 
+            // Load chat session với relationships
+            $chatSession = $this->chatSessionRepository->getChatSessionWithRelations($sessionId);
+
+            // Broadcast event
+            event(new NewMessageSent($message, $chatSession));
+
             return [
                 'status' => true,
-                'message' => 'Gửi tin nhắn thành công!'
+                'message' => 'Gửi tin nhắn thành công!',
+                'data' => $message->load('sender')
             ];
         } catch (\Throwable $th) {
             Log::error(
@@ -266,9 +278,7 @@ class ChatService
                 ];
             }
 
-            $chatSession->update([
-                'status' => ChatSessionStatusType::OPEN
-            ]);
+            $this->chatSessionRepository->updateChatSessionStatus($chatSession->id, ChatSessionStatusType::OPEN);
 
             return [
                 'status' => true,
@@ -359,7 +369,7 @@ class ChatService
 
             if (!$session) {
                 $newSession = $this->startChat($userId);
-                $session = $this->chatSessionRepository->getChatSession($newSession['session_id']);
+                $session = $this->chatSessionRepository->getChatSession($newSession['session_id'], $userId);
             }
 
             return [
@@ -370,7 +380,7 @@ class ChatService
                 'customer' => $session->customer
             ];
         } catch (\Exception $e) {
-            Log::error('Client session error: ' . $e->getMessage());
+            Log::error('Client session error: ' . $e);
             return $this->formatError('Không thể khởi tạo phiên chat');
         }
     }
@@ -387,16 +397,21 @@ class ChatService
                 $sessionId = $session->id;
             }
 
-            $this->messageRepository->create([
+
+            $message = $this->messageRepository->create([
                 'chat_session_id' => $sessionId,
                 'sender_id' => $userId,
                 'message' => $message,
                 'type' => $type
             ]);
 
+            $chatSession = $this->chatSessionRepository->getChatSessionWithRelations($sessionId);
+            event(new NewMessageSent($message, $chatSession));
+
             return [
                 'status' => true,
-                'message' => 'Tin nhắn đã được gửi'
+                'message' => 'Tin nhắn đã được gửi',
+                'data' => $message->load('sender')
             ];
         } catch (\Exception $e) {
             Log::error('Client send message error: ' . $e->getMessage());

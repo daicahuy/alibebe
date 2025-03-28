@@ -1,6 +1,9 @@
 <?php
 
+use App\Enums\UserRoleType;
+use App\Models\ChatSession;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,4 +23,23 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 Broadcast::channel('order-status.{orderId}', function ($user, $orderId) {
     // Logic xác thực của bạn ở đây
     return true; // Hoặc kiểm tra xem người dùng có quyền truy cập hay không
+});
+
+Broadcast::channel('chat.{chatSession}', function ($user, $chatSessionId) {
+    $chatSession = ChatSession::findOrFail($chatSessionId);
+
+    Log::info('Channel Authorization Check', [
+        'user_id' => $user->id,
+        'chat_session_id' => $chatSessionId,
+        'is_customer' => $chatSession->customer_id === $user->id,
+        'is_employee' => $chatSession->employee_id === $user->id,
+        'result' => $chatSession && (
+            $user->id === $chatSession->customer_id ||
+            $user->id === $chatSession->employee_id
+        )
+    ]);
+
+    return $user->id === $chatSession->customer_id
+        || $user->id === $chatSession->employee_id
+        || $user->role === UserRoleType::ADMIN;
 });

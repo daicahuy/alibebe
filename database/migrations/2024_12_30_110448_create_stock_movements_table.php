@@ -17,12 +17,9 @@ return new class extends Migration
     {
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Product::class)->nullable()->constrained();
-            $table->foreignIdFor(ProductVariant::class)->nullable()->constrained();
-            $table->integer('quantity');
-            $table->tinyInteger('type')->default(StockMovementType::IMPORT);
-            $table->text('reason')->nullable();
+            $table->string('code_number')->unique();
             $table->foreignIdFor(User::class)->constrained();
+            $table->tinyInteger('type')->default(StockMovementType::IMPORT);
             $table->timestamps();
         });
     }

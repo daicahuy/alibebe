@@ -41,7 +41,11 @@ class User extends Authenticatable
         'status',
         'email_verified_at',
         'code_verified_email',
-        'code_verified_at'
+        'code_verified_at',
+        'is_change_password',
+        'bank_name',
+        'user_bank_name',
+        'bank_account'
     ];
 
 
@@ -65,6 +69,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            // Người dùng Google: is_change_password = 0 (chưa đổi mật khẩu)
+            // Người dùng thường: is_change_password = 1 (đã có mật khẩu)
+            $user->is_change_password = !empty($user->google_id) ? 0 : 1;
+        });
+    }
+    
 
     public function isMale()
     {
@@ -142,7 +155,7 @@ class User extends Authenticatable
 
     public function coupons()
     {
-        return $this->belongsToMany(Coupon::class,'coupon_users', 'user_id', 'coupon_id')->withPivot('created_at', 'updated_at');
+        return $this->belongsToMany(Coupon::class, 'coupon_users', 'user_id', 'coupon_id')->withPivot('created_at', 'updated_at');
     }
 
     public function reviews()
@@ -159,5 +172,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(History::class);
     }
-
 }
