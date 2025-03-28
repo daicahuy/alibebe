@@ -71,8 +71,6 @@ Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middlew
 Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add')->middleware('auth');
 ;
 Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
-// Route::post('/cart/update', [ApiCartItemController::class, 'update'])->name('cart.update');
-// Route::post('/cart/save-session', [ApiCartItemController::class, 'saveSession'])->name('cart.saveSession');
 
 
 Route::post('/cart/count', [CartItemController::class, 'countCart'])->name('cart.count');
@@ -176,6 +174,8 @@ Route::prefix('/admin')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
+        Route::get('/nhanvien', [DashboardController::class, 'indexNhanVien'])->name('indexNhanVien');
+
 
         Route::prefix('/chats')
             ->name('chats.')
