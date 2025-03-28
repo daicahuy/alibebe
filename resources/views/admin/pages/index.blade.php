@@ -50,11 +50,13 @@
     <div class="row">
         <section class="dashboard-tiles">
             <div class="container-fluid">
+                <form action="" method="GET">
+                    {{-- @csrf --}}
                 <div class="d-flex align-items-center mb-2">
-                    <div class="d-flex justify-content-center align-items-center me-4">
+                        <div class="d-flex justify-content-center align-items-center me-4">
                         <p class="mb-0 me-2 fw-bold">{{ __('message.from') }}</p>
                         <div class="input-group custom-dt-picker">
-                            <input placeholder="YYY-MM-DD" id="start_date_input" class="form-control form-date">
+                            <input placeholder="YYY-MM-DD" id="start_date_input" name="start_date" class="form-control form-date">
                             <button type="button" class="btn btn-outline-secondary">
                                 <i class="ri-calendar-line"></i>
                             </button>
@@ -63,17 +65,32 @@
                     <div class="d-flex justify-content-center align-items-center me-4">
                         <p class="mb-0 me-2 fw-bold">{{ __('message.to') }}</p>
                         <div class="input-group custom-dt-picker">
-                            <input placeholder="YYY-MM-DD" id="end_date_input" class="form-control form-date">
+                            <input placeholder="YYY-MM-DD" id="end_date_input" name="end_date" class="form-control form-date">
                             <button type="button" class="btn btn-outline-secondary">
                                 <i class="ri-calendar-line"></i>
                             </button>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center me-4">
+                        <p class="mb-0 me-2 fw-bold">Nhân Viên:</p>
+                        <div class="input-group custom-dt-picker">
+                            <select name="" id="" class="form-control form-date">
+                                <option value="0" class="form-control form-date">Tất Cả</option>
+                                <option value="" class="form-control form-date">Nguyễn Minh Quân</option>
+                                <option value="" class="form-control form-date">Lê Đình Tùng</option>
+                                <option value="" class="form-control form-date">Nguyễn Đức Mạnh</option>
+
+                            </select>
+                        
                         </div>
                     </div>
                     <div class="d-flex justify-content-center align-items-center">
                         <button type="submit" class="btn btn-primary" data-bs-original-title="" title=""
                             fdprocessedid="yl65za">Lọc</button>
                     </div>
+                    
                 </div>
+            </form>
                 <div class="row g-3 ">
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
@@ -251,7 +268,7 @@
             </div>
         </section>
     </div>
-    {{-- <pre>{{ print_r($order_status) }}</pre> --}}
+    {{-- <pre>{{ print_r($chartData) }}</pre> --}}
 @endsection
 
 

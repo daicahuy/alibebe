@@ -15,14 +15,19 @@ class DashboardController extends Controller
     {
         $this->dashboardService = $dashboardService;
     }
-    public function index()
+    public function index(Request $request)
     {
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+        // dd($start_date, $end_date);
         $revenue = $this->dashboardService->revenue();
         $countProduct = $this->dashboardService->countProduct();
         $countUser = $this->dashboardService->countUser();
         $countOrder = $this->dashboardService->countOrder();
-        $chartData = $this->dashboardService->getRevenueAndOrdersByHour();
+        $chartData = $this->dashboardService->getRevenueAndOrdersByHour($start_date, $end_date);
         $order_status = $this->dashboardService->getOrderStatusByHour();
+        
+
         $chartData['revenues'] = array_map('floatval', $chartData['revenues']);
 
 
@@ -31,7 +36,7 @@ class DashboardController extends Controller
 
 
 
-        // dd($topUser);
+        //  dd($chartData);
 
         return view(
             'admin.pages.index',
