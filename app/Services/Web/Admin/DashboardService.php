@@ -28,9 +28,9 @@ class DashboardService
         return $this->dashboardRepository->countOrder();
     }
 
-    public function getRevenueAndOrdersByHour()
+    public function getRevenueAndOrdersByHour($start_date = null,$end_date = null)
     {
-        return $this->dashboardRepository->getRevenueAndOrdersByHour();
+        return $this->dashboardRepository->getRevenueAndOrdersByHour($start_date,$end_date);
     }
     public function getOrderStatusByHour()
     {

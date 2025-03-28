@@ -19,6 +19,24 @@
         .custom-dt-picker .btn {
             border: 1px solid #919191 !important;
         }
+
+        .card-tiles {
+            background-color: rgba(126, 211, 194, 0.452) !important;
+            color: inherit !important;
+        }
+
+        .icon-box i {
+            color: #ffffff !important;
+
+        }
+
+        .icon-box {
+            background-color: #0da487 !important;
+        }
+
+        .card-tiles:after {
+            background-color: #d5d4d4 !important;
+        }
     </style>
 @endpush
 
@@ -60,46 +78,19 @@
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
-                                <h6>{{ __('message.total_orders_completed') }}</h6>
+                                <h5>Chưa xử lý</h5>
+                                <h3>11</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-time-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h5>Đã xử lý</h5>
                                 <h3>11</h3>
                             </div>
                             <div class="icon-box"><i class="ri-check-line"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-sm-6">
-                        <div class="card-tiles">
-                            <div>
-                                <h6>Tổng đơn hủy</h6>
-                                <h3>99</h3>
-                            </div>
-                            <div class="icon-box"><i class="ri-close-line"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-sm-6">
-                        <div class="card-tiles">
-                            <div>
-                                <h6>Tổng đơn hoàn</h6>
-                                <h3>99</h3>
-                            </div>
-                            <div class="icon-box"><i class="ri-restart-line"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-sm-6">
-                        <div class="card-tiles">
-                            <div>
-                                <h6>{{ __('message.total_products') }}</h6>
-                                <h3>9</h3>
-                            </div>
-                            <div class="icon-box"><i class="ri-store-3-line"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-sm-6">
-                        <div class="card-tiles">
-                            <div>
-                                <h6>{{ __('message.total_customers') }}</h6>
-                                <h3>6</h3>
-                            </div>
-                            <div class="icon-box"><i class="ri-group-line"></i></div>
                         </div>
                     </div>
                 </div>
