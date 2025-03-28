@@ -25,6 +25,7 @@ use App\Http\Controllers\Web\Auth\AuthCustomerController;
 use App\Http\Controllers\Web\Client\CheckoutController;
 use App\Http\Controllers\Web\Client\CompareController;
 use App\Http\Controllers\Web\Client\DetailProductController;
+use App\Http\Controllers\Web\Client\GuideController;
 use App\Http\Controllers\Web\Client\HomeController;
 use App\Http\Controllers\Web\Client\ListCategoriesController;
 use App\Http\Controllers\Web\Admin\UserCustomerController;
@@ -51,6 +52,8 @@ use Illuminate\Support\Facades\Route;
 /*--------------CLIENT--------------*/
 Route::get('/search', [HomeController::class, 'search'])->name('search');
 Route::get('/', [HomeController::class, 'index'])->name('index');
+Route::get('/huong-dan-mua-hang', [GuideController::class, 'muaHang'])->name('muaHang');
+Route::get('/huong-dan-hoan-hang', [GuideController::class, 'hoanHang'])->name('hoanHang');
 Route::get('/categories/{slug?}', [ListCategoriesController::class, 'index'])->name('categories');
 Route::get('/compare', [CompareController::class, 'getComparedProducts'])->name('compare.page');
 Route::post('/compare/remove-product/{productId}', [CompareController::class, 'removeProduct'])->name('compare.removeProduct');
