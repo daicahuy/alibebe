@@ -28,6 +28,12 @@ class UserEmployeeController extends Controller
         return view('admin.pages.user_employee.list', compact('ListUsers', 'totalUserLock', 'limit'));
     }
 
+    public function detail(Request $request)
+    {
+        
+        return view('admin.pages.user_employee.detail');
+    }
+
     public function lock(Request $request)
     {
         $limit = $request->input('limit', 15);
@@ -121,7 +127,7 @@ class UserEmployeeController extends Controller
     {
         $validated = $request->validated();
 
-         $this->userService->UpdateUserEmployee($validated['user_ids'], ['status' => UserStatusType::LOCK]);
+        $this->userService->UpdateUserEmployee($validated['user_ids'], ['status' => UserStatusType::LOCK]);
 
         return response()->json([
             'message' => ('Đã khóa thành công')

@@ -436,6 +436,8 @@ Route::prefix('/admin')
 
                     Route::get('/', 'index')->name('index');
 
+                    Route::get('/detail/{user}', 'detail')->name('detail');
+
                     Route::post('/', 'store')->name('store');
 
                     Route::get('/show/{user}', 'show')->name('show');
@@ -461,6 +463,8 @@ Route::prefix('/admin')
                 ->group(function () {
 
                     Route::get('/', 'index')->name('index');
+
+                    Route::get('/detail/{user}', 'detail')->name('detail');
 
                     Route::get('/create', 'create')->name('create');
 

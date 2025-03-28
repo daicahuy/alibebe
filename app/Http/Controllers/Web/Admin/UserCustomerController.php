@@ -18,6 +18,14 @@ class UserCustomerController extends Controller
     {
         $this->userService = $userService;
     }
+    public function detail(Request $request, User $user)
+    {
+        $defaultAddresses = $this->userService->getDefaultAddress($user->id);
+        return view('admin.pages.user_customer.detail', compact(
+            'user',
+            'defaultAddresses',
+        ));
+    }
 
     public function index(Request $request)
     {
@@ -63,17 +71,17 @@ class UserCustomerController extends Controller
     }
 
     public function update(UpdateUserRequest $request, User $user)
-{
-    $data = $request->validated();
+    {
+        $data = $request->validated();
 
-    if (!empty($data)) {
-        $this->userService->UpdateUserCustomer($user->id, $data);
+        if (!empty($data)) {
+            $this->userService->UpdateUserCustomer($user->id, $data);
 
-        return redirect()->back()->with('success', 'Cập nhật thông tin người dùng thành công.');
-    } else {
-        return redirect()->back()->with('error', 'Cập nhật thông tin người dùng thất bại. Vui lòng kiểm tra và thử lại.');
+            return redirect()->back()->with('success', 'Cập nhật thông tin người dùng thành công.');
+        } else {
+            return redirect()->back()->with('error', 'Cập nhật thông tin người dùng thất bại. Vui lòng kiểm tra và thử lại.');
+        }
     }
-}
 
 
     public function lockUser(User $user)

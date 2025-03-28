@@ -55,7 +55,7 @@ class ListCategoriesController extends Controller
         // compare
         $compareCookie = $request->cookie('compare_list');
         $compareCount = $this->compareService->CompareCount($compareCookie);
-        // dd($request); 
+        // dd($listProductCate); 
 
 
         return view('client.pages.list-categories', compact(

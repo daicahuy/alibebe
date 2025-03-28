@@ -165,7 +165,7 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.users.customer.show', $item->id) }}"
+                                                            <a href="{{ route('admin.users.customer.detail', $item->id) }}"
                                                                 class="btn-detail">
                                                                 <i class="ri-eye-line"></i>
                                                             </a>

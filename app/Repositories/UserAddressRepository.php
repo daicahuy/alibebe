@@ -25,8 +25,9 @@ class UserAddressRepository extends BaseRepository
 
         return $user->addresses()->latest('id')->paginate(6);
     }
-    
-    public function countAddress(){
+
+    public function countAddress()
+    {
         /**
          * @var mixed
          */
@@ -35,5 +36,11 @@ class UserAddressRepository extends BaseRepository
         $user->load('addresses');
 
         return $user->addresses()->count();
+    }
+
+    public function getDefaultAddressById($userId)
+    {
+        $user = $this->model->findorFail($userId);
+        return $user->addresses()->where('is_default', 1)->first();   
     }
 }
