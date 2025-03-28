@@ -626,7 +626,24 @@
     </div>
 </header>
 @push('js')
+<script type="module">
+    import Echo from '/js/app.js'; 
+    $(document).ready(function() {
+        const userId = $('meta[name="user-id"]').attr('content');
+
+        if (userId) {
+            Echo.private(`user.${userId}`) 
+                .listen('UserLocked', (e) => {
+                    localStorage.removeItem('authToken');
+                    sessionStorage.removeItem('authToken');
+                    window.location.href = '/logout';
+                    alert('Tài khoản của bạn đã bị khóa bởi quản trị viên. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.');
+                });
+        }
+    });
+</script>
     <script>
+        
         let countdown = 60;
         let timerInterval;
 
@@ -851,14 +868,15 @@
                     });
             });
 
-            // Khôi phục tên sản phẩm đã chọn khi trang được load
-            window.onload = function() {
-                const selectedName = localStorage.getItem('selectedSuggestionName');
-                if (selectedName) {
-                    searchInput.value = selectedName;
-                    localStorage.removeItem('selectedSuggestionName');
-                }
-            };
+    // Khôi phục tên sản phẩm đã chọn khi trang được load
+    window.onload = function() {
+        const selectedName = localStorage.getItem('selectedSuggestionName');
+        if (selectedName) {
+            searchInput.value = selectedName;
+            localStorage.removeItem('selectedSuggestionName');
+        }
+    };
+
 
             // Ẩn gợi ý khi click ra ngoài
             document.addEventListener('click', function(event) {
@@ -954,5 +972,7 @@
                 }
             });
         });
+
+        
     </script>
 @endpush

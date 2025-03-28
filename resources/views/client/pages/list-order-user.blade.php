@@ -329,6 +329,8 @@
         </div>
     </div>
     <!-- Return Order Modal End -->
+    <!--Lấy id khách hàng  -->
+    <input type="hidden" id="isAuthenticated" value="{{ auth()->check() ? 'true' : 'false' }}">
 @endsection
 
 
@@ -437,6 +439,84 @@
 
 
 
+<div class="modal fade theme-modal question-modal" id="writereview" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Đánh giá</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body pt-0">
+                <form class="product-review-form" id="reviewForm" action="{{ route('reviewsSp.store') }}"
+                    method="POST" enctype="multipart/form-data">
+                    @csrf
+                  
+                    <input type="hidden" name="order_id" id="review_order_id" value="">
+                    <div class="product-wrapper">
+                        <div class="product-image">
+                            
+                            <img class="img-fluid" alt=""
+                                src=""
+                                width="100px">
+                        </div>
+                        <div class="product-content">
+                           
+                            <h5 class="name"></h5>
+                            <div class="product-review-rating">
+                                <div class="product-rating">
+                                    {{-- <h6 class="price-number">{{ number_format($detail->price) }} VND</h6> --}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-box">
+                        <div class="product-review-rating">
+                            <label>Rating</label>
+                            <div class="product-rating">
+                                <ul class="rating">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <li>
+                                            <i data-feather="star" class="star"
+                                                data-value="{{ $i }}"></i>
+                                        </li>
+                                    @endfor
+                                </ul>
+                                <input type="hidden" name="rating" id="ratingValue">
+                            </div>
+                        </div>
+                        <div id="rating-error" class="error-message text-danger"></div>
+                    </div>
+                    <div class="review-box">
+                        <label for="content" class="form-label">Nội dung đánh giá *</label>
+                        <textarea name="review_text" id="content" rows="3" class="form-control"
+                            placeholder="Nhập nội dung đánh giá"></textarea>
+                        <div id="review_text-error" class="error-message text-danger"></div>
+                    </div>
+                    <div class="review-box">
+                        <label for="images" class="form-label">Hình ảnh (tối đa 5)</label>
+                        <input type="file" name="images[]" id="images" class="form-control"
+                            accept="image/*" multiple>
+                        <span class="text-danger error-message" id="images-error"></span>
+                    </div>
+                    <div class="review-box">
+                        <label for="videos" class="form-label">Video (tối đa 1)</label>
+                        <input type="file" name="videos" id="videos" class="form-control" accept="video/*"
+                            >
+                        <span class="text-danger error-message" id="videos-error"></span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-theme-outline fw-bold"
+                    data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-md fw-bold text-light theme-bg-color" id="submitReview">Gửi
+                    đánh giá</button>
+            </div>
+        </div>
+    </div>
+</div>
 @push('js_library')
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.2/jquery.twbsPagination.min.js"></script>
@@ -1567,15 +1647,22 @@ ${order.status == "receiving" && order.bank_account_status == "sent" ? `
                             </div>
                         </div>
                     </div>
-                    <div class="d-flex" style="margin-right: 15px;flex-direction: column;">
-                        ${showReviewButton ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <a href="/products/${item.product.slug}?order_id=${item.order_id}" class="text" style="align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;">Đánh giá</a>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `:""}
-                        <div class="d-flex flex-row " style="align-items: center;justify-content: center;justify-items: center;">
-                            <span>Thành tiền: </span> <p class="price-new" style="margin-bottom: unset">${item.product_variant_id ? formatCurrency(parseFloat(item.quantity_variant) * parseFloat(item.price_variant)) : formatCurrency(parseFloat(item.quantity) * parseFloat(item.price))}₫</p>
-                            </div>
-                    </div>
+                   <div class="d-flex" style="margin-right: 15px;flex-direction: column;">
+    ${showReviewButton ? `
+            <a data-bs-toggle="modal"
+               data-bs-target="#writereview"
+               href="#"
+               class="text"
+               style="align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;"
+               data-order-id="${item.order_id}"
+           data-product-id="${item.product.id || item.product_variant_id}"
+           data-product-name="${item.product.name}"
+           data-product-image="{{ Storage::url('${item.product.thumbnail}') }} ">Đánh giá</a>
+        `:""}
+    <div class="d-flex flex-row " style="align-items: center;justify-content: center;justify-items: center;">
+        <span>Thành tiền: </span> <p class="price-new" style="margin-bottom: unset">${item.product_variant_id ? formatCurrency(parseFloat(item.quantity_variant) * parseFloat(item.price_variant)) : formatCurrency(parseFloat(item.quantity) * parseFloat(item.price))}₫</p>
+    </div>
+</div>
                 </div>
             `;
                     }).join(""); // Kết hợp tất cả các sản phẩm thành một chuỗi
@@ -1983,45 +2070,350 @@ ${order.status == "receiving" && order.bank_account_status == "sent" ? `
             fetchOrders();
 
         })
-         // comapre-count
-         function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        // Does this cookie string begin with the name we want?
-                        if (cookie.startsWith(name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
+        // comapre-count
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
                     }
                 }
-                return cookieValue;
+            }
+            return cookieValue;
+        }
+
+        function updateCompareCountBadge() {
+            const compareCookieName = 'compare_list';
+            const compareListCookie = getCookie(compareCookieName);
+            let compareCount = 0;
+            if (compareListCookie) {
+                try {
+                    const compareList = JSON.parse(compareListCookie);
+                    compareCount = compareList.length;
+                } catch (error) {
+                    console.error('Lỗi khi parse cookie compare_list:', error);
+                }
+            }
+            $('#compare-count-badge').text(compareCount);
+            if (compareCount > 0) {
+                $('#compare-count-badge').show(); // Hoặc sử dụng class để hiển thị
+            } else {
+                $('#compare-count-badge').hide(); // Hoặc sử dụng class để ẩn
+            }
+        }
+
+        // Gọi hàm này khi trang sản phẩm được tải
+        updateCompareCountBadge(); //end compare
+
+        $('#writereview').on('show.bs.modal', function (event) {
+        const reviewButton = $(event.relatedTarget);
+        const orderId = reviewButton.data('order-id');
+        const productId = reviewButton.data('product-id');
+        const productName = reviewButton.data('product-name'); // Lấy tên sản phẩm
+        const productImage = reviewButton.data('product-image'); // Lấy URL hình ảnh sản phẩm
+
+        $('#review_order_id').val(orderId);
+
+        const productIdInput = $("#reviewForm input[name='product_id']");
+        if (productIdInput.length === 0) {
+            $("#reviewForm").append(`<input type="hidden" name="product_id" value="${productId}">`);
+        } else {
+            productIdInput.val(productId);
+        }
+
+        // Hiển thị thông tin sản phẩm trong modal
+        const modalProductImage = $(this).find('.product-image');
+        const modalProductName = $(this).find('.product-content .name');
+
+        if (modalProductImage.length > 0) {
+            modalProductImage.html(`<img class="img-fluid" alt="${productName}" src="${productImage}" width="100px">`);
+        }
+
+        if (modalProductName.length > 0) {
+            modalProductName.text(productName);
+        }
+    });
+
+
+        // đánh giá
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Khai báo các biến ---
+            const stars = document.querySelectorAll('.star');
+            const ratingValue = document.getElementById('ratingValue');
+            const reviewForm = document.getElementById('reviewForm');
+            const submitButton = document.getElementById('submitReview');
+            const reviewText = document.getElementById('content');
+            const imagesInput = document.getElementById('images');
+            const videosInput = document.getElementById('videos');
+            const isAuthenticated = document.getElementById('isAuthenticated')?.value === 'true';
+            const reviewContainer = document.querySelector(
+                '.reviews-section'
+            ); // Selector cho khu vực hiển thị đánh giá (CẦN CHỈNH SỬA SELECTOR NÀY CHO PHÙ HỢP)
+
+            // --- Hàm xử lý chọn sao đánh giá ---
+            function handleStarRating(starElement) {
+                if (!isAuthenticated) {
+                    showLoginRequiredAlert();
+                    return;
+                }
+
+                const value = starElement.getAttribute('data-value');
+                ratingValue.value = value;
+
+                stars.forEach(s => {
+                    if (s.getAttribute('data-value') <= value) {
+                        s.classList.add('fill');
+                    } else {
+                        s.classList.remove('fill');
+                    }
+                });
             }
 
-            function updateCompareCountBadge() {
-                const compareCookieName = 'compare_list';
-                const compareListCookie = getCookie(compareCookieName);
-                let compareCount = 0;
-                if (compareListCookie) {
-                    try {
-                        const compareList = JSON.parse(compareListCookie);
-                        compareCount = compareList.length;
-                    } catch (error) {
-                        console.error('Lỗi khi parse cookie compare_list:', error);
+            // --- Hàm hiển thị thông báo yêu cầu đăng nhập ---
+            function showLoginRequiredAlert() {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thông báo!',
+                    text: 'Bạn cần đăng nhập để đánh giá!',
+                });
+            }
+
+            // --- Hàm kiểm tra số lượng ảnh   ---
+            function validateImageCount() {
+                const files = imagesInput.files;
+                if (files.length > 5) {
+                    return {
+                        'images_count': 'Bạn chỉ được phép tải lên tối đa 5 hình ảnh.'
+                    };
+                }
+                return null; // Không có lỗi
+            }
+
+            // --- Hàm xử lý gửi đánh giá ---
+            async function submitReviewForm(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!isAuthenticated) {
+                    showLoginRequiredAlert();
+                    return;
+                }
+
+                // Xóa thông báo lỗi hiện tại
+                clearErrorMessages();
+
+                // Kiểm tra số lượng ảnh
+                const imageCountError = validateImageCount();
+                if (imageCountError) {
+                    displayErrorMessages(imageCountError);
+                    return; // Dừng gửi form nếu lỗi số lượng ảnh
+                }
+
+                // Kiểm tra tính hợp lệ của dữ liệu
+                const validationErrors = validateInput();
+                if (validationErrors) {
+                    displayErrorMessages(validationErrors);
+                    return;
+                }
+
+                // Hiển thị thông báo đang gửi
+                Swal.fire({
+                    title: 'Đang gửi đánh giá...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Gửi form data bằng Fetch API
+                try {
+                    const formData = new FormData(reviewForm);
+                    const response = await fetch(reviewForm.action, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        const responseData = await response.json(); // Lấy dữ liệu JSON từ response
+                        handleSuccessResponse(responseData);
+                    } else {
+                        handleErrorResponse(response);
+                    }
+                } catch (error) {
+                    handleFetchError(error);
+                } finally {
+                    Swal.close(); // Đóng thông báo đang gửi
+                }
+            }
+
+            // --- Hàm xóa tất cả thông báo lỗi ---
+            function clearErrorMessages() {
+                document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            }
+
+            // --- Hàm kiểm tra dữ liệu đầu vào   ---
+            function validateInput() {
+                let errors = {};
+                if (!ratingValue.value) {
+                    errors['rating'] = 'Vui lòng chọn số sao.';
+                }
+                if (!reviewText.value) {
+                    errors['review_text'] = 'Vui lòng nhập nội dung đánh giá.';
+                }
+                return Object.keys(errors).length > 0 ? errors : null;
+            }
+
+            // --- Hàm hiển thị thông báo lỗi ---
+            function displayErrorMessages(errors) {
+                for (const key in errors) {
+                    let errorElement = null;
+
+                    if (key === 'rating') {
+                        errorElement = document.getElementById('rating-error');
+                    } else if (key === 'review_text') {
+                        errorElement = document.getElementById('review_text-error');
+                    } else if (key === 'images' || key === 'images_count') {
+                        errorElement = document.getElementById('images-error');
+                    } else if (key.startsWith('images.')) {
+                        errorElement = document.getElementById(
+                            'images-error');
+                    } else if (key.startsWith('videos.')) {
+                        errorElement = document.getElementById('videos-error');
+                    }
+
+                    if (errorElement) {
+                        errorElement.textContent = errors[key];
                     }
                 }
-                $('#compare-count-badge').text(compareCount);
-                if (compareCount > 0) {
-                    $('#compare-count-badge').show(); // Hoặc sử dụng class để hiển thị
+            }
+
+            // --- Hàm xử lý khi gửi đánh giá thành công ---
+            function handleSuccessResponse() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Đánh giá thành công!',
+                    timer: 2000,
+                    showConfirmButton: false,
+                }).then(() => {
+                    location.reload();
+                });
+            }
+            // --- Hàm tạo HTML cho một đánh giá ---
+            function createReviewHtml(review) {
+                // BẠN CẦN TỰ VIẾT HÀM NÀY ĐỂ TẠO HTML HIỂN THỊ ĐÁNH GIÁ DỰA TRÊN CẤU TRÚC DỮ LIỆU TRẢ VỀ TỪ SERVER
+                // Ví dụ (cần điều chỉnh theo cấu trúc dữ liệu và HTML của bạn):
+                return `
+        <div class="single-review">
+            <div class="review-header">
+                <p>Người dùng ID: ${review.user_id}</p>
+                <div class="rating">
+                    ${renderStars(review.rating)}
+                </div>
+            </div>
+            <div class="review-body">
+                <p>${review.review_text}</p>
+                ${review.review_multimedia ? renderReviewMultimedia(review.review_multimedia) : ''}
+                <p class="review-date">${new Date(review.created_at).toLocaleDateString()}</p>
+            </div>
+        </div>
+    `;
+            }
+
+            // --- Hàm render sao đánh giá (ví dụ) ---
+            function renderStars(rating) {
+                let starsHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= rating) {
+                        starsHtml += '<i data-feather="star" class="fill"></i>';
+                    } else {
+                        starsHtml += '<i data-feather="star"></i>';
+                    }
+                }
+                return starsHtml;
+            }
+
+            // --- Hàm render hình ảnh/video đánh giá (ví dụ) ---
+            function renderReviewMultimedia(multimedia) {
+                let multimediaHtml = '';
+                multimedia.forEach(item => {
+                    if (item.file_type === 0) { // Hình ảnh
+                        multimediaHtml +=
+                            `<img src="/storage/${item.file}" alt="Review Image" class="img-fluid mb-2">`;
+                    } else if (item.file_type === 1) { // Video
+                        multimediaHtml +=
+                            `<video src="/storage/${item.file}" controls class="w-100 mb-2"></video>`;
+                    }
+                });
+                return multimediaHtml;
+            }
+
+            // --- Hàm xử lý khi có lỗi từ server ---
+            async function handleErrorResponse(response) {
+                try {
+                    const data = await response.json();
+
+                    if (data && data.errors) {
+                        displayErrorMessages(data.errors);
+                    } else if (data && data.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: data.error,
+                        });
+                    }
+                } catch (jsonError) {
+                    handleFetchError(jsonError);
+                }
+            }
+
+
+            // --- Hàm xử lý lỗi Fetch API ---
+            function handleFetchError(error) {
+                console.error('Lỗi Fetch:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Có lỗi xảy ra khi gửi đánh giá.',
+                });
+            }
+
+
+            // --- Gắn kết các sự kiện ---
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    handleStarRating(this);
+                });
+            });
+
+            if (submitButton && reviewForm) {
+                submitButton.addEventListener('click', submitReviewForm);
+            }
+
+            // Lấy order_id và product_id từ thuộc tính data-* khi modal được hiển thị
+            $('#writereview').on('show.bs.modal', function(event) {
+                const reviewButton = $(event.relatedTarget); // Lấy thẻ <a> đã kích hoạt modal
+                const orderId = reviewButton.data('order-id');
+                const productId = reviewButton.data('product-id');
+
+                $('#review_order_id').val(orderId);
+
+                // Thêm hoặc cập nhật input hidden cho product_id
+                const productIdInput = $("#reviewForm input[name='product_id']");
+                if (productIdInput.length === 0) {
+                    $("#reviewForm").append(`<input type="hidden" name="product_id" value="${productId}">`);
                 } else {
-                    $('#compare-count-badge').hide(); // Hoặc sử dụng class để ẩn
+                    productIdInput.val(productId);
                 }
-            }
-
-            // Gọi hàm này khi trang sản phẩm được tải
-            updateCompareCountBadge(); //end compare
+            });
+        });
     </script>
 
     <script src="{{ asset('js/utility.js') }}"></script>

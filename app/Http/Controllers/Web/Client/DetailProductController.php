@@ -34,13 +34,7 @@ class DetailProductController extends Controller
             ->pluck('product_id')
             ->toArray();
 
-        $purchaseReviewStatus = ['hasPurchased' => false, 'canReview' => false, 'reviewPeriodExpired' => true, 'eligibleOrderIds' => true];
-        if (Auth::check()) {
-            $orderIdFromParam = $request->query('order_id'); // Lấy order_id từ query parameter
-            $purchaseReviewStatus = $this->detailProductService->checkPurchaseAndReviewStatus($product, Auth::id(), $orderIdFromParam); // Truyền orderId này vào service
-        }
-
-        return view('client.pages.detail-product', compact('detail', 'wishlistProductIds', 'purchaseReviewStatus'));
+        return view('client.pages.detail-product', compact('detail', 'wishlistProductIds'));
     }
     public function getProductDetail($id)
     {
