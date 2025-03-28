@@ -1058,7 +1058,24 @@
     </div>
 </header>
 @push('js')
+<script type="module">
+    import Echo from '/js/app.js'; 
+    $(document).ready(function() {
+        const userId = $('meta[name="user-id"]').attr('content');
+
+        if (userId) {
+            Echo.private(`user.${userId}`) 
+                .listen('UserLocked', (e) => {
+                    localStorage.removeItem('authToken');
+                    sessionStorage.removeItem('authToken');
+                    window.location.href = '/logout';
+                    alert('Tài khoản của bạn đã bị khóa bởi quản trị viên. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.');
+                });
+        }
+    });
+</script>
     <script>
+        
         let countdown = 60;
         let timerInterval;
 
@@ -1291,7 +1308,7 @@
             localStorage.removeItem('selectedSuggestionName');
         }
     };
->>>>>>>>> Temporary merge branch 2
+
 
             // Ẩn gợi ý khi click ra ngoài
             document.addEventListener('click', function(event) {
@@ -1387,5 +1404,7 @@
                 }
             });
         });
+
+        
     </script>
 @endpush
