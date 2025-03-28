@@ -106,10 +106,15 @@ Route::prefix('/refund-orders')
     ->group(function () {
         Route::get('/list', [ApiRefundOrderController::class, 'index'])->name('index');
         Route::get('/{id}', [ApiRefundOrderController::class, 'getDataOrderRefund'])->name('getDataOrderRefund');
+        Route::get('/list/countPending', [ApiRefundOrderController::class, 'countPending'])->name('countPending');
         Route::post('/changeStatus', [ApiRefundOrderController::class, 'changeStatus'])->name('changeStatus');
+        Route::post('/changeStatusCancelOrder', [ApiRefundOrderController::class, 'changeStatusCancelOrder'])->name('changeStatusCancelOrder');
         Route::post('/changeStatusWithImg', [ApiRefundOrderController::class, 'changeStatusWithImg'])->name('changeStatusWithImg');
         Route::post('/createOrderRefund', [ApiRefundOrderController::class, 'createOrderRefund'])->name('createOrderRefund');
         Route::post('/getOrdersRefundByUser', [ApiRefundOrderController::class, 'getOrdersRefundByUser'])->name('getOrdersRefundByUser');
+        Route::post('/sentConfirmBank', [ApiRefundOrderController::class, 'sentConfirmBank'])->name('sentConfirmBank');
+        Route::post('/confirmBank', [ApiRefundOrderController::class, 'confirmBank'])->name('confirmBank');
+        Route::post('/userCheckReceivedBank', [ApiRefundOrderController::class, 'userCheckReceivedBank'])->name('userCheckReceivedBank');
     });
 
 Route::prefix('/orders')
@@ -119,16 +124,20 @@ Route::prefix('/orders')
         Route::get('/list', [OrderController::class, 'index'])->name('index');
         Route::post('/listByUser', [OrderController::class, 'getOrdersByUser'])->name('getOrdersByUser');
         Route::get('/list/count', [OrderController::class, 'countByStatus'])->name('countByStatus');
+        Route::get('/list/countPending', [OrderController::class, 'countPending'])->name('countPending');
         Route::post('/updateOrderStatus', [OrderController::class, 'changeStatusOrder'])->name('changeStatusOrder');
         Route::post('/updateOrderStatusWithUserCheck', [OrderController::class, 'updateOrderStatusWithUserCheck'])->name('updateOrderStatusWithUserCheck');
         Route::post('/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');
         Route::post('/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
+        Route::post('changeStatusRefundMoney', [OrderController::class, 'changeStatusRefundMoney'])->name('changeStatusRefundMoney');
+        Route::post('userCheckRefundMoney', [OrderController::class, 'userCheckRefundMoney'])->name('userCheckRefundMoney');
     });
 
 
 Route::post('/orders/uploadImgConfirm/{idOrder}', [OrderController::class, 'uploadImgConfirm'])->name('uploadImgConfirm');
 Route::post('/orders/invoice/{idOrder}', [OrderController::class, 'generateInvoice'])->name('generateInvoice');
 Route::get('/orders/{idOrder}', [OrderController::class, 'getOrderDetail'])->name('getOrderDetail');
+Route::get('/orders/getOrder/{idOrder}', [OrderController::class, 'getOrder'])->name('getOrder');
 
 
 Route::get("/payment/list", [PaymentController::class, 'getPaymentList'])->middleware(['guest'])->name('getPaymentList');
@@ -205,8 +214,7 @@ Route::prefix('/products')
 Route::prefix('stocks')
     ->name('api.stocks.')
     ->group(function () {
-        Route::post('/import-single', [StockController::class, 'importSingle'])->name('importSingle');
-        Route::post('/import-variant', [StockController::class, 'importVariant'])->name('importVariant');
+        Route::post('/import', [StockController::class, 'importStock'])->name('importStock');
     });
 
 // compare

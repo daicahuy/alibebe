@@ -15,13 +15,15 @@ class OrderStatusUpdated implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public $orderId;  // Mã đơn hàng
     public $status;    // Trạng thái đơn hàng
+    public $order;    // Trạng thái đơn hàng
     /**
      * Create a new event instance.
      */
-    public function __construct($orderId, $status)
+    public function __construct($orderId, $status, $order)
     {
         $this->orderId = $orderId;  // Gán mã đơn hàng
         $this->status = $status;      // Gán trạng thái
+        $this->status = $order;      // Gán trạng thái
     }
 
     /**
@@ -44,8 +46,9 @@ class OrderStatusUpdated implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'status' => $this->status,  // Gửi trạng thái
-            'orderId' => $this->orderId   // Gửi mã đơn hàng
+            'status' => $this->status,
+            'orderId' => $this->orderId,
+            'order' => $this->order
         ];
     }
 }

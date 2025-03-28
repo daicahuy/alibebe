@@ -282,9 +282,9 @@ return [
         'image' => 'Hình ảnh',
     ],
 
-    'inventory' => 'Kho',
+    'inventory' => 'Kho hàng',
     'inventory_manager' => 'Quản lý kho',
-    'history_import_stock' => 'Lịch sử nhập kho',
+    'inventory_history' => 'Lịch sử kho',
     'product_stocks' => 'Tồn kho',
     'product_stock_status' => 'Trạng thái kho',
     'product_stock_status_all' => 'Tất cả trạng thái kho',
@@ -339,17 +339,29 @@ return [
     ],
 
     'stock_movements' => 'Biến động kho',
+    'stock_movements_type_all' => 'Tất cả loại biến động kho',
+    'stock_movements_search_place_holder' => 'Tìm kiếm theo mã phiếu',
     'stock_movement' => [
+        'id' => 'ID',
+        'code_number' => 'Mã phiếu',
+        'type' => 'Loại biến động',
+        'user_id' => 'ID người tạo',
+        'user' => 'Người tạo',
+        'created_at' => 'Ngày tạo',
+        'updated_at' => 'Ngày cập nhật',
+        'import' => 'Nhập kho',
+        'export' => 'Xuất kho',
+        'adjustment' => 'Kiểm kê kho',
+    ],
+
+    'stock_movement_details' => 'Chi tiết biến động kho',
+    'stock_movement_detail' => [
         'id' => 'ID',
         'product_id' => 'ID sản phẩm',
         'product_variant_id' => 'ID biến thể sản phẩm',
         'quantity' => 'Số lượng',
-        'type' => 'Loại hành động',
-        'reason' => 'Lý do',
-        'user_id' => 'ID người dùng',
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
-        'import' => 'Nhập kho',
     ],
 
     'tags' => 'Thẻ',
@@ -411,7 +423,6 @@ return [
 
     'action' => 'Hành động',
     'general' => 'Tổng quan',
-    'inventory' => 'Kho',
     'setup' => 'Cài đặt',
     'images' => 'Ảnh',
 

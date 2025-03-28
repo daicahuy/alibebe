@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\OrderPendingCountUpdated;
 use App\Events\OrderStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\OrderOrderStatus;
 use App\Models\ProductStock;
 use App\Services\Api\Admin\OrderService;
 use DB;
@@ -27,12 +29,6 @@ class OrderController extends Controller
     {
         $this->orderService = $orderService;
     }
-
-    public function hoanhang()
-    {
-        return view('client.pages.hoanhang');
-    }
-
 
     public function index(Request $request)
     {
@@ -202,10 +198,13 @@ class OrderController extends Controller
                 if (is_array($idOrder)) {
                     foreach ($idOrder as $key => $value) {
                         # code...
-                        event(new OrderStatusUpdated($value, $idStatus));
+                        event(new OrderStatusUpdated($value, $idStatus, $order));
+                        event(new OrderPendingCountUpdated());
                     }
                 } else {
-                    event(new OrderStatusUpdated($idOrder, $idStatus));
+                    event(new OrderStatusUpdated($idOrder, $idStatus, $order));
+                    event(new OrderPendingCountUpdated());
+
 
                 }
             }
@@ -234,9 +233,11 @@ class OrderController extends Controller
             $idOrder = $request->input("order_id");
             $idStatus = $request->input("status_id");
             $customerCheck = $request->input("customer_check");
+            $order = Order::query()->where('id', $idOrder)->with('orderItems', 'orderStatuses')->first();
 
             $this->orderService->updateOrderStatusWithUserCheck($idOrder, $idStatus, $customerCheck);
-            event(new OrderStatusUpdated($idOrder, $idStatus));
+            event(new OrderStatusUpdated($idOrder, $idStatus, $order));
+            event(new OrderPendingCountUpdated());
 
 
             return response()->json([
@@ -271,9 +272,11 @@ class OrderController extends Controller
             if ($request->hasFile('employee_evidence')) {
                 $data['employee_evidence'] = Storage::put("orders", $request->file('employee_evidence'));
             }
+            $order = Order::query()->where('id', $idOrder)->with('orderItems', 'orderStatuses')->first();
 
             $this->orderService->updateConfirmCustomer($data["note"], $data["employee_evidence"], $idOrder);
-            event(new OrderStatusUpdated($idOrder, 4));
+            event(new OrderStatusUpdated($idOrder, 4, $order));
+            event(new OrderPendingCountUpdated());
 
 
 
@@ -320,6 +323,66 @@ class OrderController extends Controller
 
             return response()->json([
                 'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function countPending(Request $request)
+    {
+        try {
+            $count = OrderOrderStatus::query()->where("order_status_id", 1)->count();
+            return response()->json(['count' => $count]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function getOrder(int $idOrder)
+    {
+
+        $order = Order::query()->where("id", $idOrder)->with(["user"])->first();
+
+        return response()->json([
+            "status" => Response::HTTP_OK,
+            "order" => $order
+        ]);
+    }
+
+    public function changeStatusRefundMoney(Request $request)
+    {
+        try {
+            $orderId = $request->input('order_id');
+            $status = $request->input('status');
+
+            Order::where("id", $orderId)->update(["is_refund_cancel" => $status]);
+            return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+    public function userCheckRefundMoney(Request $request)
+    {
+        try {
+            $orderId = $request->input('order_id');
+            $status = $request->input('status');
+
+            Order::where("id", $orderId)->update(["check_refund_cancel" => $status]);
+            return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
                 'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
                 'data' => [],
             ]);

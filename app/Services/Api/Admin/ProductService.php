@@ -31,10 +31,21 @@ class ProductService
         $this->productVariantRepository = $productVariantRepository;
     }
 
-    public function getAll()
+    public function getAllByIds(array $productIds)
     {
-        $data = $this->productRepository->getAll();
-        return $data;
+        try {
+            $data = $this->productRepository->getAllByIds($productIds, ['id', 'name', 'sku', 'thumbnail'])->toArray();
+
+            return ['success' => true, 'data' => $data];
+        }
+        catch (\Throwable $e) {
+            Log::error(
+                __CLASS__ . '@' . __FUNCTION__,
+                ['error' => $e->getMessage()]
+            );
+
+            return ['success' => false, 'message' => 'Lỗi hệ thống! Vui lòng thử lại sau ít phút.'];
+        }
     }
 
     public function storeSingle($data)

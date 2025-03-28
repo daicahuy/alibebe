@@ -66,10 +66,8 @@ class ProductController extends Controller
         ));
     }
 
-    public function show(string $slug)
+    public function show(Product $product)
     {
-        $product = Product::query()->where('slug', $slug)->firstOrFail();
-
         $product->load(['categories', 'tags', 'productAccessories', 'productGallery', 'attributeValues', 'attributeValues.attribute', 'productStock']);
 
         if ($product->type === 1) {
@@ -89,10 +87,8 @@ class ProductController extends Controller
         dd($request->all());
     }
 
-    public function edit(string $slug)
+    public function edit(Product $product)
     {
-        $product = Product::query()->where('slug', $slug)->firstOrFail();
-
         $product->load(['categories', 'tags', 'productAccessories', 'productGallery', 'attributeValues', 'attributeValues.attribute', 'productStock']);
 
         if ($product->type === 1) {

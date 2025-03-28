@@ -25,6 +25,7 @@ use App\Http\Controllers\Web\Auth\AuthCustomerController;
 use App\Http\Controllers\Web\Client\CheckoutController;
 use App\Http\Controllers\Web\Client\CompareController;
 use App\Http\Controllers\Web\Client\DetailProductController;
+use App\Http\Controllers\Web\Client\GuideController;
 use App\Http\Controllers\Web\Client\HomeController;
 use App\Http\Controllers\Web\Client\ListCategoriesController;
 use App\Http\Controllers\Web\Admin\UserCustomerController;
@@ -51,6 +52,8 @@ use Illuminate\Support\Facades\Route;
 /*--------------CLIENT--------------*/
 Route::get('/search', [HomeController::class, 'search'])->name('search');
 Route::get('/', [HomeController::class, 'index'])->name('index');
+Route::get('/huong-dan-mua-hang', [GuideController::class, 'muaHang'])->name('muaHang');
+Route::get('/huong-dan-hoan-hang', [GuideController::class, 'hoanHang'])->name('hoanHang');
 Route::get('/categories/{slug?}', [ListCategoriesController::class, 'index'])->name('categories');
 Route::get('/compare', [CompareController::class, 'getComparedProducts'])->name('compare.page');
 Route::post('/compare/remove-product/{productId}', [CompareController::class, 'removeProduct'])->name('compare.removeProduct');
@@ -71,8 +74,6 @@ Route::get('/cart', [CartItemController::class, 'index'])->name('cart')->middlew
 Route::post('/cart/add', [CartItemController::class, 'addToCart'])->name('cart.add')->middleware('auth');
 ;
 Route::delete('/cart/delete', [CartItemController::class, 'delete'])->name('cart.delete');
-// Route::post('/cart/update', [ApiCartItemController::class, 'update'])->name('cart.update');
-// Route::post('/cart/save-session', [ApiCartItemController::class, 'saveSession'])->name('cart.saveSession');
 
 
 Route::post('/cart/count', [CartItemController::class, 'countCart'])->name('cart.count');
@@ -176,6 +177,8 @@ Route::prefix('/admin')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('index');
+        Route::get('/nhanvien', [DashboardController::class, 'indexNhanVien'])->name('indexNhanVien');
+
 
         Route::prefix('/chats')
             ->name('chats.')
@@ -203,6 +206,8 @@ Route::prefix('/admin')
                 
                 //admin.chats.start-chat
                 Route::post('/chat-session/start', 'startChat')->name('start-chat');
+
+                Route::post('/chat-session/{chat}/exit', 'exitChat')->name('exit');
             });
 
 
@@ -272,7 +277,7 @@ Route::prefix('/admin')
 
             Route::get('/trash', 'trash')->name('trash');
 
-            Route::get('/show/{slug}', 'show')->name('show');
+            Route::get('/show/{product}', 'show')->name('show');
 
             Route::get('/hidden', 'hidden')->name('hidden');
 
@@ -280,7 +285,7 @@ Route::prefix('/admin')
 
             Route::post('/', 'store')->name('store');
 
-            Route::get('/edit/{slug}', 'edit')->name('edit');
+            Route::get('/edit/{product}', 'edit')->name('edit');
 
             Route::put('/{product}', 'update')->name('update');
 
@@ -307,6 +312,8 @@ Route::prefix('/admin')
             Route::get('/', 'index')->name('index');
 
             Route::get('/history', 'history')->name('history');
+
+            Route::get('/history/{stockMovement}', 'detail')->name('detail');
 
         });
 
@@ -550,5 +557,7 @@ Route::prefix('/admin')
             Route::delete('/force-destroy-selected', 'forceDestroySelected')->name('force-destroy-selected');
 
             Route::get('/search', 'searchCoupon')->name('search');
+
+            Route::put('/{coupon}/fast-update','updateUsageLimitOrEndDate')->name('fast-update');
         });
     });

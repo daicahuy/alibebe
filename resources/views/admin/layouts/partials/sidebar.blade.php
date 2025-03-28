@@ -1,3 +1,9 @@
+<style>
+    .hide-element {
+        display: none;
+    }
+</style>
+
 <div class="sidebar-wrapper">
     <div>
         <!-- START LOGO -->
@@ -33,6 +39,17 @@
                         </a>
                     </li>
                     <li class="sidebar-list">
+                        <a href="{{ route('admin.indexNhanVien') }}"
+                            class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin') ? 'active' : '' }}">
+                            <span>
+                                <div class="d-flex align-items-center">
+                                    <i class="ri-home-line"></i>
+                                    <div class="sidebar-main-link">{{ __('message.dashboard') }}</div>
+                                </div>
+                            </span> nhân viên
+                        </a>
+                    </li>
+                    <li class="sidebar-list">
                         <a href="{{ route('admin.categories.index') }}"
                             class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/categories*') ? 'active' : '' }}">
                             <span>
@@ -53,7 +70,6 @@
                             </span>
                             <div class="according-menu">
                                 @if (Request::is('admin/products*')
-                                    || Request::is('admin/inventory*')
                                     || Request::is('admin/attribute*')
                                     || Request::is('admin/brands*')
                                     || Request::is('admin/tags*')
@@ -66,7 +82,6 @@
                         </a>
                         <ul class="sidebar-submenu" @style([
                             'display: block;' => Request::is('admin/products*')
-                            || Request::is('admin/inventory*')
                             || Request::is('admin/attribute*')
                             || Request::is('admin/brands*')
                             || Request::is('admin/tags*')
@@ -76,13 +91,6 @@
                                     class="{{ Request::is('admin/products*') ? 'active' : '' }}">
                                     <div>{{ __('form.product_manager') }}</div>
                                     {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
-                                </a>
-                                <ul class="sidebar-submenu"></ul>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.inventory.index') }}"
-                                    class="{{ Request::is('admin/inventory*') ? 'active' : '' }}">
-                                    <div>{{ __('form.inventory_manager') }}</div>
                                 </a>
                                 <ul class="sidebar-submenu"></ul>
                             </li>
@@ -110,12 +118,49 @@
                         </ul>
                     </li>
                     <li class="sidebar-list">
+                        <a class="debar-link link-nav sidebar-link sidebar-title">
+                            <span>
+                                <div class="d-flex align-items-center"><i class="ri-inbox-archive-line"></i>
+                                    <div class="sidebar-main-link">{{ __('form.inventory') }}</div>
+                                </div>
+                            </span>
+                            <div class="according-menu">
+                                @if (Request::is('admin/inventory*')
+                                )
+                                    <i class="ri-arrow-down-s-line"></i>
+                                @else
+                                    <i class="ri-arrow-right-s-line"></i>
+                                @endif
+                            </div>
+                        </a>
+                        <ul class="sidebar-submenu" @style([
+                            'display: block;' => Request::is('admin/inventory*')
+                        ])>
+                            <li>
+                                <a href="{{ route('admin.inventory.index') }}"
+                                    class="{{ Request::is('admin/inventory') ? 'active' : '' }}">
+                                    <div>{{ __('form.inventory_manager') }}</div>
+                                </a>
+                                <ul class="sidebar-submenu"></ul>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.inventory.history') }}"
+                                    class="{{ Request::is('admin/inventory/history') ? 'active' : '' }}">
+                                    <div>{{ __('form.inventory_history') }}</div>
+                                </a>
+                                <ul class="sidebar-submenu"></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-list">
                         <a href="{{ route('admin.orders.index') }}"
                             class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/orders*') ? 'active' : '' }}">
                             <span>
                                 <div class="d-flex align-items-center">
                                     <i class="ri-article-line"></i>
                                     <div class="sidebar-main-link">{{ __('form.orders') }}</div>
+                                </div>
+                                <div class="p-2" id="div_count_order">
                                 </div>
                             </span>
                         </a>
@@ -127,6 +172,8 @@
                                 <div class="d-flex align-items-center">
                                     <i class="ri-exchange-dollar-line"></i>
                                     <div class="sidebar-main-link">Hoàn hàng</div>
+                                </div>
+                                <div class="p-2" id="div_count_order_refund">
                                 </div>
                             </span>
                         </a>
@@ -197,6 +244,16 @@
                         </a>
                     </li>
                     <li class="sidebar-list">
+                        @php
+                            use App\Models\Message;
+                            use App\Enums\UserRoleType;
+
+                            $unreadMessagesCount = Message::whereNull('read_at')
+                                ->whereHas('sender', function ($query) {
+                                    $query->where('role', UserRoleType::CUSTOMER);
+                                })
+                                ->count();
+                        @endphp
                         <a href="{{ route('admin.chats.index') }}"
                             class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/chats*') ? 'active' : '' }}">
                             <span>
@@ -204,7 +261,7 @@
                                     <i class="ri-mail-line"></i>
                                     <div class="sidebar-main-link">{{ __('form.messages') }}</div>
                                 </div>
-                                <span class="badge bg-warning ml-2">5</span>
+                                <span class="badge bg-warning ml-2">{{ $unreadMessagesCount }}</span>
                             </span>
                         </a>
                     </li>
@@ -215,3 +272,82 @@
         <!-- END SIDEBAR MAIN -->
     </div>
 </div>
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+
+        function updateCountOrder(count) {
+            $("#div_count_order").empty();
+
+            if (count > 0) {
+                $("#div_count_order").append(`
+                <span class="badge bg-warning ml-2" id="">${count}</span>
+
+                `)
+            }
+        }
+
+        function fetchPendingOrderCount() {
+            $.ajax({
+                url: '{{ route('api.orders.countPending') }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                    updateCountOrder(data.count);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching pending order count:', error);
+                }
+            });
+        }
+
+        function updateCountOrderRefund(count) {
+            $("#div_count_order_refund").empty();
+
+            if (count > 0) {
+                $("#div_count_order_refund").append(`
+                <span class="badge bg-warning ml-2" id="">${count}</span>
+
+                `)
+            }
+        }
+
+        function fetchPendingOrderRefundCount() {
+            $.ajax({
+                url: '{{ route('api.refund_orders.countPending') }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                    updateCountOrderRefund(data.count);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching pending order count:', error);
+                }
+            });
+        }
+
+        Pusher.logToConsole = true;
+
+        var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+            cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+        });
+
+        var channel = pusher.subscribe('order-pending-count');
+        channel.bind('pending-count-updated', function(data) {
+            updateCountOrder(data.count)
+        });
+        var channel2 = pusher.subscribe('order-refund-pending-count');
+        channel2.bind('order-refund-pending-count-updated', function(data) {
+            updateCountOrderRefund(data.count)
+        });
+
+
+        fetchPendingOrderCount();
+        fetchPendingOrderRefundCount();
+
+
+    })
+</script>

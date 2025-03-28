@@ -22,6 +22,19 @@ class ProductRepository extends BaseRepository
         return Product::class;
     }
 
+    public function getAllByIds(array $ids, array $columns = ['*'])
+    {
+        return $this->model->select($columns)->whereIn('id', $ids)->with([
+            'productVariants' => function ($query) {
+                $query->select('id', 'product_id', 'sku', 'thumbnail');
+            },
+            'productVariants.attributeValues' => function ($query) {
+                $query->select('value');
+            }
+        ])->orderByRaw("FIELD(id, " . implode(',', $ids) . ")")
+        ->get();
+    }
+
     // Lấy danh sách sản phẩm theo category
     public function getAllProductCate($perpage = 5, $sortBy = 'default', $filters = [])
     {

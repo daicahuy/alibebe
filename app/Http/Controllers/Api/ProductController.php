@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\GetAllProductRequest;
 use App\Http\Requests\Api\StoreProductSingleRequest;
 use App\Http\Requests\Api\StoreProductVariantRequest;
 use App\Http\Requests\Api\UpdateProductSingleRequest;
@@ -20,9 +21,17 @@ class ProductController extends ApiBaseController
         $this->productService = $productService;
     }
 
-    public function getAll()
+    public function getAll(GetAllProductRequest $request)
     {
-        return $this->productService->getAll();
+        $response = $this->productService->getAllByIds($request->validated()['productIds']);
+        
+        if ($response['success']) {
+            return $this->sendSuccess(
+                data: $response['data']
+            );
+        }
+
+        return $this->sendError(message: $response['message']);
     }
 
     public function storeSingle(StoreProductSingleRequest $request)

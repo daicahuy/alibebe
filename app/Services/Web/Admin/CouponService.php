@@ -348,7 +348,7 @@ class CouponService
             }
 
             if ($coupon->users()->exists()) {
-                $coupon->users()->sync([],['amount'=>0]);
+                $coupon->users()->sync([], ['amount' => 0]);
             }
 
             $coupon->forceDelete();
@@ -622,6 +622,68 @@ class CouponService
             ];
         }
     }
+
+    // chỉnh sửa các mã giảm giá đã được người dùng sử dùng
+    // ( chỉ dùng cho các mã mà người dùng đã dùng => chỉnh sửa ngày , giới hạn)
+    public function updateUsageLimitOrEndDate(array $data, string $id)
+    {
+        try {
+            $coupon = $this->couponRepository->findById($id);
+            if (!$coupon) {
+                return [
+                    'message' => 'Không tìm thấy mã giảm giá!',
+                    'status' => false
+                ];
+            }
+
+            $endDate = $data['end_date'] ?? null;
+            $usageLimit = $data['usage_limit'] ?? null;
+
+            // Tạo mảng cập nhật tùy vào dữ liệu thực có
+            $updateData = [];
+
+            // Nếu end_date được gửi và khác null => cập nhật
+            if (!is_null($endDate)) {
+                $updateData['end_date'] = $endDate;
+            }
+
+            // Nếu usage_limit được gửi và khác null => cập nhật
+            if (!is_null($usageLimit)) {
+                if ($usageLimit < $coupon->usage_count) {
+                    return [
+                        'message' => "Giới hạn sử dụng mới ($usageLimit) không được nhỏ hơn số lượt đã dùng ({$coupon->usage_count}).",
+                        'status' => false
+                    ];
+                }
+                $updateData['usage_limit'] = $usageLimit;
+            }
+
+            // Nếu không có trường nào được gửi => không làm gì
+            if (empty($updateData)) {
+                return [
+                    'message' => 'Không có thay đổi nào được gửi lên.',
+                    'status' => false
+                ];
+            }
+
+            // Thực hiện cập nhật
+            $coupon->update($updateData);
+
+            return [
+                'message' => 'Đặt Lại Thành Công!',
+                'status' => true
+            ];
+        } catch (\Throwable $th) {
+            Log::error("Lỗi cập nhật mã giảm giá: " . $th->getMessage());
+
+            return [
+                'message' => 'Có Lỗi Xảy Ra, Vui Lòng Thử Lại!!!',
+                'errors' => $th->getMessage(),
+                'status' => false
+            ];
+        }
+    }
+
 
     // API - update status 
 

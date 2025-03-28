@@ -53,7 +53,7 @@
 
                             <a href="{{ route('admin.coupons.hide') }}"
                                 class="align-items-center btn btn-outline-danger btn-sm d-flex position-relative ms-2">
-                                {{__('form.coupons_hide')}}
+                                {{ __('form.coupons_hide') }}
                                 <span
                                     class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $couponsHidden }}</span>
                             </a>
@@ -75,7 +75,8 @@
                             <div class="row">
                                 <div class="table-search col-sm-8">
                                     <label for="role-search" class="form-label">Tìm Kiếm:</label>
-                                    <input type="search" id="role-search" name="searchKey" value="{{old('searchKey')}}" class="form-control" placeholder="Tiêu Đề/Mã Giảm Giá">
+                                    <input type="search" id="role-search" name="searchKey" value="{{ old('searchKey') }}"
+                                        class="form-control" placeholder="Tiêu Đề/Mã Giảm Giá">
                                 </div>
                                 <div class="col-sm-4">
                                     <button type="submit" class="btn btn-theme">Search</button>
@@ -178,7 +179,30 @@
                                         </tr>
                                     @else
                                         @foreach ($coupons as $key => $coupon)
-                                            <tr>
+                                            @php
+                                                $isExpired =
+                                                    $coupon->end_date &&
+                                                    \Carbon\Carbon::parse($coupon->end_date)->isPast();
+                                                $isUsageReached =
+                                                    $coupon->usage_limit &&
+                                                    $coupon->usage_count == $coupon->usage_limit;
+
+                                                $reasons = [];
+                                                if ($isExpired) {
+                                                    $reasons[] = 'Mã giảm giá đã hết hạn';
+                                                }
+                                                if ($isUsageReached) {
+                                                    $reasons[] = 'Đã đạt giới hạn sử dụng';
+                                                }
+
+                                                $reasonText = implode(' & ', $reasons);
+                                                $needsAttention = !empty($reasons);
+                                            @endphp
+                                            <tr
+                                                @if ($needsAttention) class="table-warning"
+                                                 data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    title="{{ $reasonText }}" @endif>
                                                 <td>
                                                     <div class="custom-control custom-checkbox">
                                                         <input type="checkbox" id="checkbox-table"
@@ -239,9 +263,82 @@
                                                                 </button>
                                                             </form>
                                                         </li>
+                                                        <!-- Kiểm tra điều kiện hết hạn hoặc usage_limit -->
+                                                        @if ($needsAttention)
+                                                            <li>
+                                                                <button type="button"
+                                                                    class="btn p-0 border-0 bg-transparent"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#resetModal{{ $coupon->id }}"
+                                                                    data-bs-placement="top">
+                                                                    <i class="ri-refresh-line"
+                                                                        style="color: #20c997; font-size: 1.2rem;"></i>
+                                                                </button>
+                                                            </li>
+                                                        @endif
                                                     </ul>
                                                 </td>
                                             </tr>
+                                            <!-- Modal "Đặt lại" -->
+                                            @if ($needsAttention)
+                                                <div class="modal fade" id="resetModal{{ $coupon->id }}"
+                                                    tabindex="-1" aria-labelledby="resetModalLabel{{ $coupon->id }}"
+                                                    aria-hidden="true">
+                                                    <div class="modal-dialog modal-sm">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title"
+                                                                    id="resetModalLabel{{ $coupon->id }}">
+                                                                    Đặt Lại Thời Gian/Giới Hạn
+                                                                </h5>
+                                                                <button type="button" class="btn-close"
+                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <form
+                                                                    action="{{ route('admin.coupons.fast-update', $coupon->id) }}"
+                                                                    method="POST">
+                                                                    @csrf
+                                                                    @method('PUT')
+                                                                    @if ($isExpired)
+                                                                        <div class="mb-3">
+                                                                            <label for="newExpiryDate{{ $coupon->id }}"
+                                                                                class="form-label">Ngày hết hạn mới</label>
+                                                                            <input type="datetime-local"
+                                                                                class="form-control"
+                                                                                id="newExpiryDate{{ $coupon->id }}"
+                                                                                name="end_date"
+                                                                                value="{{ old('end_date', $coupon->end_date) }}">
+                                                                        </div>
+                                                                    @endif
+
+                                                                    @if ($isUsageReached)
+                                                                        <div class="mb-3">
+                                                                            <label for="newUsageLimit{{ $coupon->id }}"
+                                                                                class="form-label">Giới hạn sử dụng
+                                                                                mới</label>
+                                                                            <input type="number" class="form-control"
+                                                                                id="newUsageLimit{{ $coupon->id }}"
+                                                                                name="usage_limit" min="0"
+                                                                                value="{{ old('usage_limit', $coupon->usage_limit) }}">
+                                                                        </div>
+                                                                    @endif
+
+
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary"
+                                                                            data-bs-dismiss="modal">Hủy
+                                                                        </button>
+                                                                        <button type="submit" class="btn btn-theme">
+                                                                            Cập Nhật
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
                                         @endforeach
                                     @endif
                                 </tbody>
@@ -271,6 +368,19 @@
 @push('js')
     <script>
         $(document).ready(function() {
+            @if ($errors->any())
+                @php
+                    $allErrors = implode("\n", $errors->all()); // ghép tất cả lỗi vào 1 chuỗi
+                @endphp
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Có lỗi xảy ra',
+                    text: @json($allErrors),
+                    showConfirmButton: true
+                });
+            @endif
+
             // --- Logic Checkbox ---
             $('#checkbox-table').on('click', function() {
                 $('#btn-move-to-trash-all').css('display', !$(this).prop('checked') ? 'none' : 'block');

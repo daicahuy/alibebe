@@ -24,18 +24,34 @@ class AccountService
             $data = $request->validated();
             $user = User::find(Auth::id());
             // dd($old_avatar);
-
-            if(!empty($data['avatar'])){
-                $data['avatar'] = Storage::put('users',$data['avatar']);
-            }
-            if(!empty($user->avatar) && !empty($data['avatar']) && Storage::exists($user->avatar)){
-                Storage::delete($user->avatar);
-            }
-            else {
+            if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
+                // Lưu avatar mới
+                $data['avatar'] = $request->file('avatar')->store('users');
+    
+                // Xóa avatar cũ nếu tồn tại
+                if (!empty($user->avatar) && Storage::exists($user->avatar)) {
+                    Storage::delete($user->avatar);
+                }
+            } else {
                 // Nếu không có ảnh mới, giữ nguyên ảnh cũ
                 $data['avatar'] = $user->avatar;
             }
-            $this->accountRepository->update(Auth::id(),$data);
+    
+            // Cập nhật thông tin user
+            $this->accountRepository->update($user->id, $data);
+
+
+            // if(!empty($data['avatar'])){
+            //     $data['avatar'] = Storage::put('users',$data['avatar']);
+            // }
+            // if(!empty($user->avatar) && !empty($data['avatar']) && Storage::exists($user->avatar)){
+            //     Storage::delete($user->avatar);
+            // }
+            // else {
+            //     // Nếu không có ảnh mới, giữ nguyên ảnh cũ
+            //     $data['avatar'] = $user->avatar;
+            // }
+            // $this->accountRepository->update(Auth::id(),$data);
         } catch (\Throwable $th) {
             Log::error(
                 __CLASS__ . "@" . __FUNCTION__,

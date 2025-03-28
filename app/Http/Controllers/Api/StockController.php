@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreStockProductRequest;
 use App\Http\Requests\Api\StoreStockProductSingleRequest;
 use App\Http\Requests\Api\StoreStockProductVariantRequest;
 use App\Services\Api\Admin\StockService;
@@ -18,26 +19,9 @@ class StockController extends ApiBaseController
         $this->stockService = $stockService;
     }
 
-    public function importSingle(StoreStockProductSingleRequest $request)
+    public function importStock(StoreStockProductRequest $request)
     {
-        $response = $this->stockService->importSingle($request->validated());
-
-        if ($response['success']) {
-            return $this->sendSuccess(
-                message: $response['message'],
-                statusCode: Response::HTTP_CREATED,
-            );
-        }
-
-        return $this->sendError(
-            message: $response['message'],
-            statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
-        );
-    }
-
-    public function importVariant(StoreStockProductVariantRequest $request)
-    {
-        $response = $this->stockService->importVariant($request->validated());
+        $response = $this->stockService->importStock($request->validated());
 
         if ($response['success']) {
             return $this->sendSuccess(
@@ -47,8 +31,7 @@ class StockController extends ApiBaseController
         }
 
         return $this->sendError(
-            message: $response['message'],
-            statusCode: $response['status'],
+            message: $response['message']
         );
     }
 }

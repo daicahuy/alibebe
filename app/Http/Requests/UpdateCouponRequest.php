@@ -105,7 +105,8 @@ class UpdateCouponRequest extends FormRequest
             'end_date' => [
                 $isExpired == CouponExpiredType::EXPIRED ? 'required' : 'nullable',
                 'date',
-                'after_or_equal:start_date'
+                'after_or_equal:start_date',
+                'after_or_equal:today'
             ],
             'coupon_restrictions.min_order_value' => [
                 function ($attribute, $value, $fail) {

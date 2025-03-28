@@ -50,6 +50,7 @@ class CouponRepository extends BaseRepository
     public function searchCoupon($searchKey, $perPage)
     {
         $query = $this->model
+            ->where('is_active', 1)
             ->where("code", "LIKE", "%$searchKey%")
             ->orWhere("title", "LIKE", "%$searchKey%");
 
@@ -172,7 +173,7 @@ class CouponRepository extends BaseRepository
             $coupon->forceDelete();
         });
     }
-    
+
     // Client ---------------------------------------------------
     public function getAllCouponForUserLogin($user_id)
     {

@@ -10,12 +10,14 @@
     "require": {
         "php": "^8.1",
         "bensampo/laravel-enum": "^6.11",
+        "consoletvs/charts": "^6.8",
         "elibyy/tcpdf-laravel": "^11.2",
         "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/socialite": "^5.18",
         "laravel/tinker": "^2.8",
+        "maatwebsite/excel": "^1.1",
         "predis/predis": "^2.3",
         "pusher/pusher-php-server": "^7.2"
     },

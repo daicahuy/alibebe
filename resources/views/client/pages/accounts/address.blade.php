@@ -136,11 +136,13 @@
                         </div>
                         <div class="form-group mb-4">
                             <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="is_default" name="is_default"
-                                    value="1">
-                                <label class="form-check-label fw-bold" for="is_default">Đặt Làm Mặc Định</label>
-                            </div>
-                        </div>
+                                <input type="checkbox" class="form-check-input" id="is_default" name="is_default" value="1"
+                                    @if((!isset($addresses) || $addresses->isEmpty()) || ($addresses->isNotEmpty() && !$addresses->where('is_default', 1)->count()))
+                                        checked onclick="return false;"
+                                    @endif>
+                                <label class="form-check-label fw-bold" for="is_default">Đặt Làm Mặc Định</label>                                
+                            </div>                            
+                        </div>                        
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-md" data-bs-dismiss="modal">
