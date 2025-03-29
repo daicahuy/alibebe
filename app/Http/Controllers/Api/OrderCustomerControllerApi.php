@@ -174,11 +174,10 @@ class OrderCustomerControllerApi extends Controller
                     $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
                         ->where('product_variant_id', $item['product_variant_id'])->first();
 
-
                     if ($cartItem->quantity == $item['quantity_variant']) {
                         $cartItem->delete();
                     } else {
-                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
+                        return response()->json(["status" => "error", "type" => "errCart", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
                     }
                 } else {
                     $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
@@ -187,7 +186,7 @@ class OrderCustomerControllerApi extends Controller
                     if ($cartItem->quantity == $item['quantity']) {
                         $cartItem->delete();
                     } else {
-                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
+                        return response()->json(["status" => "error", "type" => "errCart", "message" => "Sản phẩm " . $item["name"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
 
 
                     }

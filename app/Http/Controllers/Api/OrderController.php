@@ -357,10 +357,16 @@ class OrderController extends Controller
     public function changeStatusRefundMoney(Request $request)
     {
         try {
-            $orderId = $request->input('order_id');
-            $status = $request->input('status');
+            $data = $request->all();
+            $orderId = $data["idorder"];
+            if ($request->hasFile('img_send_money')) {
+                $data['img_send_money'] = Storage::put("orders", $request->file('img_send_money'));
+            } else {
+                $data['img_send_refund_money'] = null;
+            }
+            $status = 1;
 
-            Order::where("id", $orderId)->update(["is_refund_cancel" => $status]);
+            Order::where("id", $orderId)->update(["is_refund_cancel" => $status, "img_send_refund_money" => $data['img_send_money']]);
             return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
 
         } catch (\Throwable $th) {

@@ -33,6 +33,7 @@ return new class extends Migration {
             $table->decimal('coupon_discount_value', 10, 2)->nullable();
             $table->boolean('is_refund_cancel')->default(null)->nullable();
             $table->boolean('check_refund_cancel')->default(null)->nullable();
+            $table->string('img_send_refund_money', 255)->nullable();
 
 
             $table->timestamps();

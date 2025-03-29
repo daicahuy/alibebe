@@ -36,7 +36,8 @@ class VNPayController extends Controller
             $userCheckVerify = User::where('id', $dataOrderCustomer["user_id"])->first();
 
             if (!$userCheckVerify->email_verified_at) {
-                return redirect('/cart-checkout')->with('error', "Xác minh tài khoản trước khi mua hàng!");
+                return response()->json(["status" => "error", "message" => "Vui lòng nhập địa chỉ người nhận"]);
+
 
             }
 
@@ -99,7 +100,7 @@ class VNPayController extends Controller
                     if ($cartItem->quantity != $item['quantity_variant']) {
                         DB::rollBack();
 
-                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
+                        return response()->json(["status" => "error", "type" => "errCart", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
                     }
                 } else {
                     $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
@@ -108,7 +109,7 @@ class VNPayController extends Controller
                     if ($cartItem->quantity != $item['quantity']) {
                         DB::rollBack();
 
-                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
+                        return response()->json(["status" => "error", "type" => "errCart", "message" => "Sản phẩm " . $item["name"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
                     }
                 }
             }
@@ -225,11 +226,13 @@ class VNPayController extends Controller
                         $coupon = Coupon::where('code', $couponCode)->lockForUpdate()->first();
 
                         if (!$coupon) {
-                            return response()->json(["status" => "error", "message" => "Mã giảm giá không hợp lệ."]);
+                            return redirect('/cart-checkout')->with('error', "Mã giảm giá không hợp lệ.");
+
                         }
 
                         if ((INT) ($coupon->usage_limit ?? 0) - (INT) ($coupon->usage_count ?? 0) == 0) {
-                            return response()->json(["status" => "error", "message" => "Mã giảm giá đã hết lượt sử dụng."]);
+                            return redirect('/cart-checkout')->with('error', "Mã giảm giá đã hết lượt sử dụng.");
+
                         }
 
                         if (
@@ -237,17 +240,20 @@ class VNPayController extends Controller
                             (($coupon->start_date && now()->lt($coupon->start_date)) ||
                                 ($coupon->end_date && now()->gt($coupon->end_date)))
                         ) {
-                            return response()->json(["status" => "error", "message" => "Mã giảm giá đã hết hạn."]);
+                            return redirect('/cart-checkout')->with('error', "Mã giảm giá đã hết hạn.");
+
                         }
 
                         $couponUser = CouponUser::where('coupon_id', $coupon->id)->first();
 
                         if (!$couponUser) {
-                            return response()->json(["status" => "error", "message" => "Không tìm thấy người dùng mã giảm giá."]);
+                            return redirect('/cart-checkout')->with('error', "Không tìm thấy người dùng mã giảm giá.");
+
                         }
 
                         if ($couponUser->amount <= 0) {
-                            return response()->json(["status" => "error", "message" => "Số lượng mã giảm giá không đủ."]);
+                            return redirect('/cart-checkout')->with('error', "Số lượng mã giảm giá không đủ.hàng!");
+
                         }
 
                         $coupon->usage_count = (INT) $coupon->usage_count + 1;
@@ -294,11 +300,11 @@ class VNPayController extends Controller
                                 ->first();
                             if (!$product_product_variant_id) {
                                 DB::rollBack();
-                                return redirect('/cart-checkout')->with('error', "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn được lưu hành");
+                                return redirect('/cart-checkout')->with('errorCart', "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn được lưu hành");
                             }
                             if (!$productStock || $productStock->stock < $item['quantity']) {
                                 DB::rollBack();
-                                return redirect('/cart-checkout')->with('error', "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn đủ số lượng trong kho");
+                                return redirect('/cart-checkout')->with('errorCart', "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn đủ số lượng trong kho");
 
                             }
                         } else {

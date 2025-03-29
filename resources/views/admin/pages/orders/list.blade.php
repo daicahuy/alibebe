@@ -520,7 +520,8 @@
         'id' => 'modalShowRefundBank',
         'title' => 'Xem thông tin hoàn tiền',
     ])
-        <div id="modalFormShowRefundBank">
+        <form id="modalFormShowRefundBank" style="max-height: 77vh; overflow-y: auto;" method="POST"
+            enctype="multipart/form-data">
             <table class="table all-package theme-table no-footer">
                 <tbody><!---->
                     <tr>
@@ -539,18 +540,23 @@
                         <td class="text-start fw-semibold">Số tài khoản </td>
                         <td class="text-start" id="bank_account"></td>
                     </tr>
-                    <input type="hidden" hidden id="idorder" value="">
+
+
+                    <input type="hidden" hidden id="idorder" name="idorder" value="">
                 </tbody>
             </table>
+            <div class="mb-3" id="div_send_money">
+
+            </div>
             <div class="button-box justify-content-end">
                 <button class="btn btn-md btn-secondary fw-bold btn-cancel" type="button">
                     {{ __('message.cancel') }}
                 </button>
-                <button class="btn btn-md btn-theme fw-bold btn-action" id="btn_send_money">
+                <button class="btn btn-md btn-theme fw-bold btn-action" disabled id="btn_send_money">
                     Đã chuyển tiền
                 </button>
             </div>
-        </div>
+        </form>
     @endcomponent
 @endsection
 
@@ -669,7 +675,7 @@
                     id: 3,
                     name: "Đang giao hàng",
                     next: [3, 4, 5],
-                    unnextList: [5, 7]
+                    unnextList: [5]
                 },
                 {
                     id: 4,
@@ -854,21 +860,21 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                                                                                                                <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                                                                                                                <div class="status-pending">
-                                                                                                                                                                                <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                                                                                                                </div>
-                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                            <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                                                                                                                                                                                                                                                            <div class="status-pending">
+                                                                                                                                                                                                                                                                                                            <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                            </div>
 
 
-                                                                                                                                                                                ` : `
+                                                                                                                                                                                                                                                                                                            ` : `
 
-                                                                                                                                                                                `}
+                                                                                                                                                                                                                                                                                                            `}
                                         <li>
                                             ${order.is_refund_cancel != null ? `
-                                                                                                                                                                                                            <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
-                                                                                                                                                                                                                <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
-                                                                                                                                                                                                            `:""}
+                                                                                                                                                                                                                                                                                                                                        <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
+                                                                                                                                                                                                                                                                                                                                            <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
+                                                                                                                                                                                                                                                                                                                                        `:""}
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
                                                 <i class="ri-eye-line"></i>
@@ -900,7 +906,8 @@
 
                             success: function(response) {
                                 const order = response.order
-
+                                const imageUrl =
+                                    `{{ Storage::url('${order.img_send_refund_money}') }}`;
                                 $("#modalShowRefundBank #total_amount").text(`${formatCurrency(order
                                     .total_amount)}đ`)
                                 $("#modalShowRefundBank #user_bank_name").text(order.user
@@ -916,6 +923,49 @@
                                         "disabled", true);
                                 }
 
+                                if (order.is_refund_cancel == 0) {
+                                    $("#modalShowRefundBank #div_send_money").append(`
+                                    <label for="img_send_money" class="form-label">Tải lên ảnh</label>
+                <input class="form-control" type="file" id="img_send_money" name="img_send_money">
+                <img id="image_preview" class="mt-3" style="width: 100%">
+                    <!-- Preview ảnh sẽ được hiển thị ở đây -->
+                </img>
+                                    `)
+                                }
+
+                                if (order.is_refund_cancel == 1) {
+                                    $("#modalShowRefundBank #div_send_money").append(`
+                                    <label for="img_send_money" class="form-label">Ảnh chuyển khoản</label>
+                <img id="image_preview" class="mt-3" style="width: 100%" src="${imageUrl}">
+             
+                                    `)
+                                }
+
+                                $('#modalShowRefundBank #img_send_money').on('change', function(
+                                    event) {
+                                    const file = event.target.files[0];
+                                    console.log("showw file");
+                                    //
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        const fileType = file.type.split('/')[0];
+
+                                        reader.onload = function(e) {
+                                            if (fileType === 'image') {
+                                                $('#modalShowRefundBank #image_preview')
+                                                    .attr('src', e.target.result)
+                                                    .show();
+                                                $("#btn_send_money").attr('disabled',
+                                                    false);
+                                            }
+                                        }
+
+                                        reader.readAsDataURL(file); // Đọc file ảnh
+                                    }
+                                });
+
+
+
                             },
                             error: function(error) {
                                 console.error(
@@ -925,28 +975,31 @@
                         });
                     }
 
+
+
                     $(".show_modal_refund_bank").on("click", async function() {
                         const orderId = $(this).data(
                             'idorder');
-
+                        $("#modalShowRefundBank #div_send_money").empty();
                         await callApiGetOrder(orderId)
 
                         $("#modalShowRefundBank").modal("show")
                     })
 
-                    $("#modalShowRefundBank #btn_send_money").off("click").on("click", async function() {
+                    $("#modalFormShowRefundBank").off("submit").on("submit", async function(e) {
+                        e.preventDefault();
                         const idOrder = $("#modalShowRefundBank #idorder").val();
                         if (!confirm('Bạn có chắc chắn thao tác này không?')) {
                             return;
                         }
+                        const formData = new FormData(this);
 
                         await $.ajax({
                             url: '{{ route('api.orders.changeStatusRefundMoney') }}',
                             type: 'POST',
-                            data: {
-                                order_id: idOrder,
-                                status: 1
-                            },
+                            data: formData,
+                            contentType: false,
+                            processData: false,
                             success: function(response) {
 
                                 if (response.status == 200) {
@@ -962,6 +1015,7 @@
                                             background: "linear-gradient(to right, #00b09b, #96c93d)",
                                         },
                                     }).showToast();
+                                    $("#modalShowRefundBank #div_send_money").empty()
                                     callApiGetOrder(idOrder)
                                     fetchOrders();
 
