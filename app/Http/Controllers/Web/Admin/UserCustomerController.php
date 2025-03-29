@@ -10,6 +10,7 @@ use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
 use App\Services\Web\Admin\UserCustomerService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class UserCustomerController extends Controller
 {
@@ -79,33 +80,46 @@ class UserCustomerController extends Controller
 
 public function lockUser(User $user)
 {
+    // Lấy thông tin người dùng
     $lock = $this->userService->ShowUserCustomer($user->id, ['*']);
 
+    // Kiểm tra trạng thái hiện tại của người dùng
     if ($lock->status == UserStatusType::ACTIVE) {
+        // Cập nhật trạng thái thành "LOCK"
         $this->userService->UpdateUserCustomer($user->id, ['status' => UserStatusType::LOCK]);
-        event(new UserLocked($user->id)); // Thêm dòng này
-        return redirect()->back()->with('success', 'Đã khóa thành công !');
-    } else if ($lock->status == UserStatusType::LOCK) {
+// Thêm log để kiểm tra
+Log::info('Locking user with ID: ' . $user->id);
+        // Phát sự kiện UserLocked
+        // broadcast(new UserLocked($user->id));
+        event(new UserLocked($user->id));
+        Log::info('UserLocked event broadcasted for user ID: ' . $user->id);
+        return redirect()->back()->with('success', 'Đã khóa thành công!');
+    } elseif ($lock->status == UserStatusType::LOCK) {
+        // Cập nhật trạng thái thành "ACTIVE"
         $this->userService->UpdateUserCustomer($user->id, ['status' => UserStatusType::ACTIVE]);
-        return redirect()->back()->with('success', 'Đã mở khóa thành công !');
+
+        return redirect()->back()->with('success', 'Đã mở khóa thành công!');
     } else {
-        return redirect()->back()->with('error', 'Thất bại xin kiểm tra lại');
+        return redirect()->back()->with('error', 'Thất bại, xin kiểm tra lại.');
     }
 }
 
 public function lockMultipleUsers(LockUserRequest $request)
 {
+    // Lấy danh sách user_ids từ request
     $validated = $request->validated();
     $userIds = $validated['user_ids'];
 
+    // Cập nhật trạng thái của tất cả người dùng thành "LOCK"
     $this->userService->UpdateUserCustomer($userIds, ['status' => UserStatusType::LOCK]);
 
+    // Phát sự kiện UserLocked cho từng người dùng
     foreach ($userIds as $userId) {
-        event(new UserLocked($userId)); // Thêm dòng này
+        event(new UserLocked($userId));
     }
 
     return response()->json([
-        'message' => ('Đã khóa thành công')
+        'message' => 'Đã khóa thành công!'
     ]);
 }
 

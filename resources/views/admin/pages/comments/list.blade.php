@@ -113,7 +113,7 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.comments.show', $item->product->slug) }}"
+                                                            <a href="{{ route('admin.comments.show', $item->product->id) }}"
                                                                 class="btn-detail">
                                                                 <i class="ri-eye-line"></i>
                                                             </a>

@@ -349,13 +349,15 @@
                                                                     $cartItem->product->thumbnail;
                                                             @endphp
 
-                                                            <a href="{{ route('products', $cartItem->product->slug) }}" class="drop-image">
+                                                            <a href="{{ route('products', $cartItem->product->slug) }}"
+                                                                class="drop-image">
                                                                 <img src="{{ Storage::url($thumbnail) }}"
                                                                     class="blur-up lazyload" alt="">
                                                             </a>
 
                                                             <div class="drop-contain">
-                                                                <a href="{{ route('products', $cartItem->product->slug) }}">
+                                                                <a
+                                                                    href="{{ route('products', $cartItem->product->slug) }}">
                                                                     <h5>{{ Str::limit($cartItem->productVariant->product->name ?? $cartItem->product->name, 20, '...') }}
                                                                     </h5>
                                                                 </a>
@@ -382,7 +384,10 @@
                                                                     if ($cartItem->productVariant?->sale_price > 0) {
                                                                         $salePrice =
                                                                             $cartItem->productVariant->sale_price;
-                                                                    } elseif ($cartItem->product?->sale_price > 0 && $cartItem->product?->is_sale == 1) {
+                                                                    } elseif (
+                                                                        $cartItem->product?->sale_price > 0 &&
+                                                                        $cartItem->product?->is_sale == 1
+                                                                    ) {
                                                                         $salePrice = $cartItem->product->sale_price;
                                                                     } else {
                                                                         $salePrice = $price; // Nếu không có giảm giá, salePrice bằng giá gốc
@@ -595,16 +600,18 @@
                                 </div>
                                 <div class="offcanvas-body">
                                     <ul class="navbar-nav">
-                                    
+
                                         <li class="nav-item dropdown">
                                             <a class="nav-link dropdown-toggle" href="javascript:void(0)"
                                                 data-bs-toggle="dropdown">Hướng Dẫn</a>
                                             <ul class="dropdown-menu">
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('muaHang')}}"> Hướng Dẫn Mua Hàng</a>
+                                                    <a class="dropdown-item" href="{{ route('muaHang') }}"> Hướng Dẫn
+                                                        Mua Hàng</a>
                                                 </li>
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('hoanHang')}}"> Hướng Dẫn Hoàn Hàng</a>
+                                                    <a class="dropdown-item" href="{{ route('hoanHang') }}"> Hướng
+                                                        Dẫn Hoàn Hàng</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -626,109 +633,8 @@
     </div>
 </header>
 @push('js')
-<script type="module">
-    import Echo from '/js/app.js'; 
-    $(document).ready(function() {
-        const userId = $('meta[name="user-id"]').attr('content');
-
-        if (userId) {
-            Echo.private(`user.${userId}`) 
-                .listen('UserLocked', (e) => {
-                    localStorage.removeItem('authToken');
-                    sessionStorage.removeItem('authToken');
-                    window.location.href = '/logout';
-                    alert('Tài khoản của bạn đã bị khóa bởi quản trị viên. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.');
-                });
-        }
-    });
-</script>
-    <script>
-        
-        let countdown = 60;
-        let timerInterval;
-
-        $(document).ready(function() {
-            // Hàm xác minh email
-            $('#verifyButton').on('click', function() {
-                const userId = {{ Auth::id() }};
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-                const statusTextElement = $('#statusText');
-                const timerElement = $('#timer');
-                const verifyButton = $('#verifyButton');
-
-                // Hiển thị trạng thái "Đang gửi..." và bắt đầu đếm ngược ngay lập tức
-                statusTextElement.text("Đang gửi...");
-                startCountdown(timerElement, verifyButton); // Bắt đầu đếm ngược ngay khi nhấn
-
-                $.ajax({
-                    url: `{{ route('api.auth.verification.verify', ['id' => ':userId']) }}`
-                        .replace(':userId', userId),
-                    type: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken // Thêm CSRF token
-                    },
-                    success: function(data) {
-                        if (data.status) {
-                            // Hiển thị thông báo thành công
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Gửi Mã Thành công!',
-                                text: 'Vui lòng kiểm tra email của bạn!',
-                                timer: 3000,
-                                showConfirmButton: false
-                            });
-
-                            // Xóa trạng thái "Đang gửi..." sau khi thành công
-                            statusTextElement.text("");
-                        } else {
-                            // Hiển thị thông báo lỗi nếu có
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi!',
-                                text: data.message
-                            });
-
-                            // Xóa trạng thái "Đang gửi..." nếu có lỗi
-                            statusTextElement.text("");
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        // Hiển thị thông báo lỗi
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Có lỗi xảy ra',
-                            text: 'Vui lòng thử lại sau.'
-                        });
-
-                        // Xóa trạng thái "Đang gửi..." nếu có lỗi
-                        statusTextElement.text("");
-                        console.error('Error:', xhr.responseText);
-                    }
-                });
-            });
-        });
-
-        // Hàm đếm ngược và vô hiệu hóa nút gửi lại mã
-        function startCountdown(timerElement, verifyButton) {
-            verifyButton.prop('disabled', true); // Vô hiệu hóa nút sau khi nhấn
-            countdown = 60; // Reset lại thời gian đếm ngược
-
-            // Đảm bảo xóa bộ đếm trước khi tạo bộ mới
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-
-            timerInterval = setInterval(function() {
-                countdown--;
-                timerElement.text(`Bạn có thể gửi lại sau ${countdown} giây.`);
-                if (countdown <= 0) {
-                    clearInterval(timerInterval); // Dừng đếm ngược
-                    timerElement.text('');
-                    verifyButton.prop('disabled', false); // Kích hoạt lại nút sau khi 60 giây
-                }
-            }, 1000);
-        }
-    </script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script></script>
     <script>
         function updateCartSessionForHeader() {
             console.log("⚡ Hàm updateCartSessionForHeader() được gọi");
@@ -849,7 +755,7 @@
                                 listItem.addEventListener('click', function(event) {
                                     event.preventDefault();
                                     const selectedProductName = product
-                                    .name; // Get the name of the clicked product
+                                        .name; // Get the name of the clicked product
                                     localStorage.setItem('selectedSuggestionName',
                                         selectedProductName); // Store the name
                                     window.location.href = link.href;
@@ -868,14 +774,14 @@
                     });
             });
 
-    // Khôi phục tên sản phẩm đã chọn khi trang được load
-    window.onload = function() {
-        const selectedName = localStorage.getItem('selectedSuggestionName');
-        if (selectedName) {
-            searchInput.value = selectedName;
-            localStorage.removeItem('selectedSuggestionName');
-        }
-    };
+            // Khôi phục tên sản phẩm đã chọn khi trang được load
+            window.onload = function() {
+                const selectedName = localStorage.getItem('selectedSuggestionName');
+                if (selectedName) {
+                    searchInput.value = selectedName;
+                    localStorage.removeItem('selectedSuggestionName');
+                }
+            };
 
 
             // Ẩn gợi ý khi click ra ngoài
@@ -950,7 +856,7 @@
                                     searchInput.value = suggestion;
                                     suggestionsList.style.display = 'none';
                                     searchForm
-                                .submit(); // Tự động submit form khi chọn gợi ý
+                                        .submit(); // Tự động submit form khi chọn gợi ý
                                 });
                                 suggestionsList.appendChild(listItem);
                             });
@@ -973,6 +879,66 @@
             });
         });
 
-        
+        $(document).ready(function() {
+            const userId = $('meta[name="user-id"]').attr('content'); // Lấy user ID từ meta tag
+            const csrfToken = $('meta[name="csrf-token"]').attr('content'); // Lấy CSRF token từ meta tag
+            console.log(userId);
+
+            if (userId) {
+                // Khởi tạo Pusher
+                Pusher.logToConsole = true;
+
+                var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                    cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+                });
+
+                var channel = pusher.subscribe('user.logout.' + userId);
+                channel.bind('user-locked', function(data) {
+                    // Xóa token và thông báo người dùng
+                    localStorage.removeItem('authToken');
+                    sessionStorage.removeItem('authToken');
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Tài khoản bị khóa',
+                        text: 'Tài khoản của bạn đã bị khóa bởi quản trị viên. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Gọi API đăng xuất
+                        fetch('/api/auth/logout', {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-Token':csrfToken
+                                }
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    // Chuyển hướng đến trang đăng nhập hoặc trang thông báo
+                                    window.location.href = '/login';
+                                } else {
+                                    console.error('Đăng xuất thất bại:', response.statusText);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Lỗi',
+                                        text: 'Không thể đăng xuất. Vui lòng thử lại sau.',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Lỗi khi gọi API đăng xuất:', error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi',
+                                    text: 'Không thể đăng xuất. Vui lòng thử lại sau.',
+                                    confirmButtonText: 'OK'
+                                });
+                            });
+                    });
+                });
+
+            }
+        });
     </script>
 @endpush
