@@ -66,7 +66,7 @@ class OrderCustomerControllerApi extends Controller
                     return response()->json(["status" => "error", "message" => "Mã giảm giá đã hết hạn."]);
                 }
 
-                $couponUser = CouponUser::where('coupon_id', $coupon->id)->first();
+                $couponUser = CouponUser::where('coupon_id', $coupon->id)->where("user_id", $dataOrderCustomer["user_id"])->first();
 
                 if (!$couponUser) {
                     return response()->json(["status" => "error", "message" => "Không tìm thấy người dùng mã giảm giá."]);
