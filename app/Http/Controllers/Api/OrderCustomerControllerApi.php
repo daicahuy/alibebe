@@ -104,7 +104,7 @@ class OrderCustomerControllerApi extends Controller
                 'payment_id' => $dataOrderCustomer['payment_id'],
                 'total_amount' => $dataOrderCustomer['total_amount_discounted'],
                 'is_paid' => $dataOrderCustomer['is_paid'],
-                'is_refund' => "1",
+                'is_refund' => "0",
                 'coupon_id' => isset($coupon) ? $coupon->id : null,
                 'coupon_discount_value' => $dataOrderCustomer["coupon_discount_value"],
                 'coupon_discount_type' => $dataOrderCustomer["coupon_discount_type"],
