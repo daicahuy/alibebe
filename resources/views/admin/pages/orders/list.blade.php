@@ -715,6 +715,7 @@
                     method: "GET",
                     data: {
                         order_status_id: activeTab,
+                        user_id: dataUser.id,
                         search,
                         startDate,
                         endDate,
@@ -802,7 +803,9 @@
 
                         var channel = pusher.subscribe('order-status.' + order.id);
                         channel.bind('event-change-status', function(data) {
-                            handleStatusChange(data.orderId)
+                            if (data.userID != dataUser.id) {
+                                handleStatusChange(data.orderId)
+                            }
                         });
                         var channel = pusher.subscribe('order-status-lock.' + order.id);
                         channel.bind('event-change-status-lock', function(data) {
@@ -873,21 +876,21 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                                                                            <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                                                                            <div class="status-pending">
-                                                                                                                                            <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                                                                            </div>
-                                                                                                                                            </div>
+                                                                                                                                                                    <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                                                                                                                    <div class="status-pending">
+                                                                                                                                                                    <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                                                                                                                    </div>
+                                                                                                                                                                    </div>
 
 
-                                                                                                                                            ` : `
+                                                                                                                                                                    ` : `
 
-                                                                                                                                            `}
+                                                                                                                                                                    `}
                                         <li>
                                             ${order.is_refund_cancel != null ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `:""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `:""}
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
                                                 <i class="ri-eye-line"></i>
@@ -1086,7 +1089,9 @@
                     type: 'POST',
                     data: {
                         order_id: idOrders,
-                        status_id: idStatus
+                        status_id: idStatus,
+                        user_id: dataUser.id
+
                     },
                     success: function(response) {
 
@@ -1585,9 +1590,12 @@
                     type: 'POST',
                     data: {
                         order_id: idOrder,
-                        status_id: selectedValue
+                        status_id: selectedValue,
+                        user_id: dataUser.id
+
                     },
                     success: function(response) {
+                        console.log("response", response);
                         if (response.status == 200) {
                             fetchOrders(true);
                             $('#checkbox-table').prop('checked', false);

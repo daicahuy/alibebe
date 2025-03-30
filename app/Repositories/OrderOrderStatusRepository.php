@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\HistoryOrderStatus;
 use App\Models\Order;
 use App\Models\OrderOrderStatus;
+use Auth;
 use DB;
 
 class OrderOrderStatusRepository extends BaseRepository
@@ -15,18 +16,19 @@ class OrderOrderStatusRepository extends BaseRepository
         return OrderOrderStatus::class;
     }
 
-    public function changeStatusOrder($idOrder, int $idStatus)
+    public function changeStatusOrder($idOrder, int $idStatus, $user_id)
     {
 
-        return DB::transaction(function () use ($idOrder, $idStatus) {
+        return DB::transaction(function () use ($idOrder, $idStatus, $user_id) {
             if (is_array($idOrder)) {
                 foreach ($idOrder as $orderId) {
                     OrderOrderStatus::query()
                         ->where('order_id', $orderId)
-                        ->update(['order_status_id' => $idStatus]);
+                        ->update(['order_status_id' => $idStatus, "modified_by" => $user_id]);
                     HistoryOrderStatus::create([
                         'order_id' => $orderId,
                         'order_status_id' => $idStatus,
+                        'user_id' => $user_id
                     ]);
                 }
                 return true;
@@ -34,10 +36,12 @@ class OrderOrderStatusRepository extends BaseRepository
             } else {
                 OrderOrderStatus::query()
                     ->where('order_id', $idOrder)
-                    ->update(['order_status_id' => $idStatus]);
+                    ->update(['order_status_id' => $idStatus, "modified_by" => $user_id]);
                 HistoryOrderStatus::create([
                     'order_id' => $idOrder,
                     'order_status_id' => $idStatus,
+                    'user_id' => $user_id
+
                 ]);
                 return true;
             }

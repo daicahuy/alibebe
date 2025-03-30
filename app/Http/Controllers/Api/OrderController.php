@@ -38,8 +38,9 @@ class OrderController extends Controller
         $filters = $request->all();
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 10);
+        $user_id = $request->input('user_id');
 
-        $orders = $this->orderService->getOrders($filters, $page, $limit);
+        $orders = $this->orderService->getOrders($filters, $page, $limit, $user_id);
 
         return response()->json([
             'orders' => $orders->items(),
@@ -161,6 +162,7 @@ class OrderController extends Controller
 
             $idOrder = $request->input("order_id");
             $idStatus = $request->input("status_id");
+            $user_id = $request->input("user_id");
             $note = $request->input("note");
 
             $order = Order::query()->where('id', $idOrder)->with('orderItems', 'orderStatuses')->first();
@@ -196,16 +198,15 @@ class OrderController extends Controller
                 $this->orderService->changeNoteStatusOrder($idOrder, $note);
 
             } else {
-
-                $this->orderService->changeStatusOrder($idOrder, $idStatus);
+                $this->orderService->changeStatusOrder($idOrder, $idStatus, $user_id);
                 if (is_array($idOrder)) {
                     foreach ($idOrder as $key => $value) {
                         # code...
-                        event(new OrderStatusUpdated($value, $idStatus, $order));
+                        event(new OrderStatusUpdated($value, $idStatus, $order, $user_id));
                         event(new OrderPendingCountUpdated());
                     }
                 } else {
-                    event(new OrderStatusUpdated($idOrder, $idStatus, $order));
+                    event(new OrderStatusUpdated($idOrder, $idStatus, $order, $user_id));
                     event(new OrderPendingCountUpdated());
 
 

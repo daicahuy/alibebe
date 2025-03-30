@@ -353,7 +353,10 @@
 
             var channel = pusher.subscribe('order-status.' + orderId);
             channel.bind('event-change-status', function(data) {
-                fillOrderDetails(orderId)
+                if (data.userID != dataUser.id) {
+
+                    fillOrderDetails(orderId)
+                }
             });
 
             var channel = pusher.subscribe('order-status-lock.' + orderId);
@@ -389,8 +392,8 @@
                                     <div>
                                         <div class="status">Chờ xử lý</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                        
-                                        </div>
+                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                    </div>
                                 </div>
                             </li>
                                 `
@@ -405,7 +408,9 @@
                                     <div>
                                         <div class="status">Đang xử lý</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -420,7 +425,9 @@
                                     <div>
                                         <div class="status">Đang giao hàng</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -436,7 +443,9 @@
                                     <div>
                                         <div class="status">Đã giao hàng</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -451,7 +460,9 @@
                                     <div>
                                         <div class="status">Giao hàng thất bại</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -466,7 +477,9 @@
                                     <div>
                                         <div class="status">Hủy hàng</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -482,7 +495,9 @@
                                     <div>
                                         <div class="status">Hoàn thành</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -724,7 +739,8 @@
                                 type: 'POST',
                                 data: {
                                     order_id: orderId,
-                                    status_id: selectedValue
+                                    status_id: selectedValue,
+                                    user_id: dataUser.id
                                 },
                                 success: function(response) {
                                     if (response.status == 200) {

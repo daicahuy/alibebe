@@ -12,6 +12,7 @@ class HistoryOrderStatus extends Model
     protected $fillable = [
         'order_id',
         'order_status_id',
+        'user_id'
     ];
 
 
@@ -19,6 +20,9 @@ class HistoryOrderStatus extends Model
     {
         return $this->belongsToMany(Order::class);
     }
-
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
 }
