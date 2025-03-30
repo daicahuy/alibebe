@@ -15,7 +15,7 @@ return new class extends Migration {
         Schema::create('history_order_statuses', function (Blueprint $table) {
             $table->foreignIdFor(Order::class)->constrained();
             $table->foreignIdFor(OrderStatus::class)->constrained();
-            $table->bigInteger('user_id')->unsigned();
+            $table->bigInteger('user_id')->unsigned()->nullable();
 
             $table->timestamps();
 

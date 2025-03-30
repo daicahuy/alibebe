@@ -29,7 +29,7 @@ class OrderRepository extends BaseRepository
             if ($key === 'order_status_id' && isset($value)) {
                 $query->whereHas('orderStatuses', function ($q) use ($value, $user_id) {
                     $q->where('order_status_id', $value);
-                    if ($value != 1) {
+                    if ($value != 1 && $value != 7) {
                         $q->where('modified_by', $user_id);
 
                     }

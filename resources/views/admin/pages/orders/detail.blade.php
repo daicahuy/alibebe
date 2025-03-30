@@ -392,7 +392,7 @@
                                     <div>
                                         <div class="status">Chờ xử lý</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
                                     </div>
                                 </div>
                             </li>
@@ -408,7 +408,7 @@
                                     <div>
                                         <div class="status">Đang xử lý</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
                                     
                                         </div>
                                 </div>
@@ -425,7 +425,7 @@
                                     <div>
                                         <div class="status">Đang giao hàng</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
                                     
                                         </div>
                                 </div>
@@ -443,7 +443,7 @@
                                     <div>
                                         <div class="status">Đã giao hàng</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
                                     
                                         </div>
                                 </div>
@@ -460,7 +460,7 @@
                                     <div>
                                         <div class="status">Giao hàng thất bại</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
                                     
                                         </div>
                                 </div>
@@ -477,7 +477,7 @@
                                     <div>
                                         <div class="status">Hủy hàng</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
                                     
                                         </div>
                                 </div>
@@ -495,7 +495,7 @@
                                     <div>
                                         <div class="status">Hoàn thành</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                        <p style="font-size: 12px">${item.user.fullname}</p>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
                                     
                                         </div>
                                 </div>
