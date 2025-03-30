@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\OrderLockStatus;
 use App\Events\OrderPendingCountUpdated;
 use App\Events\OrderStatusUpdated;
 use App\Http\Controllers\Controller;
+use App\Jobs\UnlockOrderJob;
 use App\Models\Order;
 use App\Models\OrderOrderStatus;
 use App\Models\ProductStock;
@@ -12,6 +14,7 @@ use App\Services\Api\Admin\OrderService;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
+use Log;
 use PDF;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Response;
@@ -385,6 +388,129 @@ class OrderController extends Controller
 
             Order::where("id", $orderId)->update(["check_refund_cancel" => $status]);
             return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function lockOrder(Request $request)
+    {
+        try {
+            $orderId = $request->input("order_id");
+            $userID = $request->input('user_id');
+            Log::info($orderId);
+            if (is_array($orderId)) {
+                $numericOrderIds = array_map('intval', $orderId);
+                Order::whereIn("id", $numericOrderIds)->update(["locked_status" => 1]);
+                foreach ($numericOrderIds as $id) {
+                    event(new OrderLockStatus($id, $status = 1, $userID));
+                    dispatch(new UnlockOrderJob($id))->delay(now()->addSeconds(60));
+                }
+
+                return response()->json([
+                    "status" => Response::HTTP_OK,
+                    "data" => $numericOrderIds
+                ]);
+            } else {
+
+                Order::where("id", $orderId)->update(["locked_status" => 1]);
+                event(new OrderLockStatus($orderId, $status = 1, $userID));
+                dispatch(new UnlockOrderJob($orderId))->delay(now()->addSeconds(60));
+                return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
+
+            }
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function unlockOrder(Request $request)
+    {
+        try {
+            $orderId = $request->input("order_id");
+            $userID = $request->input('user_id');
+            if (is_array($orderId)) {
+                $numericOrderIds = array_map('intval', $orderId);
+
+                Order::whereIn("id", $numericOrderIds)->update(["locked_status" => 0]);
+                foreach ($numericOrderIds as $id) {
+                    event(new OrderLockStatus($id, $status = 0, $userID));
+                }
+
+                return response()->json([
+                    "status" => Response::HTTP_OK,
+                    "data" => $numericOrderIds
+                ]);
+            } else {
+
+                Order::where("id", $orderId)->update(["locked_status" => 0]);
+                event(new OrderLockStatus($orderId, $status = 0, $userID));
+                return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
+            }
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function checkLockOrder(Request $request)
+    {
+        try {
+            $orderId = $request->input("order_id");
+
+            if (is_array($orderId)) {
+                $numericOrderIds = array_map('intval', $orderId);
+
+                $orders = collect(); // Khởi tạo một collection rỗng
+                foreach ($numericOrderIds as $id) {
+                    $order = Order::where('id', $id)->where('locked_status', 1)->first(['id', 'code', 'locked_status']);
+                    if ($order) {
+                        $orders->push($order);
+                    }
+                }
+                if ($orders->isEmpty()) {
+                    return response()->json([
+                        "status" => Response::HTTP_OK,
+                        "data" => [],
+                        "message" => "No orders found for the given IDs."
+                    ]);
+                }
+
+                // Trả về danh sách trạng thái locked của từng order
+                $result = $orders->map(function ($order) {
+                    return [
+                        'id' => $order->id,
+                        'code' => $order->code,
+                        'locked' => $order->locked_status
+                    ];
+                });
+
+                return response()->json([
+                    "status" => Response::HTTP_OK,
+                    "data" => $result
+                ]);
+            } else {
+
+                $order = Order::find($orderId);
+                if ($order) {
+                    return response()->json(["status" => Response::HTTP_OK, 'locked' => $order->locked_status]);
+                }
+                return response()->json(["status" => Response::HTTP_OK, 'locked' => false], 404);
+            }
 
         } catch (\Throwable $th) {
             return response()->json([

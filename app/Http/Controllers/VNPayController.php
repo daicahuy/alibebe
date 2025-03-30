@@ -54,6 +54,16 @@ class VNPayController extends Controller
                 if ($coupon->is_expired == 1 && (now()->lt($coupon->start_date) || now()->gt($coupon->end_date))) {
                     return response()->json(["status" => "error", "message" => "Mã giảm giá hết hạn."]);
                 }
+
+                $couponUser = CouponUser::where('coupon_id', $coupon->id)->where("user_id", $dataOrderCustomer["user_id"])->first();
+
+                if (!$couponUser) {
+                    return response()->json(["status" => "error", "message" => "Không tìm thấy người dùng mã giảm giá."]);
+                }
+
+                if ($couponUser->amount <= 0) {
+                    return response()->json(["status" => "error", "message" => "Số lượng mã giảm giá không đủ."]);
+                }
             }
 
             foreach ($ordersItem as $item) {
@@ -244,7 +254,7 @@ class VNPayController extends Controller
 
                         }
 
-                        $couponUser = CouponUser::where('coupon_id', $coupon->id)->first();
+                        $couponUser = CouponUser::where('coupon_id', $coupon->id)->where("user_id", $dataOrderCustomer["user_id"])->first();
 
                         if (!$couponUser) {
                             return redirect('/cart-checkout')->with('error', "Không tìm thấy người dùng mã giảm giá.");
