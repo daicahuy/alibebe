@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\Coupon;
+use App\Models\Notification;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -19,9 +20,11 @@ class CouponExpired implements ShouldBroadcast
      * Create a new event instance.
      */
     public $coupon;
-    public function __construct(Coupon $coupon)
+    public $message;
+    public function __construct(Coupon $coupon , string $message)
     {
         $this->coupon = $coupon;
+        $this->message = $message;
     }
 
     /**
@@ -44,11 +47,15 @@ class CouponExpired implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'id' => $this->coupon->id,
-            'code' => $this->coupon->code,
-            'usage_count' => $this->coupon->usage_count,
-            'usage_limit' => $this->coupon->usage_limit,
-            'end_date' => $this->coupon->end_date,
+            'message' => $this->message,
+            'coupon'  => [
+                'id'            => $this->coupon->id,
+                'code'          => $this->coupon->code,
+                'usage_count'   => $this->coupon->usage_count,
+                'usage_limit'   => $this->coupon->usage_limit,
+                'end_date'      => $this->coupon->end_date,
+                'discount_type' => $this->coupon->discount_type,
+            ],
         ];
     }
 }

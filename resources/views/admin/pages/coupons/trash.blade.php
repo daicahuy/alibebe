@@ -193,13 +193,13 @@
                                                 </div>
                                             </td>
                                             <td class="cursor-pointer">
-                                                {{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}
+                                                {{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y H:i A') : 'N/A' }}
                                             </td>
                                             <td class="cursor-pointer">
-                                                {{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}
+                                                {{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y H:i A') : 'N/A' }}
                                             </td>
                                             <td class="cursor-pointer">
-                                                {{ $coupon->deleted_at ? \Carbon\Carbon::parse($coupon->deleted_at)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}
+                                                {{ $coupon->deleted_at ? \Carbon\Carbon::parse($coupon->deleted_at)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y H:i A') : 'N/A' }}
                                             </td>
                                             <td>
                                                 <ul id="actions">

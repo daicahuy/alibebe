@@ -14,11 +14,15 @@ class NotificationController extends Controller
     {
         try {
             $userId = request('user_id');
-            $notifi = Notification::where('user_id', $userId)
-                ->with('coupon')
-                ->latest('id')
-                ->paginate(5);
-            return response()->json($notifi);
+            return response()->json([
+                'notifications' => Notification::where('user_id', $userId)
+                    ->with('coupon')
+                    ->latest('id')
+                    ->paginate(5),
+                'unread_count' => Notification::where('user_id', $userId)
+                    ->where('read', false)
+                    ->count()
+            ]);
         } catch (\Throwable $th) {
             Log::error("error : " . $th);
         }
@@ -40,6 +44,19 @@ class NotificationController extends Controller
         return response()->json([
             'status'  => 'success',
             'data'    => $notifi
+        ]);
+    }
+
+    public function markAsRead($id)
+    {
+        $notification = Notification::find($id);
+
+        $notification->update(['read' => true]);
+
+        return response()->json([
+            'unread_count' => Notification::where('user_id', $notification->user_id)
+                ->where('read', false)
+                ->count()
         ]);
     }
 

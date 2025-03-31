@@ -4,8 +4,12 @@ namespace App\Services\Web\Admin;
 
 use ApiBaseController;
 use App\Enums\CouponDiscountType;
+use App\Enums\NotificationType;
 use App\Enums\UserGroupType;
+use App\Events\CouponExpired;
 use App\Models\Coupon;
+use App\Models\Notification;
+use App\Models\User;
 use App\Repositories\CategoryRepository;
 use App\Repositories\CouponRepository;
 use App\Repositories\CouponRestrictionRepository;
@@ -644,6 +648,13 @@ class CouponService
 
             // Nếu end_date được gửi và khác null => cập nhật
             if (!is_null($endDate)) {
+                // Nếu nhập lại dữ liệu cũ, báo lỗi
+                if ($coupon->end_date == $endDate) {
+                    return [
+                        'message' => 'Dữ liệu ngày kết thúc nhập vào giống với dữ liệu cũ.',
+                        'status' => false
+                    ];
+                }
                 $updateData['end_date'] = $endDate;
             }
 
@@ -652,6 +663,13 @@ class CouponService
                 if ($usageLimit < $coupon->usage_count) {
                     return [
                         'message' => "Giới hạn sử dụng mới ($usageLimit) không được nhỏ hơn số lượt đã dùng ({$coupon->usage_count}).",
+                        'status' => false
+                    ];
+                }
+                // Nếu nhập lại dữ liệu cũ, báo lỗi
+                if ($coupon->usage_limit == $usageLimit) {
+                    return [
+                        'message' => 'Dữ liệu nhập vào giống với dữ liệu cũ.',
                         'status' => false
                     ];
                 }
@@ -666,8 +684,15 @@ class CouponService
                 ];
             }
 
-            // Thực hiện cập nhật
+            // Thực hiện cập nhật mã giảm giá
             $coupon->update($updateData);
+
+            // Sau khi cập nhật mã giảm giá, cập nhật lại pivot table coupon_user
+            // Cho những user có amount = 0 thì cập nhật lại thành 1 (không ảnh hưởng đến user khác)
+            DB::table('coupon_users')
+                ->where('coupon_id', $coupon->id)
+                ->where('amount', 0)
+                ->update(['amount' => 1]);
 
             return [
                 'message' => 'Đặt Lại Thành Công!',
@@ -675,7 +700,6 @@ class CouponService
             ];
         } catch (\Throwable $th) {
             Log::error("Lỗi cập nhật mã giảm giá: " . $th->getMessage());
-
             return [
                 'message' => 'Có Lỗi Xảy Ra, Vui Lòng Thử Lại!!!',
                 'errors' => $th->getMessage(),
@@ -691,6 +715,29 @@ class CouponService
     {
         try {
             $this->couponRepository->update($id, ['is_active' => $couponStatus]);
+            $admins = User::where('role', 2)
+                ->orWhere('role', 1)
+                ->get();
+
+            $coupon = $this->couponRepository->findById($id);
+
+            $message = $couponStatus
+                ? "Mã giảm giá {$coupon->code} đã được kích hoạt."
+                : "Mã giảm giá {$coupon->code} đã bị tắt.";
+
+            // Tạo thông báo cho mỗi admin
+            foreach ($admins as $admin) {
+                Notification::create([
+                    'user_id'   => $admin->id,
+                    'message'   => $message,
+                    'read'      => false,
+                    'type'      => NotificationType::Coupon, // hoặc giá trị phù hợp
+                    'coupon_id' => $coupon->id
+                ]);
+            }
+
+            event(new CouponExpired($coupon, $message));
+
             return [
                 'message' => 'Cập Nhật Thành Công !!!',
                 'status' => true
