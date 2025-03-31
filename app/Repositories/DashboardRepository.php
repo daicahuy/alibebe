@@ -7,6 +7,7 @@ use App\Models\OrderStatus;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -16,14 +17,34 @@ class DashboardRepository extends BaseRepository
     {
         return Order::class;
     }
-    public function revenue()
+    public function employee()
     {
-        $revenue = Order::with('orderStatuses')
-            ->whereHas('orderStatuses', function ($query) {
+        $employee = DB::table('users')->where('role',1)->get();
+        return $employee;
+    }
+        public function revenue($start_date = null, $end_date = null,$IdEmployee = '')
+    {
+        
+
+        if ($start_date && $end_date && $IdEmployee == 0) {
+            $start = Carbon::parse($start_date)->startOfDay();
+            $end = Carbon::parse($end_date)->endOfDay();
+            $query = Order::whereHas('orderStatuses', function ($query) use($IdEmployee) {
                 $query->where('order_status_id', 6);
-            })->whereDate('created_at', now()->toDateString())
-            ->sum('total_amount');
-        return $revenue;
+            })->whereBetween('created_at', [$start, $end]);
+        }else if ($start_date && $end_date && $IdEmployee != 0) {
+            $start = Carbon::parse($start_date)->startOfDay();
+            $end = Carbon::parse($end_date)->endOfDay();
+            $query = Order::whereHas('orderStatuses', function ($query) use($IdEmployee) {
+                $query->where('order_status_id', 6)->where('modified_by', $IdEmployee);
+            })->whereBetween('created_at', [$start, $end]);
+        } else {
+            $query = Order::whereHas('orderStatuses', function ($query) use($IdEmployee) {
+                $query->where('order_status_id', 6);
+            })->whereDate('created_at', now()->toDateString());
+        }
+        // dd($query->sum('total_amount'));
+        return $query->sum('total_amount');
     }
 
     public function countProduct()
@@ -36,9 +57,34 @@ class DashboardRepository extends BaseRepository
         $countUser = DB::table('users')->count();
         return $countUser;
     }
-    public function countOrder()
+    public function newCountUser($start_date = null, $end_date = null)
     {
-        $countOrder = DB::table('orders')->count();
+        if ($start_date && $end_date ) {
+            $start = Carbon::parse($start_date)->startOfDay();
+            $end = Carbon::parse($end_date)->endOfDay();
+            $newCountUser = DB::table('users')->whereBetween('created_at', [$start, $end])->count();
+        }else {
+            $newCountUser = DB::table('users')->whereDate('created_at', now()->toDateString())->count();
+        }
+        // dd($newCountUser);
+        return $newCountUser;
+    }
+    public function countOrder($start_date = null, $end_date = null,$IdEmployee = '')
+    {
+        if ($start_date && $end_date && $IdEmployee == 0) {
+            $start = Carbon::parse($start_date)->startOfDay();
+            $end = Carbon::parse($end_date)->endOfDay();
+            $countOrder = Order::whereBetween('created_at', [$start, $end])->count();
+        }else if ($start_date && $end_date && $IdEmployee != 0) {
+            $start = Carbon::parse($start_date)->startOfDay();
+            $end = Carbon::parse($end_date)->endOfDay();
+            $countOrder = Order::whereHas('orderStatuses', function ($query) use($IdEmployee) {
+                $query->where('modified_by', $IdEmployee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else {
+            $countOrder = DB::table('orders')->whereDate('created_at', now()->toDateString())->count();
+        }
+      
         return $countOrder;
     }
     public function topProduct()
@@ -62,60 +108,72 @@ class DashboardRepository extends BaseRepository
 
         return $topProduct;
     }
-    public function topUser()
+    public function topUser($start_date = null, $end_date = null)
     {
-        $topUser = DB::table('orders as o')
-            ->join('users as u', 'u.id', '=', 'o.user_id')
-            ->join('order_order_status as oos', 'o.id', '=', 'oos.order_id')
-            ->join('order_statuses as os', 'oos.order_status_id', '=', 'os.id')
-            ->where('os.id', '=', 6) // Chỉ lấy đơn hàng "Hoàn thành"
-            ->select(
-                'o.user_id',
-                'u.fullname',
-                DB::raw('COUNT(o.id) as total_order'), // Số lượng đơn hoàn thành
-                DB::raw('SUM(o.total_amount) as total_revenue') // Tổng tiền từ các đơn
-            )
-            ->groupBy('o.user_id', 'u.fullname')
-            ->orderByDesc('total_order') // Sắp xếp theo số đơn hàng
-            ->limit(5)
-            ->get();
-
+        
+            $topUser = DB::table('orders as o')
+                ->join('users as u', 'u.id', '=', 'o.user_id')
+                ->join('order_order_status as oos', 'o.id', '=', 'oos.order_id')
+                ->join('order_statuses as os', 'oos.order_status_id', '=', 'os.id')
+                ->where('os.id', '=', 6) // Chỉ lấy đơn hàng "Hoàn thành"
+                
+                ->select(
+                    'o.user_id',
+                    'u.fullname','loyalty_points',
+                    DB::raw('COUNT(o.id) as total_order'), // Số lượng đơn hoàn thành
+                    DB::raw('SUM(o.total_amount) as total_revenue') // Tổng tiền từ các đơn
+                )
+                ->groupBy('o.user_id', 'u.fullname')
+                ->orderByDesc('u.loyalty_points') // Sắp xếp theo số đơn hàng
+                ->limit(5)
+                ->get();
         return $topUser;
     }
+    public function getUserRank($loyaltyPoints)
+    {
+        $ranks = [
+            'Newbie'   => [0, 100],
+            'Iron'     => [101, 300],
+            'Bronze'   => [301, 500],
+            'Silver'   => [501, 700],
+            'Gold'     => [701, 850],
+            'Platinum' => [851, 999],
+            'Diamond'  => [1000, PHP_INT_MAX],
+        ];
 
+        foreach ($ranks as $rank => [$min, $max]) {
+            if ($loyaltyPoints >= $min && $loyaltyPoints <= $max) {
+                return $rank;
+            }
+        }
 
+        return 'Newbie';
+    }
 
-
-
-
-
-
-
-
-    public function getRevenueAndOrdersByHour($start_date = null, $end_date = null)
+    public function getRevenueAndOrdersByHour($start_date = null, $end_date = null,$IdEmployee = '')
     {
         $diffInDays = 0;
         $diffInMonths = 0;
         $interval = '1 day'; // Mặc định khoảng cách là 1 ngày
-    
-        if ($start_date && $end_date) {
-            // Xác định thời gian lọc
+
+        if ($start_date && $end_date && $IdEmployee == 0) {
+
             $start = Carbon::parse($start_date)->startOfDay();
-            $end = Carbon::parse($end_date)->endOfDay();
+            $end = $end_date ? Carbon::parse($end_date)->endOfDay() : now()->endOfDay();
             $diffInDays = $start->diffInDays($end);
             $diffInMonths = $start->diffInMonths($end);
-    
+
             // Xác định cách nhóm dữ liệu
             if ($diffInDays == 0) {
-                $groupBy = 'HOUR(created_at)';
-                $selectFormat = 'HOUR(created_at) as time_label';
-                $interval = '1 hour';
+                $groupBy = 'FLOOR(HOUR(created_at) / 2) * 2';
+                $selectFormat = 'FLOOR(HOUR(created_at) / 2) * 2 as time_label';
+                $interval = '2 hours'; // Mỗi 3 giờ một điểm
             } elseif ($diffInDays < 30) {
                 $groupBy = 'DATE(created_at)';
                 $selectFormat = 'DATE(created_at) as time_label';
                 $interval = '1 day';
             } elseif ($diffInMonths < 12) {
-                $groupBy = 'MONTH(created_at)';
+                $groupBy = 'DATE_FORMAT(created_at, "%Y-%m")';
                 $selectFormat = 'DATE_FORMAT(created_at, "%Y-%m") as time_label';
                 $interval = '1 month';
             } else {
@@ -123,41 +181,84 @@ class DashboardRepository extends BaseRepository
                 $selectFormat = 'YEAR(created_at) as time_label';
                 $interval = '1 year';
             }
-    
+
             $data = Order::with('orderStatuses')
-                ->whereHas('orderStatuses', function ($query) {
-                    $query->where('order_status_id', 6);
-                })
-                ->whereBetween('created_at', [$start, $end])
-                ->selectRaw("$selectFormat, SUM(total_amount) as revenue, COUNT(id) as orders")
-                ->groupBy(DB::raw($groupBy))
-                ->orderBy(DB::raw($groupBy))
-                ->get()
-                ->keyBy('time_label');
+            ->whereHas('orderStatuses', function ($query) {
+                $query->where('order_status_id', 6);
+            })
+            ->whereBetween('created_at', [$start, $end])
+            ->selectRaw("$selectFormat, SUM(total_amount) as revenue, COUNT(id) as orders")
+            ->groupBy(DB::raw($groupBy)) // ✅ Chỉ nhóm theo `groupBy`, không thêm `created_at`
+            ->orderBy(DB::raw($groupBy))
+            ->get()
+            ->keyBy('time_label');
+        
+        }else if ($start_date && $end_date && $IdEmployee != 0) {
+
+            $start = Carbon::parse($start_date)->startOfDay();
+            $end = $end_date ? Carbon::parse($end_date)->endOfDay() : now()->endOfDay();
+            $diffInDays = $start->diffInDays($end);
+            $diffInMonths = $start->diffInMonths($end);
+
+            // Xác định cách nhóm dữ liệu
+            if ($diffInDays == 0) {
+                $groupBy = 'FLOOR(HOUR(created_at) / 2) * 2';
+                $selectFormat = 'FLOOR(HOUR(created_at) / 2) * 2 as time_label';
+                $interval = '2 hours'; // Mỗi 3 giờ một điểm
+            } elseif ($diffInDays < 30) {
+                $groupBy = 'DATE(created_at)';
+                $selectFormat = 'DATE(created_at) as time_label';
+                $interval = '1 day';
+            } elseif ($diffInMonths < 12) {
+                $groupBy = 'DATE_FORMAT(created_at, "%Y-%m")';
+                $selectFormat = 'DATE_FORMAT(created_at, "%Y-%m") as time_label';
+                $interval = '1 month';
+            } else {
+                $groupBy = 'YEAR(created_at)';
+                $selectFormat = 'YEAR(created_at) as time_label';
+                $interval = '1 year';
+            }
+
+            $data = Order::with('orderStatuses')
+            ->whereHas('orderStatuses', function ($query) use ($IdEmployee) {
+                $query->where('order_status_id', 6)
+                        ->where('modified_by', $IdEmployee);
+            })
+            ->whereBetween('created_at', [$start, $end])
+            ->selectRaw("$selectFormat, SUM(total_amount) as revenue, COUNT(id) as orders")
+            ->groupBy(DB::raw($groupBy)) // ✅ Chỉ nhóm theo `groupBy`, không thêm `created_at`
+            ->orderBy(DB::raw($groupBy))
+            ->get()
+            ->keyBy('time_label');
+            // dd($IdEmployee);
+        
         } else {
-            // Nếu không có ngày chọn → lấy dữ liệu hôm nay theo giờ
+            // Nếu không có ngày chọn → lấy dữ liệu hôm nay theo giờ (3 tiếng 1 lần)
             $start = now()->startOfDay();
             $end = now()->endOfDay();
-            $interval = '1 hour';
-    
+            $interval = '2 hours';
+
             $data = Order::with('orderStatuses')
                 ->whereHas('orderStatuses', function ($query) {
                     $query->where('order_status_id', 6);
                 })
                 ->whereDate('created_at', now()->toDateString())
-                ->selectRaw('HOUR(created_at) as time_label, SUM(total_amount) as revenue, COUNT(id) as orders')
+                ->selectRaw('FLOOR(HOUR(created_at) / 2) * 2 as time_label, SUM(total_amount) as revenue, COUNT(id) as orders')
                 ->groupBy('time_label')
                 ->orderBy('time_label')
                 ->get()
                 ->keyBy('time_label');
         }
-    
+
         // Tạo danh sách `labels` theo khoảng thời gian phù hợp
         $period = new CarbonPeriod($start, $interval, $end);
         $labels = [];
         foreach ($period as $date) {
             if ($diffInDays == 0) {
-                $labels[] = $date->format('G:00'); // Hiển thị giờ dạng "0:00", "1:00", ...
+                $hour = $date->format('G'); // Lấy giờ (0, 3, 6,...)
+                if ($hour % 2 == 0) { // Chỉ lấy giờ chia hết cho 3
+                    $labels[] = $date->format('G:00'); // Format thành "0:00", "3:00",...
+                }
             } elseif ($diffInDays < 30) {
                 $labels[] = $date->format('Y-m-d'); // Hiển thị ngày
             } elseif ($diffInMonths < 12) {
@@ -166,7 +267,7 @@ class DashboardRepository extends BaseRepository
                 $labels[] = $date->format('Y'); // Hiển thị năm
             }
         }
-    
+
         // Gán doanh thu và số đơn hàng với dữ liệu mặc định = 0 nếu không có dữ liệu
         $revenues = [];
         $orders = [];
@@ -175,58 +276,444 @@ class DashboardRepository extends BaseRepository
             $revenues[] = $data[$key]->revenue ?? 0;
             $orders[] = $data[$key]->orders ?? 0;
         }
-    
+
         return [
             'labels' => $labels,
             'revenues' => $revenues,
             'orders' => $orders
         ];
     }
-    
-    public function getOrderStatusByHour()
-    {
-        // Lấy danh sách trạng thái đơn hàng từ DB
-        $orderStatuses = OrderStatus::pluck('name', 'id')->toArray();
+
+   public function getOrderStatusByHour($start_date = null, $end_date = null,$IdEmployee = '')
+{
+    $orderStatuses = OrderStatus::pluck('name', 'id')->toArray();
+
+    $diffInDays = 0;
+    $diffInMonths = 0;
+    $interval = '1 day';
+
+    if ($start_date && $end_date && $IdEmployee == 0) {
+        $start = Carbon::parse($start_date)->startOfDay();
+        $end = Carbon::parse($end_date)->endOfDay();
+        $diffInDays = $start->diffInDays($end);
+        $diffInMonths = $start->diffInMonths($end);
+
+        if ($diffInDays == 0) {
+            $groupBy = 'FLOOR(HOUR(orders.created_at) / 2) * 2';
+            $selectFormat = 'FLOOR(HOUR(orders.created_at) / 2) * 2 as time_label';
+            $interval = '2 hours';
+        } elseif ($diffInDays < 30) {
+            $groupBy = 'DATE(orders.created_at)';
+            $selectFormat = 'DATE(orders.created_at) as time_label';
+            $interval = '1 day';
+        } elseif ($diffInMonths < 12) {
+            $groupBy = 'DATE_FORMAT(orders.created_at, "%Y-%m")';
+            $selectFormat = 'DATE_FORMAT(orders.created_at, "%Y-%m") as time_label';
+            $interval = '1 month';
+        } else {
+            $groupBy = 'YEAR(orders.created_at)';
+            $selectFormat = 'YEAR(orders.created_at) as time_label';
+            $interval = '1 year';
+        }
+
+        $data = Order::join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+            ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
+            
+            ->whereBetween('orders.created_at', [$start, $end])
+            ->selectRaw("$selectFormat, order_statuses.id as order_status_id, COUNT(orders.id) as total_orders")
+            ->groupBy(DB::raw($groupBy), 'order_status_id')
+            ->orderBy(DB::raw($groupBy))
+            ->get();
+    }else if ($start_date && $end_date && $IdEmployee != 0) {
+        $start = Carbon::parse($start_date)->startOfDay();
+        $end = Carbon::parse($end_date)->endOfDay();
+        $diffInDays = $start->diffInDays($end);
+        $diffInMonths = $start->diffInMonths($end);
+
+        if ($diffInDays == 0) {
+            $groupBy = 'FLOOR(HOUR(orders.created_at) / 2) * 2';
+            $selectFormat = 'FLOOR(HOUR(orders.created_at) / 2) * 2 as time_label';
+            $interval = '2 hours';
+        } elseif ($diffInDays < 30) {
+            $groupBy = 'DATE(orders.created_at)';
+            $selectFormat = 'DATE(orders.created_at) as time_label';
+            $interval = '1 day';
+        } elseif ($diffInMonths < 12) {
+            $groupBy = 'DATE_FORMAT(orders.created_at, "%Y-%m")';
+            $selectFormat = 'DATE_FORMAT(orders.created_at, "%Y-%m") as time_label';
+            $interval = '1 month';
+        } else {
+            $groupBy = 'YEAR(orders.created_at)';
+            $selectFormat = 'YEAR(orders.created_at) as time_label';
+            $interval = '1 year';
+        }
+
+        $data = Order::join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+            ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
+            ->whereHas('orderStatuses', function ($query) use ($IdEmployee) {
+                $query->where('modified_by', $IdEmployee);
+            })
+            ->whereBetween('orders.created_at', [$start, $end])
+            ->selectRaw("$selectFormat, order_statuses.id as order_status_id, COUNT(orders.id) as total_orders")
+            ->groupBy(DB::raw($groupBy), 'order_status_id')
+            ->orderBy(DB::raw($groupBy))
+            ->get();
+    } else {
+        $start = now()->startOfDay();
+        $end = now()->endOfDay();
+        $interval = '2 hours';
 
         $data = Order::join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
             ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
             ->whereDate('orders.created_at', now()->toDateString())
-            ->selectRaw('FLOOR(HOUR(orders.created_at) / 3) * 3 as hour, order_statuses.id as order_status_id, COUNT(orders.id) as total_orders')
-            ->groupBy('hour', 'order_status_id') // Đảm bảo group theo cả hour và order_status_id
-            ->orderBy('hour')
+            ->selectRaw('FLOOR(HOUR(orders.created_at) / 2) * 2 as time_label, order_statuses.id as order_status_id, COUNT(orders.id) as total_orders')
+            ->groupBy('time_label', 'order_status_id')
+            ->orderBy('time_label')
             ->get();
-
-
-
-        // Khởi tạo dữ liệu mặc định với các trạng thái đơn hàng
-        $labels = [];
-        $ordersByStatus = [];
-
-        // Khởi tạo dữ liệu rỗng theo từng mốc giờ
-        for ($i = 0; $i < 24; $i += 3) {
-            $labels[] = "$i:00";
-            foreach ($orderStatuses as $statusId => $statusName) {
-                $ordersByStatus[$statusName][] = 0; // Mặc định là 0 đơn
-            }
-        }
-
-        // Cập nhật số lượng đơn hàng từ dữ liệu truy vấn
-        foreach ($data as $order) {
-            $hourIndex = $order->hour / 3; // Xác định vị trí trong mảng
-
-            if (isset($orderStatuses[$order->order_status_id])) {
-                // Đảm bảo mỗi trạng thái đơn hàng có đầy đủ 8 mốc giờ (0:00 - 21:00)
-                if (!isset($ordersByStatus[$orderStatuses[$order->order_status_id]])) {
-                    $ordersByStatus[$orderStatuses[$order->order_status_id]] = array_fill(0, 8, 0);
-                }
-
-                $ordersByStatus[$orderStatuses[$order->order_status_id]][$hourIndex] = $order->total_orders;
-            }
-        }
-
-        return [
-            'labels' => $labels,
-            'orders' => $ordersByStatus
-        ];
     }
+
+    $period = new CarbonPeriod($start, $interval, $end);
+    $labels = [];
+    $ordersByStatus = [];
+
+    foreach ($period as $date) {
+        if ($diffInDays == 0) {
+            $hour = $date->format('G');
+            if ($hour % 2 == 0) {
+                $labels[] = $date->format('G:00');
+            }
+        } elseif ($diffInDays < 30) {
+            $labels[] = $date->format('Y-m-d');
+        } elseif ($diffInMonths < 12) {
+            $labels[] = $date->format('Y-m');
+        } else {
+            $labels[] = $date->format('Y');
+        }
+    }
+
+    foreach ($labels as $label) {
+        $key = ($diffInDays == 0) ? (int) explode(':', $label)[0] : $label;
+        foreach ($orderStatuses as $statusId => $statusName) {
+            $ordersByStatus[$statusName][$key] = 0;
+        }
+    }
+
+    foreach ($data as $order) {
+        $key = ($diffInDays == 0) ? (int) $order->time_label : $order->time_label;
+        if (isset($orderStatuses[$order->order_status_id])) {
+            $ordersByStatus[$orderStatuses[$order->order_status_id]][$key] = $order->total_orders;
+        }
+    }
+
+    return [
+        'labels' => $labels,
+        'orders' => $ordersByStatus
+    ];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public function revenueEmployee($start_date = null, $end_date = null)
+{
+    $employee=Auth::id();
+
+    if ($start_date && $end_date) {
+        $start = Carbon::parse($start_date)->startOfDay();
+        $end = Carbon::parse($end_date)->endOfDay();
+        $query = Order::whereHas('orderStatuses', function ($query) use($employee) {
+            $query->where('order_status_id', 6)->where('modified_by', $employee);
+        })->whereBetween('created_at', [$start, $end]);
+    }else {
+        $query = Order::whereHas('orderStatuses', function ($query) use($employee) {
+            $query->where('order_status_id', 6)->where('modified_by', $employee);
+        })->whereDate('created_at', now()->toDateString());
+    }
+    // dd($query->sum('total_amount'));
+    return $query->sum('total_amount');
+}
+
+public function countProductEmployee()
+{
+    $countProduct = DB::table('products')->count();
+    return $countProduct;
+}
+public function countUserEmployee()
+{
+    
+    $countUser = DB::table('users')->count();
+    return $countUser;
+}
+public function newCountUserEmployee($start_date = null, $end_date = null)
+{
+    if ($start_date && $end_date) {
+        $start = Carbon::parse($start_date)->startOfDay();
+        $end = Carbon::parse($end_date)->endOfDay();
+        $newCountUser = DB::table('users')->whereBetween('created_at', [$start, $end])->count();
+    }else {
+        $newCountUser = DB::table('users')->whereDate('created_at', now()->toDateString())->count();
+    }
+    // dd($newCountUser);
+    return $newCountUser;
+}
+public function countOrderEmployee($start_date = null, $end_date = null,$IdEmployee = '')
+{
+    $employee=Auth::id();
+
+    if ($start_date && $end_date && $IdEmployee == 0) {
+        $start = Carbon::parse($start_date)->startOfDay();
+        $end = Carbon::parse($end_date)->endOfDay();
+        $countOrder = Order::whereHas('orderStatuses', function ($query) use($employee) {
+            $query->where('modified_by', $employee);
+        })->whereBetween('created_at', [$start, $end])->count();
+    }else {
+        $countOrder = Order::whereHas('orderStatuses', function ($query) use($employee) {
+            $query->where('modified_by', $employee);
+        })->whereDate('created_at', now()->toDateString())->count();
+    }
+  
+    return $countOrder;
+}
+public function topProductEmployee()
+{
+    $topProduct = DB::table('order_items as ot')
+        ->join('products as p', 'p.id', '=', 'ot.product_id')
+        ->join('orders as o', 'ot.order_id', '=', 'o.id')
+        ->join('order_order_status as oos', 'o.id', '=', 'oos.order_id')
+        ->join('order_statuses as os', 'oos.order_status_id', '=', 'os.id')
+        ->where('os.id', '=', 6) // Chỉ lấy các đơn hàng có trạng thái "Hoàn thành"
+        ->select(
+            'ot.product_id',
+            'p.name',
+            'p.thumbnail',
+            DB::raw('SUM(COALESCE(ot.quantity, 0) + COALESCE(ot.quantity_variant, 0)) as total_sold')
+        )
+        ->groupBy('ot.product_id', 'p.name')
+        ->orderByDesc('total_sold')
+        ->limit(5)
+        ->get();
+
+    return $topProduct;
+}
+
+public function getRevenueAndOrdersByHourEmployee($start_date = null, $end_date = null)
+{
+    $employee=Auth::id();
+    $diffInDays = 0;
+    $diffInMonths = 0;
+    $interval = '1 day'; // Mặc định khoảng cách là 1 ngày
+
+    if ($start_date && $end_date ) {
+
+        $start = Carbon::parse($start_date)->startOfDay();
+        $end = $end_date ? Carbon::parse($end_date)->endOfDay() : now()->endOfDay();
+        $diffInDays = $start->diffInDays($end);
+        $diffInMonths = $start->diffInMonths($end);
+
+        // Xác định cách nhóm dữ liệu
+        if ($diffInDays == 0) {
+            $groupBy = 'FLOOR(HOUR(created_at) / 2) * 2';
+            $selectFormat = 'FLOOR(HOUR(created_at) / 2) * 2 as time_label';
+            $interval = '2 hours'; // Mỗi 3 giờ một điểm
+        } elseif ($diffInDays < 30) {
+            $groupBy = 'DATE(created_at)';
+            $selectFormat = 'DATE(created_at) as time_label';
+            $interval = '1 day';
+        } elseif ($diffInMonths < 12) {
+            $groupBy = 'DATE_FORMAT(created_at, "%Y-%m")';
+            $selectFormat = 'DATE_FORMAT(created_at, "%Y-%m") as time_label';
+            $interval = '1 month';
+        } else {
+            $groupBy = 'YEAR(created_at)';
+            $selectFormat = 'YEAR(created_at) as time_label';
+            $interval = '1 year';
+        }
+
+        $data = Order::with('orderStatuses')
+        ->whereHas('orderStatuses', function ($query)use($employee) {
+            $query->where('order_status_id', 6)->where('modified_by', $employee);
+        })
+        ->whereBetween('created_at', [$start, $end])
+        ->selectRaw("$selectFormat, SUM(total_amount) as revenue, COUNT(id) as orders")
+        ->groupBy(DB::raw($groupBy)) // ✅ Chỉ nhóm theo `groupBy`, không thêm `created_at`
+        ->orderBy(DB::raw($groupBy))
+        ->get()
+        ->keyBy('time_label');
+    
+    }else {
+        // Nếu không có ngày chọn → lấy dữ liệu hôm nay theo giờ (3 tiếng 1 lần)
+        $start = now()->startOfDay();
+        $end = now()->endOfDay();
+        $interval = '2 hours';
+
+        $data = Order::with('orderStatuses')
+            ->whereHas('orderStatuses', function ($query)use($employee) {
+                $query->where('order_status_id', 6)->where('modified_by', $employee);
+            })
+            ->whereDate('created_at', now()->toDateString())
+            ->selectRaw('FLOOR(HOUR(created_at) / 2) * 2 as time_label, SUM(total_amount) as revenue, COUNT(id) as orders')
+            ->groupBy('time_label')
+            ->orderBy('time_label')
+            ->get()
+            ->keyBy('time_label');
+    }
+
+    // Tạo danh sách `labels` theo khoảng thời gian phù hợp
+    $period = new CarbonPeriod($start, $interval, $end);
+    $labels = [];
+    foreach ($period as $date) {
+        if ($diffInDays == 0) {
+            $hour = $date->format('G'); // Lấy giờ (0, 3, 6,...)
+            if ($hour % 2 == 0) { // Chỉ lấy giờ chia hết cho 3
+                $labels[] = $date->format('G:00'); // Format thành "0:00", "3:00",...
+            }
+        } elseif ($diffInDays < 30) {
+            $labels[] = $date->format('Y-m-d'); // Hiển thị ngày
+        } elseif ($diffInMonths < 12) {
+            $labels[] = $date->format('Y-m'); // Hiển thị tháng
+        } else {
+            $labels[] = $date->format('Y'); // Hiển thị năm
+        }
+    }
+
+    // Gán doanh thu và số đơn hàng với dữ liệu mặc định = 0 nếu không có dữ liệu
+    $revenues = [];
+    $orders = [];
+    foreach ($labels as $label) {
+        $key = ($diffInDays == 0) ? (int) explode(':', $label)[0] : $label;
+        $revenues[] = $data[$key]->revenue ?? 0;
+        $orders[] = $data[$key]->orders ?? 0;
+    }
+
+    return [
+        'labels' => $labels,
+        'revenues' => $revenues,
+        'orders' => $orders
+    ];
+}
+
+public function getOrderStatusByHourEmployee($start_date = null, $end_date = null)
+{
+    $employee=Auth::id();
+$orderStatuses = OrderStatus::pluck('name', 'id')->toArray();
+
+$diffInDays = 0;
+$diffInMonths = 0;
+$interval = '1 day';
+
+if ($start_date && $end_date ) {
+    $start = Carbon::parse($start_date)->startOfDay();
+    $end = Carbon::parse($end_date)->endOfDay();
+    $diffInDays = $start->diffInDays($end);
+    $diffInMonths = $start->diffInMonths($end);
+
+    if ($diffInDays == 0) {
+        $groupBy = 'FLOOR(HOUR(orders.created_at) / 2) * 2';
+        $selectFormat = 'FLOOR(HOUR(orders.created_at) / 2) * 2 as time_label';
+        $interval = '2 hours';
+    } elseif ($diffInDays < 30) {
+        $groupBy = 'DATE(orders.created_at)';
+        $selectFormat = 'DATE(orders.created_at) as time_label';
+        $interval = '1 day';
+    } elseif ($diffInMonths < 12) {
+        $groupBy = 'DATE_FORMAT(orders.created_at, "%Y-%m")';
+        $selectFormat = 'DATE_FORMAT(orders.created_at, "%Y-%m") as time_label';
+        $interval = '1 month';
+    } else {
+        $groupBy = 'YEAR(orders.created_at)';
+        $selectFormat = 'YEAR(orders.created_at) as time_label';
+        $interval = '1 year';
+    }
+
+    $data = Order::join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+        ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
+        ->whereHas('orderStatuses', function ($query)use($employee) {
+            $query->where('modified_by', $employee);
+        })
+        ->whereBetween('orders.created_at', [$start, $end])
+        ->selectRaw("$selectFormat, order_statuses.id as order_status_id, COUNT(orders.id) as total_orders")
+        ->groupBy(DB::raw($groupBy), 'order_status_id')
+        ->orderBy(DB::raw($groupBy))
+        ->get();
+}else {
+    $start = now()->startOfDay();
+    $end = now()->endOfDay();
+    $interval = '2 hours';
+
+    $data = Order::join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+        ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
+        ->whereHas('orderStatuses', function ($query)use($employee) {
+            $query->where('modified_by', $employee);
+        })
+        ->whereDate('orders.created_at', now()->toDateString())
+        ->selectRaw('FLOOR(HOUR(orders.created_at) / 2) * 2 as time_label, order_statuses.id as order_status_id, COUNT(orders.id) as total_orders')
+        ->groupBy('time_label', 'order_status_id')
+        ->orderBy('time_label')
+        ->get();
+}
+
+$period = new CarbonPeriod($start, $interval, $end);
+$labels = [];
+$ordersByStatus = [];
+
+foreach ($period as $date) {
+    if ($diffInDays == 0) {
+        $hour = $date->format('G');
+        if ($hour % 2 == 0) {
+            $labels[] = $date->format('G:00');
+        }
+    } elseif ($diffInDays < 30) {
+        $labels[] = $date->format('Y-m-d');
+    } elseif ($diffInMonths < 12) {
+        $labels[] = $date->format('Y-m');
+    } else {
+        $labels[] = $date->format('Y');
+    }
+}
+
+foreach ($labels as $label) {
+    $key = ($diffInDays == 0) ? (int) explode(':', $label)[0] : $label;
+    foreach ($orderStatuses as $statusId => $statusName) {
+        $ordersByStatus[$statusName][$key] = 0;
+    }
+}
+
+foreach ($data as $order) {
+    $key = ($diffInDays == 0) ? (int) $order->time_label : $order->time_label;
+    if (isset($orderStatuses[$order->order_status_id])) {
+        $ordersByStatus[$orderStatuses[$order->order_status_id]][$key] = $order->total_orders;
+    }
+}
+
+return [
+    'labels' => $labels,
+    'orders' => $ordersByStatus
+];
+}
 }
