@@ -8,6 +8,7 @@ use App\Repositories\UserAddressRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\WishlistRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class DashboardService
 {
@@ -44,5 +45,38 @@ class DashboardService
             'user'            => $user,
             'defaultAddress'  => $this->accountRepository->getUserProfileData()->defaultAddress ?? null
         ];
+    }
+
+    public function createBankAccount()
+    {
+        request()->validate([
+            'user_bank_name' => 'string',
+            'bank_name' => 'string',
+            'bank_account' => 'string'
+        ]);
+        try {
+            $id = Auth::id();
+
+            $user = $this->userRepository->findById($id);
+            
+            $data = [
+                'user_bank_name'=>request('user_bank_name'),
+                'bank_name' => request('bank_name'),
+                'bank_account' => request('bank_account')
+            ];
+
+            $user->update($data);
+
+            return [
+                'status' => true,
+                'message' => 'Lưu Tài Khoản Ngân Hàng Thành Công !'
+            ];
+        } catch (\Throwable $th) {
+            Log::error("error : " . $th);
+            return  [
+                'status' => false,
+                'message' => 'Có lỗi xảy ra , vui lòng thử lại !'
+            ];
+        }
     }
 }

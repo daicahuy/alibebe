@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CheckExpiredCoupons;
 use App\Console\Commands\DeleteOldTrashedItems;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Console\PruneCommand;
@@ -14,6 +15,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         DeleteOldTrashedItems::class,
+        CheckExpiredCoupons::class,
     ];
 
     protected function schedule(Schedule $schedule): void
@@ -21,6 +23,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('categories:prune')->dailyAt('06:00');
         // $schedule->command('inspire')->hourly();
         $schedule->command('app:delete-old-trashed-items')->everyFifteenSeconds();
+        $schedule->command('coupons:check-expired-coupons')->everyFifteenSeconds();
     }
 
     /**
