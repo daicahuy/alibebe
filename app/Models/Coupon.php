@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Enums\CouponDiscountType;
 use App\Enums\NotificationType;
+use App\Enums\UserRoleType;
 use App\Events\CouponExpired;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Schema;
 
 class Coupon extends Model
 {
@@ -25,6 +27,7 @@ class Coupon extends Model
         'user_group',
         'is_expired',
         'is_active',
+        'is_notified',
         'start_date',
         'end_date',
     ];
@@ -36,7 +39,7 @@ class Coupon extends Model
             if (!$coupon->is_active) {
                 return;
             }
-            
+
             $message = '';
 
             if ($coupon->isExpired()) {
@@ -48,7 +51,7 @@ class Coupon extends Model
             }
 
             // Lấy tất cả admin và nhân viên từ bảng users 
-            $admins = User::where('role', 2)->orWhere('role', 1)->get();
+            $admins = User::where('role', UserRoleType::ADMIN)->orWhere('role', UserRoleType::EMPLOYEE)->get();
 
             foreach ($admins as $admin) {
                 Notification::create([
@@ -62,6 +65,33 @@ class Coupon extends Model
 
             // Phát event thông báo realtime nếu tích hợp Laravel Echo/Pusher
             event(new CouponExpired($coupon, $message));
+
+            $coupon->is_notified = 1;
+            $coupon->saveQuietly();
+        });
+
+        static::updating(function ($coupon) {
+            $originalCoupon = Coupon::find($coupon->id);
+
+            if (!$originalCoupon) {
+                return;
+            }
+
+            // Kiểm tra nếu end_date được cập nhật thành một ngày sau đó
+            // hoặc is_active được chuyển từ 0 sang 1
+            if (
+                // Nếu ngày hết hạn mới lớn hơn ngày hết hạn cũ
+                ($coupon->end_date > $originalCoupon->end_date) ||
+                // Hoặc nếu coupon đang được bật lại (từ inactive -> active)
+                ($originalCoupon->is_active == 0 && $coupon->is_active == 1) ||
+                // Hoặc là kiểu cái coupon được thêm giới hạn
+                ($coupon->usage_limit > $originalCoupon->usage_limit)
+            ) {
+                // Nếu có trường is_notified, hãy reset về 0
+                if (Schema::hasColumn('coupons', 'is_notified')) {
+                    $coupon->is_notified = 0;
+                }
+            }
         });
     }
 

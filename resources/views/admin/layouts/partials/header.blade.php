@@ -63,7 +63,7 @@
                         <div class="notification-box">
                             <div>
                                 <i class="ri-notification-line"></i>
-                                <span class="badge bg-danger unread-count">0</span>
+                                <span class="badge bg-danger unread-count"></span>
                             </div>
                         </div>
                         <!-- Notification Dropdown -->
