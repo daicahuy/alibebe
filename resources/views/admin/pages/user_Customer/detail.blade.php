@@ -6,7 +6,7 @@
 {{-- ================================== --}}
 
 @push('css_library')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 @endpush
@@ -1028,15 +1028,6 @@
     <!-- ===============================================-->
     <main class="main" id="top">
 
-
-
-
-
-
-
-
-
-
         <div class="content">
             <div class="container mt-3 mb-5">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -1059,10 +1050,19 @@
                         <div class="card mb-12">
                             <div class="card-body">
                                 <div class="text-center mb-3">
-                                    <img src="https://picsum.photos/id/237/100/100" alt="Ảnh đại diện khách hàng"
-                                        class="customer-avatar mb-2">
-                                    <h5 class="mb-0">Ansolo Lazinatov</h5>
-                                    <p class="text-muted small">Tham gia 3 tháng trước</p>
+                                    @if ($data['user']->avatar == null)
+                                        <td class="cursor-pointer">
+                                            <div class="user-round">
+                                                <h4>{{ strtoupper(substr($data['user']->fullname, 0, 1)) }}</h4>
+                                            </div>
+                                        </td>
+                                    @else
+                                        <img src="{{ Storage::url($data['user']->avatar) }}" alt="Ảnh đại diện khách hàng"
+                                            class="customer-avatar mb-2">
+                                    @endif
+
+                                    <h5 class="mb-0">{{ $data['user']->fullname }}</h5>
+                                    <p class="text-muted small">Tham gia: {{ $data['accountCreatedAt'] }} </p>
                                     <div class="social-icons">
                                         <a href="#"><i class="fab fa-linkedin"></i></a>
                                         <a href="#"><i class="fab fa-facebook"></i></a>
@@ -1073,19 +1073,22 @@
                                 <div class="row text-center mb-3">
                                     <div class="col-4">
                                         <div class="stat-box">
-                                            <div class="stat-number text-primary">297</div>
+                                            <div class="stat-number text-primary">{{ $data['countOrder']['allCount'] }}
+                                            </div>
                                             <div class="stat-label">Đơn hàng</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="stat-box">
-                                            <div class="stat-number text-primary">56</div>
+                                            <div class="stat-number text-primary">{{ $data['countOrder']['successCount'] }}
+                                            </div>
                                             <div class="stat-label">Thành công</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="stat-box">
-                                            <div class="stat-number text-primary">97</div>
+                                            <div class="stat-number text-primary">{{ $data['countOrder']['cancelCount'] }}
+                                            </div>
                                             <div class="stat-label">Hủy</div>
                                         </div>
                                     </div>
@@ -1108,21 +1111,20 @@
                                 </div>
                                 <div class="mb-3">
                                     <p class="mb-1 fw-bold">Địa chỉ</p>
-                                    {{-- <p class="mb-0">Phú Thọ</p>
-                                    <p class="mb-0">Hoàng Cương, Thanh Ba</p>
-                                    <p class="mb-0">Khu 2</p> --}}
-                                    <p>{{ $defaultAddresses->address }}</p>
+                                    <p>{{ $data['defaultAddress']->address ?? 'Người dùng chưa cập nhật' }}</p>
                                 </div>
 
                                 <div class="mb-3">
                                     <p class="mb-1 fw-bold">Email</p>
                                     <p class="mb-0"><a href="mailto:shatinon@jaemail.com"
-                                            class="text-decoration-none">shatinon@jaemail.com</a></p>
+                                            class="text-decoration-none">{{ $data['user']->email ?? 'Người dùng chưa cập nhật' }}</a>
+                                    </p>
                                 </div>
 
                                 <div>
                                     <p class="mb-1 fw-bold">Điện thoại</p>
-                                    <p class="mb-0">{{ $defaultAddresses->phone_number }}</p>
+                                    <p class="mb-0">
+                                        {{ $data['defaultAddress']->phone_number ?? 'Người dùng chưa cập nhật' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -1150,9 +1152,10 @@
                                         <div class="d-flex justify-content-between">
                                             <div>
                                                 <i class="fas fa-shopping-cart text-primary me-2"></i>
-                                                Đặt đơn hàng #2453
+                                                Đặt đơn hàng
                                             </div>
-                                            <small class="text-muted">Hôm nay</small>
+                                            <small
+                                                class="text-muted">{{ $data['lastOrderTime'] ?? 'Chưa có hoạt động' }}</small>
                                         </div>
                                     </li>
                                     <li class="list-group-item px-0">
@@ -1161,7 +1164,8 @@
                                                 <i class="fas fa-heart text-danger me-2"></i>
                                                 Thêm sản phẩm yêu thích
                                             </div>
-                                            <small class="text-muted">Hôm qua</small>
+                                            <small
+                                                class="text-muted">{{ $data['lastWishlistTime'] ?? 'Chưa có hoạt động' }}</small>
                                         </div>
                                     </li>
                                     <li class="list-group-item px-0">
@@ -1170,7 +1174,8 @@
                                                 <i class="fas fa-star text-warning me-2"></i>
                                                 Đánh giá sản phẩm
                                             </div>
-                                            <small class="text-muted">3 ngày trước</small>
+                                            <small
+                                                class="text-muted">{{ $data['lastReviewTime'] ?? 'Chưa có hoạt động' }}</small>
                                         </div>
                                     </li>
                                 </ul>
@@ -1179,17 +1184,41 @@
                             {{-- <div class="card mb-6"> --}}
                             <br>
                             <div class="card-body">
-                                <div class="section-heading">
-                                    <h6 class="card-subtitle mb-0">Phân loại khách hàng</h6>
+                                <div class="d-flex justify-content-between">
+
+                                    <div class="card-mb-3">
+                                        <div class="section-heading">
+                                            <h6 class="card-subtitle mb-0">Phân loại khách hàng</h6>
+                                            <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#viewRank"
+                                                class="mx-2">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+
+                                        <div class="d-flex flex-wrap">
+                                            <span class="badge bg-primary me-2 mb-2">{{ $data['userRank'] }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-mb-3">
+                                        <div class="section-heading">
+                                            <h6 class="card-subtitle mb-0">Trạng thái tài khoản</h6>
+                                        </div>
+                                        <div class="d-flex flex-wrap">
+                                            @if ($data['user']->status == 0)
+                                                <span class="badge bg-warning me-2 mb-2">Không hoạt động</span>
+                                            @elseif ($data['user']->status == 1)
+                                                <span class="badge bg-primary me-2 mb-2">Hoạt động</span>
+                                            @elseif ($data['user']->status == 2)
+                                                <span class="badge bg-danger me-2 mb-2">Bị khóa</span>
+                                            @else
+                                                <span class="badge bg-dark me-2 mb-2">Không xác định</span>
+                                            @endif
+                                        </div>
+                                    </div>
 
                                 </div>
-                                <div class="d-flex flex-wrap">
-                                    <span class="badge bg-primary me-2 mb-2">Khách VIP</span>
-                                    {{-- <span class="badge bg-info me-2 mb-2">Đam mê công nghệ</span>
-                                <span class="badge bg-success me-2 mb-2">Mua sắm thường xuyên</span> --}}
-                                </div>
                             </div>
-                            {{-- </div> --}}
                         </div>
                     </div>
                     <!-- Cột phải - Đơn hàng, Danh sách yêu thích, Đánh giá -->
@@ -1209,14 +1238,16 @@
                                         <i class="fas fa-chart-line me-2"></i>Báo Cáo Chi Tiết
                                     </h4>
                                     <div class="filter-container">
-                                        <form method="GET" action="{{ route('admin.reviews.index') }}"
+                                        <form method="GET"
+                                            action="{{ route('admin.users.customer.detail', $data['user']->id) }}"
                                             class="d-flex justify-content-evenly align-items-end flex-wrap gap-3 w-100">
                                             <!-- Start Date -->
                                             <div class="flex-grow-1">
                                                 <label for="startDate" class="form-label fw-bold mb-0">Ngày bắt
                                                     đầu</label>
                                                 <input type="date" id="startDate" name="startDate"
-                                                    value="{{ request('startDate') }}" class="form-control">
+                                                    value="{{ request('startDate', now()->toDateString()) }}"
+                                                    class="form-control">
                                             </div>
 
                                             <!-- End Date -->
@@ -1224,13 +1255,14 @@
                                                 <label for="endDate" class="form-label fw-bold mb-0">Ngày kết
                                                     thúc</label>
                                                 <input type="date" id="endDate" name="endDate"
-                                                    value="{{ request('endDate') }}" class="form-control">
+                                                    value="{{ request('endDate', now()->toDateString()) }}"
+                                                    class="form-control">
                                             </div>
 
                                             <!-- Filter & Reset Buttons -->
                                             <div class="d-flex gap-2">
                                                 <button type="submit" class="btn btn-theme">Lọc</button>
-                                                <a href="{{ route('admin.reviews.index') }}"
+                                                <a href="{{ route('admin.users.customer.detail', $data['user']->id) }}"
                                                     class="btn btn-secondary">Reset</a>
                                             </div>
                                         </form>
@@ -1238,83 +1270,80 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
+
                                         <div class="col-md-6">
                                             <div class="card mb-3">
                                                 <div class="card-header">Tổng Quan Đơn Hàng</div>
                                                 <div class="card-body">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                         <span>Tổng Số Đơn</span>
-                                                        <strong class="text-primary">97</strong>
+                                                        <strong
+                                                            class="text-primary">{{ $data['order']['countAllDetail'] }}</strong>
                                                     </div>
                                                     <div class="progress" style="height: 20px;">
                                                         <div class="progress-bar progress-bar-custom" role="progressbar"
-                                                            style="width: 50%" aria-valuenow="50" aria-valuemin="0"
-                                                            aria-valuemax="100">Hoàn Thành 50%</div>
+                                                            style="width: {{ $data['percentCountSuccess'] }}%"
+                                                            aria-valuenow="{{ $data['percentCountSuccess'] }}"
+                                                            aria-valuemin="0" aria-valuemax="100">Hoàn Thành
+                                                            {{ $data['percentCountSuccess'] }}%</div>
                                                     </div>
                                                     <div class="mt-2">
+                                                        {{-- @dd($data) --}}
                                                         <small class="text-muted">Chi Tiết Trạng Thái</small>
                                                         <div class="d-flex justify-content-between mt-1">
                                                             <span class="badge bg-success badge-custom">Thành Công:
-                                                                48</span>
+                                                                {{ $data['order']['countSuccessDetail'] }}</span>
                                                             <span class="badge bg-warning badge-custom">Đang Xử Lý:
-                                                                15</span>
-                                                            <span class="badge bg-danger badge-custom">Hủy: 34</span>
-                                                            <span class="badge bg-dark badge-custom">Hoàn hàng: 3</span>
+                                                                {{ $data['order']['countProcessingDetail'] }}</span>
+                                                            <span class="badge bg-danger badge-custom">Hủy:
+                                                                {{ $data['order']['countCancelDetail'] }}</span>
+                                                            <span class="badge bg-dark badge-custom">Hoàn hàng:
+                                                                {{ $data['order']['countRefundDetail'] }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
                                         <div class="col-md-6">
                                             <div class="card mb-3">
                                                 <div class="card-header">Doanh Số</div>
                                                 <div class="card-body">
                                                     <div class="d-flex justify-content-between mb-2">
                                                         <span>Tổng Doanh Số</span>
-                                                        <strong class="text-success">132.540.000₫</strong>
+                                                        <strong
+                                                            class="text-success">{{ number_format($data['totalRevenue']) }}đ</strong>
                                                     </div>
                                                     <div class="progress" style="height: 20px;">
                                                         <div class="progress-bar bg-success" role="progressbar"
-                                                            style="width: 75%" aria-valuenow="75" aria-valuemin="0"
-                                                            aria-valuemax="100">Đạt 75%</div>
+                                                            style="width: {{ $data['percentPriceSuccess'] }}%"
+                                                            aria-valuenow="{{ $data['percentPriceSuccess'] }}"
+                                                            aria-valuemin="0" aria-valuemax="100">Đạt
+                                                            {{ $data['percentPriceSuccess'] }}%</div>
                                                     </div>
                                                     <div class="mt-2">
                                                         <div class="row">
-                                                            <div class="col-6">
+                                                            <div class="col-4">
                                                                 <small class="text-muted">Đơn Thành Công</small>
-                                                                <div class="text-success">96.490.000₫</div>
+                                                                <div class="text-success">
+                                                                    {{ number_format($data['successFullRevenue']) }}₫</div>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-4">
                                                                 <small class="text-muted">Đơn Hủy</small>
-                                                                <div class="text-danger">29.320.000₫</div>
+                                                                <div class="text-danger">
+                                                                    {{ number_format($data['cancelledRevenue']) }}₫</div>
+                                                            </div>
+                                                            <div class="col-4">
+                                                                <small class="text-muted">Đơn Hoàn</small>
+                                                                <div class="text-dark">
+                                                                    {{ number_format($data['refundRevenue']) }}₫</div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        {{-- <div class="col-md-4">
-                                            <div class="card mb-3">
-                                                <div class="card-header">Hiệu Suất</div>
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col-6 text-center">
-                                                            <div class="fs-4 text-primary">4.8/5</div>
-                                                            <small class="text-muted">Đánh Giá</small>
-                                                        </div>
-                                                        <div class="col-6 text-center">
-                                                            <div class="fs-4 text-success">98%</div>
-                                                            <small class="text-muted">Độ Hài Lòng</small>
-                                                        </div>
-                                                    </div>
-                                                    <hr>
-                                                    <div class="text-center">
-                                                        <span class="badge bg-warning me-1">Cần Cải Thiện</span>
-                                                        <span class="badge bg-info">Tiềm Năng Cao</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div> --}}
+
                                     </div>
 
                                     <div class="row">
@@ -1332,30 +1361,18 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <tr>
-                                                                <td>Đã Hoàn Thành</td>
-                                                                <td>48</td>
-                                                                <td>96.490.000₫</td>
-                                                                <td><span class="badge bg-success">72.5%</span></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Đã Hủy</td>
-                                                                <td>34</td>
-                                                                <td>29.320.000₫</td>
-                                                                <td><span class="badge bg-danger">22.1%</span></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Đang Xử Lý</td>
-                                                                <td>15</td>
-                                                                <td>3.750.000₫</td>
-                                                                <td><span class="badge bg-warning">5.4%</span></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Hoàn hàng</td>
-                                                                <td>5</td>
-                                                                <td>3.750.000₫</td>
-                                                                <td><span class="badge bg-dark">3.4%</span></td>
-                                                            </tr>
+                                                            @foreach ($data['orderDetails'] as $orderDetail)
+                                                                <tr>
+                                                                    <td>{{ $orderDetail['type'] }}</td>
+                                                                    <td>{{ $orderDetail['quantity'] }}</td>
+                                                                    <td>{{ number_format($orderDetail['revenue']) }}₫</td>
+                                                                    <td><span
+                                                                            class="badge {{ $orderDetail['badge_class'] }}">{{ $orderDetail['percentCount'] }}%</span>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+
+
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -1371,28 +1388,26 @@
                                                                 <th>Phương Thức</th>
                                                                 <th>Số Lượng</th>
                                                                 <th>Doanh Số</th>
-                                                                <th>Tỷ Lệ</th>
+                                                                <th>Tỷ Lệ(số lượng)</th>
+                                                                <th>Tỷ Lệ(doanh số )</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <tr>
-                                                                <td>Khi nhận hàng </td>
-                                                                <td>23</td>
-                                                                <td>46.320.000₫</td>
-                                                                <td><span class="badge bg-primary">35%</span></td>
-                                                            </tr>
-                                                            {{-- <tr>
-                                                                <td>Chuyển Khoản</td>
-                                                                <td>35</td>
-                                                                <td>62.540.000₫</td>
-                                                                <td><span class="badge bg-success">47%</span></td>
-                                                            </tr> --}}
-                                                            <tr>
-                                                                <td>Online</td>
-                                                                <td>24</td>
-                                                                <td>23.680.000₫</td>
-                                                                <td><span class="badge bg-info">18%</span></td>
-                                                            </tr>
+                                                            @foreach ($data['paymentMethodData'] as $pay)
+                                                                <tr>
+                                                                    <td>{{ $pay['name'] }} </td>
+                                                                    <td>{{ $pay['quantity'] }}</td>
+                                                                    <td>{{ number_format($pay['revenue']) }}₫</td>
+                                                                    <td><span
+                                                                            class="badge bg-primary">{{ $pay['percentCount'] }}%</span>
+                                                                    </td>
+                                                                    <td><span
+                                                                            class="badge bg-info">{{ $pay['percentPrice'] }}%</span>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+
+
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -1406,593 +1421,560 @@
                         </div>
                     </div>
 
+                    {{-- table --}}
                     <div class="row">
                         <!-- Đơn hàng -->
                         <div class="card mb-12">
                             <div class="card-body">
                                 <div class="section-heading">
-                                    <h5 class="card-title mb-0">Đơn hàng (97)</h5>
+                                    <h5 class="card-title mb-0">Đơn hàng ({{ $data['countUserOrders'] }})</h5>
                                     <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                                            id="ordersDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-filter me-1"></i> Lọc
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="ordersDropdown">
-                                            <li><a class="dropdown-item" href="#">Tất cả đơn hàng</a></li>
-                                            <li><a class="dropdown-item" href="#">Đơn hàng đã hoàn thành</a>
-                                            </li>
-                                            <li><a class="dropdown-item" href="#">Đơn hàng đang xử lý</a></li>
-                                            <li><a class="dropdown-item" href="#">Đơn hàng đã hủy</a></li>
-                                        </ul>
+
+                                        <form
+                                            action="{{ route('admin.users.customer.detail', $data['user']->id) }}"method="GET"
+                                            id="filterStatus">
+                                            <div class="input-group custom-dt-picker">
+                                                <select name="status" id="status" class="form-control form-date"
+                                                    onchange="document.getElementById('filterStatus').submit();">
+                                                    <option value="0" class="form-control form-date">Tất Cả</option>
+
+                                                    @foreach ($data['orderStatuses'] as $status)
+                                                        <option value="{{ $status->name }}"
+                                                            class="form-control form-date"
+                                                            {{ request('status') == $status->name ? 'selected' : '' }}>
+                                                            {{ $status->name }}</option>
+                                                    @endforeach
+                                                    <option value="refunded" class="form-control form-date"
+                                                        {{ request('status') == 'refunded' ? 'selected' : '' }}>
+                                                        Hoàn hàng</option>
+
+                                                </select>
+                                        </form>
+
                                     </div>
                                 </div>
-
-                                <div class="table-responsive">
-                                    <table class="table table-hover align-middle">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th scope="col">
-                                                    MÃ VẬN ĐƠN
-                                                    {{-- <i class="fas fa-sort ms-1 text-muted"></i> --}}
-                                                </th>
-                                                <th scope="col">
-                                                    TỔNG TIỀN
-                                                    {{-- <i class="fas fa-sort ms-1 text-muted"></i> --}}
-                                                </th>
-                                                <th scope="col">
-                                                    TRẠNG THÁI THANH TOÁN
-                                                    {{-- <i class="fas fa-sort ms-1 text-muted"></i> --}}
-                                                </th>
-                                                <th scope="col">
-                                                    TRẠNG THÁI ĐƠN HÀNG
-                                                    {{-- <i class="fas fa-sort ms-1 text-muted"></i> --}}
-                                                </th>
-                                                <th scope="col">
-                                                    PHƯƠNG THỨC THANH TOÁN
-                                                    {{-- <i class="fas fa-sort ms-1 text-muted"></i> --}}
-                                                </th>
-                                                <th scope="col">
-                                                    NGÀY ĐẶT
-                                                    {{-- <i class="fas fa-sort-down ms-1"></i> --}}
-                                                </th>
-                                                <th scope="col"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><a href="#" class="text-decoration-none">#2453</a></td>
-                                                <td>87.000₫</td>
-                                                <td><span class="badge status-badge paid">ĐÃ THANH TOÁN</span></td>
-                                                <td><span class="badge status-badge fulfilled">ĐÃ HOÀN THÀNH</span>
-                                                </td>
-                                                <td>Tiền mặt khi nhận hàng</td>
-                                                <td>12/12, 12:56</td>
-                                                <td>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-link p-0" type="button"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li><a class="dropdown-item" href="#">Xem chi
-                                                                    tiết</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">In hóa đơn</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">Theo dõi đơn
-                                                                    hàng</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><a href="#" class="text-decoration-none">#2452</a></td>
-                                                <td>2.784.000₫</td>
-                                                <td><span class="badge status-badge cancelled">ĐÃ HỦY</span></td>
-                                                <td><span class="badge status-badge ready">SẴN SÀNG LẤY HÀNG</span>
-                                                </td>
-                                                <td>Miễn phí vận chuyển</td>
-                                                <td>09/12, 14:28</td>
-                                                <td>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-link p-0" type="button"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li><a class="dropdown-item" href="#">Xem chi
-                                                                    tiết</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">In hóa đơn</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">Theo dõi đơn
-                                                                    hàng</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><a href="#" class="text-decoration-none">#2451</a></td>
-                                                <td>375.000₫</td>
-                                                <td><span class="badge status-badge pending">ĐANG XỬ LÝ</span></td>
-                                                <td><span class="badge status-badge partial">HOÀN THÀNH MỘT PHẦN</span>
-                                                </td>
-                                                <td>Nhận tại cửa hàng</td>
-                                                <td>04/12, 12:56</td>
-                                                <td>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-link p-0" type="button"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li><a class="dropdown-item" href="#">Xem chi
-                                                                    tiết</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">In hóa đơn</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">Theo dõi đơn
-                                                                    hàng</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><a href="#" class="text-decoration-none">#2450</a></td>
-                                                <td>557.000₫</td>
-                                                <td><span class="badge status-badge cancelled">ĐÃ HỦY</span></td>
-                                                <td><span class="badge status-badge cancelled">ĐƠN HÀNG ĐÃ HỦY</span>
-                                                </td>
-                                                <td>Vận chuyển tiêu chuẩn</td>
-                                                <td>01/12, 04:07</td>
-                                                <td>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-link p-0" type="button"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li><a class="dropdown-item" href="#">Xem chi
-                                                                    tiết</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">In hóa đơn</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">Theo dõi đơn
-                                                                    hàng</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><a href="#" class="text-decoration-none">#2449</a></td>
-                                                <td>9.562.000₫</td>
-                                                <td><span class="badge status-badge paid">ĐÃ THANH TOÁN</span></td>
-                                                <td><span class="badge status-badge fulfilled">ĐÃ HOÀN THÀNH</span>
-                                                </td>
-                                                <td>Chuyển phát nhanh</td>
-                                                <td>28/11, 19:28</td>
-                                                <td>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-link p-0" type="button"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li><a class="dropdown-item" href="#">Xem chi
-                                                                    tiết</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">In hóa đơn</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">Theo dõi đơn
-                                                                    hàng</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><a href="#" class="text-decoration-none">#2448</a></td>
-                                                <td>46.000₫</td>
-                                                <td><span class="badge status-badge paid">ĐÃ THANH TOÁN</span></td>
-                                                <td><span class="badge status-badge delivery-delayed">GIAO HÀNG
-                                                        CHẬM</span>
-                                                </td>
-                                                <td>Giao hàng tận nơi</td>
-                                                <td>24/11, 10:16</td>
-                                                <td>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-link p-0" type="button"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li><a class="dropdown-item" href="#">Xem chi
-                                                                    tiết</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">In hóa đơn</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">Theo dõi đơn
-                                                                    hàng</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><a href="#" class="text-decoration-none">#2448</a></td>
-                                                <td>46.000₫</td>
-                                                <td><span class="badge status-badge paid">ĐÃ THANH TOÁN</span></td>
-                                                <td><span class="badge status-badge delivery-delayed">GIAO HÀNG
-                                                        CHẬM</span>
-                                                </td>
-                                                <td>Giao hàng tận nơi</td>
-                                                <td>24/11, 10:16</td>
-                                                <td>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-link p-0" type="button"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li><a class="dropdown-item" href="#">Xem chi
-                                                                    tiết</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">In hóa đơn</a>
-                                                            </li>
-                                                            <li><a class="dropdown-item" href="#">Theo dõi đơn
-                                                                    hàng</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="text-muted small">1 đến 6 trên tổng số 15</div>
-                                    <div>
-                                        <a href="#" class="view-all">Xem tất cả <i
-                                                class="fas fa-chevron-right ms-1"></i></a>
-                                    </div>
-                                </div>
-
-                                <nav class="mt-3" aria-label="Phân trang đơn hàng">
-                                    <ul class="pagination pagination-sm justify-content-center">
-                                        <li class="page-item">
-                                            <a class="page-link" href="#" aria-label="Trước">
-                                                <span aria-hidden="true">&laquo;</span>
-                                            </a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link active" href="#">1</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#" aria-label="Sau">
-                                                <span aria-hidden="true">&raquo;</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </nav>
                             </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover align-middle text-center">
+                                    <thead class="table">
+                                        <tr>
+                                            <th scope="col">MÃ VẬN ĐƠN</th>
+                                            <th scope="col">TỔNG TIỀN</th>
+                                            <th scope="col">TRẠNG THÁI ĐƠN HÀNG</th>
+                                            <th scope="col">PHƯƠNG THỨC THANH TOÁN</th>
+                                            <th scope="col">NGÀY ĐẶT</th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if ($data['listUserOrders']->isEmpty())
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">Không có đơn hàng nào
+                                                    thỏa mãn điều kiện lọc.</td>
+                                            </tr>
+                                        @endif
+                                        @foreach ($data['listUserOrders'] as $item)
+                                            <tr>
+                                                <td>
+                                                    <a href="#"
+                                                        class="text-decoration-none fw-bold text-primary">{{ $item['code'] }}</a>
+                                                </td>
+                                                <td class="fw-bold text-success">
+                                                    {{ number_format($item['total_amount']) }}₫</td>
+                                                <td>
+                                                    <span
+                                                        class="badge bg-success">{{ $item['orderStatuses'][0]['name'] }}</span>
+                                                </td>
+                                                <td class="text-muted">{{ $item['payment']['name'] }}</td>
+                                                <td>{{ $item['created_at'] }}</td>
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-outline-secondary" type="button"
+                                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Xem chi tiết</a>
+                                                            </li>
+                                                            <li><a class="dropdown-item" href="#">In hóa đơn</a>
+                                                            </li>
+                                                            <li><a class="dropdown-item" href="#">Theo dõi đơn
+                                                                    hàng</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+
+                            <!-- START PAGINATION -->
+                            <div class="custom-pagination">
+                                {{ $data['listUserOrders']->links('pagination::bootstrap-5', ['pageName' => 'list_order']) }}
+                            </div>
+                            <!-- END PAGINATIOn -->
                         </div>
 
-                        <!-- Danh sách yêu thích -->
-                        <div class="card mb-12">
-                            <div class="card-body">
-                                <div class="section-heading">
-                                    <h5 class="card-title mb-0">Danh sách yêu thích (43)</h5>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                                            id="wishlistDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="wishlistDropdown">
-                                            <li><a class="dropdown-item" href="#">Xuất danh sách</a></li>
-                                            <li><a class="dropdown-item" href="#">Gửi khuyến mãi</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
+                    </div>
 
-                                <div class="table-responsive">
-                                    <table class="table align-middle">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th scope="col">
-                                                    Ảnh
-                                                </th>
-                                                <th scope="col">
-                                                    Tên
-                                                    {{-- <i class="fas fa-sort ms-1 text-muted"></i> --}}
-                                                </th>
-                                                {{-- <th scope="col">
-                                MÀU SẮC
-                                <i class="fas fa-sort ms-1 text-muted"></i>
-                            </th>
-                            <th scope="col">
-                                KÍCH THƯỚC
-                                <i class="fas fa-sort ms-1 text-muted"></i>
-                            </th> --}}
-                                                <th scope="col">
-                                                    GIÁ
-                                                    {{-- <i class="fas fa-sort ms-1 text-muted"></i> --}}
-                                                </th>
-                                                {{-- <th scope="col">
-                                TỔNG
-                                <i class="fas fa-sort ms-1 text-muted"></i>
-                            </th> --}}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><img src="https://picsum.photos/id/237/100/100" alt="Sản phẩm"
-                                                        class="img-thumbnail" width="40"></td>
-                                                <td class="product-title">Đồng hồ thông minh Fitbit Sense Advanced
-                                                </td>
-                                                {{-- <td>Đen mờ</td>
-                            <td>42</td>
-                            <td>1.150.000₫</td> --}}
-                                                <td>1.150.000₫</td>
-                                            </tr>
-                                            <tr>
-                                                <td><img src="https://picsum.photos/id/237/100/100" alt="Sản phẩm"
-                                                        class="img-thumbnail" width="40"></td>
-                                                <td class="product-title">iPad Pro 12.9-inch 2023 Wi-Fi + Cellular
-                                                </td>
-                                                {{-- <td>Đen</td>
-                            <td>Pro</td>
-                            <td>29.990.000₫</td> --}}
-                                                <td>29.990.000₫</td>
-                                            </tr>
-                                            <tr>
-                                                <td><img src="https://picsum.photos/id/237/100/100" alt="Sản phẩm"
-                                                        class="img-thumbnail" width="40"></td>
-                                                <td class="product-title">Tay cầm không dây PlayStation 5 DualSense
-                                                </td>
-                                                {{-- <td>Trắng</td>
-                            <td>Tiêu chuẩn</td>
-                            <td>1.790.000₫</td> --}}
-                                                <td>1.790.000₫</td>
-                                            </tr>
-                                            <tr>
-                                                <td><img src="https://picsum.photos/id/237/100/100" alt="Sản phẩm"
-                                                        class="img-thumbnail" width="40"></td>
-                                                <td class="product-title">MacBook Pro 13 inch M1 8C256G</td>
-                                                {{-- <td>Xám không gian</td>
-                            <td>Pro</td>
-                            <td>29.990.000₫</td> --}}
-                                                <td>29.990.000₫</td>
-                                            </tr>
-                                            <tr>
-                                                <td><img src="https://picsum.photos/id/237/100/100" alt="Sản phẩm"
-                                                        class="img-thumbnail" width="40"></td>
-                                                <td class="product-title">Apple iMac 24" 4K Retina Display M1 8C
-                                                </td>
-                                                {{-- <td>Xanh dương</td>
-                            <td>21"</td>
-                            <td>1.790.000₫</td> --}}
-                                                <td>1.790.000₫</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="text-muted small">1 đến 5 trên tổng số 9</div>
-                                    <div>
-                                        <a href="#" class="view-all">Xem tất cả <i
-                                                class="fas fa-chevron-right ms-1"></i></a>
-                                    </div>
-                                </div>
-
-                                <nav class="mt-3" aria-label="Phân trang danh sách yêu thích">
-                                    <ul class="pagination pagination-sm justify-content-center">
-                                        <li class="page-item">
-                                            <a class="page-link" href="#" aria-label="Trước">
-                                                <span aria-hidden="true">&laquo;</span>
-                                            </a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link active" href="#">1</a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#" aria-label="Sau">
-                                                <span aria-hidden="true">&raquo;</span>
-                                            </a>
-                                        </li>
+                    <!-- Danh sách yêu thích -->
+                    <div class="card mb-12">
+                        <div class="card-body">
+                            <div class="section-heading">
+                                <h5 class="card-title mb-0">Danh sách yêu thích ({{ $data['countWishLists'] }})</h5>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                        id="wishlistDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="wishlistDropdown">
+                                        <li><a class="dropdown-item" href="#">Xuất danh sách</a></li>
+                                        <li><a class="dropdown-item" href="#">Gửi khuyến mãi</a></li>
                                     </ul>
-                                </nav>
-                            </div>
-                        </div>
-
-                        <!-- Ratings & Reviews -->
-                        <div class="card mb-12">
-                            <div class="card-body">
-                                <div class="section-heading">
-                                    <h5 class="card-title mb-0">Ratings &amp; reviews <span
-                                            class="text-body-tertiary fw-normal">(43)</span></h5>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                                            id="reviewDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="reviewDropdown">
-                                            <li><a class="dropdown-item" href="#">Ẩn/Hiện đánh giá hàng loạt</a>
-                                            </li>
-                                            <li><a class="dropdown-item" href="#">Xuất danh sách đánh giá</a></li>
-                                            <li><a class="dropdown-item" href="#">Lọc theo trạng thái</a></li>
-                                        </ul>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <div class="table-responsive">
-                                    <table class="table align-middle">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th scope="col">
-                                                    Ảnh
-                                                </th>
-                                                <th scope="col">
-                                                    Tên sản phẩm
-                                                </th>
-                                                <th scope="col">
-                                                    Đánh giá
-                                                </th>
-                                                <th scope="col">
-                                                    Nội dung
-                                                </th>
-                                                <th scope="col">
-                                                    Số lần đánh giá
-                                                </th>
-                                                <th scope="col">
-                                                    Thao tác
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover align-middle text-center">
+                                    <thead class="table">
+                                        <tr>
+                                            <th scope="col">Ảnh</th>
+                                            <th scope="col">Tên</th>
+                                            <th scope="col">Giá</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($data['wishlists'] as $wishlist)
                                             <tr>
                                                 <td>
-                                                    <img src="https://picsum.photos/id/300/50/50" alt="Sản phẩm 1"
-                                                        class="img-thumbnail" width="40">
+                                                    <img src="{{ Storage::url($wishlist['product']['thumbnail']) }}"
+                                                        alt="Sản phẩm" class="img-thumbnail"
+                                                        style="width: 60px; height: 60px; object-fit: cover;">
                                                 </td>
-                                                <td class="product-title">Tablet M25 Plus 163948</td>
+                                                <td class="fw-bold">{{ $wishlist['product']['name'] }}</td>
                                                 <td>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill "></i>
+                                                    <h5 class="price mb-0">
+                                                        @php $product = $wishlist['product']; @endphp
+                                                        @if ($product->price != 0)
+                                                            @if ($product->is_sale == 1 && $product->sale_price > 0)
+                                                                <span class="theme-color fw-bold">
+                                                                    {{ number_format($product->sale_price, 0, ',', '.') }}
+                                                                    đ
+                                                                </span>
+                                                                <del class="text-muted small ms-2">
+                                                                    {{ number_format($product->price, 0, ',', '.') }} đ
+                                                                </del>
+                                                            @else
+                                                                <span class="text-success fw-bold">
+                                                                    {{ number_format($product->price, 0, ',', '.') }} đ
+                                                                </span>
+                                                            @endif
+                                                        @else
+                                                            @php
+                                                                $activeVariants = $product->productVariants->where(
+                                                                    'is_active',
+                                                                    1,
+                                                                );
+                                                            @endphp
+                                                            @if ($activeVariants->isEmpty())
+                                                                <span class="text-warning fw-bold">Liên hệ</span>
+                                                            @else
+                                                                @if ($product->is_sale == 1 && $product->sale_price > 0)
+                                                                    <span class="badge bg-danger">Giảm giá</span>
+                                                                @endif
+                                                                @php
+                                                                    $prices = $activeVariants
+                                                                        ->pluck('price')
+                                                                        ->filter()
+                                                                        ->sort();
+                                                                    $priceRange = $prices->isNotEmpty()
+                                                                        ? number_format($prices->first(), 0, ',', '.') .
+                                                                            ' - ' .
+                                                                            number_format(
+                                                                                $prices->last(),
+                                                                                0,
+                                                                                ',',
+                                                                                '.',
+                                                                            ) .
+                                                                            ' đ'
+                                                                        : 'Liên hệ';
+                                                                @endphp
+                                                                <span
+                                                                    class="theme-color fw-bold">{{ $priceRange }}</span>
+                                                            @endif
+                                                        @endif
+                                                    </h5>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- START PAGINATION -->
+                            <div class="custom-pagination">
+                                {{ $data['wishlists']->links() }}
+                            </div>
+                            <!-- END PAGINATIOn -->
+
+                        </div>
+                    </div>
+
+                    <!-- Ratings & Reviews -->
+                    <div class="card mb-12">
+                        <div class="card-body">
+                            <div class="section-heading">
+                                <h5 class="card-title mb-0">Ratings &amp; reviews <span
+                                        class="text-body-tertiary fw-normal">(43)</span></h5>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                        id="reviewDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="reviewDropdown">
+                                        <li><a class="dropdown-item" href="#">Ẩn/Hiện đánh giá hàng loạt</a>
+                                        </li>
+                                        <li><a class="dropdown-item" href="#">Xuất danh sách đánh giá</a>
+                                        </li>
+                                        <li><a class="dropdown-item" href="#">Lọc theo trạng thái</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover align-middle text-center">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col">
+                                                Ảnh
+                                            </th>
+                                            <th scope="col">
+                                                Tên sản phẩm
+                                            </th>
+                                            <th scope="col">
+                                                Đánh giá
+                                            </th>
+                                            <th scope="col">
+                                                Nội dung
+                                            </th>
+                                            <th scope="col">
+                                                Số lần đánh giá
+                                            </th>
+                                            <th scope="col">
+                                                Thao tác
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($data['reviews'] as $review)
+                                            <tr>
+                                                <td>
+                                                    <img src="{{ Storage::url($review['thumbnail']) }}" alt="Sản phẩm 1"
+                                                        class="img-thumbnail"
+                                                        style="width: 60px; height: 60px; object-fit: cover;">
+                                                </td>
+                                                <td class="fw-bold">{{ $review['name'] }}</td>
+                                                <td class="">
+                                                    <ul class="d-flex justify-content-center rating">
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            <li>
+                                                                <i data-feather="star"
+                                                                    class="{{ $i <= round($review['reviews'][0]['rating']) ? 'fill text-warning' : '' }}"></i>
+                                                            </li>
+                                                        @endfor
+                                                    </ul>
 
                                                     {{-- <i class="fas fa-star text-warning"></i> --}}
                                                 </td>
-                                                <td>Sản phẩm dùng ổn, giá hợp lý.</td>
-                                                <td>15</td>
+                                                <td>{{ $review['reviews'][0]['review_text'] }}</td>
+                                                <td>{{ $review['reviews_count'] }}</td>
                                                 <td>
-                                                    <ul>
-                                                        <li><a href="#"><i class="ri-eye-line"></i></a>
-                                                        </li>
-                                                    </ul>
+                                                    <button type="button" class="btn btn-sm btn-info view-details-btn"
+                                                        data-bs-toggle="modal" data-bs-target="#reviewsModal"
+                                                        data-product-id="{{ $review['id'] }}"
+                                                        data-product-name="{{ $review['name'] }}"> <i
+                                                            class="ri-eye-line"></i> Xem chi tiết
+                                                    </button>
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td>
-                                                    <img src="https://picsum.photos/id/301/50/50" alt="Sản phẩm 2"
-                                                        class="img-thumbnail" width="40">
-                                                </td>
-                                                <td class="product-title">Điện thoại Samsung Galaxy S23</td>
-                                                <td>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill "></i>
-                                                    <i data-feather="star"class="fill "></i>
-                                                </td>
-                                                <td>Rất tốt, nhân viên tư vấn nhiệt tình.</td>
-                                                <td>28</td>
-                                                <td>
-                                                    <ul>
-                                                        <li><a href="#"><i class="ri-eye-line"></i></a>
-                                                        </li>
-                                                    </ul>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <img src="https://picsum.photos/id/302/50/50" alt="Sản phẩm 3"
-                                                        class="img-thumbnail" width="40">
-                                                </td>
-                                                <td class="product-title">Tai nghe Sony WH-1000XM5</td>
-                                                <td>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill "></i>
-                                                </td>
-                                                <td>Âm thanh hay, nhưng hơi cấn tai khi đeo lâu.</td>
-                                                <td>10</td>
-                                                <td>
-                                                    <ul>
-                                                        <li><a href="#"><i class="ri-eye-line"></i></a>
-                                                        </li>
-                                                    </ul>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <img src="https://picsum.photos/id/303/50/50" alt="Sản phẩm 4"
-                                                        class="img-thumbnail" width="40">
-                                                </td>
-                                                <td class="product-title">Máy tính bảng iPad Air 5</td>
-                                                <td>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                    <i data-feather="star"class="fill text-warning"></i>
-                                                </td>
-                                                <td>Màn hình đẹp, pin dùng được cả ngày.</td>
-                                                <td>22</td>
-                                                <td>
-                                                    <ul>
-                                                        <li><a href="#"><i class="ri-eye-line"></i></a>
-                                                        </li>
-                                                    </ul>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                        @endforeach
 
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="text-muted small">1 đến 4 trên tổng số 43</div>
-                                    <div>
-                                        <a href="#" class="view-all">Xem tất cả <i
-                                                class="fas fa-chevron-right ms-1"></i></a>
-                                    </div>
-                                </div>
 
-                                <nav class="mt-3" aria-label="Phân trang danh sách đánh giá">
-                                    <ul class="pagination pagination-sm justify-content-center">
-                                        <li class="page-item">
-                                            <a class="page-link" href="#" aria-label="Trước">
-                                                <span aria-hidden="true">&laquo;</span>
-                                            </a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link active" href="#">1</a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#" aria-label="Sau">
-                                                <span aria-hidden="true">&raquo;</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </nav>
+
+                                    </tbody>
+                                </table>
                             </div>
+
+                            <!-- START PAGINATION -->
+                            <div class="custom-pagination">
+                                {{ $data['reviews']->links('pagination::bootstrap-5', ['pageName' => 'reviews_page']) }}
+                            </div>
+                            <!-- END PAGINATIOn -->
                         </div>
-
-
                     </div>
 
 
-                    <div class="row">
+                </div>
 
-                        <div class="col-lg-6">
 
-                        </div>
+                <div class="row">
 
-                        <div class="col-lg-6">
-
-                        </div>
+                    <div class="col-lg-6">
 
                     </div>
+
+                    <div class="col-lg-6">
+
+                    </div>
+
+                </div>
+
+
 
 
     </main><!-- ===============================================-->
     <!--    End of Main Content-->
     <!-- ===============================================-->
+    <!-- Modal Rank -->
+    <div class="modal fade" id="viewRank" tabindex="-1" aria-labelledby="viewRankLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0">
+                <!-- Modal Header with Gradient -->
+                <div class="modal-header border-0 position-relative"
+                    style="background: #0da487; min-height: 100px; border-radius: 0.5rem 0.5rem 0 0;">
+                    <div class="position-absolute w-100 text-center" style="top: 50%; transform: translateY(-50%);">
+                        <h4 class="modal-title text-white mb-0 fw-bold" id="viewRankLabel">
+                            <i class="fas fa-crown me-2" style="color: #FFD700;"></i>
+                            Xếp Hạng Thành Viên
+                        </h4>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 mt-3 me-3"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body py-4">
+                    <!-- Current Rank Banner -->
+                    <div class="text-center mb-4">
+                        <div class="badge bg-gradient px-4 py-2 fs-6" style="background: #0da487">
+                            Cấp Độ Hiện Tại
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="row g-4 justify-content-center">
+                        <!-- Rank Card -->
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 overflow-hidden position-relative">
+                                <div class="card-body text-center p-3"
+                                    style="background: linear-gradient(135deg, #1e3c72, #2a5298);">
+                                    <div class="rank-icon mb-3">
+                                        <i class="fas fa-medal fa-3x" style="color: #FFD700;"></i>
+                                    </div>
+                                    <h5 class="text-white fw-bold mb-3">Cấp Bậc</h5>
+                                    <h3 class="text-warning fw-bold mb-0 display-6">
+                                        {{ ucfirst($data['userRank']) }}
+                                    </h3>
+                                    <div class="position-absolute top-0 end-0 p-2">
+                                        <div class="badge bg-warning">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Points Card -->
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 overflow-hidden position-relative">
+                                <div class="card-body text-center p-3"
+                                    style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                                    <div class="points-icon mb-3">
+                                        <i class="fas fa-gem fa-3x" style="color: #E0F7FA;"></i>
+                                    </div>
+                                    <h5 class="text-white fw-bold mb-3">Điểm Loyalty</h5>
+                                    <h3 class="text-white fw-bold mb-0 display-6">
+                                        {{ number_format($data['user']->loyalty_points) }}
+                                    </h3>
+                                    <div class="position-absolute top-0 end-0 p-2">
+                                        <div class="badge bg-info">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Orders Card -->
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 overflow-hidden position-relative">
+                                <div class="card-body text-center p-3"
+                                    style="background: linear-gradient(135deg, #eb3349, #f45c43);">
+                                    <div class="orders-icon mb-3">
+                                        <i class="fas fa-shopping-bag fa-3x" style="color: #FFF;"></i>
+                                    </div>
+                                    <h5 class="text-white fw-bold mb-3">Tổng Đơn Hàng</h5>
+                                    <h3 class="text-white fw-bold mb-0 display-6">
+                                        {{ number_format($data['countOrder']['allCount']) }}
+                                    </h3>
+                                    <div class="position-absolute top-0 end-0 p-2">
+                                        <div class="badge bg-danger">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Section -->
+                    {{-- <div class="mt-5">
+                            <h6 class="text-center mb-4 fw-bold text-muted">
+                                <i class="fas fa-chart-bar me-2"></i>Tiến Độ Lên Hạng
+                            </h6>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                                    role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0"
+                                    aria-valuemax="100">
+                                    75%
+                                </div>
+                            </div>
+                        </div> --}}
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-danger btn-lg px-4 fw-bold" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- modal review --}}
+
+    <div class="modal fade theme-modal question-modal" id="reviewsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="reviewsModalLabel">Chi tiết đánh giá cho <span
+                            id="modal-product-name">Tên sản phẩm mẫu</span></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="modal-body pt-0">
+                    <div id="modal-reviews-content">
+                        <div class="review-people">
+                            <ul class="review-list">
+                                <li>
+                                    <div class="people-box">
+                                        <div>
+                                            <div class="people-image people-text">
+                                                <h3 class="text-center rounded-circle bg-white d-inline-flex align-items-center justify-content-center"
+                                                    style="width: 70px; height: 70px;">
+                                                    NM
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div class="people-comment">
+                                            <div class="people-name"><a href="javascript:void(0)" class="name">Nguyen
+                                                    Manh</a>
+                                                <div class="date-time">
+                                                    <h6 class="text-content">
+                                                        01/04/2025 14:14:31
+                                                    </h6>
+                                                </div>
+                                            </div>
+                                            <div class="product-rating mt-2">
+                                                <ul class="rating">
+
+                                                    <i data-feather="star" class="fill text-warning"></i>
+                                                    <i data-feather="star" class="fill text-warning"></i>
+                                                    <i data-feather="star" class="fill text-warning"></i>
+                                                    <i data-feather="star" class="fill "></i>
+                                                    <i data-feather="star" class="fill "></i>
+
+
+                                                </ul>
+                                            </div>
+                                            <div class="reply">
+                                                <p>giá cả áo ma thế ???</p>
+                                            </div>
+                                            <div class="review-images mt-2">
+                                                <img src="https://picsum.photos/200/300" alt="Ảnh đánh giá 1"
+                                                    class="img-thumbnail me-1">
+                                                <img src="https://picsum.photos/200/300" alt="Ảnh đánh giá 2"
+                                                    class="img-thumbnail me-1">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="people-box">
+                                        <div>
+                                            <div class="people-image people-text">
+                                                <h3 class="text-center rounded-circle bg-white d-inline-flex align-items-center justify-content-center"
+                                                    style="width: 70px; height: 70px;">
+                                                    NM
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div class="people-comment">
+                                            <div class="people-name"><a href="javascript:void(0)" class="name">Nguyen
+                                                    Manh</a>
+                                                <div class="date-time">
+                                                    <h6 class="text-content">
+                                                        01/04/2025 15:41:15
+                                                    </h6>
+                                                </div>
+                                            </div>
+                                            <div class="product-rating mt-2">
+                                                <ul class="rating">
+                                                    <i data-feather="star" class="fill text-warning"></i>
+                                                    <i data-feather="star" class="fill text-warning"></i>
+                                                    <i data-feather="star" class="fill text-warning"></i>
+                                                    <i data-feather="star" class="fill "></i>
+                                                    <i data-feather="star" class="fill "></i>
+                                                </ul>
+                                            </div>
+                                            <div class="reply">
+                                                <p>Đánh giá sản phẩm mang tính chất nhận xu</p>
+                                            </div>
+                                            <div class="review-images mt-2">
+                                                <img src="https://picsum.photos/200/300" alt="Ảnh đánh giá 1"
+                                                    class="img-thumbnail me-1">
+                                                <img src="https://picsum.photos/200/300" alt="Ảnh đánh giá 2"
+                                                    class="img-thumbnail me-1">
+                                                <img src="https://picsum.photos/200/300" alt="Ảnh đánh giá 3"
+                                                    class="img-thumbnail me-1">
+                                                <img src="https://picsum.photos/200/300" alt="Ảnh đánh giá 4"
+                                                    class="img-thumbnail me-1">
+                                                <img src="https://picsum.photos/200/300" alt="Ảnh đánh giá 5"
+                                                    class="img-thumbnail">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-md btn-theme-outline fw-bold"
+                        data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
+
+
+
 
 
 
@@ -2005,6 +1987,27 @@
 
 @push('js')
     <script>
+        var customerId = {{ $data['user']['id'] }}; // Giả sử bạn có biến $customer chứa thông tin khách hàng
+
+        $('.view-details-btn').on('click', function(e) {
+            e.preventDefault();
+
+            var productId = $(this).data('product-id');
+
+            $.ajax({
+                url: '/user/products/' + productId + '/reviews?userId=' + customerId,
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log('AJAX request successful');
+                    console.log(data); // Bạn có thể log data để xem trong console
+                },
+                error: function(error) {
+                    console.error('Lỗi AJAX:', error);
+                }
+            });
+        });
+        //   
         var navbarTopShape = window.config.config.phoenixNavbarTopShape;
         var navbarPosition = window.config.config.phoenixNavbarPosition;
         var body = document.querySelector('body');

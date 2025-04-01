@@ -10,5 +10,9 @@ class OrderStatusRepository extends BaseRepository {
     {
         return OrderStatus::class;
     }
+
+    public function getNameStatus(){
+        return $this->model->get();
+    }
     
 }

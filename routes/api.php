@@ -10,12 +10,14 @@ use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CompareController;
 use App\Http\Controllers\api\CouponApiController;
+use App\Http\Controllers\Api\CustomerDetailController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\api\OrderCustomerControllerApi;
 use App\Http\Controllers\api\PaymentController;
 use App\Http\Controllers\api\PaymentOnlineController;
 use App\Http\Controllers\api\UserAddressController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Api\ListCategoryController;
@@ -207,7 +209,8 @@ Route::prefix('/products')
         Route::post('/variant', [ProductController::class, 'storeVariant'])->name('storeVariant');
         Route::put('/single/{id}', [ProductController::class, 'updateSingle'])->name('updateSingle')->where(['id' => '[0-9]+']);
         Route::put('/variant/{id}', [ProductController::class, 'updateVariant'])->name('updateVariant')->where(['id' => '[0-9]+']);
-        Route::patch('/{id}/active', [ProductController::class, 'toggleActive'])->name('toggleActive')->where(['id' => '[0-9]+']);;
+        Route::patch('/{id}/active', [ProductController::class, 'toggleActive'])->name('toggleActive')->where(['id' => '[0-9]+']);
+        ;
     });
 
 // STOCK
@@ -224,4 +227,13 @@ Route::prefix('compare')
     ->group(function () {
         Route::post('/add-with-check/{productId}', [CompareController::class, 'addTocompareWithCheck'])->name('add.with.check');
         Route::get('/compareDetail/{id}', [CompareController::class, 'detailModal']);
+    });
+
+// customer detail
+Route::prefix('user')
+    ->name('api.user.')
+    // ->middleware(StartSession::class)
+    ->group(function () {
+        Route::get('/products/{productId}/reviews', [UserController::class, 'detailReview'])->name('reviews');
+
     });

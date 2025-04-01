@@ -40,7 +40,9 @@ class UserAddressRepository extends BaseRepository
 
     public function getDefaultAddressById($userId)
     {
-        $user = $this->model->findorFail($userId);
-        return $user->addresses()->where('is_default', 1)->first();   
+        $address = $this->model->where('user_id', $userId)->where('is_default', 1)->first();
+        return $address;
     }
+
+
 }
