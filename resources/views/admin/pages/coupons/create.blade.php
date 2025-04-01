@@ -378,21 +378,17 @@
 
             // Khởi tạo Flatpickr cho các trường input
             $("#start_date_input").flatpickr({
-                dateFormat: "Y-m-d"
+                enableTime: true, // Cho phép chọn thời gian
+                enableSeconds: true, // Cho phép chọn giây
+                time_24hr: true, // Sử dụng 24 giờ
+                dateFormat: "Y-m-d H:i:s" // Định dạng ngày giờ đầy đủ
             });
 
             $("#end_date_input").flatpickr({
-                dateFormat: "Y-m-d"
-            });
-
-            // Khi nhấn vào nút calendar bên cạnh input #start_date
-            $("#startDatePickerBtn").click(function() {
-                $("#start_date_input").open(); // Mở bảng lịch cho start_date
-            });
-
-            // Khi nhấn vào nút calendar bên cạnh input #end_date
-            $("#endDatePickerBtn").click(function() {
-                $("#end_date_input").open(); // Mở bảng lịch cho end_date
+                enableTime: true,
+                enableSeconds: true,
+                time_24hr: true,
+                dateFormat: "Y-m-d H:i:s"
             });
 
             $('input, select, textarea').on('focus', function() {

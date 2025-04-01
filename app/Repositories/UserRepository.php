@@ -64,6 +64,27 @@ class UserRepository extends BaseRepository
         return 'Newbie';
     }
 
+    public function getUserGroupId(int $loyaltyPoints): int
+    {
+        $loyaltyRanges = [
+            1 => [0, 100],
+            2 => [101, 300],
+            3 => [301, 500],
+            4 => [501, 700],
+            5 => [701, 850],
+            6 => [851, 999],
+            7 => [1000, PHP_INT_MAX]
+        ];
+
+        foreach ($loyaltyRanges as $group => [$min, $max]) {
+            if ($loyaltyPoints >= $min && $loyaltyPoints <= $max) {
+                return $group;
+            }
+        }
+
+        return 1; // Mặc định Newbie
+    }
+
     public function getUserCustomer(Request $request, $limit)
     {
         $query = $this->model

@@ -108,6 +108,7 @@ Route::name('account.')
 
         //dashboard
         Route::get('/', 'dashboard')->name('dashboard');
+        Route::patch('/update-bank','bank')->name('bank');
 
         //order
         Route::get('/order-history', 'order')->name('order-history');

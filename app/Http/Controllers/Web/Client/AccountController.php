@@ -45,6 +45,15 @@ class AccountController extends Controller
         return view('client.pages.accounts.dashboard',compact('data'));
     }
 
+    public function bank() {
+        $result = $this->dashboardService->createBankAccount();
+        if ($result['status']) {
+            return redirect()->route('account.dashboard')->with('success', $result['message']);
+        } else {
+            return back()->withErrors(['message' => $result['message']]);
+        }
+    }
+
     // ============== address ===============
     public function address()
     {

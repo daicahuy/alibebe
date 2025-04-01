@@ -465,8 +465,7 @@
 
             @if ($errors->has('message'))
                 Swal.fire({
-                    icon:
-                     'error',
+                    icon: 'error',
                     title: 'Có lỗi xảy ra',
                     text: '{{ $errors->first('message') }}',
                     showConfirmButton: true
@@ -475,11 +474,17 @@
 
             // Khởi tạo Flatpickr cho các trường input
             $("#start_date_input").flatpickr({
-                dateFormat: "Y-m-d"
+                enableTime: true, // Cho phép chọn thời gian
+                enableSeconds: true, // Cho phép chọn giây
+                time_24hr: true, // Sử dụng 24 giờ
+                dateFormat: "Y-m-d H:i:s" // Định dạng ngày giờ đầy đủ
             });
 
             $("#end_date_input").flatpickr({
-                dateFormat: "Y-m-d"
+                enableTime: true,
+                enableSeconds: true,
+                time_24hr: true,
+                dateFormat: "Y-m-d H:i:s"
             });
 
             // Khi nhấn vào nút calendar bên cạnh input #start_date

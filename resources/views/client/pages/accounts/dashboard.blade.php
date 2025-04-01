@@ -170,16 +170,215 @@
                         <div class="map-container card shadow-sm p-0">
                             <iframe
                                 src="https://www.google.com/maps/embed/v1/place?q={{ urlencode($data['defaultAddress'] && $data['defaultAddress']->address ? $data['defaultAddress']->address : 'Ho Chi Minh City, Vietnam') }}&key=AIzaSyD0KlXUweWDKJXEgy9bt8pbUsCxN96gBoU"
-                                allowfullscreen=""  loading="lazy"></iframe>
+                                allowfullscreen="" loading="lazy"></iframe>
                         </div>
-                    </div>                    
+                    </div>
                 </div>
+            </div>
+
+            <!-- Tài khoản ngân hàng3da  -->
+            <div class="col-12">
+                <div class="dashboard-content-title d-flex align-items-center justify-content-between">
+                    <h4>Tài Khoản Ngân Hàng</h4>
+                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#bankAccount" class="text-primary">
+                        <i class="fas fa-pencil-alt me-1"></i>
+                        {{ empty($data['user']->bank_name) ? 'Thêm tài khoản' : 'Cập nhật' }}
+                    </a>
+                </div>
+
+                @if (empty($data['user']->bank_name) && empty($data['user']->user_bank_name) && empty($data['user']->bank_account))
+                    <div class="card shadow-sm border-0 p-4 text-center">
+                        <div class="py-4">
+                            <i class="fas fa-university fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">Bạn chưa thêm tài khoản ngân hàng</p>
+                            <p class="text-muted">Vui lòng nhấn <a href="javascript:void(0)" data-bs-toggle="modal"
+                                    data-bs-target="#bankAccount" class="text-primary">vào đây</a> để thêm tài khoản</p>
+                        </div>
+                    </div>
+                @else
+                    <div class="card shadow-sm border-0 p-0">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead style="background-color: #f7f7f7;">
+                                        <tr>
+                                            <th class="border-0">Ngân Hàng</th>
+                                            <th class="border-0">Tên Tài Khoản</th>
+                                            <th class="border-0">Số Tài Khoản</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bank-icon me-3">
+                                                        <i class="fas fa-university text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">{{ $data['user']->bank_name ?? 'N/A' }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ $data['user']->user_bank_name ?? 'N/A' }}</td>
+                                            <td>{{ $data['user']->bank_account ?? 'N/A' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 @endsection
 
 @section('modal')
+    <!-- Modal Bank User -->
+    <div class="modal fade" id="bankAccount" tabindex="-1" aria-labelledby="BankAccountLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0">
+                <!-- Modal Header with Gradient -->
+                <div class="modal-header border-0 position-relative"
+                    style="background: #0da487; min-height: 100px; border-radius: 0.5rem 0.5rem 0 0;">
+                    <div class="position-absolute w-100 text-center" style="top: 50%; transform: translateY(-50%);">
+                        <h4 class="modal-title text-white mb-0 fw-bold" id="BankAccountLabel">
+                            <i class="fas fa-university me-2" style="color: #FFD700;"></i>
+                            Tài Khoản Ngân Hàng
+                        </h4>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 mt-3 me-3"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body py-4">
+                    <form action="{{ route('account.bank') }}" method="POST" id="bankAccountForm">
+                        @csrf
+                        @method('PATCH')
+                        <div class="container">
+                            <div class="row">
+                                <!-- Bank Logo and Selection -->
+                                <div class="col-md-12 mb-4">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-3">
+                                                <i class="fas fa-landmark text-primary me-2"></i>Chọn Ngân Hàng
+                                            </h5>
+                                            <div class="form-group">
+                                                <select class="form-select form-control" name="bank_name" id="bank_name"
+                                                    required>
+                                                    <option value="" disabled selected>-- Chọn Ngân Hàng --</option>
+                                                    <option value="Vietcombank"
+                                                        {{ $data['user']->bank_name == 'Vietcombank' ? 'selected' : '' }}>
+                                                        Vietcombank</option>
+                                                    <option value="BIDV"
+                                                        {{ $data['user']->bank_name == 'BIDV' ? 'selected' : '' }}>BIDV
+                                                    </option>
+                                                    <option value="Vietinbank"
+                                                        {{ $data['user']->bank_name == 'Vietinbank' ? 'selected' : '' }}>
+                                                        Vietinbank</option>
+                                                    <option value="Techcombank"
+                                                        {{ $data['user']->bank_name == 'Techcombank' ? 'selected' : '' }}>
+                                                        Techcombank</option>
+                                                    <option value="ACB"
+                                                        {{ $data['user']->bank_name == 'ACB' ? 'selected' : '' }}>ACB
+                                                    </option>
+                                                    <option value="VPBank"
+                                                        {{ $data['user']->bank_name == 'VPBank' ? 'selected' : '' }}>VPBank
+                                                    </option>
+                                                    <option value="MBBank"
+                                                        {{ $data['user']->bank_name == 'MBBank' ? 'selected' : '' }}>MBBank
+                                                    </option>
+                                                    <option value="Sacombank"
+                                                        {{ $data['user']->bank_name == 'Sacombank' ? 'selected' : '' }}>
+                                                        Sacombank</option>
+                                                    <option value="TPBank"
+                                                        {{ $data['user']->bank_name == 'TPBank' ? 'selected' : '' }}>TPBank
+                                                    </option>
+                                                    <option value="HDBBank"
+                                                        {{ $data['user']->bank_name == 'HDBBank' ? 'selected' : '' }}>
+                                                        HDBank</option>
+                                                    <option value="OCB"
+                                                        {{ $data['user']->bank_name == 'OCB' ? 'selected' : '' }}>OCB
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Account Holder Name -->
+                                <div class="col-md-6 mb-4">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-3">
+                                                <i class="fas fa-user text-success me-2"></i>Tên Chủ Tài Khoản
+                                            </h5>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" name="user_bank_name"
+                                                    id="user_bank_name" placeholder="Nhập tên chủ tài khoản"
+                                                    value="{{ $data['user']->user_bank_name ?? '' }}" required>
+                                                <small class="form-text text-muted">Vui lòng nhập chính xác tên chủ tài
+                                                    khoản ngân hàng</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Account Number -->
+                                <div class="col-md-6 mb-4">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-3">
+                                                <i class="fas fa-credit-card text-danger me-2"></i>Số Tài Khoản
+                                            </h5>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" name="bank_account"
+                                                    id="bank_account" placeholder="Nhập số tài khoản"
+                                                    value="{{ $data['user']->bank_account ?? '' }}" required>
+                                                <small class="form-text text-muted">Vui lòng nhập chính xác số tài khoản
+                                                    ngân hàng</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bank Information Note -->
+                                <div class="col-12">
+                                    <div class="alert alert-info p-3">
+                                        <div class="d-flex">
+                                            <div class="me-3">
+                                                <i class="fas fa-info-circle fa-2x text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="alert-heading mb-2">Lưu ý quan trọng:</h6>
+                                                <p class="mb-0 small">
+                                                    Thông tin tài khoản ngân hàng của bạn sẽ được sử dụng cho các giao dịch
+                                                    hoàn tiền,
+                                                    chi trả hoa hồng và các khoản thanh toán khác. Vui lòng kiểm tra kỹ
+                                                    thông tin trước khi lưu.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Đóng
+                    </button>
+                    <button type="submit" form="bankAccountForm" class="btn btn-success">
+                        <i class="fas fa-save me-2"></i>Lưu Thông Tin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Modal Rank -->
     <div class="modal fade" id="viewRank" tabindex="-1" aria-labelledby="viewRankLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -271,19 +470,129 @@
                         </div>
                     </div>
 
-                    <!-- Progress Section -->
-                    {{-- <div class="mt-5">
+                    <div class="mt-5">
                         <h6 class="text-center mb-4 fw-bold text-muted">
                             <i class="fas fa-chart-bar me-2"></i>Tiến Độ Lên Hạng
                         </h6>
-                        <div class="progress" style="height: 25px;">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
-                                role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0"
-                                aria-valuemax="100">
-                                75%
+
+                        @php
+                            $loyaltyRanges = [
+                                1 => [0, 100],
+                                2 => [101, 300],
+                                3 => [301, 500],
+                                4 => [501, 700],
+                                5 => [701, 850],
+                                6 => [851, 999],
+                                7 => [1000, PHP_INT_MAX],
+                            ];
+
+                            $currentPoints = $data['point'];
+                            $currentGroupId = null;
+                            $nextGroupId = null;
+                            $currentMin = 0;
+                            $currentMax = 0;
+                            $nextMin = 0;
+                            $nextMax = 0;
+                            $pointsToNextLevel = 0;
+                            $progressPercentage = 0;
+                            $nextGroupName = '';
+
+                            foreach ($loyaltyRanges as $group => [$min, $max]) {
+                                if ($currentPoints >= $min && $currentPoints <= $max) {
+                                    $currentGroupId = $group;
+                                    $currentMin = $min;
+                                    $currentMax = $max;
+                                    break;
+                                }
+                            }
+
+                            if ($currentGroupId < 7) {
+                                $nextGroupId = $currentGroupId + 1;
+                                $nextMin = $loyaltyRanges[$nextGroupId][0];
+                                $nextMax = $loyaltyRanges[$nextGroupId][1];
+
+                                $pointsToNextLevel = $nextMin - $currentPoints;
+                                $totalPointsInLevel = $currentMax - $currentMin;
+                                $pointsGained = $currentPoints - $currentMin;
+                                $progressPercentage = ($pointsGained / $totalPointsInLevel) * 100;
+
+                                switch ($nextGroupId) {
+                                    case 1:
+                                        $nextGroupName = 'Newbie';
+                                        break;
+                                    case 2:
+                                        $nextGroupName = 'Iron';
+                                        break;
+                                    case 3:
+                                        $nextGroupName = 'Bronze';
+                                        break;
+                                    case 4:
+                                        $nextGroupName = 'Silver';
+                                        break;
+                                    case 5:
+                                        $nextGroupName = 'Gold';
+                                        break;
+                                    case 6:
+                                        $nextGroupName = 'Platinum';
+                                        break;
+                                    case 7:
+                                        $nextGroupName = 'Diamond';
+                                        break;
+                                    default:
+                                        $nextGroupName = 'Unknown';
+                                }
+                            } else {
+                                $progressPercentage = 100;
+                            }
+                        @endphp
+
+                        @if ($currentGroupId < 7)
+                            <div class="card border-0 shadow-sm p-4 mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-bold text-success">
+                                        <i class="fas fa-angle-double-up me-1"></i>
+                                        Hạng tiếp theo: {{ $nextGroupName }}
+                                    </span>
+                                    <span class="badge bg-primary px-3 py-2">
+                                        <i class="fas fa-gem me-1"></i>
+                                        Còn {{ number_format($pointsToNextLevel) }} điểm để lên hạng
+                                    </span>
+                                </div>
+
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                                        role="progressbar" style="width: {{ $progressPercentage }}%;"
+                                        aria-valuenow="{{ $progressPercentage }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ round($progressPercentage) }}%
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between mt-2">
+                                    <small class="text-muted">{{ number_format($currentMin) }} điểm</small>
+                                    <small class="text-muted">{{ number_format($currentMax) }} điểm</small>
+                                </div>
+                            </div>
+                        @else
+                            <div class="card border-0 shadow-sm p-4 mb-4 text-center">
+                                <div class="alert alert-success mb-0">
+                                    <i class="fas fa-crown me-2" style="color: #FFD700;"></i>
+                                    Chúc mừng! Bạn đã đạt cấp độ cao nhất (Diamond)
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Rank Benefits Info -->
+                        <div class="card border-0 shadow-sm p-3 mt-4">
+                            <div class="card-body text-center">
+                                <h6 class="mb-3"><i class="fas fa-info-circle me-2 text-primary"></i>Thông Tin Đặc Quyền
+                                </h6>
+                                <p class="mb-0 small text-muted">
+                                    Mỗi cấp độ sẽ nhận được những đặc quyền và ưu đãi khác nhau.
+                                    Tích lũy điểm loyalty qua các đơn hàng để nâng cấp hạng thành viên của bạn.
+                                </p>
                             </div>
                         </div>
-                    </div> --}}
+                    </div>
                 </div>
 
                 <!-- Modal Footer -->
@@ -295,7 +604,4 @@
             </div>
         </div>
     </div>
-@endsection
-
-@section('js')
 @endsection
