@@ -215,6 +215,7 @@ Route::prefix('stocks')
     ->name('api.stocks.')
     ->group(function () {
         Route::post('/import', [StockController::class, 'importStock'])->name('importStock');
+        Route::post('/importExcel', [StockController::class, 'importStockExcel'])->name('importStockExcel');
     });
 
 // compare
