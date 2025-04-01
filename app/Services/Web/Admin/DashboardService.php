@@ -11,9 +11,12 @@ class DashboardService
     {
         $this->dashboardRepository = $dashboardRepository;
     }
-    public function revenue()
+    public function employee(){
+        return $this->dashboardRepository->employee();
+    }
+    public function revenue($start_date = null, $end_date = null,$IdEmployee = '')
     {
-        return $this->dashboardRepository->revenue();
+        return $this->dashboardRepository->revenue($start_date, $end_date,$IdEmployee);
     }
     public function countProduct()
     {
@@ -23,18 +26,22 @@ class DashboardService
     {
         return $this->dashboardRepository->countUser();
     }
-    public function countOrder()
+    public function newCountUser($start_date = null, $end_date = null)
     {
-        return $this->dashboardRepository->countOrder();
+        return $this->dashboardRepository->newCountUser($start_date, $end_date);
+    }
+    public function countOrder($start_date = null, $end_date = null,$IdEmployee = '')
+    {
+        return $this->dashboardRepository->countOrder($start_date, $end_date,$IdEmployee);
     }
 
-    public function getRevenueAndOrdersByHour($start_date = null,$end_date = null)
+    public function getRevenueAndOrdersByHour($start_date = null,$end_date = null,$IdEmployee='')
     {
-        return $this->dashboardRepository->getRevenueAndOrdersByHour($start_date,$end_date);
+        return $this->dashboardRepository->getRevenueAndOrdersByHour($start_date,$end_date,$IdEmployee);
     }
-    public function getOrderStatusByHour()
+    public function getOrderStatusByHour($start_date = null,$end_date = null,$IdEmployee = '')
     {
-        return $this->dashboardRepository->getOrderStatusByHour();
+        return $this->dashboardRepository->getOrderStatusByHour($start_date,$end_date,$IdEmployee);
     }
     public function topProduct()
     {
@@ -44,4 +51,62 @@ class DashboardService
     {
         return $this->dashboardRepository->topUser();
     }
+
+    public function getUserRank($loyaltyPoints = null)
+    {
+        return $this->dashboardRepository->getUserRank($loyaltyPoints);
+    }
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public function revenueEmployee($start_date = null, $end_date = null)
+    {
+        return $this->dashboardRepository->revenueEmployee($start_date, $end_date);
+    }
+    public function countProductEmployee()
+    {
+        return $this->dashboardRepository->countProductEmployee();
+    }
+    public function countUserEmployee()
+    {
+        return $this->dashboardRepository->countUserEmployee();
+    }
+    public function newCountUserEmployee($start_date = null, $end_date = null)
+    {
+        return $this->dashboardRepository->newCountUserEmployee($start_date, $end_date);
+    }
+    public function countOrderEmployee($start_date = null, $end_date = null)
+    {
+        return $this->dashboardRepository->countOrderEmployee($start_date, $end_date);
+    }
+
+    public function getRevenueAndOrdersByHourEmployee($start_date = null,$end_date = null)
+    {
+        return $this->dashboardRepository->getRevenueAndOrdersByHourEmployee($start_date,$end_date);
+    }
+    public function getOrderStatusByHourEmployee($start_date = null,$end_date = null)
+    {
+        return $this->dashboardRepository->getOrderStatusByHourEmployee($start_date,$end_date);
+    }
+    public function topProductEmployee()
+    {
+        return $this->dashboardRepository->topProduct();
+    }
+
 }

@@ -52,45 +52,49 @@
             <div class="container-fluid">
                 <form action="" method="GET">
                     {{-- @csrf --}}
-                <div class="d-flex align-items-center mb-2">
+                    <div class="d-flex align-items-center mb-2">
                         <div class="d-flex justify-content-center align-items-center me-4">
-                        <p class="mb-0 me-2 fw-bold">{{ __('message.from') }}</p>
-                        <div class="input-group custom-dt-picker">
-                            <input placeholder="YYY-MM-DD" id="start_date_input" name="start_date" class="form-control form-date">
-                            <button type="button" class="btn btn-outline-secondary">
-                                <i class="ri-calendar-line"></i>
-                            </button>
+                            <p class="mb-0 me-2 fw-bold">{{ __('message.from') }}</p>
+                            <div class="input-group custom-dt-picker">
+                                <input placeholder="YYY-MM-DD" id="start_date_input" name="start_date"
+                                    class="form-control form-date" value="{{ request('start_date') }}">
+                                <button type="button" class="btn btn-outline-secondary">
+                                    <i class="ri-calendar-line"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex justify-content-center align-items-center me-4">
-                        <p class="mb-0 me-2 fw-bold">{{ __('message.to') }}</p>
-                        <div class="input-group custom-dt-picker">
-                            <input placeholder="YYY-MM-DD" id="end_date_input" name="end_date" class="form-control form-date">
-                            <button type="button" class="btn btn-outline-secondary">
-                                <i class="ri-calendar-line"></i>
-                            </button>
+                        <div class="d-flex justify-content-center align-items-center me-4">
+                            <p class="mb-0 me-2 fw-bold">{{ __('message.to') }}</p>
+                            <div class="input-group custom-dt-picker">
+                                <input placeholder="YYY-MM-DD" id="end_date_input" name="end_date"
+                                    class="form-control form-date" value="{{ request('end_date') }}">
+                                <button type="button" class="btn btn-outline-secondary">
+                                    <i class="ri-calendar-line"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex justify-content-center align-items-center me-4">
-                        <p class="mb-0 me-2 fw-bold">Nhân Viên:</p>
-                        <div class="input-group custom-dt-picker">
-                            <select name="" id="" class="form-control form-date">
-                                <option value="0" class="form-control form-date">Tất Cả</option>
-                                <option value="" class="form-control form-date">Nguyễn Minh Quân</option>
-                                <option value="" class="form-control form-date">Lê Đình Tùng</option>
-                                <option value="" class="form-control form-date">Nguyễn Đức Mạnh</option>
+                        <div class="d-flex justify-content-center align-items-center me-4">
+                            <p class="mb-0 me-2 fw-bold">Nhân Viên:</p>
+                            <div class="input-group custom-dt-picker">
+                                <select name="is_employee" class="form-control form-date">
+                                    <option value="0" class="form-control form-date" 
+                                        {{ request('is_employee') == 0 ? 'selected' : '' }}>Tất Cả</option>
+                                    @foreach ($employee as $e)
+                                        <option value="{{ $e->id }}" class="form-control form-date" 
+                                            {{ request('is_employee') == $e->id ? 'selected' : '' }}>
+                                            {{ $e->fullname }}
+                                        </option>
+                                    @endforeach
+                                </select>
 
-                            </select>
-                        
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-center align-items-center">
+                            <button type="submit" class="btn btn-primary" data-bs-original-title="" title=""
+                                fdprocessedid="yl65za">Lọc</button>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-center align-items-center">
-                        <button type="submit" class="btn btn-primary" data-bs-original-title="" title=""
-                            fdprocessedid="yl65za">Lọc</button>
-                    </div>
-                    
-                </div>
-            </form>
+                </form>
                 <div class="row g-3 ">
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
@@ -117,7 +121,7 @@
                         <div class="card-tiles">
                             <div>
                                 <h5>{{ __('message.total_customers') }}</h5>
-                                <h3>{{ $countUser ?? 0 }}</h3>
+                                <h3>{{ $newCountUser ?? 0 }}(mới)/{{ $countUser ?? 0 }}</h3>
                             </div>
                             <div class="icon-box"><i class="ri-group-line"></i></div>
                         </div>
@@ -126,7 +130,7 @@
                         <div class="card-tiles">
                             <div>
                                 <h5>Tổng đơn hàng</h5>
-                                <h3>{{ $countOrder ?? 0 }}</h3>
+                                <h3> {{ $countOrder ?? 0 }}</h3>
                             </div>
                             <div class="icon-box"><i class="ri-archive-line"></i></div>
                         </div>
@@ -176,25 +180,27 @@
                                                     <thead>
                                                         <tr>
                                                             <th> Họ Tên</th>
-                                                            <th> Tổng đơn </th>
-                                                            <th> Tổng tiền </th>
+                                                            <th> Điểm </th>
+                                                            <th> Rank </th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         @foreach ($topUser as $data)
                                                             <tr>
-                                                            <td class="cursor-pointer ">
-                                                                <div>{{ Str::limit($data->fullname, 15, '...') }}</div>
-                                                            </td>
-                                                            <td class="cursor-pointer ">
-                                                                <div>{{$data->total_order}}</div>
-                                                            </td>
-                                                            <td class="cursor-pointer ">
-                                                                <div>{{ number_format($data->total_revenue, 0, ',', '.') }} VND</div>
-                                                            </td>
-                                                        </tr> 
+                                                                <td class="cursor-pointer ">
+                                                                    <div>{{ Str::limit($data->fullname, 15, '...') }}</div>
+                                                                </td>
+                                                                <td class="cursor-pointer ">
+                                                                    <div>{{ $data->loyalty_points }}</div>
+                                                                </td>
+                                                                <td class="cursor-pointer ">
+                                                                    <div>
+                                                                        {{ $dashboardService->getUserRank($data->loyalty_points) }}
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
                                                         @endforeach
-                                                      
+
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -223,17 +229,17 @@
                                         <div class="top-selling-table datatable-wrapper table-responsive">
                                             <table>
                                                 @foreach ($topProduct as $data)
-                                                   <tr>
-                                                    <td>
-                                                        <div class="img-info"><img alt="product" class="img-fluid"
-                                                                src="{{Storage::url($data->thumbnail)}}">
-                                                            <div>
-                                                                <h5>{{$data->name}}</h5>
-                                                                <h6>Lượt bán:{{$data->total_sold}}</h6>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="img-info"><img alt="product" class="img-fluid"
+                                                                    src="{{ Storage::url($data->thumbnail) }}">
+                                                                <div>
+                                                                    <h5>{{ $data->name }}</h5>
+                                                                    <h6>Lượt bán:{{ $data->total_sold }}</h6>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>  
+                                                        </td>
+                                                    </tr>
                                                 @endforeach
                                             </table>
                                         </div>
@@ -293,7 +299,7 @@
             let tickIntervalOrders = Math.ceil(roundedMaxOrders / 5); // Chia thành 5 khoảng
             console.log('ádasd');
 
-           
+
 
 
 
@@ -361,16 +367,51 @@
                         opacity: 0.9, // Làm mờ cột để nhìn thấy đường doanh thu
                     }
                 ]
-            }); 
+            });
 
             var order_status = @json($order_status);
+
+            console.log("Dữ liệu order_status.orders:", order_status.orders);
+
+            let allOrder_status = Object.values(order_status.orders)
+                .flatMap(status => Object.values(status));
+
+            console.log("Danh sách tất cả số lượng đơn hàng:", allOrder_status);
+
+            let maxOrder_status = allOrder_status.length > 0 ?
+                Math.max(...allOrder_status) :
+                0;
+
+            console.log("maxOrder_status:", maxOrder_status);
+
+            let roundedMaxOrder_status = maxOrder_status > 0 ?
+                Math.ceil(maxOrder_status / 100) * 100 :
+                10;
+
+            console.log("roundedMaxOrder_status:", roundedMaxOrder_status);
+
+            let tickIntervalOrder_status = maxOrder_status > 0 ?
+                Math.max(Math.ceil(roundedMaxOrder_status / 5), 5) :
+                2;
+
+            console.log("tickIntervalOrder_status:", tickIntervalOrder_status);
+
+
+
+
             console.log("Dữ liệu order_status từ PHP:", order_status);
-            let allOrder_status = Object.values(order_status.orders).flat();
-            let maxOrder_status = Math.max(...allOrder_status);
-            let roundedMaxOrder_status = Math.ceil(maxOrder_status / 100) * 100; // Làm tròn lên bội số của 100
-            let tickIntervalOrder_status = Math.ceil(roundedMaxOrder_status / 5); // Chia thành 5 khoảng
-            // console.log(typeof Order_status.orders);
-        // Biểu đồ đường spline
+            console.log("Danh sách nhãn thời gian:", order_status.labels);
+            // Chuyển đổi dữ liệu sang dạng `series` tự động
+            let seriesData = [];
+            Object.keys(order_status.orders).forEach((status, index) => {
+                seriesData.push({
+                    name: status,
+                    data: Object.values(order_status.orders[status]),
+                    color: Highcharts.getOptions().colors[index] || '#000'
+                });
+            });
+
+            // Biểu đồ spline
             Highcharts.chart('splineChart', {
                 chart: {
                     type: 'spline'
@@ -378,7 +419,6 @@
                 title: {
                     text: 'Thống Kê Trạng Thái Đơn Hàng'
                 },
-                colors: ['#3fe17b', '#e1523f', '#e1c93f', '#3f70e1','#cb19e3'],
                 xAxis: {
                     categories: order_status.labels
                 },
@@ -393,29 +433,20 @@
                 legend: {
                     enabled: true
                 },
-                series: [
-                    {
-                        name: 'Đã giao hàng',
-                        data: order_status.orders['Đã giao hàng']
-                    },
-                    {
-                        name: 'Hoàn thành',
-                        data: order_status.orders['Hoàn thành']
-                    },
-                    {
-                        name: 'Giao hàng thất bại',
-                        data: order_status.orders['Giao hàng thất bại']
-                    },
-                    {
-                        name: 'Đã hủy',
-                        data: order_status.orders['Đã hủy']
-                    },
-                    {
-                        name: 'Hoàn hàng',
-                        data: order_status.orders['Hoàn hàng']
+                tooltip: {
+                    shared: true,
+                    formatter: function() {
+                        let tooltipHtml = `<b>${this.x}</b><br>`;
+                        this.points.forEach(point => {
+                            tooltipHtml +=
+                                `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${point.y} đơn</b><br>`;
+                        });
+                        return tooltipHtml;
                     }
-                ]
+                },
+                series: seriesData
             });
+
         });
         $(".form-date").flatpickr({
             dateFormat: "Y-m-d"
@@ -438,23 +469,15 @@
         });
 
         $(document).ready(function() {
-            @if (session('success'))
-                Toastify({
-                    text: "{{ session('success') }}",
-                    duration: 2000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    stopOnFocus: true,
-                    style: {
-                        background: "linear-gradient(to right, #00b09b, #96c93d)",
-                    },
-                }).showToast();
-                setTimeout(function() {
-                    window.location.href = 'admin';
-                }, 500);
-            @endif
-
-        })
+       
+        @if ($errors->any())
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: "{{ $errors->first() }}",
+                showConfirmButton: true
+            });
+        @endif
+    });
     </script>
 @endpush
