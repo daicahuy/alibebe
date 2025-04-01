@@ -15,7 +15,7 @@ class OrderHistoryStatusRepository extends BaseRepository
 
     public function getListStatusHistory($idOrder)
     {
-        return HistoryOrderStatus::query()->where('order_id', $idOrder)->orderBy('created_at', 'asc')->get();
+        return HistoryOrderStatus::query()->where('order_id', $idOrder)->with(["user"])->orderBy('created_at', 'asc')->get();
     }
 
 }

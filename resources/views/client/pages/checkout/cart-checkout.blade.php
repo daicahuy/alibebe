@@ -1083,6 +1083,12 @@
                                         background: "red",
                                     },
                                 }).showToast();
+                                if (response.type && response.type == "errCart") {
+                                    setTimeout(function() {
+                                        window.location.href =
+                                            '/cart';
+                                    }, 4000);
+                                }
                             }
                         },
                         error: function() {
@@ -1108,6 +1114,25 @@
                             if (response.url) {
                                 // Chuyển hướng tới VNPay để thanh toán
                                 window.location.href = response.url;
+                            } else {
+                                Toastify({
+                                    text: response.message,
+                                    duration: 4000,
+                                    newWindow: true,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    stopOnFocus: true,
+                                    style: {
+                                        background: "red",
+                                    },
+                                }).showToast();
+                                if (response.type && response.type == "errCart") {
+                                    setTimeout(function() {
+                                        window.location.href =
+                                            '/cart';
+                                    }, 4000);
+                                }
                             }
                         },
                         error: function() {
@@ -1393,6 +1418,26 @@
                     background: "red",
                 },
             }).showToast();
+        </script>
+    @endif
+    @if (session('errorCart'))
+        <script>
+            Toastify({
+                text: "{{ session('errorCart') }}",
+                duration: 4000,
+                newWindow: true,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: "red",
+                },
+            }).showToast();
+
+            setTimeout(function() {
+                window.location.href = '/cart';
+            }, 4000);
         </script>
     @endif
 @endpush

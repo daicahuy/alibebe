@@ -25,7 +25,8 @@ return new class extends Migration {
             $table->text('note')->nullable();
             $table->decimal('total_amount', 12, 2);
             $table->boolean('is_paid')->default(false);
-            $table->boolean('is_refund')->default(1);
+            $table->boolean('is_refund')->default(0);
+            $table->boolean('locked_status')->default(0);
             $table->foreignIdFor(Coupon::class)->nullable()->constrained();
             $table->string('coupon_code', 50)->nullable();
             $table->string('coupon_description')->nullable();
@@ -33,6 +34,7 @@ return new class extends Migration {
             $table->decimal('coupon_discount_value', 10, 2)->nullable();
             $table->boolean('is_refund_cancel')->default(null)->nullable();
             $table->boolean('check_refund_cancel')->default(null)->nullable();
+            $table->string('img_send_refund_money', 255)->nullable();
 
 
             $table->timestamps();

@@ -23,9 +23,9 @@ class OrderService
         $this->orderHistoryStatusRepository = $orderHistoryStatusRepository;
     }
 
-    public function getOrders(array $filters, int $page, int $limit): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getOrders(array $filters, int $page, int $limit, $user_id): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return $this->orderRepository->filterOrders($filters, $page, $limit);
+        return $this->orderRepository->filterOrders($filters, $page, $limit, $user_id);
     }
 
     public function getOrdersByUser(array $filters, int $page, int $limit, $user_id, $search): \Illuminate\Contracts\Pagination\LengthAwarePaginator
@@ -38,9 +38,9 @@ class OrderService
         return $this->orderItemRepository->getOrderDetail($idOrder);
     }
 
-    public function changeStatusOrder($idOrder, int $idStatus)
+    public function changeStatusOrder($idOrder, int $idStatus, $user_id)
     {
-        return $this->orderOrderStatusRepository->changeStatusOrder($idOrder, $idStatus);
+        return $this->orderOrderStatusRepository->changeStatusOrder($idOrder, $idStatus, $user_id);
     }
 
     public function updateOrderStatusWithUserCheck($idOrder, $idStatus, $customerCheck)

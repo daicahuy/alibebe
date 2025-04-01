@@ -16,7 +16,7 @@ class OrderRepository extends BaseRepository
         return Order::class; // Trả về tên class của model Order
     }
 
-    public function filterOrders(array $filters, int $page, int $limit): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function filterOrders(array $filters, int $page, int $limit, $user_id): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $query = Order::query()->with("orderStatuses")->with("payment")->orderBy('created_at', 'desc');
 
@@ -27,8 +27,12 @@ class OrderRepository extends BaseRepository
 
             // dd($key, $value);
             if ($key === 'order_status_id' && isset($value)) {
-                $query->whereHas('orderStatuses', function ($q) use ($value) {
+                $query->whereHas('orderStatuses', function ($q) use ($value, $user_id) {
                     $q->where('order_status_id', $value);
+                    if ($value != 1 && $value != 7) {
+                        $q->where('modified_by', $user_id);
+
+                    }
                 });
             } elseif ($key == 'search' && isset($value)) {
                 $query->where(function ($query1) use ($value) {
@@ -127,7 +131,8 @@ class OrderRepository extends BaseRepository
                     $query->where('orders.fullname', 'LIKE', "%{$value}%")
                         ->orWhere('orders.code', 'LIKE', "%{$value}%")
                         ->orWhere('orders.phone_number', 'LIKE', "%{$value}%");
-                });;
+                });
+                ;
             } elseif ($key === 'startDate' && isset($value)) {
                 $orderStatusCounts->whereDate('orders.created_at', '>=', $value);
             } elseif ($key === 'endDate' && isset($value)) {
@@ -162,14 +167,14 @@ class OrderRepository extends BaseRepository
     public function getOrdersForUser()
     {
         $userId = Auth::id();
-        
+
         // Truy vấn và phân trang trực tiếp trên orders của người dùng
         return User::findOrFail($userId)
             ->orders()  // Truy vấn mối quan hệ orders
             ->with(['orderStatuses', 'orderItems'])  // Eager load mối quan hệ
             ->paginate(3);  // Phân trang
     }
-    
+
     public function getOrderForUser($order_id)
     {
         $userId = Auth::id();
@@ -179,13 +184,15 @@ class OrderRepository extends BaseRepository
             ->whereHas('orders', function ($query) use ($order_id) {
                 $query->where('id', $order_id);
             })
-            ->with(['orders' => function ($query) use ($order_id) {
-                $query->where('id', $order_id)
-                    ->with([
-                        'orderStatuses',
-                        'orderItems.product'
-                    ]);
-            }])
+            ->with([
+                'orders' => function ($query) use ($order_id) {
+                    $query->where('id', $order_id)
+                        ->with([
+                            'orderStatuses',
+                            'orderItems.product'
+                        ]);
+                }
+            ])
             ->firstOrFail();
 
         // Lấy order cụ thể và return các order items

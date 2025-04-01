@@ -139,8 +139,11 @@ Route::prefix('/orders')
         Route::post('/updateOrderStatusWithUserCheck', [OrderController::class, 'updateOrderStatusWithUserCheck'])->name('updateOrderStatusWithUserCheck');
         Route::post('/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');
         Route::post('/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
-        Route::post('changeStatusRefundMoney', [OrderController::class, 'changeStatusRefundMoney'])->name('changeStatusRefundMoney');
-        Route::post('userCheckRefundMoney', [OrderController::class, 'userCheckRefundMoney'])->name('userCheckRefundMoney');
+        Route::post('/changeStatusRefundMoney', [OrderController::class, 'changeStatusRefundMoney'])->name('changeStatusRefundMoney');
+        Route::post('/userCheckRefundMoney', [OrderController::class, 'userCheckRefundMoney'])->name('userCheckRefundMoney');
+        Route::post('/lockOrder', [OrderController::class, 'lockOrder'])->name('lockOrder');
+        Route::post('/unlockOrder', [OrderController::class, 'unlockOrder'])->name('unlockOrder');
+        Route::post('/checkLockOrder', [OrderController::class, 'checkLockOrder'])->name('checkLockOrder');
     });
 
 
@@ -217,7 +220,8 @@ Route::prefix('/products')
         Route::post('/variant', [ProductController::class, 'storeVariant'])->name('storeVariant');
         Route::put('/single/{id}', [ProductController::class, 'updateSingle'])->name('updateSingle')->where(['id' => '[0-9]+']);
         Route::put('/variant/{id}', [ProductController::class, 'updateVariant'])->name('updateVariant')->where(['id' => '[0-9]+']);
-        Route::patch('/{id}/active', [ProductController::class, 'toggleActive'])->name('toggleActive')->where(['id' => '[0-9]+']);;
+        Route::patch('/{id}/active', [ProductController::class, 'toggleActive'])->name('toggleActive')->where(['id' => '[0-9]+']);
+        ;
     });
 
 // STOCK
