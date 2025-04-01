@@ -3,7 +3,9 @@
 namespace App\Repositories;
 
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\Review;
+use App\Models\User;
 
 class ReviewRepository extends BaseRepository
 {
@@ -105,16 +107,16 @@ class ReviewRepository extends BaseRepository
     }
 
     public function userHasPurchasedProduct($userId, $productId)
-{
-    return Order::where('user_id', $userId)
-        ->whereHas('orderStatuses', function ($query) {
-            $query->where('id', 6); // Kiểm tra order_status_id = 6 (Hoàn thành)
-        })
-        ->whereHas('orderItems', function ($query) use ($productId) {
-            $query->where('product_id', $productId);
-        })
-        ->exists();
-}
+    {
+        return Order::where('user_id', $userId)
+            ->whereHas('orderStatuses', function ($query) {
+                $query->where('id', 6); // Kiểm tra order_status_id = 6 (Hoàn thành)
+            })
+            ->whereHas('orderItems', function ($query) use ($productId) {
+                $query->where('product_id', $productId);
+            })
+            ->exists();
+    }
 
     public function getLatestReview($productId, $userId)
     {
@@ -127,5 +129,45 @@ class ReviewRepository extends BaseRepository
     public function getReviewsByProductId(int $id)
     {
         return Review::where('product_id', $id)->where('is_active', 1)->get();
+    }
+
+    // customer detail
+    public function getTimeActivity($userId)
+    {
+        $latestActivity = $this->model->where('user_id', $userId)->latest()->first();
+        return $latestActivity;
+    }
+
+    public function getReviewByUser($userId)
+    {
+
+
+        // Lấy danh sách các sản phẩm mà người dùng đã đánh giá và thông tin đánh giá gần nhất
+        $reviews = Product::whereHas('reviews', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+            ->withCount([
+                'reviews' => function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                }
+            ])
+            ->with([
+                'reviews' => function ($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                        ->orderByDesc('created_at');
+                    // ->with(['user', 'reviewMultimedia']);
+                    // ->limit(1); // Lấy đánh giá gần nhất
+                }
+            ])
+            ->paginate(5, ['*'], 'review_page');
+        return $reviews;
+    }
+
+    public function countReviewById($userId)
+    {
+
+        $user = User::with('reviews')->findOrFail($userId);
+
+        return $user->reviews->count();
     }
 }

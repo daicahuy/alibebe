@@ -8,6 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LockUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
+use App\Repositories\OrderRepository;
+use App\Repositories\ReviewRepository;
+use App\Repositories\WishlistRepository;
 use App\Services\Web\Admin\UserCustomerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -15,17 +18,41 @@ use Illuminate\Support\Facades\Log;
 class UserCustomerController extends Controller
 {
     protected UserCustomerService $userService;
+    protected OrderRepository $orderRepo;
+    protected WishlistRepository $wishlistRepo;
+    protected ReviewRepository $reviewRepo;
 
-    public function __construct(UserCustomerService $userService)
+
+    public function __construct(UserCustomerService $userService, OrderRepository $orderRepo, WishlistRepository $wishlistRepo, ReviewRepository $reviewRepo)
     {
         $this->userService = $userService;
+        $this->orderRepo = $orderRepo;
+        $this->wishlistRepo = $wishlistRepo;
+        $this->reviewRepo = $reviewRepo;
+
     }
     public function detail(Request $request, User $user)
     {
-        $defaultAddresses = $this->userService->getDefaultAddress($user->id);
+
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+
+        if (!$startDate) {
+            $startDate = now()->startOfDay()->toDateString();
+        }
+        if (!$endDate) {
+            $endDate = now()->endOfDay()->toDateString();
+        }
+        $filterStatus = $request->input('status');
+
+
+        $data = $this->userService->detail($user->id, $startDate, $endDate, $filterStatus);
+
+
+        // dd($data);
+
         return view('admin.pages.user_customer.detail', compact(
-            'user',
-            'defaultAddresses',
+            'data'
         ));
     }
 

@@ -235,9 +235,25 @@ class UserRepository extends BaseRepository
         return $this->model->whereIn('id', $ids)->update(['status' => $status]);
     }
 
-    public function getDefaultAddress($userId)
+    // customer detail
+    public function getUserAndAddress($userId, $columns = ['*'])
+    {
+        return $this->model->with([
+            'addresses' => function ($query) {
+                $query->select('id', 'user_id', 'address', 'is_default');
+            }
+        ])->findOrFail($userId, $columns);
+    }
+    public function getUserById($userId)
     {
         $user = $this->model->findorFail($userId);
-        return $user->addresses()->where('is_default', 1)->first();
+        // return $user->where('id', $userId)->first();
+        return $user;
+    }
+
+    public function getTimeActivity($userId)
+    {
+        $latestActivity = $this->model->where('id', $userId)->latest()->first();
+        return $latestActivity;
     }
 }
