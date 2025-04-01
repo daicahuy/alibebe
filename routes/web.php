@@ -36,6 +36,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Web\Client\CartItemController;
 use App\Http\Controllers\Web\Client\AccountController as AccountClientController;
+use App\Http\Controllers\Web\Client\PusherAuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -62,6 +63,7 @@ Route::post('/chatbot/send', [ChatbotController::class, 'sendMessage']);
 Route::get('/products/{product}', [DetailProductController::class, 'index'])->name('products');
 Route::get('/cart-checkout', [CheckoutController::class, 'cartCheckout'])->middleware(['auth'])->name('cartCheckout');
 Route::get('/list-order', [ListOrderController::class, 'index'])->middleware(['auth'])->name('listOrder');
+Route::post('/pusher/auth', [PusherAuthController::class, 'pusherAuth'])->middleware('auth');
 
 Route::post('/payment/vnpay', [VNPayController::class, 'createPayment'])->middleware(["web"])->name('vnpay.create');
 Route::get('/payment/vnpay/return', [VNPayController::class, 'handleReturn'])->middleware(["web"])->name('vnpay.return');
