@@ -520,7 +520,8 @@
         'id' => 'modalShowRefundBank',
         'title' => 'Xem thông tin hoàn tiền',
     ])
-        <div id="modalFormShowRefundBank">
+        <form id="modalFormShowRefundBank" style="max-height: 77vh; overflow-y: auto;" method="POST"
+            enctype="multipart/form-data">
             <table class="table all-package theme-table no-footer">
                 <tbody><!---->
                     <tr>
@@ -539,18 +540,23 @@
                         <td class="text-start fw-semibold">Số tài khoản </td>
                         <td class="text-start" id="bank_account"></td>
                     </tr>
-                    <input type="hidden" hidden id="idorder" value="">
+
+
+                    <input type="hidden" hidden id="idorder" name="idorder" value="">
                 </tbody>
             </table>
+            <div class="mb-3" id="div_send_money">
+
+            </div>
             <div class="button-box justify-content-end">
                 <button class="btn btn-md btn-secondary fw-bold btn-cancel" type="button">
                     {{ __('message.cancel') }}
                 </button>
-                <button class="btn btn-md btn-theme fw-bold btn-action" id="btn_send_money">
+                <button class="btn btn-md btn-theme fw-bold btn-action" disabled id="btn_send_money">
                     Đã chuyển tiền
                 </button>
             </div>
-        </div>
+        </form>
     @endcomponent
 @endsection
 
@@ -570,6 +576,8 @@
     <!-- Thêm SweetAlert2 CDN -->
     <script>
         $(document).ready(function() {
+            const dataUser = <?php echo json_encode($user); ?>;
+
             $('#modalUpload').on('shown.bs.modal', function() {
                 //Xử lý khi modal được hiển thị
                 $('.btn-cancel').click(function() {
@@ -669,7 +677,7 @@
                     id: 3,
                     name: "Đang giao hàng",
                     next: [3, 4, 5],
-                    unnextList: [5, 7]
+                    unnextList: [5]
                 },
                 {
                     id: 4,
@@ -707,6 +715,7 @@
                     method: "GET",
                     data: {
                         order_status_id: activeTab,
+                        user_id: dataUser.id,
                         search,
                         startDate,
                         endDate,
@@ -794,10 +803,23 @@
 
                         var channel = pusher.subscribe('order-status.' + order.id);
                         channel.bind('event-change-status', function(data) {
-                            handleStatusChange(data.orderId)
+                            if (data.userID != dataUser.id) {
+                                handleStatusChange(data.orderId)
+                            }
+                        });
+                        var channel = pusher.subscribe('order-status-lock.' + order.id);
+                        channel.bind('event-change-status-lock', function(data) {
+                            if (data.userID != dataUser.id) {
+                                if (data.status == 0) {
+                                    $(`#select_status_${order.id}`).prop('disabled', false);
+                                } else {
+                                    $(`#select_status_${order.id}`).prop('disabled', true);
+                                }
+
+                            }
                         });
                         let selectHtml =
-                            `<select class="font-serif form-select form-select-sm orderStatus" data-order-id="${order.id}" id="${selectId}">`;
+                            `<select class="font-serif form-select form-select-sm orderStatus" ${order.locked_status == 1 ? "disabled":""} data-order-id="${order.id}" id="${selectId}">`;
                         orderStatuses.forEach(status => {
                             const currentStatus = orderStatuses.find(s => s.id === currentStatusId);
                             const disabled = !currentStatus.next.includes(status.id) && status
@@ -854,21 +876,21 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                                                                                                                <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                                                                                                                <div class="status-pending">
-                                                                                                                                                                                <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                                                                                                                </div>
-                                                                                                                                                                                </div>
+                                                                                                                                                                    <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                                                                                                                    <div class="status-pending">
+                                                                                                                                                                    <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                                                                                                                    </div>
+                                                                                                                                                                    </div>
 
 
-                                                                                                                                                                                ` : `
+                                                                                                                                                                    ` : `
 
-                                                                                                                                                                                `}
+                                                                                                                                                                    `}
                                         <li>
                                             ${order.is_refund_cancel != null ? `
-                                                                                                                                                                                                            <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
-                                                                                                                                                                                                                <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
-                                                                                                                                                                                                            `:""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `:""}
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
                                                 <i class="ri-eye-line"></i>
@@ -900,7 +922,8 @@
 
                             success: function(response) {
                                 const order = response.order
-
+                                const imageUrl =
+                                    `{{ Storage::url('${order.img_send_refund_money}') }}`;
                                 $("#modalShowRefundBank #total_amount").text(`${formatCurrency(order
                                     .total_amount)}đ`)
                                 $("#modalShowRefundBank #user_bank_name").text(order.user
@@ -916,6 +939,49 @@
                                         "disabled", true);
                                 }
 
+                                if (order.is_refund_cancel == 0) {
+                                    $("#modalShowRefundBank #div_send_money").append(`
+                                    <label for="img_send_money" class="form-label">Tải lên ảnh</label>
+                <input class="form-control" type="file" id="img_send_money" name="img_send_money">
+                <img id="image_preview" class="mt-3" style="width: 100%">
+                    <!-- Preview ảnh sẽ được hiển thị ở đây -->
+                </img>
+                                    `)
+                                }
+
+                                if (order.is_refund_cancel == 1) {
+                                    $("#modalShowRefundBank #div_send_money").append(`
+                                    <label for="img_send_money" class="form-label">Ảnh chuyển khoản</label>
+                <img id="image_preview" class="mt-3" style="width: 100%" src="${imageUrl}">
+             
+                                    `)
+                                }
+
+                                $('#modalShowRefundBank #img_send_money').on('change', function(
+                                    event) {
+                                    const file = event.target.files[0];
+                                    console.log("showw file");
+                                    //
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        const fileType = file.type.split('/')[0];
+
+                                        reader.onload = function(e) {
+                                            if (fileType === 'image') {
+                                                $('#modalShowRefundBank #image_preview')
+                                                    .attr('src', e.target.result)
+                                                    .show();
+                                                $("#btn_send_money").attr('disabled',
+                                                    false);
+                                            }
+                                        }
+
+                                        reader.readAsDataURL(file); // Đọc file ảnh
+                                    }
+                                });
+
+
+
                             },
                             error: function(error) {
                                 console.error(
@@ -925,28 +991,31 @@
                         });
                     }
 
+
+
                     $(".show_modal_refund_bank").on("click", async function() {
                         const orderId = $(this).data(
                             'idorder');
-
+                        $("#modalShowRefundBank #div_send_money").empty();
                         await callApiGetOrder(orderId)
 
                         $("#modalShowRefundBank").modal("show")
                     })
 
-                    $("#modalShowRefundBank #btn_send_money").off("click").on("click", async function() {
+                    $("#modalFormShowRefundBank").off("submit").on("submit", async function(e) {
+                        e.preventDefault();
                         const idOrder = $("#modalShowRefundBank #idorder").val();
                         if (!confirm('Bạn có chắc chắn thao tác này không?')) {
                             return;
                         }
+                        const formData = new FormData(this);
 
                         await $.ajax({
                             url: '{{ route('api.orders.changeStatusRefundMoney') }}',
                             type: 'POST',
-                            data: {
-                                order_id: idOrder,
-                                status: 1
-                            },
+                            data: formData,
+                            contentType: false,
+                            processData: false,
                             success: function(response) {
 
                                 if (response.status == 200) {
@@ -962,6 +1031,7 @@
                                             background: "linear-gradient(to right, #00b09b, #96c93d)",
                                         },
                                     }).showToast();
+                                    $("#modalShowRefundBank #div_send_money").empty()
                                     callApiGetOrder(idOrder)
                                     fetchOrders();
 
@@ -1019,7 +1089,9 @@
                     type: 'POST',
                     data: {
                         order_id: idOrders,
-                        status_id: idStatus
+                        status_id: idStatus,
+                        user_id: dataUser.id
+
                     },
                     success: function(response) {
 
@@ -1087,8 +1159,135 @@
                         });
                     }
 
-                    // Gọi hàm để thiết lập trạng thái ban đầu
                     updateSelectStatus();
+
+                    let lockTimersList = {};
+                    let blurTimersList = {};
+
+
+
+                    function lockOrderList(selectedIds, selectElement) {
+                        $.ajax({
+                            url: '{{ route('api.orders.lockOrder') }}',
+                            type: 'POST',
+                            data: {
+                                order_id: selectedIds,
+                                user_id: dataUser.id
+                            },
+                            success: function(response) {
+                                console.log("responselockkkkkkk:", response);
+                                if (response.status == 200) {
+                                    // selectElement.prop('disabled', true);
+
+                                    if (lockTimersList["list"]) {
+                                        clearTimeout(lockTimersList["list"]);
+                                    }
+                                    lockTimersList["list"] = setTimeout(() => unlockOrderList(
+                                            selectedIds,
+                                            selectElement),
+                                        60000);
+
+                                    if (blurTimersList["list"]) {
+                                        clearTimeout(blurTimersList["list"]);
+                                    }
+                                    blurTimersList["list"] = setTimeout(() => {
+                                        if (selectElement) {
+                                            selectElement.blur();
+                                            console.log('Automatically blurred select.');
+                                        }
+                                        selectElement.prop('disabled', false);
+
+                                    }, 60000);
+                                }
+                            },
+                            error: function(error) {
+                                console.error("lỗi khóa",
+                                    error);
+                            }
+                        });
+                    }
+
+                    function unlockOrderList(selectedIds, selectElement) {
+                        $.ajax({
+                            url: '{{ route('api.orders.unlockOrder') }}',
+                            type: 'POST',
+                            data: {
+                                order_id: selectedIds,
+                                user_id: dataUser.id
+
+                            },
+                            success: function(response) {
+                                console.log("response0000000000000000lockkkkkkk:", response);
+
+                                if (response.status == 200) {
+                                    console.log(" un loked order lock order")
+                                    selectElement.prop('disabled', false);
+
+                                    clearTimeout(lockTimersList["list"]);
+                                    clearTimeout(blurTimersList["list"]);
+                                }
+                            },
+                            error: function(error) {
+                                console.error("Lỗi mở khóa",
+                                    error);
+                            }
+                        });
+                    }
+
+
+                    function checkOrderLockList(selectedIds, selectElement) {
+
+                        console.log("Checking order lock list,", selectedIds)
+                        $.ajax({
+                            url: '{{ route('api.orders.checkLockOrder') }}',
+                            type: 'POST',
+                            data: {
+                                order_id: selectedIds,
+                            },
+                            success: function(response) {
+
+                                if (response.status == 200) {
+
+                                    if (response.data.length > 0) {
+                                        selectElement.prop('disabled', true);
+                                        const codes = response.data.map(item => item.code).filter(
+                                            Boolean); // Ensures `code` exists
+
+                                        // Display the codes in the alert message
+                                        if (codes.length > 0) {
+                                            alert('Đơn hàng này đã bị khóa. Các mã code: ' + codes.join(
+                                                ', '));
+                                        } else {
+                                            alert('Đơn hàng này đã bị khóa.');
+                                        }
+
+                                    } else {
+                                        lockOrderList(selectedIds, selectElement)
+                                    }
+                                }
+                            },
+                            error: function(error) {
+                                console.error("Lỗi check",
+                                    error);
+                            }
+                        });
+                    }
+
+                    $('#select-change-status-items').on('focus', '.orderStatus', function() {
+                        checkOrderLockList(selectedIds, $(this));
+                        console.log("orderId11111:", selectedIds);
+
+                    }).on('blur', '.orderStatus', function() {
+                        console.log("orderId22222222222222:", selectedIds);
+
+                        unlockOrderList(selectedIds, $(this));
+                    });
+
+
+
+
+
+
                     let previousValuesOrderList;
 
                     // Sự kiện focus để lưu giá trị trước đó
@@ -1245,14 +1444,123 @@
                 fetchOrders();
             });
 
-            let previousValuesOrder = {};
+            let lockTimers = {};
+            let blurTimers = {};
 
-            // Sự kiện focus để lưu giá trị trước đó
+
+
+            function lockOrder(orderId, selectElement) {
+                $.ajax({
+                    url: '{{ route('api.orders.lockOrder') }}',
+                    type: 'POST',
+                    data: {
+                        order_id: orderId,
+                        user_id: dataUser.id
+                    },
+                    success: function(response) {
+                        console.log("responselockkkkkkk:", response);
+                        if (response.status == 200) {
+                            // selectElement.prop('disabled', true);
+
+                            console.log("loked order lock order")
+                            if (lockTimers[orderId]) {
+                                clearTimeout(lockTimers[orderId]);
+                            }
+                            lockTimers[orderId] = setTimeout(() => unlockOrder(orderId, selectElement),
+                                60000);
+
+                            if (blurTimers[orderId]) {
+                                clearTimeout(blurTimers[orderId]);
+                            }
+                            blurTimers[orderId] = setTimeout(() => {
+                                if (selectElement) {
+                                    selectElement.blur();
+                                    console.log('Automatically blurred select.');
+                                }
+                                selectElement.prop('disabled', false);
+
+                            }, 60000);
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                            error);
+                    }
+                });
+            }
+
+            function unlockOrder(orderId, selectElement) {
+                $.ajax({
+                    url: '{{ route('api.orders.unlockOrder') }}',
+                    type: 'POST',
+                    data: {
+                        order_id: orderId,
+                        user_id: dataUser.id
+
+                    },
+                    success: function(response) {
+                        console.log("response0000000000000000lockkkkkkk:", response);
+
+                        if (response.status == 200) {
+                            console.log(" un loked order lock order")
+                            selectElement.prop('disabled', false);
+
+                            clearTimeout(lockTimers[orderId]);
+                            clearTimeout(blurTimers[orderId]);
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                            error);
+                    }
+                });
+            }
+
+
+            function checkOrderLock(orderId, selectElement) {
+                $.ajax({
+                    url: '{{ route('api.orders.checkLockOrder') }}',
+                    type: 'POST',
+                    data: {
+                        order_id: orderId,
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        if (response.status == 200) {
+                            if (response.locked == 1) {
+                                selectElement.prop('disabled', true);
+                                alert('Đơn hàng này đã bị khóa.');
+
+                            } else {
+                                lockOrder(orderId, selectElement)
+                            }
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                            error);
+                    }
+                });
+            }
+
             $('#orderTable').on('focus', '.orderStatus', function() {
-                const orderId = $(this).data('order-id'); // Lấy ID đơn hàng từ data attribute
-                previousValuesOrder[orderId] = $(this).val(); // Lưu giá trị hiện tại vào object
+                const orderId = $(this).data('order-id');
+                checkOrderLock(orderId, $(this));
+                console.log("orderId11111:", orderId);
+
+            }).on('blur', '.orderStatus', function() {
+                let orderId = $(this).data('order-id');
+                console.log("orderId22222222222222:", orderId);
+
+                unlockOrder(orderId, $(this));
             });
 
+            let previousValuesOrder = {};
+
+            $('#orderTable').on('focus', '.orderStatus', function() {
+                const orderId = $(this).data('order-id');
+                previousValuesOrder[orderId] = $(this).val();
+            });
 
             $('#orderTable').on('change', '.orderStatus', function() {
                 const orderId = $(this).data('order-id');
@@ -1282,9 +1590,12 @@
                     type: 'POST',
                     data: {
                         order_id: idOrder,
-                        status_id: selectedValue
+                        status_id: selectedValue,
+                        user_id: dataUser.id
+
                     },
                     success: function(response) {
+                        console.log("response", response);
                         if (response.status == 200) {
                             fetchOrders(true);
                             $('#checkbox-table').prop('checked', false);

@@ -109,7 +109,6 @@
                                             <h5>{{ __('form.order.code') }} <span class="span-code"></span></h5>
                                         </div>
                                         <div id="select-change-status">
-
                                         </div>
 
                                         <div _ngcontent-ng-c1063460097="" class="ng-star-inserted span-completed">
@@ -288,6 +287,7 @@
         $(document).ready(function() {
 
 
+            const dataUser = <?php echo json_encode($user); ?>;
 
             $('#modalUpload').on('shown.bs.modal', function() {
                 //Xử lý khi modal được hiển thị
@@ -353,7 +353,22 @@
 
             var channel = pusher.subscribe('order-status.' + orderId);
             channel.bind('event-change-status', function(data) {
-                fillOrderDetails(orderId)
+                if (data.userID != dataUser.id) {
+
+                    fillOrderDetails(orderId)
+                }
+            });
+
+            var channel = pusher.subscribe('order-status-lock.' + orderId);
+            channel.bind('event-change-status-lock', function(data) {
+                if (data.userID != dataUser.id) {
+                    if (data.status == 0) {
+                        $(`#select_status`).prop('disabled', false);
+                    } else {
+                        $(`#select_status`).prop('disabled', true);
+                    }
+
+                }
             });
 
             function fillOrderDetails(orderId) {
@@ -377,8 +392,8 @@
                                     <div>
                                         <div class="status">Chờ xử lý</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                        
-                                        </div>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
+                                    </div>
                                 </div>
                             </li>
                                 `
@@ -393,7 +408,9 @@
                                     <div>
                                         <div class="status">Đang xử lý</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -408,7 +425,9 @@
                                     <div>
                                         <div class="status">Đang giao hàng</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -424,7 +443,9 @@
                                     <div>
                                         <div class="status">Đã giao hàng</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -439,7 +460,9 @@
                                     <div>
                                         <div class="status">Giao hàng thất bại</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -454,7 +477,9 @@
                                     <div>
                                         <div class="status">Hủy hàng</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -470,7 +495,9 @@
                                     <div>
                                         <div class="status">Hoàn thành</div>
                                         <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                    </div>
+                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
+                                    
+                                        </div>
                                 </div>
                             </li>
                                 `
@@ -634,7 +661,7 @@
 
                         const currentStatusId = data.listItemOrder[0].order.order_statuses[0].id;
                         let selectHtmlStatus = `
-                    <select class="font-serif form-select form-select-sm orderStatus" style="width: unset" id="select_status">
+                    <select class="font-serif form-select form-select-sm orderStatus" style="width: unset" ${data.listItemOrder[0].order.locked_status == 1 ? "disabled":""} id="select_status">
                 `;
 
                         orderStatuses.forEach(status => {
@@ -712,7 +739,8 @@
                                 type: 'POST',
                                 data: {
                                     order_id: orderId,
-                                    status_id: selectedValue
+                                    status_id: selectedValue,
+                                    user_id: dataUser.id
                                 },
                                 success: function(response) {
                                     if (response.status == 200) {
@@ -747,6 +775,115 @@
                         $("#loading-icon").hide();
                     });
             }
+
+            let lockTimers = {};
+            let blurTimers = {};
+
+
+
+            function lockOrder(orderId, selectElement) {
+                $.ajax({
+                    url: '{{ route('api.orders.lockOrder') }}',
+                    type: 'POST',
+                    data: {
+                        order_id: orderId,
+                        user_id: dataUser.id
+                    },
+                    success: function(response) {
+                        console.log("responselockkkkkkk:", response);
+                        if (response.status == 200) {
+                            // selectElement.prop('disabled', true);
+
+                            console.log("loked order lock order")
+                            if (lockTimers[orderId]) {
+                                clearTimeout(lockTimers[orderId]);
+                            }
+                            lockTimers[orderId] = setTimeout(() => unlockOrder(orderId, selectElement),
+                                60000);
+
+                            if (blurTimers[orderId]) {
+                                clearTimeout(blurTimers[orderId]);
+                            }
+                            blurTimers[orderId] = setTimeout(() => {
+                                if (selectElement) {
+                                    selectElement.blur();
+                                    console.log('Automatically blurred select.');
+                                }
+                                selectElement.prop('disabled', false);
+
+                            }, 60000);
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                            error);
+                    }
+                });
+            }
+
+            function unlockOrder(orderId, selectElement) {
+                $.ajax({
+                    url: '{{ route('api.orders.unlockOrder') }}',
+                    type: 'POST',
+                    data: {
+                        order_id: orderId,
+                        user_id: dataUser.id
+
+                    },
+                    success: function(response) {
+                        console.log("response0000000000000000lockkkkkkk:", response);
+
+                        if (response.status == 200) {
+                            console.log(" un loked order lock order")
+                            selectElement.prop('disabled', false);
+
+                            clearTimeout(lockTimers[orderId]);
+                            clearTimeout(blurTimers[orderId]);
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                            error);
+                    }
+                });
+            }
+
+
+            function checkOrderLock(orderId, selectElement) {
+                $.ajax({
+                    url: '{{ route('api.orders.checkLockOrder') }}',
+                    type: 'POST',
+                    data: {
+                        order_id: orderId,
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        if (response.status == 200) {
+                            if (response.locked == 1) {
+                                selectElement.prop('disabled', true);
+                                alert('Đơn hàng này đã bị khóa.');
+
+                            } else {
+                                lockOrder(orderId, selectElement)
+                            }
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                            error);
+                    }
+                });
+            }
+
+            $('#select-change-status').on('focus', '.orderStatus', function() {
+                checkOrderLock(orderId, $(this));
+                console.log("orderId11111:", orderId);
+
+            }).on('blur', '.orderStatus', function() {
+                console.log("orderId22222222222222:", orderId);
+
+                unlockOrder(orderId, $(this));
+            });
 
 
 

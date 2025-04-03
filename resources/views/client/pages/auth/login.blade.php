@@ -220,6 +220,22 @@
                             }, 500);
                         } else {
                             // Xử lý lỗi
+                            if (response.errorsLogin) {
+                                Toastify({
+                                    text: "Tài khoản đã bị khóa!",
+                                    duration: 2000,
+                                    newWindow: true,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    stopOnFocus: true,
+                                    style: {
+                                        background: "linear-gradient(to right, red, #96c93d)",
+                                    },
+                                }).showToast();
+                                return
+                            }
+
                             $('.error-message').remove();
                             $('.is-invalid').removeClass('is-invalid');
                             if (response.errors) {
@@ -262,4 +278,21 @@
             $('#loading-overlay').fadeOut();
         });
     </script>
+
+    @if (session('error'))
+        <script>
+            Toastify({
+                text: "{{ session('error') }}",
+                duration: 4000,
+                newWindow: true,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: "linear-gradient(to right, red, #96c93d)",
+                },
+            }).showToast();
+        </script>
+    @endif
 @endpush

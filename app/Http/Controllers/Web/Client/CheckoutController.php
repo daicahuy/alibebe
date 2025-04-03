@@ -66,17 +66,17 @@ class CheckoutController extends Controller
                 }
 
                 // TH5: Nếu sản phẩm đơn có sale nhưng giá sale bị thay đổi -> Báo lỗi
-                if ($product->is_sale == 1 && $product->sale_price > 0) {
-                    if ($product->sale_price != $cartItem['price']) {
-                        return back()->with('error', 'Giá khuyến mãi sản phẩm đã thay đổi, vui lòng kiểm tra lại.');
-                    }
-                }
-                if ($product->is_sale == 0 && $product->price > 0) {
-                    // TH6: Nếu sản phẩm đơn không có sale mà giá gốc bị thay đổi -> Báo lỗi
-                    if ($product->price != $cartItem['old_price']) {
-                        return back()->with('error', 'Giá sản phẩm đã thay đổi, vui lòng kiểm tra lại.');
-                    }
-                }
+                // if ($product->is_sale == 1 && $product->sale_price > 0) {
+                //     if ($product->sale_price != $cartItem['price']) {
+                //         return back()->with('error', 'Giá khuyến mãi sản phẩm đã thay đổi, vui lòng kiểm tra lại.');
+                //     }
+                // }
+                // if ($product->is_sale == 0 && $product->price > 0) {
+                //     // TH6: Nếu sản phẩm đơn không có sale mà giá gốc bị thay đổi -> Báo lỗi
+                //     if ($product->price != $cartItem['old_price']) {
+                //         return back()->with('error', 'Giá sản phẩm đã thay đổi, vui lòng kiểm tra lại.');
+                //     }
+                // }
             }
         }
 

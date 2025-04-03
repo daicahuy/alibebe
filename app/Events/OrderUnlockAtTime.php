@@ -10,22 +10,18 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderStatusUpdated implements ShouldBroadcast
+class OrderUnlockAtTime implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public $orderId;  // Mã đơn hàng
-    public $status;    // Trạng thái đơn hàng
-    public $order;
-    public $user_id;
+
     /**
      * Create a new event instance.
      */
-    public function __construct($orderId, $status, $order, $user_id)
+    public function __construct($orderId)
     {
-        $this->orderId = $orderId;
-        $this->status = $status;
-        $this->status = $order;
-        $this->user_id = $user_id;
+        $this->orderId = $orderId;  // Gán mã đơn hàng
+        // Gán trạng thái
     }
 
     /**
@@ -36,22 +32,19 @@ class OrderStatusUpdated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('order-status.' . $this->orderId) // Trả về array có chứa channel
+            new Channel('order-status-lock.' . $this->orderId) // Trả về array có chứa channel
         ];
     }
 
     public function broadcastAs()
     {
-        return 'event-change-status';
+        return 'event-change-status-lock';
     }
 
     public function broadcastWith()
     {
         return [
-            'status' => $this->status,
             'orderId' => $this->orderId,
-            'order' => $this->order,
-            'userID' => $this->user_id,
         ];
     }
 }

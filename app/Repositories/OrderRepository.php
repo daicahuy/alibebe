@@ -16,7 +16,7 @@ class OrderRepository extends BaseRepository
         return Order::class; // Trả về tên class của model Order
     }
 
-    public function filterOrders(array $filters, int $page, int $limit): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function filterOrders(array $filters, int $page, int $limit, $user_id): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $query = Order::query()->with("orderStatuses")->with("payment")->orderBy('created_at', 'desc');
 
@@ -27,8 +27,12 @@ class OrderRepository extends BaseRepository
 
             // dd($key, $value);
             if ($key === 'order_status_id' && isset($value)) {
-                $query->whereHas('orderStatuses', function ($q) use ($value) {
+                $query->whereHas('orderStatuses', function ($q) use ($value, $user_id) {
                     $q->where('order_status_id', $value);
+                    if ($value != 1 && $value != 7) {
+                        $q->where('modified_by', $user_id);
+
+                    }
                 });
             } elseif ($key == 'search' && isset($value)) {
                 $query->where(function ($query1) use ($value) {

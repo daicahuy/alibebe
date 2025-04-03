@@ -131,8 +131,11 @@ Route::prefix('/orders')
         Route::post('/updateOrderStatusWithUserCheck', [OrderController::class, 'updateOrderStatusWithUserCheck'])->name('updateOrderStatusWithUserCheck');
         Route::post('/getOrderStatus', [OrderController::class, 'getOrderOrderByStatus'])->name('getOrderOrderByStatus');
         Route::post('/invoice', [OrderController::class, 'generateInvoiceAll'])->name('generateInvoiceAll');
-        Route::post('changeStatusRefundMoney', [OrderController::class, 'changeStatusRefundMoney'])->name('changeStatusRefundMoney');
-        Route::post('userCheckRefundMoney', [OrderController::class, 'userCheckRefundMoney'])->name('userCheckRefundMoney');
+        Route::post('/changeStatusRefundMoney', [OrderController::class, 'changeStatusRefundMoney'])->name('changeStatusRefundMoney');
+        Route::post('/userCheckRefundMoney', [OrderController::class, 'userCheckRefundMoney'])->name('userCheckRefundMoney');
+        Route::post('/lockOrder', [OrderController::class, 'lockOrder'])->name('lockOrder');
+        Route::post('/unlockOrder', [OrderController::class, 'unlockOrder'])->name('unlockOrder');
+        Route::post('/checkLockOrder', [OrderController::class, 'checkLockOrder'])->name('checkLockOrder');
     });
 
 

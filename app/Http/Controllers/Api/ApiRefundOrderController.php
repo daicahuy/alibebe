@@ -296,7 +296,7 @@ class ApiRefundOrderController extends Controller
             }
 
             Order::where('id', $dataRefundProducts["order_id"])
-                ->update(["is_refund" => "0"]);
+                ->update(["is_refund" => "1"]);
 
             event(new RefundOrderCreate($orderRefund));
             event(new OrderRefundPendingCountUpdated());

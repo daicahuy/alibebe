@@ -66,7 +66,7 @@ class OrderCustomerControllerApi extends Controller
                     return response()->json(["status" => "error", "message" => "Mã giảm giá đã hết hạn."]);
                 }
 
-                $couponUser = CouponUser::where('coupon_id', $coupon->id)->first();
+                $couponUser = CouponUser::where('coupon_id', $coupon->id)->where("user_id", $dataOrderCustomer["user_id"])->first();
 
                 if (!$couponUser) {
                     return response()->json(["status" => "error", "message" => "Không tìm thấy người dùng mã giảm giá."]);
@@ -104,7 +104,7 @@ class OrderCustomerControllerApi extends Controller
                 'payment_id' => $dataOrderCustomer['payment_id'],
                 'total_amount' => $dataOrderCustomer['total_amount_discounted'],
                 'is_paid' => $dataOrderCustomer['is_paid'],
-                'is_refund' => "1",
+                'is_refund' => "0",
                 'coupon_id' => isset($coupon) ? $coupon->id : null,
                 'coupon_discount_value' => $dataOrderCustomer["coupon_discount_value"],
                 'coupon_discount_type' => $dataOrderCustomer["coupon_discount_type"],
@@ -174,11 +174,10 @@ class OrderCustomerControllerApi extends Controller
                     $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
                         ->where('product_variant_id', $item['product_variant_id'])->first();
 
-
                     if ($cartItem->quantity == $item['quantity_variant']) {
                         $cartItem->delete();
                     } else {
-                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
+                        return response()->json(["status" => "error", "type" => "errCart", "message" => "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
                     }
                 } else {
                     $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
@@ -187,7 +186,7 @@ class OrderCustomerControllerApi extends Controller
                     if ($cartItem->quantity == $item['quantity']) {
                         $cartItem->delete();
                     } else {
-                        return response()->json(["status" => "error", "message" => "Sản phẩm " . $item["name"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
+                        return response()->json(["status" => "error", "type" => "errCart", "message" => "Sản phẩm " . $item["name"] . " đã bị thay đổi số lượng trong giỏ hàng"]);
 
 
                     }
