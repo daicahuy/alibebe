@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\NotificationType;
+use App\Events\OrderCustomer;
 use App\Events\OrderPendingCountUpdated;
 use App\Events\OrderStatusUpdated;
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderOrderStatus;
 use App\Models\ProductStock;
+use App\Models\User;
 use App\Services\Api\Admin\OrderService;
 use DB;
 use Exception;
@@ -183,6 +187,24 @@ class OrderController extends Controller
                 }
 
             }
+
+                    $admins = User::where('role', 2)
+                        ->orWhere('role', 1)
+                        ->get();
+
+                    $message = "Đơn Hàng {$order->code} đã bị hủy !";
+
+                    foreach ($admins as $admin) {
+                        Notification::create([
+                            'user_id'   => $admin->id,
+                            'message'   => $message,
+                            'read'      => false,
+                            'type'      => NotificationType::Order,
+                            'order_id' => $order->id
+                        ]);
+                    }
+
+                    event(new OrderCustomer($order, $message));
 
             DB::commit();
 

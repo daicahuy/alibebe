@@ -94,12 +94,7 @@
 
                         <div class="user-name-hide media-body">
                             <span
-                                style="
-                                display: inline-block;
-                                width: 100px; /* Điều chỉnh kích thước phù hợp */
-                                white-space: nowrap;
-                                overflow: hidden;
-                                text-overflow: ellipsis;">
+                                style="display: inline-block; width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 {{ $user->fullname }}
                             </span>
 
@@ -146,6 +141,7 @@
 <script>
     $(document).ready(function() {
         window.currentUserId = "{{ auth()->id() }}";
+        const MAX_NOTIFICATION = 5; // Luôn hiển thị tối đa 5 tin
 
         // Khởi tạo Pusher
         const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
@@ -154,8 +150,7 @@
             authEndpoint: '/broadcasting/auth',
             auth: {
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                        'content')
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             }
         });
@@ -181,8 +176,16 @@
 
             const $notificationList = $('#notification-list');
             const newNotificationHTML = renderNotificationItem(data, type);
+            // Chèn sau phần header
             $notificationList.find('li:first').after(newNotificationHTML);
 
+            // Nếu số lượng thông báo vượt quá MAX_NOTIFICATION thì xóa tin cũ nhất
+            let items = $notificationList.find('li.notification-item');
+            if(items.length > MAX_NOTIFICATION) {
+                $(items[items.length - 1]).remove();
+            }
+
+            // Nếu offcanvas đang mở thì load thêm tin mới vào đầu danh sách offcanvas
             if ($('#notificationOffcanvas').hasClass('show')) {
                 const offcanvasHTML = renderNotificationOffcanvasItem(data, type);
                 $('#notification-offcanvas-list').prepend(offcanvasHTML);
@@ -208,6 +211,7 @@
         function renderNotificationItem(data, type) {
             let icon = 'ri-record-circle-line';
             let content = data.message || '';
+            const readClass = data.read ? 'notification-read' : 'notification-unread';
 
             if (type == 'coupon') {
                 icon = 'ri-coupon-line';
@@ -218,7 +222,7 @@
             }
 
             return `
-            <li class="notification-item" data-id="${data.id}">
+            <li class="notification-item ${readClass}" data-id="${data.id}">
                 <p>
                     <i class="${icon} me-2 txt-primary"></i>
                     ${content}
@@ -238,7 +242,6 @@
 
         // Render HTML cho thông báo trong offcanvas
         function renderNotificationOffcanvasItem(notifi, type) {
-            console.log(notifi, type);
             let details = '';
             const readClass = notifi.read ? 'notification-read' : 'notification-unread';
 
@@ -308,7 +311,7 @@
         `;
         }
 
-        // Load danh sách thông báo từ API
+        // Load danh sách thông báo từ API cho dropdown (chỉ 5 tin mới nhất)
         function loadNotifications() {
             $.ajax({
                 url: '/api/notifications',
@@ -324,8 +327,6 @@
                         response.notifications.data :
                         (Array.isArray(response) ? response : []);
 
-                    console.log(notifications);
-
                     // Cập nhật số lượng thông báo chưa đọc
                     if (response.unread_count !== undefined) {
                         $('.unread-count').text(response.unread_count);
@@ -334,6 +335,11 @@
                         } else {
                             $('.unread-count').show();
                         }
+                    }
+
+                    // Chỉ lấy 5 tin mới nhất
+                    if (notifications.length > MAX_NOTIFICATION) {
+                        notifications = notifications.slice(0, MAX_NOTIFICATION);
                     }
 
                     var $notificationList = $('#notification-list');
@@ -357,7 +363,6 @@
                         $('<li class="notification-item"><p>Không có thông báo nào!</p></li>')
                             .insertBefore($checkAllBtn);
                     }
-                    7
                 },
                 error: function(err) {
                     console.error('Error loading notifications:', err);
@@ -365,7 +370,7 @@
             });
         }
 
-        // Load danh sách thông báo cho offcanvas
+        // Load danh sách thông báo cho offcanvas (hiển thị đầy đủ)
         function loadNotificationsOffcanvas() {
             $.ajax({
                 url: '/api/notifications',
@@ -377,7 +382,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    console.log(response);
                     var notifications = response.notifications && response.notifications.data ?
                         response.notifications.data :
                         (Array.isArray(response) ? response : []);
@@ -391,8 +395,7 @@
                         for (var i = 0; i < notifications.length; i++) {
                             // Xác định kiểu thông báo dựa trên dữ liệu
                             var type = notifications[i].type == 0 ? 'coupon' : 'order';
-                            var offcanvasHTML = renderNotificationOffcanvasItem(notifications[i],
-                                type);
+                            var offcanvasHTML = renderNotificationOffcanvasItem(notifications[i], type);
                             $offcanvasList.append(offcanvasHTML);
                         }
 
@@ -476,8 +479,7 @@
         $('#open-notification-offcanvas').on('click', function(e) {
             e.preventDefault();
             loadNotificationsOffcanvas();
-            var myOffcanvas = new bootstrap.Offcanvas(document.getElementById(
-                'notificationOffcanvas'), {
+            var myOffcanvas = new bootstrap.Offcanvas(document.getElementById('notificationOffcanvas'), {
                 backdrop: false // Tắt backdrop
             });
             myOffcanvas.show();
