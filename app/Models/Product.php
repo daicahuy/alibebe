@@ -324,10 +324,5 @@ class Product extends Model
                 AND ' . $orderStatusesHoanThanhCondition . ')';
     }
 
-    public function getRouteKeyName()
-        {
-            return 'slug';
-        }
-
 
 }
