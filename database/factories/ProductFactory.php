@@ -21,7 +21,7 @@ class ProductFactory extends Factory
     {
         $name = $this->fakeName();
         $price = $this->faker->numberBetween(50000, 10000000);
-        $salePrice = $this->faker->boolean(40) ? $price * 0.9 : null;
+        $salePrice = $this->faker->boolean(40) ? ceil($price * 0.9) : null;
 
         return [
             'brand_id' => Brand::inRandomOrder()->first()->id ?? 1,

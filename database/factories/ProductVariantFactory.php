@@ -17,8 +17,8 @@ class ProductVariantFactory extends Factory
      */
     public function definition(): array
     {
-        $price = $this->faker->randomFloat(2, 50000, 5000000);
-        $salePrice = $this->faker->boolean(40) ? $price * 0.9 : null;
+        $price = $this->faker->randomNumber(50000, 5000000);
+        $salePrice = $this->faker->boolean(40) ? ceil($price * 0.9) : null;
 
         return [
             'product_id' => Product::query()->where('type', 1)->inRandomOrder()->first()->id ?? 1,
