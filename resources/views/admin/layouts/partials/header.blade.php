@@ -13,9 +13,9 @@
         <div class="header-logo-wrapper p-0">
             <div checked="checked" class="toggle-sidebar">
                 <i class="ri-apps-line status_toggle middle sidebar-toggle"></i>
-                <a href="/fastkart-admin/dashboard">
+                <a href="{{ route('admin.index') }}">
                     <img alt="header-logo" class="img-fluid"
-                        src="https://laravel.pixelstrap.net/fastkart/storage/4/logo-dark.png">
+                        src="{{ asset('theme/admin/assets/images/logo/1.png') }}">
                 </a>
             </div>
         </div>
@@ -23,7 +23,7 @@
             <div class="form-group w-100">
                 <input type="text" autocomplete="off"
                     class="demo-input Typeahead-input form-control-plaintext w-100 ng-untouched ng-pristine ng-valid"
-                    placeholder="Search Fastkart ..">
+                    placeholder="Tìm kiếm...">
                 <i class="ri-close-line close-icon"></i>
             </div>
             <div class="onhover-dropdown">
@@ -35,7 +35,7 @@
                 <li>
                     <span class="header-search"><i class="ri-search-line"></i></span>
                 </li>
-                <li>
+                {{-- <li>
                     <div class="profile-nav onhover-dropdown translate-btn p-0">
                         <div class="media profile-media">
                             <button class="btn dropdown-toggle p-0" id="translate_btn" type="submit">
@@ -57,7 +57,7 @@
                             </li>
                         </ul>
                     </div>
-                </li>
+                </li> --}}
                 <li>
                     <div class="onhover-dropdown">
                         <div class="notification-box">
@@ -104,7 +104,7 @@
                             </span>
 
                             <p class="mb-0 font-roboto">
-                                admin <i class="middle ri-arrow-down-s-line"></i>
+                                {{ $user->isAdmin() ? 'Admin' : 'Nhân Viên' }} <i class="middle ri-arrow-down-s-line"></i>
                             </p>
                         </div>
                     </div>

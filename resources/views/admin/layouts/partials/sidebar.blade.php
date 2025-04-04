@@ -1,19 +1,13 @@
-<style>
-    .hide-element {
-        display: none;
-    }
-</style>
-
 <div class="sidebar-wrapper">
     <div>
         <!-- START LOGO -->
         <div class="logo-wrapper logo-wrapper-center">
             <a href="{{ route('admin.index') }}">
                 <img alt="logo" class="img-fluid for-white"
-                    src="https://laravel.pixelstrap.net/fastkart/storage/3/logo-white.png">
+                    src="{{ asset('theme/admin/assets/images/logo/full-white.png') }}">
             </a>
             <img alt="logo" class="img-fluid logo-sm"
-                src="https://laravel.pixelstrap.net/fastkart/storage/5/tiny-logo.png">
+                src="{{ asset('theme/admin/assets/images/logo/logo.png') }}">
             <div class="back-btn"><i class="fa fa-angle-left"></i></div>
             <div class="toggle-sidebar">
                 <i class="ri-apps-line status_toggle middle sidebar-toggle"></i>
