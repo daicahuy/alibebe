@@ -132,13 +132,22 @@ class AttributeValueRepository extends BaseRepository
                 // Lọc thêm: Chỉ đếm biến thể có stock > 0
                 $q->whereHas('productStock', function ($qStock) {
                     $qStock->where('stock', '>', 0); // Chỉ đếm biến thể có stock > 0
-                })->where('is_active', 1);
+                })->where('is_active', 1)
+                    ->whereHas('product', function ($qProduct) { // sản phẩm active
+                    $qProduct->where('is_active', 1);
+                    if (!empty($categoryIds)) {
+                        $qProduct->whereHas('categories', function ($qCat) use ($categoryIds) {
+                            $qCat->whereIn('categories.id', $categoryIds)
+                                ->where('categories.is_active', 1); // Điểm sửa 3: Thêm điều kiện kiểm tra category active
+                        });
+                    }
+                });
 
                 if (!empty($categoryIds)) { // Kiểm tra xem $categoryIds có rỗng không
                     $q->whereHas('product', function ($q2) use ($categoryIds) {
                         $q2->whereHas('categories', function ($q3) use ($categoryIds) {
                             $q3->whereIn('categories.id', $categoryIds); // Đếm sản phẩm biến thể thuộc danh mục đã chọn
-                        });
+                        })->where('is_active', 1); // cate active
                     });
                 }
             }
@@ -152,10 +161,16 @@ class AttributeValueRepository extends BaseRepository
                     ->from('attribute_values as av_sub')
                     ->join('attribute_value_product_variant as pvav_sub', 'av_sub.id', '=', 'pvav_sub.attribute_value_id')
                     ->join('product_variants', 'pvav_sub.product_variant_id', '=', 'product_variants.id')
+                    ->join('products', 'product_variants.product_id', '=', 'products.id') // JOIN với bảng products
                     ->join('product_stocks as ps_sub', 'product_variants.id', '=', 'ps_sub.product_variant_id')
+                    ->join('category_product as cp', 'products.id', '=', 'cp.product_id') // join category_product
+                    ->join('categories as c', 'cp.category_id', '=', 'c.id') //cate
                     ->whereColumn('av_sub.id', 'attribute_values.id') // Liên kết với attribute_values gốc
                     ->where('ps_sub.stock', '>', 0)
-                    ->where('product_variants.is_active', 1);
+                    ->where('product_variants.is_active', 1)
+                    ->where('products.is_active', 1)
+                    ->where('c.is_active', 1);
+                ;
                 // ->when(!empty($categoryIds), function ($q) use ($categoryIds) {
                 //     $q->whereHas('product', function ($q2) use ($categoryIds) {
                 //         $q2->whereHas('categories', function ($q3) use ($categoryIds) {

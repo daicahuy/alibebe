@@ -18,15 +18,8 @@ class AuthAdminController extends Controller
 {
     public function showFormLogin()
     {
-        if (Auth::check()) {
-            return back();
-        }
-    
         return view('admin.pages.auth.login');
     }
-
-
-
 
     public function handleLogin(HandleLoginRequest $request)
     {
@@ -41,7 +34,7 @@ class AuthAdminController extends Controller
             $user = Auth::user();
     
             if ($user->isAdmin() || $user->isEmployee()) {
-                return redirect()->route('admin.index')->with('success', 'Đăng nhập thành công!');
+                return redirect()->route($user->isAdmin() ? 'admin.index' : 'admin.indexNhanVien')->with('success', 'Đăng nhập thành công!');
             } else {
                 Auth::logout(); // Đăng xuất ngay nếu không phải Admin/Nhân viên
                 return redirect()->route('auth.admin.showFormLogin')
@@ -53,26 +46,11 @@ class AuthAdminController extends Controller
             'email' => 'Email hoặc mật khẩu không đúng.',
         ]);
     }
-    
-
-
-
-
-    public function showFormRegister()
-    {
-        return view('admin.pages.auth.register');
-    }
-
-
 
     public function showFormForgotPassword()
     {
         return view('admin.pages.auth.forgot-password');
     }
-
-
-
-
 
     public function sendOtp(ForgotPasswordRequest $request)
     {

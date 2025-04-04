@@ -5,6 +5,8 @@
     <meta name="description" content="Fastkart">
     <meta name="keywords" content="Fastkart">
     <meta name="author" content="Fastkart">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-id" content="{{ Auth::id() }}">
     <link rel="icon" href="{{ asset('/theme/client/assets/images/favicon/1.png" type="image/x-icon') }}">
     <title>Fastkart</title>
 

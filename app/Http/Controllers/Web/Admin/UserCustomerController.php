@@ -3,20 +3,57 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Enums\UserStatusType;
+use App\Events\UserLocked;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LockUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
+use App\Repositories\OrderRepository;
+use App\Repositories\ReviewRepository;
+use App\Repositories\WishlistRepository;
 use App\Services\Web\Admin\UserCustomerService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class UserCustomerController extends Controller
 {
     protected UserCustomerService $userService;
+    protected OrderRepository $orderRepo;
+    protected WishlistRepository $wishlistRepo;
+    protected ReviewRepository $reviewRepo;
 
-    public function __construct(UserCustomerService $userService)
+
+    public function __construct(UserCustomerService $userService, OrderRepository $orderRepo, WishlistRepository $wishlistRepo, ReviewRepository $reviewRepo)
     {
         $this->userService = $userService;
+        $this->orderRepo = $orderRepo;
+        $this->wishlistRepo = $wishlistRepo;
+        $this->reviewRepo = $reviewRepo;
+
+    }
+    public function detail(Request $request, User $user)
+    {
+
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+
+        if (!$startDate) {
+            $startDate = now()->startOfDay()->toDateString();
+        }
+        if (!$endDate) {
+            $endDate = now()->endOfDay()->toDateString();
+        }
+        $filterStatus = $request->input('status');
+
+
+        $data = $this->userService->detail($user->id, $startDate, $endDate, $filterStatus);
+
+
+        // dd($data);
+
+        return view('admin.pages.user_customer.detail', compact(
+            'data'
+        ));
     }
 
     public function index(Request $request)
@@ -63,45 +100,63 @@ class UserCustomerController extends Controller
     }
 
     public function update(UpdateUserRequest $request, User $user)
+    {
+        $data = $request->validated();
+
+        if (!empty($data)) {
+            $this->userService->UpdateUserCustomer($user->id, $data);
+
+            return redirect()->back()->with('success', 'Cập nhật thông tin người dùng thành công.');
+        } else {
+            return redirect()->back()->with('error', 'Cập nhật thông tin người dùng thất bại. Vui lòng kiểm tra và thử lại.');
+        }
+    }
+
+
+public function lockUser(User $user)
 {
-    $data = $request->validated();
+    // Lấy thông tin người dùng
+    $lock = $this->userService->ShowUserCustomer($user->id, ['*']);
 
-    if (!empty($data)) {
-        $this->userService->UpdateUserCustomer($user->id, $data);
+    // Kiểm tra trạng thái hiện tại của người dùng
+    if ($lock->status == UserStatusType::ACTIVE) {
+        // Cập nhật trạng thái thành "LOCK"
+        $this->userService->UpdateUserCustomer($user->id, ['status' => UserStatusType::LOCK]);
+// Thêm log để kiểm tra
+Log::info('Locking user with ID: ' . $user->id);
+        // Phát sự kiện UserLocked
+        // broadcast(new UserLocked($user->id));
+        event(new UserLocked($user->id));
+        Log::info('UserLocked event broadcasted for user ID: ' . $user->id);
+        return redirect()->back()->with('success', 'Đã khóa thành công!');
+    } elseif ($lock->status == UserStatusType::LOCK) {
+        // Cập nhật trạng thái thành "ACTIVE"
+        $this->userService->UpdateUserCustomer($user->id, ['status' => UserStatusType::ACTIVE]);
 
-        return redirect()->back()->with('success', 'Cập nhật thông tin người dùng thành công.');
+        return redirect()->back()->with('success', 'Đã mở khóa thành công!');
     } else {
-        return redirect()->back()->with('error', 'Cập nhật thông tin người dùng thất bại. Vui lòng kiểm tra và thử lại.');
+        return redirect()->back()->with('error', 'Thất bại, xin kiểm tra lại.');
     }
 }
 
+public function lockMultipleUsers(LockUserRequest $request)
+{
+    // Lấy danh sách user_ids từ request
+    $validated = $request->validated();
+    $userIds = $validated['user_ids'];
 
-    public function lockUser(User $user)
-    {
-        $lock = $this->userService->ShowUserCustomer($user->id, ['*']);
+    // Cập nhật trạng thái của tất cả người dùng thành "LOCK"
+    $this->userService->UpdateUserCustomer($userIds, ['status' => UserStatusType::LOCK]);
 
-        if ($lock->status == UserStatusType::ACTIVE) {
-
-            $this->userService->UpdateUserCustomer($user->id, ['status' => UserStatusType::LOCK]);
-            return redirect()->back()->with('success', 'Đã khóa thành công !');
-        } else if ($lock->status == UserStatusType::LOCK) {
-
-            $this->userService->UpdateUserCustomer($user->id, ['status' => UserStatusType::ACTIVE]);
-            return redirect()->back()->with('success', 'Đã mở khóa thành công !');
-        } else {
-            return redirect()->back()->with('error', 'Thất bại xin kiểm tra lại');
-        }
+    // Phát sự kiện UserLocked cho từng người dùng
+    foreach ($userIds as $userId) {
+        event(new UserLocked($userId));
     }
-    public function lockMultipleUsers(LockUserRequest $request)
-    {
-        $validated = $request->validated();
 
-        $this->userService->UpdateUserCustomer($validated['user_ids'], ['status' => UserStatusType::LOCK]);
-
-        return response()->json([
-            'message' => ('Đã khóa thành công')
-        ]);
-    }
+    return response()->json([
+        'message' => 'Đã khóa thành công!'
+    ]);
+}
 
     public function unLockMultipleUsers(LockUserRequest $request)
     {

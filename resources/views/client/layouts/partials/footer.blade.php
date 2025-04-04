@@ -89,22 +89,22 @@
                     <div class="footer-contain">
                         <ul>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Điện thoại</a>
+                                <a href="#!" class="text-content">Điện thoại</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Máy tính bảng</a>
+                                <a href="#!" class="text-content">Máy tính bảng</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Máy tính xách tay</a>
+                                <a href="#!" class="text-content">Máy tính xách tay</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Đồng hồ</a>
+                                <a href="#!" class="text-content">Đồng hồ</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Âm thanh</a>
+                                <a href="#!" class="text-content">Âm thanh</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Tivi</a>
+                                <a href="#!" class="text-content">Tivi</a>
                             </li>
                         </ul>
                     </div>
@@ -121,16 +121,16 @@
                                 <a href="index.html" class="text-content">Trang chủ</a>
                             </li>
                             <li>
-                                <a href="shop-left-sidebar.html" class="text-content">Cửa hàng</a>
+                                <a href="#!" class="text-content">Cửa hàng</a>
                             </li>
                             <li>
-                                <a href="about-us.html" class="text-content">Giời thiệu về chúng tôi</a>
+                                <a href="#!" class="text-content">Giời thiệu về chúng tôi</a>
                             </li>
                             <li>
-                                <a href="blog-list.html" class="text-content">Blog</a>
+                                <a href="#!" class="text-content">Blog</a>
                             </li>
                             <li>
-                                <a href="contact-us.html" class="text-content">Liên hệ</a>
+                                <a href="#!" class="text-content">Liên hệ</a>
                             </li>
                         </ul>
                     </div>
@@ -145,22 +145,22 @@
                     <div class="footer-contain">
                         <ul>
                             <li>
-                                <a href="order-success.html" class="text-content">Đơn hàng của bạn</a>
+                                <a href="#!" class="text-content">Đơn hàng của bạn</a>
                             </li>
                             <li>
-                                <a href="user-dashboard.html" class="text-content">Tài khoản của bạn</a>
+                                <a href="#!" class="text-content">Tài khoản của bạn</a>
                             </li>
                             <li>
-                                <a href="order-tracking.html" class="text-content">Theo dõi đơn hàng</a>
+                                <a href="#!" class="text-content">Theo dõi đơn hàng</a>
                             </li>
                             <li>
-                                <a href="wishlist.html" class="text-content">Danh sách mong muốn của bạn</a>
+                                <a href="#!" class="text-content">Danh sách mong muốn của bạn</a>
                             </li>
                             <li>
-                                <a href="search.html" class="text-content">Tìm kiếm</a>
+                                <a href="#!" class="text-content">Tìm kiếm</a>
                             </li>
                             <li>
-                                <a href="faq.html" class="text-content">Câu hỏi thường gặp</a>
+                                <a href="#!" class="text-content">Câu hỏi thường gặp</a>
                             </li>
                         </ul>
                     </div>
@@ -168,8 +168,7 @@
 
                 <div class="col-xl-3 col-lg-4 col-sm-6">
                     <div class="footer-title">
-                        <h4>Liên hệ với chúng tôi
-                        </h4>
+                        <h4>Liên hệ với chúng tôi</h4>
                     </div>
 
                     <div class="footer-contact">
@@ -179,7 +178,7 @@
                                     <i data-feather="phone"></i>
                                     <div class="contact-number">
                                         <h6 class="text-content">Đường dây nóng 24/7::</h6>
-                                        <h5>+91 888 104 2340</h5>
+                                        <h5>+84 888 666 8888</h5>
                                     </div>
                                 </div>
                             </li>
@@ -219,7 +218,7 @@
 
         <div class="sub-footer section-small-space">
             <div class="reserve">
-                <h6 class="text-content">©2022 Alibebe Cửa hàng công nghệ</h6>
+                <h6 class="text-content">©2025 Alibebe Cửa hàng công nghệ</h6>
             </div>
 
             <div class="payment">
@@ -227,7 +226,7 @@
             </div>
 
             <div class="social-link">
-                <h6 class="text-content">Stay connected :</h6>
+                <h6 class="text-content">Kết nối với chúng tôi qua:</h6>
                 <ul>
                     <li>
                         <a href="https://www.facebook.com/" target="_blank">

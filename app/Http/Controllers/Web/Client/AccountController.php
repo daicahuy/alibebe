@@ -42,6 +42,7 @@ class AccountController extends Controller
     public function dashboard()
     {
         $data = $this->dashboardService->index();
+        // dd($data);
         return view('client.pages.accounts.dashboard',compact('data'));
     }
 

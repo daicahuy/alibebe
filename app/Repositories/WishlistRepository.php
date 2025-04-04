@@ -26,6 +26,23 @@ class WishlistRepository extends BaseRepository
             ->latest('id')
             ->paginate(10);
     }
+    public function getWishlistById($userId)
+    {
+        return $this->model->where('user_id', $userId)
+            ->with([
+                'product.brand',
+                'product.productVariants'
+            ])
+            ->latest('id')
+            ->paginate(5, ['*'], 'wishlists_page');
+    }
+    public function countWishlistById($userId)
+    {
+
+        $user = User::with('wishlists')->findOrFail($userId);
+
+        return $user->wishlists->count();
+    }
     public function countWishlists()
     {
         $authLogin = Auth::id();
@@ -39,5 +56,12 @@ class WishlistRepository extends BaseRepository
         return $this->model->where('user_id', $userId)
             ->where('product_id', $productId)
             ->first();
+    }
+
+    // customer detail
+    public function getTimeActivity($userId)
+    {
+        $latestActivity = $this->model->where('user_id', $userId)->latest()->first();
+        return $latestActivity;
     }
 }

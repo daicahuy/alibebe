@@ -306,16 +306,18 @@
                                                                         <div class="mb-3">
                                                                             <label for="newExpiryDate{{ $coupon->id }}"
                                                                                 class="form-label">Ngày hết hạn mới</label>
-                                                                                <div class="input-group custom-dt-picker">
-                                                                                    <input placeholder="yyyy-mm-dd" name="end_date"
-                                                                                        value=" {{ old('end_date', $coupon->end_date) }}" id="end_date_input"
-                                                                                        readonly=""
-                                                                                        class="form-control">
-                                                                                    <button type="button" id="endDatePickerBtn"
-                                                                                        class="btn btn-outline-secondary">
-                                                                                        <i class="ri-calendar-line"></i>
-                                                                                    </button>
-                                                                                </div>
+                                                                            <div class="input-group custom-dt-picker">
+                                                                                <input placeholder="yyyy-mm-dd"
+                                                                                    name="end_date"
+                                                                                    value=" {{ old('end_date', $coupon->end_date) }}"
+                                                                                    id="end_date_input" readonly=""
+                                                                                    class="form-control">
+                                                                                <button type="button"
+                                                                                    id="endDatePickerBtn"
+                                                                                    class="btn btn-outline-secondary">
+                                                                                    <i class="ri-calendar-line"></i>
+                                                                                </button>
+                                                                            </div>
                                                                         </div>
                                                                     @endif
                                                                     @if ($isUsageReached)
@@ -389,13 +391,15 @@
                 });
             @endif
 
-            $("#end_date_input").flatpickr({
-                enableTime: true,
-                enableSeconds: true,
-                time_24hr: true,
-                dateFormat: "Y-m-d H:i:s"
+            $("[id^='endDatePickerBtn']").on('click', function() {
+                const inputId = $(this).closest('.input-group').find('input').attr('id');
+                $("#" + inputId).flatpickr({
+                    enableTime: true,
+                    enableSeconds: true,
+                    time_24hr: true,
+                    dateFormat: "Y-m-d H:i:s"
+                }).open();
             });
-
 
             // --- Logic Checkbox ---
             $('#checkbox-table').on('click', function() {

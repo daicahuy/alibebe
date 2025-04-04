@@ -46,13 +46,13 @@ class UserRepository extends BaseRepository
     public function getUserRank($loyaltyPoints)
     {
         $ranks = [
-            'Newbie'   => [0, 100],
-            'Iron'     => [101, 300],
-            'Bronze'   => [301, 500],
-            'Silver'   => [501, 700],
-            'Gold'     => [701, 850],
+            'Newbie' => [0, 100],
+            'Iron' => [101, 300],
+            'Bronze' => [301, 500],
+            'Silver' => [501, 700],
+            'Gold' => [701, 850],
             'Platinum' => [851, 999],
-            'Diamond'  => [1000, PHP_INT_MAX],
+            'Diamond' => [1000, PHP_INT_MAX],
         ];
 
         foreach ($ranks as $rank => [$min, $max]) {
@@ -233,5 +233,27 @@ class UserRepository extends BaseRepository
     public function listByIds(array $ids, $status)
     {
         return $this->model->whereIn('id', $ids)->update(['status' => $status]);
+    }
+
+    // customer detail
+    public function getUserAndAddress($userId, $columns = ['*'])
+    {
+        return $this->model->with([
+            'addresses' => function ($query) {
+                $query->select('id', 'user_id', 'address', 'is_default');
+            }
+        ])->findOrFail($userId, $columns);
+    }
+    public function getUserById($userId)
+    {
+        $user = $this->model->findorFail($userId);
+        // return $user->where('id', $userId)->first();
+        return $user;
+    }
+
+    public function getTimeActivity($userId)
+    {
+        $latestActivity = $this->model->where('id', $userId)->latest()->first();
+        return $latestActivity;
     }
 }

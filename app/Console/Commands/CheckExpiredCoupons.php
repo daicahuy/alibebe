@@ -38,8 +38,8 @@ class CheckExpiredCoupons extends Command
             ->where('is_expired', 1)
             ->where('end_date', '<', now())
             ->where(function ($query) {
-                $query->where('is_notified',0)
-                ->orWhereNull('is_notified');
+                $query->where('is_notified', 0)
+                    ->orWhereNull('is_notified');
             })
             ->get();
 

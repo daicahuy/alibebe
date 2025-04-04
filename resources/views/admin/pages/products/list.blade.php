@@ -142,30 +142,18 @@
                                             </th>
                                             <th class="sm-width">
                                                 {{ __('form.product.id') }}
-                                                <div class="filter-arrow">
-                                                    <div><i class="ri-arrow-up-s-fill"></i></div>
-                                                </div>
                                             </th>
                                             <th>{{ __('form.product.sku') }}</th>
                                             <th class="cursor-pointer sm-width">{{ __('form.images') }}</th>
                                             <th class="cursor-pointer">
                                                 {{ __('form.product.name') }}
-                                                <div class="filter-arrow">
-                                                    <div><i class="ri-arrow-up-s-fill"></i></div>
-                                                </div>
                                             </th>
                                             <th class="cursor-pointer">{{ __('form.categories') }}</th>
                                             <th class="cursor-pointer">
                                                 {{ __('form.product.price') }}
-                                                <div class="filter-arrow">
-                                                    <div><i class="ri-arrow-up-s-fill"></i></div>
-                                                </div>
                                             </th>
                                             <th class="cursor-pointer">
                                                 {{ __('form.product_stocks') }}
-                                                <div class="filter-arrow">
-                                                    <div><i class="ri-arrow-up-s-fill"></i></div>
-                                                </div>
                                             </th>
                                             <th class="cursor-pointer">{{ __('form.product_stock_status') }}</th>
                                             <th class="cursor-pointer">{{ __('form.product.is_active') }}</th>

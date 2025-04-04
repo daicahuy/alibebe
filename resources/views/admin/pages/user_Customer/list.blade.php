@@ -29,17 +29,7 @@
                             </div>
 
                         </div>
-                        {{-- @if (session('success'))
-                            <div class="alert alert-success">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-
-                        @if (session('error'))
-                            <div class="alert alert-danger">
-                                {{ session('error') }}
-                            </div>
-                        @endif --}}
+                       
                         <!-- HEADER TABLE -->
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
@@ -165,7 +155,7 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.users.customer.show', $item->id) }}"
+                                                            <a href="{{ route('admin.users.customer.detail', $item->id) }}"
                                                                 class="btn-detail">
                                                                 <i class="ri-eye-line"></i>
                                                             </a>
@@ -182,7 +172,7 @@
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('PUT')
-                                                                <button type="button" class="btn-lock"
+                                                                <button type="button" class="btn-lock" id="btn-lock-all"
                                                                     onclick="confirmLockUser('{{ $item->id }}')">
                                                                     <i class="ri-lock-line"></i>
                                                                 </button>
