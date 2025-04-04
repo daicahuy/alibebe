@@ -244,10 +244,8 @@ Route::prefix('compare')
     });
 
 // customer detail
-Route::prefix('user')
+Route::prefix('user/{userId}')
     ->name('api.user.')
-    // ->middleware(StartSession::class)
     ->group(function () {
         Route::get('/products/{productId}/reviews', [UserController::class, 'detailReview'])->name('reviews');
-
     });

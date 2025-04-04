@@ -1035,14 +1035,14 @@
                     <div class="col-auto">
                         <h2 class="mb-0">Chi tiết khách hàng</h2>
                     </div>
-                    <div class="d-flex">
+                    {{-- <div class="d-flex">
                         <button class="btn btn-outline-danger btn-sm me-2">
                             <i class="fas fa-trash-alt me-1"></i> Xóa khách hàng
                         </button>
                         <button class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-key me-1"></i> Đặt lại mật khẩu
                         </button>
-                    </div>
+                    </div> --}}
                 </div>
 
                 <div class="row">
@@ -1393,6 +1393,12 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
+                                                            @if ($data['paymentMethodData'] == null)
+                                                                <tr>
+                                                                    <td colspan="6" class="text-center text-muted">Chưa
+                                                                        có đơn hàng nào được thanh toán.</td>
+                                                                </tr>
+                                                            @endif
                                                             @foreach ($data['paymentMethodData'] as $pay)
                                                                 <tr>
                                                                     <td>{{ $pay['name'] }} </td>
@@ -1489,7 +1495,7 @@
                                                 <td class="text-muted">{{ $item['payment']['name'] }}</td>
                                                 <td>{{ $item['created_at'] }}</td>
                                                 <td>
-                                                    <div class="dropdown">
+                                                    {{-- <div class="dropdown">
                                                         <button class="btn btn-sm btn-outline-secondary" type="button"
                                                             data-bs-toggle="dropdown" aria-expanded="false">
                                                             <i class="fas fa-ellipsis-v"></i>
@@ -1502,7 +1508,12 @@
                                                             <li><a class="dropdown-item" href="#">Theo dõi đơn
                                                                     hàng</a></li>
                                                         </ul>
-                                                    </div>
+                                                    </div> --}}
+                                                    <a href="{{ route('admin.orders.show', $item['id']) }}"
+                                                        class="btn-detail">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -1525,7 +1536,7 @@
                         <div class="card-body">
                             <div class="section-heading">
                                 <h5 class="card-title mb-0">Danh sách yêu thích ({{ $data['countWishLists'] }})</h5>
-                                <div class="dropdown">
+                                {{-- <div class="dropdown">
                                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
                                         id="wishlistDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-ellipsis-v"></i>
@@ -1534,7 +1545,7 @@
                                         <li><a class="dropdown-item" href="#">Xuất danh sách</a></li>
                                         <li><a class="dropdown-item" href="#">Gửi khuyến mãi</a></li>
                                     </ul>
-                                </div>
+                                </div> --}}
                             </div>
 
                             <div class="table-responsive">
@@ -1547,6 +1558,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @if ($data['wishlists']->isEmpty())
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">Chưa có sản phẩm yêu
+                                                    thích.</td>
+                                            </tr>
+                                        @endif
                                         @foreach ($data['wishlists'] as $wishlist)
                                             <tr>
                                                 <td>
@@ -1627,20 +1644,8 @@
                         <div class="card-body">
                             <div class="section-heading">
                                 <h5 class="card-title mb-0">Ratings &amp; reviews <span
-                                        class="text-body-tertiary fw-normal">(43)</span></h5>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                                        id="reviewDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-ellipsis-v"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="reviewDropdown">
-                                        <li><a class="dropdown-item" href="#">Ẩn/Hiện đánh giá hàng loạt</a>
-                                        </li>
-                                        <li><a class="dropdown-item" href="#">Xuất danh sách đánh giá</a>
-                                        </li>
-                                        <li><a class="dropdown-item" href="#">Lọc theo trạng thái</a></li>
-                                    </ul>
-                                </div>
+                                        class="text-body-tertiary fw-normal">({{$data['countReviews']}})</span></h5>
+
                             </div>
 
                             <div class="table-responsive">
@@ -1668,6 +1673,11 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @if ($data['reviews']->isEmpty())
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">Chưa có đánh giá.</td>
+                                            </tr>
+                                        @endif
                                         @foreach ($data['reviews'] as $review)
                                             <tr>
                                                 <td>
@@ -1767,7 +1777,7 @@
                         <!-- Rank Card -->
                         <div class="col-md-4">
                             <div class="card h-100 border-0 overflow-hidden position-relative">
-                                <div class="card-body text-center p-3"
+                                <div class="card-body text-center py-3 px-1"
                                     style="background: linear-gradient(135deg, #1e3c72, #2a5298);">
                                     <div class="rank-icon mb-3">
                                         <i class="fas fa-medal fa-3x" style="color: #FFD700;"></i>
@@ -1987,27 +1997,154 @@
 
 @push('js')
     <script>
-        var customerId = {{ $data['user']['id'] }}; // Giả sử bạn có biến $customer chứa thông tin khách hàng
+        $(document).ready(function() {
+            const customerId = {{ $data['user']['id'] ?? 'null' }};
 
-        $('.view-details-btn').on('click', function(e) {
-            e.preventDefault();
+            // if (!customerId || customerId === 'null') {
+            //     console.error("Không xác định được User ID.");
+            // }
 
-            var productId = $(this).data('product-id');
+            $('.view-details-btn').on('click', function(e) {
+                e.preventDefault();
 
-            $.ajax({
-                url: '/user/products/' + productId + '/reviews?userId=' + customerId,
-                method: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    console.log('AJAX request successful');
-                    console.log(data); // Bạn có thể log data để xem trong console
-                },
-                error: function(error) {
-                    console.error('Lỗi AJAX:', error);
+                const productId = $(this).data('product-id');
+                const productName = $(this).data('product-name');
+
+                // if (!customerId || customerId === 'null') {
+                //     alert("Lỗi: Không xác định được người dùng.");
+                //     return;
+                // }
+                // if (!productId) {
+                //     console.error("Lỗi: Không có Product ID trên button.");
+                //     alert("Lỗi: Không xác định được sản phẩm.");
+                //     return;
+                // }
+
+                const modalElement = $('#reviewsModal');
+                const modalTitleElement = modalElement.find('#modal-product-name');
+                const modalBodyElement = modalElement.find('#modal-reviews-content');
+                let reviewsListElement = modalBodyElement.find('ul.review-list');
+
+
+                modalTitleElement.text(productName || 'Chi tiết đánh giá');
+
+                if (!reviewsListElement.length) {
+                    modalBodyElement.html('<div class="review-people"><ul class="review-list"></ul></div>');
+                    reviewsListElement = modalBodyElement.find('ul.review-list');
                 }
+                reviewsListElement.html(
+                    '<li><div class="text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div></li>'
+                );
+
+                const requestUrl = `/api/user/${customerId}/products/${productId}/reviews`;
+                // console.log('Yêu cầu URL:', requestUrl);
+
+                $.ajax({
+                    url: requestUrl,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(reviews) {
+                        console.log('Đánh giá nhận được:', reviews);
+                        let reviewsHtml = '';
+
+                        if (reviews && reviews.length > 0) {
+                            $.each(reviews, function(index, review) {
+                                let ratingHtml = '';
+                                const ratingValue = parseInt(review.rating) || 0;
+                                for (let i = 1; i <= 5; i++) {
+                                    ratingHtml +=
+                                        `<i data-feather="star" class="feather-sm ${i <= ratingValue ? 'fill text-warning' : ''}"></i> `;
+                                }
+
+                                let imagesHtml = '';
+                                if (review.review_multimedia && Array.isArray(review
+                                        .review_multimedia) && review.review_multimedia
+                                    .length > 0) {
+
+                                    imagesHtml += '<div class="review-images mt-2">';
+                                    review.review_multimedia.forEach(media => {
+                                        const fileUrl =
+                                            `/storage/${media.file}`;
+
+                                        if (media.file_type === 0) { // Image
+                                            imagesHtml +=
+                                                `<a href="${fileUrl}" data-fancybox="review-${review.id || index}"><img src="${fileUrl}" alt="Ảnh đánh giá" class="img-thumbnail me-1" style="width: 60px; height: 60px; object-fit: cover;"></a> `;
+                                        } else if (media.file_type ===
+                                            1
+                                        ) { // Video - 
+                                            imagesHtml +=
+                                                `<p><a href="${fileUrl}" target="_blank">Xem video</a></p>`;
+                                        }
+                                    });
+                                    imagesHtml += '</div>';
+                                }
+
+                                let userAvatarHtml = '';
+                                if (review.user && review.user
+                                    .avatar) {
+                                    userAvatarHtml =
+                                        `<img src="${review.user.avatar}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;" alt="${review.user.fullname || ''}">`; // Use 'fullname'
+                                } else {
+                                    const userName = review.user?.fullname ||
+                                        'NA'; //  'fullname'
+                                    const userInitials = userName.match(/\b\w/g)?.slice(
+                                        0, 2).join('').toUpperCase() || '??';
+                                    userAvatarHtml =
+                                        `<h3 class="text-center rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; border: 1px solid #eee; font-size: 1rem;">${userInitials}</h3>`;
+                                }
+
+                                const reviewDate = review.created_at ? new Date(review
+                                        .created_at).toLocaleString('vi-VN') :
+                                    'Không rõ';
+
+                                reviewsHtml += `
+                            <li class="border-bottom pb-3 mb-3">
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0 me-3">${userAvatarHtml}</div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="fw-bold">${review.user?.fullname || 'Người dùng ẩn'}</span>
+                                            <small class="text-muted">${reviewDate}</small>
+                                        </div>
+                                        <div class="product-rating mb-2">
+                                            <ul class="rating list-inline m-0" style="font-size: 0.9em;">${ratingHtml}</ul>
+                                        </div>
+                                        <div class="reply mb-2">
+                                            <p class="mb-0">${review.review_text || '<em>(Không có bình luận)</em>'}</p>
+                                        </div>
+                                        ${imagesHtml}
+                                    </div>
+                                </div>
+                            </li>
+                        `;
+                            });
+
+                            reviewsListElement.html(reviewsHtml);
+                            feather.replace();
+                            if (typeof Fancybox !== 'undefined') {
+                                Fancybox.bind('[data-fancybox]');
+                            }
+
+                        } else {
+                            reviewsListElement.html(
+                                '<li><p class="text-center text-muted p-3">Người dùng này chưa có đánh giá nào cho sản phẩm này.</p></li>'
+                            );
+                        }
+                        modalElement.modal('show'); // Show modal sau khi load xong dữ liệu
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('AJAX Error:', jqXHR.status, textStatus, errorThrown,
+                            jqXHR.responseText);
+                        reviewsListElement.html(
+                            `<li><div class="alert alert-danger text-center m-3">Không thể tải đánh giá. Vui lòng thử lại sau. (Lỗi: ${jqXHR.status})</div></li>`
+                        );
+                        modalElement.modal('show');
+
+                    }
+                });
             });
         });
-        //   
+        // 
         var navbarTopShape = window.config.config.phoenixNavbarTopShape;
         var navbarPosition = window.config.config.phoenixNavbarPosition;
         var body = document.querySelector('body');
