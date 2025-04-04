@@ -19,6 +19,7 @@ use App\Http\Controllers\Web\Admin\OrderController;
 use App\Http\Controllers\web\admin\OrderRefundController;
 use App\Http\Controllers\Web\Admin\ProductController;
 use App\Http\Controllers\Web\Admin\ReviewController;
+use App\Http\Controllers\Web\Admin\SaleCounterController;
 use App\Http\Controllers\Web\Admin\TagController;
 use App\Http\Controllers\Web\Auth\AuthAdminController;
 use App\Http\Controllers\Web\Auth\AuthCustomerController;
@@ -173,8 +174,9 @@ Route::prefix('/admin')
     ->middleware(['auth', CheckRoleAdminOrEmployee::class])
     ->group(function () {
 
-        Route::get('/', [DashboardController::class, 'index'])->middleware('role:admin')->name('index');
-        Route::get('/nhanvien', [DashboardController::class, 'indexNhanVien'])->middleware('role:employee')->name('indexNhanVien');
+        Route::get('/', [DashboardController::class, 'index'])->name('index');
+        Route::get('/nhanvien', [DashboardController::class, 'indexNhanVien'])->name('indexNhanVien');
+        Route::get('/sale-counter',[SaleCounterController::class,'index'])->name('sale-counter');
 
 
         Route::prefix('/chats')
