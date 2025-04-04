@@ -645,8 +645,13 @@
                     let finalPriceVariant, oldPriceVariant;
 
                     // Xử lý giá cho sản phẩm gốc
-                    finalPrice = salePrice > 0 ? salePrice : originalPrice;
-                    oldPrice = salePrice > 0 ? originalPrice : null;
+                    if (isSale == 1) {
+                        finalPrice = salePrice > 0 ? salePrice : originalPrice;
+                        oldPrice = salePrice > 0 ? originalPrice : null;
+                    } else {
+                        finalPrice = originalPrice > 0 ? originalPrice : 0;
+                        oldPrice = null;
+                    }
 
                     // Xử lý giá cho sản phẩm biến thể (nếu có)
                     finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
@@ -671,7 +676,7 @@
 
                     totalSum += (productVariantId ?
                             (isSale == 1 ? finalPriceVariant : (oldPriceVariant ??
-                            finalPriceVariant)) // Nếu có biến thể
+                                finalPriceVariant)) // Nếu có biến thể
                             :
                             (isSale == 1 ? finalPrice : (oldPrice ?? finalPrice))) // Nếu không có biến thể
                         *
@@ -736,8 +741,13 @@
                         let finalPriceVariant, oldPriceVariant;
 
                         // Xử lý giá cho sản phẩm gốc
+                        if (isSale == 1) {
                         finalPrice = salePrice > 0 ? salePrice : originalPrice;
                         oldPrice = salePrice > 0 ? originalPrice : null;
+                    } else {
+                        finalPrice = originalPrice > 0 ? originalPrice : 0;
+                        oldPrice = null;
+                    }
 
                         // Xử lý giá cho sản phẩm biến thể (nếu có)
                         finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
@@ -762,10 +772,10 @@
 
                         totalSum += (productVariantId ?
                                 (isSale == 1 ? finalPriceVariant : (oldPriceVariant ??
-                                finalPriceVariant)) // Nếu có biến thể
+                                    finalPriceVariant)) // Nếu có biến thể
                                 :
                                 (isSale == 1 ? finalPrice : (oldPrice ?? finalPrice))
-                                ) // Nếu không có biến thể
+                            ) // Nếu không có biến thể
                             *
                             qty;
 
@@ -800,8 +810,13 @@
                     let finalPriceVariant, oldPriceVariant;
 
                     // Xử lý giá cho sản phẩm gốc
-                    finalPrice = salePrice > 0 ? salePrice : originalPrice;
-                    oldPrice = salePrice > 0 ? originalPrice : null;
+                    if (isSale == 1) {
+                        finalPrice = salePrice > 0 ? salePrice : originalPrice;
+                        oldPrice = salePrice > 0 ? originalPrice : null;
+                    } else {
+                        finalPrice = originalPrice > 0 ? originalPrice : 0;
+                        oldPrice = null;
+                    }
 
                     // Xử lý giá cho sản phẩm biến thể (nếu có)
                     finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
@@ -826,7 +841,7 @@
 
                     totalSum2 += (productVariantId ?
                             (isSale == 1 ? finalPriceVariant : (oldPriceVariant ??
-                            finalPriceVariant)) // Nếu có biến thể
+                                finalPriceVariant)) // Nếu có biến thể
                             :
                             (isSale == 1 ? finalPrice : (oldPrice ?? finalPrice))) // Nếu không có biến thể
                         *
@@ -954,8 +969,13 @@
                     let finalPriceVariant, oldPriceVariant;
 
                     // Xử lý giá cho sản phẩm gốc
-                    finalPrice = salePrice > 0 ? salePrice : originalPrice;
-                    oldPrice = salePrice > 0 ? originalPrice : null;
+                    if (isSale == 1) {
+                        finalPrice = salePrice > 0 ? salePrice : originalPrice;
+                        oldPrice = salePrice > 0 ? originalPrice : null;
+                    } else {
+                        finalPrice = originalPrice > 0 ? originalPrice : 0;
+                        oldPrice = null;
+                    }
 
                     // Xử lý giá cho sản phẩm biến thể (nếu có)
                     finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
@@ -980,7 +1000,7 @@
 
                     totalSum += (productVariantId ?
                             (isSale == 1 ? finalPriceVariant : (oldPriceVariant ??
-                            finalPriceVariant)) // Nếu có biến thể
+                                finalPriceVariant)) // Nếu có biến thể
                             :
                             (isSale == 1 ? finalPrice : (oldPrice ?? finalPrice))) // Nếu không có biến thể
                         *
@@ -990,6 +1010,7 @@
 
                 console.log("Dữ liệu gửi lên:", selectedProducts);
                 console.log("Tổng tiền:", totalSum);
+                
 
                 $.ajax({
                     url: "{{ route('cart.saveSession') }}",

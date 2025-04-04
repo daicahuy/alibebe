@@ -632,8 +632,14 @@
                 let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
                 let isSale = parseInt(row.find(".is_sale").val());
                 let stock = parseInt(row.find(".stock").val());
-                let finalPrice = salePrice > 0 ? salePrice : originalPrice;
-                let oldPrice = salePrice > 0 ? originalPrice : null;
+
+                 if (isSale == 1) {
+                        finalPrice = salePrice > 0 ? salePrice : originalPrice;
+                        oldPrice = salePrice > 0 ? originalPrice : null;
+                    } else {
+                        finalPrice = originalPrice > 0 ? originalPrice : 0;
+                        oldPrice = null;
+                    }
 
                 let finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
                 let oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;

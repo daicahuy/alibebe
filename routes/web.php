@@ -175,7 +175,7 @@ Route::prefix('/admin')
 
         Route::get('/', [DashboardController::class, 'index'])->middleware('role:admin')->name('index');
         Route::get('/nhanvien', [DashboardController::class, 'indexNhanVien'])->middleware('role:employee')->name('indexNhanVien');
-
+        Route::get('/export-dashboard', [DashboardController::class, 'exportDashboardData'])->middleware('role:admin')->name('export');
 
         Route::prefix('/chats')
             ->name('chats.')
