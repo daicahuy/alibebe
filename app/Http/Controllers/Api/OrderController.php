@@ -43,8 +43,9 @@ class OrderController extends Controller
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 10);
         $user_id = $request->input('user_id');
+        $role_user = $request->input('role_user');
 
-        $orders = $this->orderService->getOrders($filters, $page, $limit, $user_id);
+        $orders = $this->orderService->getOrders($filters, $page, $limit, $user_id, $role_user);
 
         return response()->json([
             'orders' => $orders->items(),
@@ -193,23 +194,23 @@ class OrderController extends Controller
 
             }
 
-                    $admins = User::where('role', 2)
-                        ->orWhere('role', 1)
-                        ->get();
+            $admins = User::where('role', 2)
+                ->orWhere('role', 1)
+                ->get();
 
-                    $message = "Đơn Hàng {$order->code} đã bị hủy !";
+            $message = "Đơn Hàng {$order->code} đã bị hủy !";
 
-                    foreach ($admins as $admin) {
-                        Notification::create([
-                            'user_id'   => $admin->id,
-                            'message'   => $message,
-                            'read'      => false,
-                            'type'      => NotificationType::Order,
-                            'order_id' => $order->id
-                        ]);
-                    }
+            foreach ($admins as $admin) {
+                Notification::create([
+                    'user_id' => $admin->id,
+                    'message' => $message,
+                    'read' => false,
+                    'type' => NotificationType::Order,
+                    'order_id' => $order->id
+                ]);
+            }
 
-                    event(new OrderCustomer($order, $message));
+            event(new OrderCustomer($order, $message));
 
             DB::commit();
 
@@ -301,7 +302,7 @@ class OrderController extends Controller
             $order = Order::query()->where('id', $idOrder)->with('orderItems', 'orderStatuses')->first();
 
             $this->orderService->updateConfirmCustomer($data["note"], $data["employee_evidence"], $idOrder);
-            event(new OrderStatusUpdated($idOrder, 4, $order));
+            event(new OrderStatusUpdated($idOrder, 4, $order, ""));
             event(new OrderPendingCountUpdated());
 
 
