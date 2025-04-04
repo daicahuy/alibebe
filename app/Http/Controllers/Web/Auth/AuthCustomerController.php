@@ -38,6 +38,11 @@ class AuthCustomerController extends Controller
 
         $user = User::query()->where('code_verified_email', $id)->first();
 
+        if (!$user) {
+            $data = ['status' => 404];
+            return view('client.pages.auth.emails.view-verify-email', $data);
+        }
+
         if (!$user['code_verified_at'] || now()->greaterThan($user["code_verified_at"])) {
             $data = ["message" => "Đường link không còn khả dụng", 'status' => 404];
             return view('client.pages.auth.emails.view-verify-email', $data);

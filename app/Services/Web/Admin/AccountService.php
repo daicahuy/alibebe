@@ -27,11 +27,7 @@ class AccountService
             if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
                 // Lưu avatar mới
                 $data['avatar'] = $request->file('avatar')->store('users');
-    
-                // Xóa avatar cũ nếu tồn tại
-                if (!empty($user->avatar) && Storage::exists($user->avatar)) {
-                    Storage::delete($user->avatar);
-                }
+                
             } else {
                 // Nếu không có ảnh mới, giữ nguyên ảnh cũ
                 $data['avatar'] = $user->avatar;

@@ -9,23 +9,26 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
 
-class IsCustomer
+class CheckRoleAdminOrEmployee
 {
     /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
+    
         /**
          * @var User
          */
         $user = Auth::user();
-        if (!Auth::check() || !$user->IsCustomer() && !$user->isEmployee()) {
-            return redirect()->back()->with('error', 'Bạn không có quyền truy cập!');
+        
+        if ($user->isAdmin() || $user->isEmployee()) {
+            return $next($request);
         }
-
-        return $next($request);
+    
+        return back()->with('error', 'Bạn không có quyền truy cập!');
     }
+    
 }

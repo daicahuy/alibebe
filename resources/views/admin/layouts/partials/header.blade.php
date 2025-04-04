@@ -13,7 +13,7 @@
         <div class="header-logo-wrapper p-0">
             <div checked="checked" class="toggle-sidebar">
                 <i class="ri-apps-line status_toggle middle sidebar-toggle"></i>
-                <a href="{{ route('admin.index') }}">
+                <a href="{{ Auth::user()->isAdmin() ? route('admin.index') : route('admin.indexNhanVien') }}">
                     <img alt="header-logo" class="img-fluid"
                         src="{{ asset('theme/admin/assets/images/logo/1.png') }}">
                 </a>

@@ -37,6 +37,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Web\Client\CartItemController;
 use App\Http\Controllers\Web\Client\AccountController as AccountClientController;
 use App\Http\Controllers\Web\Client\PusherAuthController;
+use App\Http\Middleware\CheckRoleAdminOrEmployee;
+use App\Http\Middleware\RedirectIfLogin;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -128,18 +130,16 @@ Route::name('account.')
 
 
 
-Route::get('/email/verify/{id}', [AuthCustomerController::class, 'actionVerifyEmail'])->middleware(['checknotLogin'])->name('auth.verification.verify');
+Route::get('/email/verify/{id}', [AuthCustomerController::class, 'actionVerifyEmail'])->middleware(['auth'])->name('auth.verification.verify');
 
 
 Route::name('auth.')
+    ->middleware(RedirectIfLogin::class)
     ->group(function () {
-
-
         Route::name('customer.')
             ->middleware(["guest"])
             ->controller(AuthCustomerController::class)
             ->group(function () {
-
                 Route::get('/login', 'showFormLogin')->name('showFormLogin');
                 Route::get('/register', 'showFormRegister')->name('showFormRegister');
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
@@ -152,12 +152,9 @@ Route::name('auth.')
             ->prefix('admin')
             ->controller(AuthAdminController::class)
             ->group(function () {
-
-
-                Route::get('/login', 'showFormLogin')->name('showFormLogin')->middleware(['isAdmin']);
-                Route::get('/logout', 'logout')->name('logout');
+                Route::get('/login', 'showFormLogin')->name('showFormLogin');
+                Route::get('/logout', 'logout')->middleware('auth')->withoutMiddleware(RedirectIfLogin::class)->name('logout');
                 Route::post('/handle', 'handleLogin')->name('handleLogin');
-                Route::get('/register', 'showFormRegister')->name('showFormRegister');
                 Route::get('/forgot-password', 'showFormForgotPassword')->name('showFormForgotPassword');
                 Route::post('/send-otp', 'sendOtp')->name('sendOtp');
                 Route::get('/otp', 'showFormOtp')->name('showFormOtp')->middleware('check.reset.flow');
@@ -173,11 +170,11 @@ Route::name('auth.')
 
 Route::prefix('/admin')
     ->name('admin.')
-    ->middleware(['isAdmin'])
+    ->middleware(['auth', CheckRoleAdminOrEmployee::class])
     ->group(function () {
 
-        Route::get('/', [DashboardController::class, 'index'])->name('index');
-        Route::get('/nhanvien', [DashboardController::class, 'indexNhanVien'])->name('indexNhanVien');
+        Route::get('/', [DashboardController::class, 'index'])->middleware('role:admin')->name('index');
+        Route::get('/nhanvien', [DashboardController::class, 'indexNhanVien'])->middleware('role:employee')->name('indexNhanVien');
 
 
         Route::prefix('/chats')
@@ -228,6 +225,7 @@ Route::prefix('/admin')
         // CATEGORIES
         Route::prefix('/categories')
             ->name('categories.')
+            ->middleware('role:admin')
             ->controller(CategoryController::class)
             ->group(function () {
 
@@ -270,6 +268,7 @@ Route::prefix('/admin')
         // PRODUCTS
         Route::prefix('/products')
             ->name('products.')
+            ->middleware('role:admin')
             ->controller(ProductController::class)
             ->group(function () {
 
@@ -320,6 +319,7 @@ Route::prefix('/admin')
         // ATTRIBUTES
         Route::prefix('/attributes')
             ->name('attributes.')
+            ->middleware('role:admin')
             ->controller(AttributeController::class)
             ->group(function () {
 
@@ -364,6 +364,7 @@ Route::prefix('/admin')
         // BRANDS
         Route::prefix('/brands')
             ->name('brands.')
+            ->middleware('role:admin')
             ->controller(BrandController::class)
             ->group(function () {
 
@@ -387,6 +388,7 @@ Route::prefix('/admin')
         // TAGS
         Route::prefix('/tags')
             ->name('tags.')
+            ->middleware('role:admin')
             ->controller(TagController::class)
             ->group(function () {
 
@@ -466,6 +468,7 @@ Route::prefix('/admin')
 
                 Route::prefix('/employee')
                     ->name('employee.')
+                    ->middleware('role:admin')
                     ->controller(UserEmployeeController::class)
                     ->group(function () {
 
@@ -522,6 +525,7 @@ Route::prefix('/admin')
         // COUPONS
         Route::prefix('/coupons')
             ->name('coupons.')
+            ->middleware('role:admin')
             ->controller(CouponController::class)
             ->group(function () {
 

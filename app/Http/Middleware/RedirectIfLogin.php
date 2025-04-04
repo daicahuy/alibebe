@@ -2,24 +2,22 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class RedirectIfNotAuthenticated
+class RedirectIfLogin
 {
     /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, $guard = null): Response
+    public function handle(Request $request, Closure $next): Response
     {
-
-        if (!Auth::guard($guard)->check()) {
-            return redirect('/login'); // Thay đổi đường dẫn này theo yêu cầu của bạn
+        if (Auth::check()) {
+            return back();
         }
 
         return $next($request);

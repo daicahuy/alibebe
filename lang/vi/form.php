@@ -374,8 +374,8 @@ return [
     ],
 
     'users' => 'Người dùng',
-    'user_manager' => 'Quản lý người dùng',
-    'user_staff' => 'Quản lý nhân viên',
+    'user_customer_manager' => 'Quản lý khách hàng',
+    'user_employee_manager' => 'Quản lý nhân viên',
     'user_all' => 'Tất cả người dùng',
     'user_customer' => 'Khách hàng',
     'user_employee' => 'Nhân viên',
