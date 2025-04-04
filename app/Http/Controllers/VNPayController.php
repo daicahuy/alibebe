@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\NotificationType;
 use App\Events\OrderCreateUpdate;
+use App\Events\OrderCustomer;
 use App\Events\OrderPendingCountUpdated;
 use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\CouponUser;
 use App\Models\HistoryOrderStatus;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderOrderStatus;
@@ -17,6 +20,7 @@ use App\Models\User;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class VNPayController extends Controller
 {
@@ -36,19 +40,16 @@ class VNPayController extends Controller
             $userCheckVerify = User::where('id', $dataOrderCustomer["user_id"])->first();
 
             if (!$userCheckVerify->email_verified_at) {
-                return response()->json(["status" => "error", "message" => "Vui lòng nhập địa chỉ người nhận"]);
-
-
+                return redirect('/cart-checkout')->with('error', "Xác minh tài khoản trước khi mua hàng!");
             }
 
             if (!$dataOrderCustomer['fullname']) {
                 return response()->json(["status" => "error", "message" => "Vui lòng nhập địa chỉ người nhận"]);
-
             }
 
             if ($couponCode) {
                 $coupon = Coupon::where('code', $couponCode)->lockForUpdate()->first();
-                if (!$coupon || (INT) $coupon->usage_limit - (INT) $coupon->usage_count == 0) {
+                if (!$coupon || (int) $coupon->usage_limit - (int) $coupon->usage_count == 0) {
                     return response()->json(["status" => "error", "message" => "Mã giảm giá không hợp lệ hoặc đã hết."]);
                 }
                 if ($coupon->is_expired == 1 && (now()->lt($coupon->start_date) || now()->gt($coupon->end_date))) {
@@ -228,7 +229,6 @@ class VNPayController extends Controller
 
                     if (!$userCheckVerify->email_verified_at) {
                         return redirect('/cart-checkout')->with('error', "Xác minh tài khoản trước khi mua hàng!");
-
                     }
 
 
@@ -240,9 +240,8 @@ class VNPayController extends Controller
 
                         }
 
-                        if ((INT) ($coupon->usage_limit ?? 0) - (INT) ($coupon->usage_count ?? 0) == 0) {
-                            return redirect('/cart-checkout')->with('error', "Mã giảm giá đã hết lượt sử dụng.");
-
+                        if ((int) ($coupon->usage_limit ?? 0) - (int) ($coupon->usage_count ?? 0) == 0) {
+                            return response()->json(["status" => "error", "message" => "Mã giảm giá đã hết lượt sử dụng."]);
                         }
 
                         if (
@@ -266,16 +265,15 @@ class VNPayController extends Controller
 
                         }
 
-                        $coupon->usage_count = (INT) $coupon->usage_count + 1;
+                        $coupon->usage_count = (int) $coupon->usage_count + 1;
                         $coupon->save();
 
                         // Cập nhật amount của couponUser
-                        $dataNewAmount = (INT) $couponUser->amount - 1;
+                        $dataNewAmount = (int) $couponUser->amount - 1;
 
                         // Cách 1: Sử dụng instance
                         $couponUser->amount = $dataNewAmount;
                         $couponUser->save();
-
                     }
 
                     $currentTime = now();
@@ -314,8 +312,7 @@ class VNPayController extends Controller
                             }
                             if (!$productStock || $productStock->stock < $item['quantity']) {
                                 DB::rollBack();
-                                return redirect('/cart-checkout')->with('errorCart', "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn đủ số lượng trong kho");
-
+                                return redirect('/cart-checkout')->with('error', "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " không còn đủ số lượng trong kho");
                             }
                         } else {
                             $productStock = ProductStock::where('product_id', $item['product_id'])
@@ -328,7 +325,6 @@ class VNPayController extends Controller
                             if (!$product_product_id) {
                                 DB::rollBack();
                                 return redirect('/cart-checkout')->with('error', "Sản phẩm " . $item["name"] . " không còn được lưu hành");
-
                             }
                             if (!$productStock || $productStock->stock < $item['quantity']) {
                                 DB::rollBack();
@@ -367,7 +363,6 @@ class VNPayController extends Controller
                                 $cartItem->delete();
                             } else {
                                 return redirect('/cart-checkout')->with('error', "Sản phẩm " . $item["name"] . " loai " . $item["name_variant"] . " đã bị thay đổi số lượng trong giỏ hàng");
-
                             }
                         } else {
                             $cartItem = CartItem::where('user_id', $dataOrderCustomer['user_id'])
@@ -396,6 +391,24 @@ class VNPayController extends Controller
 
                     $user->loyalty_points = $user->loyalty_points + 10;
                     $user->save();
+
+                    $admins = User::where('role', 2)
+                        ->orWhere('role', 1)
+                        ->get();
+
+                    $message = "Đơn Hàng {$order->code} Mới Được thanh toán online thành công !";
+
+                    foreach ($admins as $admin) {
+                        Notification::create([
+                            'user_id'   => $admin->id,
+                            'message'   => $message,
+                            'read'      => false,
+                            'type'      => NotificationType::Order,
+                            'order_id' => $order->id
+                        ]);
+                    }
+
+                    event(new OrderCustomer($order, $message));
                     event(new OrderCreateUpdate($order));
                     event(new OrderPendingCountUpdated());
 
@@ -410,10 +423,10 @@ class VNPayController extends Controller
                     //code...
                 } catch (\Throwable $th) {
                     DB::rollBack();
+                    Log::error($th);
                     $request->session()->forget('order_data_customer');
                     $request->session()->forget('order_item_data_customer');
                     return redirect('/cart-checkout')->with('error', 'Có lỗi xảy ra trong quá trình tạo đơn hàng - Tiền sẽ được hoàn lại cho bạn trong thời gian ngắn nhất.');
-
                 }
             } else {
                 // Thanh toán thất bại
