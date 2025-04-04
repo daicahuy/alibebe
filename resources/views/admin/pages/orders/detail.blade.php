@@ -661,7 +661,7 @@
 
                         const currentStatusId = data.listItemOrder[0].order.order_statuses[0].id;
                         let selectHtmlStatus = `
-                    <select class="font-serif form-select form-select-sm orderStatus" style="width: unset" ${data.listItemOrder[0].order.locked_status == 1 ? "disabled":""} id="select_status">
+                    <select class="font-serif form-select form-select-sm orderStatus" ${dataUser.role == 2 ? "disabled":""} style="width: unset" ${data.listItemOrder[0].order.locked_status == 1 ? "disabled":""} id="select_status">
                 `;
 
                         orderStatuses.forEach(status => {
