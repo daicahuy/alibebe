@@ -16,7 +16,7 @@ class OrderRepository extends BaseRepository
         return Order::class; // Trả về tên class của model Order
     }
 
-    public function filterOrders(array $filters, int $page, int $limit, $user_id): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function filterOrders(array $filters, int $page, int $limit, $user_id, $role_user): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $query = Order::query()->with("orderStatuses")->with("payment")->orderBy('created_at', 'desc');
 
@@ -27,11 +27,12 @@ class OrderRepository extends BaseRepository
 
             // dd($key, $value);
             if ($key === 'order_status_id' && isset($value)) {
-                $query->whereHas('orderStatuses', function ($q) use ($value, $user_id) {
+                $query->whereHas('orderStatuses', function ($q) use ($value, $user_id, $role_user) {
                     $q->where('order_status_id', $value);
-                    if ($value != 1 && $value != 7) {
-                        $q->where('modified_by', $user_id);
-
+                    if ($role_user != 2) {
+                        if ($value != 1 && $value != 7) {
+                            $q->where('modified_by', $user_id);
+                        }
                     }
                 });
             } elseif ($key == 'search' && isset($value)) {
@@ -216,7 +217,7 @@ class OrderRepository extends BaseRepository
         $listOrders = $this->model->where('user_id', $userId)
 
             ->with(['payment', 'orderStatuses'])
-            ->select('id','code', 'user_id', 'payment_id', 'is_refund', 'total_amount', 'created_at')
+            ->select('id', 'code', 'user_id', 'payment_id', 'is_refund', 'total_amount', 'created_at')
             ->orderByDesc('created_at');
         if ($filterStatus) {
             if ($filterStatus == 'refunded') {
@@ -228,7 +229,7 @@ class OrderRepository extends BaseRepository
             }
         }
 
-        return $listOrders->paginate(5,['*'],'order_page');
+        return $listOrders->paginate(5, ['*'], 'order_page');
     }
     public function countUserOrderById($userId)
     {

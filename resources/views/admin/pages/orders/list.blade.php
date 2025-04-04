@@ -721,6 +721,8 @@
                         endDate,
                         page: currentPage,
                         limit: itemsPerPage,
+                        role_user: dataUser.role
+
                     },
                     success: function(response) {
 
@@ -819,7 +821,7 @@
                             }
                         });
                         let selectHtml =
-                            `<select class="font-serif form-select form-select-sm orderStatus" ${order.locked_status == 1 ? "disabled":""} data-order-id="${order.id}" id="${selectId}">`;
+                            `<select class="font-serif form-select form-select-sm orderStatus" ${dataUser.role == 2 ? "disabled":""} ${order.locked_status == 1 ? "disabled":""} data-order-id="${order.id}" id="${selectId}">`;
                         orderStatuses.forEach(status => {
                             const currentStatus = orderStatuses.find(s => s.id === currentStatusId);
                             const disabled = !currentStatus.next.includes(status.id) && status
@@ -876,21 +878,21 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                                                                                                    <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                                                                                                    <div class="status-pending">
-                                                                                                                                                                    <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                                                                                                    </div>
-                                                                                                                                                                    </div>
+                                                                                                                                                                                            <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                                                                                                                                            <div class="status-pending">
+                                                                                                                                                                                            <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                                                                                                                                            </div>
+                                                                                                                                                                                            </div>
 
 
-                                                                                                                                                                    ` : `
+                                                                                                                                                                                            ` : `
 
-                                                                                                                                                                    `}
+                                                                                                                                                                                            `}
                                         <li>
                                             ${order.is_refund_cancel != null ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `:""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `:""}
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
                                                 <i class="ri-eye-line"></i>
@@ -1128,7 +1130,7 @@
                     $('.btn-download-all').removeClass('active');
 
                     let selectHtmlStatus = `
-                    <select class="font-serif form-select form-select-sm orderStatus" style="width: unset" id="select_status_list">
+                    <select class="font-serif form-select form-select-sm orderStatus" ${dataUser.role == 2 ? "disabled":""} style="width: unset" id="select_status_list">
                 `;
 
                     orderStatuses.forEach(status => {
@@ -1591,7 +1593,7 @@
                     data: {
                         order_id: idOrder,
                         status_id: selectedValue,
-                        user_id: dataUser.id
+                        user_id: dataUser.id,
 
                     },
                     success: function(response) {
