@@ -324,4 +324,5 @@ class Product extends Model
                 AND ' . $orderStatusesHoanThanhCondition . ')';
     }
 
+
 }

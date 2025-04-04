@@ -124,11 +124,6 @@ class StoreCouponRequest extends FormRequest
                         }
 
                     }
-
-                    // Kiểm tra nếu loại giảm giá là cố định hoặc phần trăm và giá trị đơn hàng tối thiểu nhỏ hơn giá trị giảm giá
-                    if ($value <= $discountValue) {
-                        $fail('Giá trị đơn hàng tối thiểu phải lớn hơn giá trị giảm giá.');
-                    }
                 },
                 'numeric',
                 'min:0',

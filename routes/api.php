@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Api\ListCategoryController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\StockController;
 use App\Http\Controllers\ChatClientController;
@@ -48,6 +49,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::controller(NotificationController::class)
+    ->prefix('notifications')
+    ->name('api.notifications.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{id}', 'show')->name('show');
+        Route::delete('/{id}', 'delete')->name('delete');
+        Route::patch('/{id}/read', 'markAsRead');
+    });
 
 Route::get('/search/suggestions', [ClientHomeController::class, 'getSuggestions']);
 // Route for searching users
@@ -85,7 +95,7 @@ Route::prefix('/categories')
     ->group(function () {
 
         Route::patch('/{category}/active', 'toggleActive')->name('toggleActive'); // Cập nhật trạng thái active
-    
+
     });
 
 Route::prefix('/attributes')
@@ -221,6 +231,7 @@ Route::prefix('stocks')
     ->name('api.stocks.')
     ->group(function () {
         Route::post('/import', [StockController::class, 'importStock'])->name('importStock');
+        Route::post('/importExcel', [StockController::class, 'importStockExcel'])->name('importStockExcel');
     });
 
 // compare

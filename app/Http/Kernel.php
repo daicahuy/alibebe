@@ -64,10 +64,8 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'checknotLogin' => \App\Http\Middleware\RedirectIfNotAuthenticated::class,
         'check.coupon.usage' => \App\Http\Middleware\CheckCouponUsage::class,
-        'isAdmin' => \App\Http\Middleware\IsAdmin::class,
         'check.reset.flow' => \App\Http\Middleware\CheckResetPasswordFlow::class,
-
+        'role' => \App\Http\Middleware\CheckRole::class,
     ];
 }

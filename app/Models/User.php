@@ -5,12 +5,15 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Enums\UserGenderType;
+use App\Enums\UserGroupType;
 use App\Enums\UserRoleType;
 use App\Enums\UserStatusType;
+use App\Repositories\UserRepository;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -76,8 +79,47 @@ class User extends Authenticatable
             // Người dùng thường: is_change_password = 1 (đã có mật khẩu)
             $user->is_change_password = !empty($user->google_id) ? 0 : 1;
         });
-    }
+
+        // Khi user mới được tạo
+        static::created(function ($user) {
+            // Lấy tất cả coupon áp dụng cho Newbie và ALL
+            $applicableCoupons = Coupon::whereIn('user_group', [
+                UserGroupType::NEWBIE,
+                UserGroupType::ALL
+            ])->get();
+
+            // Gán từng coupon cho user
+            foreach ($applicableCoupons as $coupon) {
+                $coupon->users()->syncWithoutDetaching([
+                    $user->id => ['amount' => 1]
+                ]);
+            }
+        });
+
+        static::updated(function ($user) {
+            if ($user->isDirty('loyalty_points')) {
+                $repository = app()->make(UserRepository::class);
+                
+                // Lấy điểm cũ và mới
+                $oldPoints = $user->getOriginal('loyalty_points');
+                $newPoints = $user->loyalty_points;
+                
+                // Tính toán group
+                $oldGroup = $repository->getUserGroupId($oldPoints);
+                $newGroup = $repository->getUserGroupId($newPoints);
     
+                if ($oldGroup !== $newGroup) {
+                    $coupons = Coupon::where('user_group', $newGroup)->get();
+                    
+                    foreach ($coupons as $coupon) {
+                        $coupon->users()->syncWithoutDetaching([
+                            $user->id => ['amount' => 1]
+                        ]);
+                    }
+                }
+            }
+        });
+    }
 
     public function isMale()
     {

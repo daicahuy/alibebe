@@ -285,6 +285,42 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="modal-import-stock-excel" tabindex="-1" aria-hidden="true">
+        <div class="overlay">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form id="form-import-stock-excel" action="{{ route('api.products.getAll') }}" method="POST" enctype="multipart/form-data">
+                        <div class="modal-body text-center" style="overflow-y: auto; max-height: 92vh;">
+                            <h3 class="modal-title mt-4 mb-2">Nhập kho bằng excel</h3>
+                            <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
+
+                            <div class="form-group align-items-center g-3 p-3 row">
+                                <div class="col-12">
+                                    <label class="form-label-title mb-0 w-100" style="text-align: left;"
+                                        for="icon">
+                                        File excel:
+                                    </label>
+                                    <div>
+                                        <input type="file" name="file" class="form-control">
+                                        <div class="invalid-feedback text-start"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="button-box justify-content-end">
+                                <button class="btn btn-md btn-secondary fw-bold" id="btn-cancel-import-stock-excel"
+                                    type="button">
+                                    {{ __('message.cancel') }}
+                                </button>
+                                <button class="btn btn-md btn-theme fw-bold btn-action" type="submit">
+                                    Xác nhận
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js_library')
@@ -564,6 +600,81 @@
                             return
                         }
 
+                        Swal.fire({
+                            icon: "error",
+                            title: "Đã xảy ra một số lỗi",
+                            text: "Vui lòng kiểm tra lại thông tin !",
+                        });
+
+                        const errors = jqXHR.responseJSON.errors;
+                        console.log(errors);
+
+                        $(".invalid-feedback").text("");
+                        $(".is-invalid").removeClass("is-invalid");
+
+                        // Lặp qua danh sách lỗi
+                        $.each(errors, function (key, message) {
+                            const parts = key.split('.');
+                            key = parts.reduce((accumulator, currentItem) => `${accumulator}[${currentItem}]`)
+
+                            console.log(key);
+                            
+                            let inputField = $(`[name="${key}"]`);
+
+                            if (inputField.length > 0) {
+                                inputField.addClass("is-invalid");
+                                inputField.closest('.form-group').find(".invalid-feedback").html(message);
+                            }
+                        });
+                    },
+                    complete: function() {
+                        $("#loading-overlay").hide();
+                    }
+                });
+            })
+            
+            $('#import-stock-by-excel-btn').on('click', function() {
+                $('#modal-import-stock-excel').modal('show');
+            })
+
+            $('#btn-cancel-import-stock-excel').on('click', function() {
+                $('#modal-import-stock-excel').modal('hide');
+            })
+
+            $('#form-import-stock-excel').on('submit', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: "{{ route('api.stocks.importStockExcel') }}",
+                    type: "POST",
+                    data: new FormData($("#form-import-stock-excel")[0]),
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function() {
+                        $("#loading-overlay").show();
+                    },
+                    success: function (response) {
+                        $('#modal-import-stock-excel').modal('hide');
+                        
+                        if (response.statusCode === 200) {
+                            Swal.fire({
+                                icon: "warning",
+                                html: response.message,
+                                focusConfirm: false,
+                                draggable: true,
+                            });
+                        } else if (response.statusCode === 201) {
+                            Swal.fire({
+                                title: response.message,
+                                icon: "success",
+                                draggable: true
+                            });
+    
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
+                        }
+                    },
+                    error: function (jqXHR) {
                         Swal.fire({
                             icon: "error",
                             title: "Đã xảy ra một số lỗi",

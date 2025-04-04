@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\NotificationType;
 use App\Events\OrderCreateUpdate;
+use App\Events\OrderCustomer;
 use App\Events\OrderPendingCountUpdated;
 use App\Exceptions\DiscountCodeException;
 use App\Http\Controllers\Controller;
@@ -11,6 +13,7 @@ use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\CouponUser;
 use App\Models\HistoryOrderStatus;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderOrderStatus;
@@ -209,6 +212,23 @@ class OrderCustomerControllerApi extends Controller
                 "order_id" => $order->id,
             ]);
 
+            $admins = User::where('role', 2)
+            ->orWhere('role', 1)
+            ->get();
+
+            $message = "Đơn Hàng {$order->code} Mới Được Đặt !";
+
+            foreach($admins as $admin) {
+                Notification::create([
+                    'user_id'   => $admin->id,
+                    'message'   => $message,
+                    'read'      => false,
+                    'type'      => NotificationType::Order,
+                    'order_id' => $order->id
+                ]);
+            }
+
+            event(new OrderCustomer($order,$message));
             event(new OrderCreateUpdate($order));
             event(new OrderPendingCountUpdated());
 

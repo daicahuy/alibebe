@@ -286,7 +286,7 @@
                             response.users.forEach(function(user) {
                                 html += `
                                     <div class="user-item">
-                                        <img src="${user.avatar ? user.avatar : '{{ asset('assets/images/default-avatar.png') }}'}" class="user-avatar">
+                                        <img src="${user.avatar ? `http://127.0.0.1:8000/storage/${user.avatar}` : '{{ asset('assets/images/default-avatar.png') }}'}" class="user-avatar">
                                         <div class="user-info">
                                             <div class="user-name">${user.fullname}</div>
                                         </div>

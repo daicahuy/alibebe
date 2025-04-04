@@ -6,7 +6,7 @@
                     <div class="top-left-header">
                         <i class="iconly-Location icli text-white"></i>
                         <i class="iconly-light-user"></i>
-                        <span class="text-white">1418 Riverwood Drive, CA 96052, US</span>
+                        <span class="text-white">Trịnh Văn Bô, Nam Từ Liêm, Hà Nội</span>
                     </div>
                 </div>
 
@@ -15,19 +15,18 @@
                         <div class="notification-slider">
                             <div>
                                 <div class="timer-notification">
-                                    <h6><strong class="me-1">Welcome to Fastkart!</strong>Wrap new offers/gift
-                                        every single day on Weekends.<strong class="ms-1">New Coupon Code: Fast024
+                                    <h6>
+                                        <strong class="me-1">Chào mừng đến với Alibebe!</strong>Gói ưu đãi/quà tặng mới
+                                        mỗi ngày vào các ngày cuối tuần.<strong class="ms-1">Mã phiếu giảm giá mới: Fast024
                                         </strong>
-
                                     </h6>
                                 </div>
                             </div>
 
                             <div>
                                 <div class="timer-notification">
-                                    <h6>Something you love is now on sale!
-                                        <a href="shop-left-sidebar.html" class="text-white">Buy Now
-                                            !</a>
+                                    <h6>Một món đồ bạn yêu thích hiện đang được bán!
+                                        <a href="shop-left-sidebar.html" class="text-white">Mua ngay!</a>
                                     </h6>
                                 </div>
                             </div>
@@ -35,62 +34,18 @@
                     </div>
                 </div>
 
-                <div class="col-lg-3">
+                {{-- <div class="col-lg-3">
                     <ul class="about-list right-nav-about">
-                        <li class="right-nav-list">
-                            <div class="dropdown theme-form-select">
-                                <button class="btn dropdown-toggle" type="button" id="select-language"
-                                    data-bs-toggle="dropdown">
-                                    <img src="{{ asset('theme/client/assets/images/country/united-states.png') }}"
-                                        class="img-fluid blur-up lazyload" alt="">
-                                    <span>English</span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" href="javascript:void(0)" id="english">
-                                            <img src="{{ asset('theme/client/assets/images/country/united-kingdom.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                            <span>English</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="javascript:void(0)" id="france">
-                                            <img src="{{ asset('theme/client/assets/images/country/germany.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                            <span>Germany</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="javascript:void(0)" id="chinese">
-                                            <img src="{{ asset('theme/client/assets/images/country/turkish.png') }}"
-                                                class="img-fluid blur-up lazyload" alt="">
-                                            <span>Turki</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li>
                         <li class="right-nav-list">
                             <div class="dropdown theme-form-select">
                                 <button class="btn dropdown-toggle" type="button" id="select-dollar"
                                     data-bs-toggle="dropdown">
-                                    <span>USD</span>
+                                    <span>VNĐ</span>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end sm-dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item" id="aud" href="javascript:void(0)">AUD</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" id="eur" href="javascript:void(0)">EUR</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" id="cny" href="javascript:void(0)">CNY</a>
-                                    </li>
-                                </ul>
                             </div>
                         </li>
                     </ul>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -116,7 +71,7 @@
                                 <form action="{{ route('search') }}" method="GET" class="w-100">
                                     <div class="input-group d-flex align-items-center flex-nowrap">
                                         <input type="search" class="form-control" id="searchInput" name="query"
-                                            placeholder="Im searching for..." autocomplete="off"
+                                            placeholder="Tìm kiếm sản phẩm..." autocomplete="off"
                                             value="{{ request('query') }}">
                                         <button class="btn" type="submit" id="button-addon2">
                                             <i data-feather="search"></i>
@@ -152,7 +107,7 @@
                                     </div>
                                 </li>
                                 <li class="right-side">
-                                    <a href="contact-us.html" class="delivery-login-box">
+                                    <a href="#!" class="delivery-login-box">
                                         <div class="delivery-icon">
                                             <i data-feather="phone-call"></i>
                                         </div>
@@ -349,13 +304,15 @@
                                                                     $cartItem->product->thumbnail;
                                                             @endphp
 
-                                                            <a href="{{ route('products', $cartItem->product->slug) }}" class="drop-image">
+                                                            <a href="{{ route('products', $cartItem->product->slug) }}"
+                                                                class="drop-image">
                                                                 <img src="{{ Storage::url($thumbnail) }}"
                                                                     class="blur-up lazyload" alt="">
                                                             </a>
 
                                                             <div class="drop-contain">
-                                                                <a href="{{ route('products', $cartItem->product->slug) }}">
+                                                                <a
+                                                                    href="{{ route('products', $cartItem->product->slug) }}">
                                                                     <h5>{{ Str::limit($cartItem->productVariant->product->name ?? $cartItem->product->name, 20, '...') }}
                                                                     </h5>
                                                                 </a>
@@ -382,7 +339,10 @@
                                                                     if ($cartItem->productVariant?->sale_price > 0) {
                                                                         $salePrice =
                                                                             $cartItem->productVariant->sale_price;
-                                                                    } elseif ($cartItem->product?->sale_price > 0 && $cartItem->product?->is_sale == 1) {
+                                                                    } elseif (
+                                                                        $cartItem->product?->sale_price > 0 &&
+                                                                        $cartItem->product?->is_sale == 1
+                                                                    ) {
                                                                         $salePrice = $cartItem->product->sale_price;
                                                                     } else {
                                                                         $salePrice = $price; // Nếu không có giảm giá, salePrice bằng giá gốc
@@ -403,6 +363,22 @@
                                                                     value="{{ $cartItem->productVariant?->price > 0 ? $cartItem->productVariant->price : null }}">
                                                                 <input type="hidden" class="old_price_variant"
                                                                     value="{{ $cartItem->productVariant?->sale_price > 0 ? $cartItem->productVariant->sale_price : null }}">
+                                                                <input type="hidden" class="is_sale"
+                                                                    value="{{ $cartItem->product->is_sale }}">
+                                                                @if ($cartItem->productVariant)
+                                                                    <!-- Sản phẩm có biến thể -->
+                                                                    @if ($cartItem->productVariant->productStock)
+                                                                        <input type="hidden" class="stock"
+                                                                            value="{{ $cartItem->productVariant->productStock->stock }}">
+                                                                    @endif
+                                                                @else
+                                                                    <!-- Sản phẩm không có biến thể -->
+                                                                    @if ($cartItem->product->productStock)
+                                                                        <input type="hidden" class="stock"
+                                                                            value="{{ $cartItem->product->productStock->stock }}">
+                                                                    @endif
+                                                                @endif
+
                                                                 <h6><span class="input-number" name="quantity"
                                                                         data-max-stock="{{ $cartItem->productVariant?->productStock?->stock ?? ($cartItem->product?->productStock?->stock ?? 1) }}">{{ $cartItem->quantity }}
                                                                     </span>x
@@ -626,92 +602,8 @@
     </div>
 </header>
 @push('js')
-    <script>
-        let countdown = 60;
-        let timerInterval;
-
-        $(document).ready(function() {
-            // Hàm xác minh email
-            $('#verifyButton').on('click', function() {
-                const userId = {{ Auth::id() }};
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-                const statusTextElement = $('#statusText');
-                const timerElement = $('#timer');
-                const verifyButton = $('#verifyButton');
-
-                // Hiển thị trạng thái "Đang gửi..." và bắt đầu đếm ngược ngay lập tức
-                statusTextElement.text("Đang gửi...");
-                startCountdown(timerElement, verifyButton); // Bắt đầu đếm ngược ngay khi nhấn
-
-                $.ajax({
-                    url: `{{ route('api.auth.verification.verify', ['id' => ':userId']) }}`
-                        .replace(':userId', userId),
-                    type: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken // Thêm CSRF token
-                    },
-                    success: function(data) {
-                        if (data.status) {
-                            // Hiển thị thông báo thành công
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Gửi Mã Thành công!',
-                                text: 'Vui lòng kiểm tra email của bạn!',
-                                timer: 3000,
-                                showConfirmButton: false
-                            });
-
-                            // Xóa trạng thái "Đang gửi..." sau khi thành công
-                            statusTextElement.text("");
-                        } else {
-                            // Hiển thị thông báo lỗi nếu có
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi!',
-                                text: data.message
-                            });
-
-                            // Xóa trạng thái "Đang gửi..." nếu có lỗi
-                            statusTextElement.text("");
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        // Hiển thị thông báo lỗi
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Có lỗi xảy ra',
-                            text: 'Vui lòng thử lại sau.'
-                        });
-
-                        // Xóa trạng thái "Đang gửi..." nếu có lỗi
-                        statusTextElement.text("");
-                        console.error('Error:', xhr.responseText);
-                    }
-                });
-            });
-        });
-
-        // Hàm đếm ngược và vô hiệu hóa nút gửi lại mã
-        function startCountdown(timerElement, verifyButton) {
-            verifyButton.prop('disabled', true); // Vô hiệu hóa nút sau khi nhấn
-            countdown = 60; // Reset lại thời gian đếm ngược
-
-            // Đảm bảo xóa bộ đếm trước khi tạo bộ mới
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-
-            timerInterval = setInterval(function() {
-                countdown--;
-                timerElement.text(`Bạn có thể gửi lại sau ${countdown} giây.`);
-                if (countdown <= 0) {
-                    clearInterval(timerInterval); // Dừng đếm ngược
-                    timerElement.text('');
-                    verifyButton.prop('disabled', false); // Kích hoạt lại nút sau khi 60 giây
-                }
-            }, 1000);
-        }
-    </script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script></script>
     <script>
         function updateCartSessionForHeader() {
             console.log("⚡ Hàm updateCartSessionForHeader() được gọi");
@@ -738,7 +630,8 @@
                 let salePrice = parseInt(row.find(".old_price").val()) || 0;
                 let priceVariant = parseInt(row.find(".price_variant").val()) || 0;
                 let salePriceVariant = parseInt(row.find(".old_price_variant").val()) || 0;
-
+                let isSale = parseInt(row.find(".is_sale").val());
+                let stock = parseInt(row.find(".stock").val());
                 let finalPrice = salePrice > 0 ? salePrice : originalPrice;
                 let oldPrice = salePrice > 0 ? originalPrice : null;
 
@@ -758,6 +651,8 @@
                     old_price_variant: productVariantId ? oldPriceVariant : null,
                     quantity: productVariantId ? null : qty,
                     quantity_variant: productVariantId ? qty : null,
+                    is_sale: isSale,
+                    stock: stock,
                 });
 
                 totalSum += (productVariantId ? finalPriceVariant : finalPrice) * qty;
@@ -832,7 +727,7 @@
                                 listItem.addEventListener('click', function(event) {
                                     event.preventDefault();
                                     const selectedProductName = product
-                                    .name; // Get the name of the clicked product
+                                        .name; // Get the name of the clicked product
                                     localStorage.setItem('selectedSuggestionName',
                                         selectedProductName); // Store the name
                                     window.location.href = link.href;
@@ -859,6 +754,7 @@
                     localStorage.removeItem('selectedSuggestionName');
                 }
             };
+
 
             // Ẩn gợi ý khi click ra ngoài
             document.addEventListener('click', function(event) {
@@ -932,7 +828,7 @@
                                     searchInput.value = suggestion;
                                     suggestionsList.style.display = 'none';
                                     searchForm
-                                .submit(); // Tự động submit form khi chọn gợi ý
+                                        .submit(); // Tự động submit form khi chọn gợi ý
                                 });
                                 suggestionsList.appendChild(listItem);
                             });
@@ -953,6 +849,68 @@
                     suggestionsList.style.display = 'none';
                 }
             });
+        });
+
+        $(document).ready(function() {
+            const userId = $('meta[name="user-id"]').attr('content'); // Lấy user ID từ meta tag
+            const csrfToken = $('meta[name="csrf-token"]').attr('content'); // Lấy CSRF token từ meta tag
+            console.log(userId);
+
+            if (userId) {
+                // Khởi tạo Pusher
+                Pusher.logToConsole = true;
+
+                var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                    cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+                });
+
+                var channel = pusher.subscribe('user.logout.' + userId);
+                channel.bind('user-locked', function(data) {
+                    // Xóa token và thông báo người dùng
+                    localStorage.removeItem('authToken');
+                    sessionStorage.removeItem('authToken');
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Tài khoản bị khóa',
+                        text: 'Tài khoản của bạn đã bị khóa bởi quản trị viên. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Gọi API đăng xuất
+                        fetch('/api/auth/logout', {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-Token':csrfToken
+                                }
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    // Chuyển hướng đến trang đăng nhập hoặc trang thông báo
+                                    window.location.href = '/login';
+                                } else {
+                                    console.error('Đăng xuất thất bại:', response.statusText);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Lỗi',
+                                        text: 'Không thể đăng xuất. Vui lòng thử lại sau.',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Lỗi khi gọi API đăng xuất:', error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi',
+                                    text: 'Không thể đăng xuất. Vui lòng thử lại sau.',
+                                    confirmButtonText: 'OK'
+                                });
+                            });
+                    });
+                });
+
+            }
         });
     </script>
 @endpush

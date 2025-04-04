@@ -38,17 +38,17 @@ class CheckoutController extends Controller
                 }
 
                 // TH2: Nếu sản phẩm biến thể có sale nhưng giá sale bị thay đổi -> Báo lỗi
-                if (!empty($variant->sale_price) && $variant->sale_price > 0) {
-                    if ($variant->sale_price != $cartItem['price_variant']) {
-                        // dd('123');
-                        return back()->with('error', 'Giá khuyến mãi sản phẩm biến thể đã thay đổi, vui lòng kiểm tra lại.');
-                    }
-                } else {
-                    // TH3: Nếu sản phẩm biến thể không có sale nhưng giá price bị thay đổi -> Báo lỗi
-                    if ($variant->price != $cartItem['price_variant']) {
-                        return back()->with('error', 'Giá sản phẩm biến thể đã thay đổi, vui lòng kiểm tra lại.');
-                    }
-                }
+                // if (!empty($variant->sale_price) && $variant->sale_price > 0) {
+                //     if ($variant->sale_price != $cartItem['price_variant']) {
+                //         // dd('123');
+                //         return back()->with('error', 'Giá khuyến mãi sản phẩm biến thể đã thay đổi, vui lòng kiểm tra lại.');
+                //     }
+                // } else {
+                //     // TH3: Nếu sản phẩm biến thể không có sale nhưng giá price bị thay đổi -> Báo lỗi
+                //     if ($variant->price != $cartItem['price_variant']) {
+                //         return back()->with('error', 'Giá sản phẩm biến thể đã thay đổi, vui lòng kiểm tra lại.');
+                //     }
+                // }
             } else {
                 // Kiểm tra sản phẩm chính (nếu không có biến thể)
                 $product = Product::where('id', $cartItem['product_id'])->first();

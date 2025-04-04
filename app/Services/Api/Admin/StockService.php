@@ -3,6 +3,7 @@
 namespace App\Services\Api\Admin;
 
 use App\Enums\StockMovementType;
+use App\Imports\StockMovementDetailsImport;
 use App\Repositories\ProductRepository;
 use App\Repositories\StockMovementDetailRepository;
 use App\Repositories\StockMovementRepository;
@@ -10,6 +11,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StockService
 {
@@ -88,6 +90,32 @@ class StockService
             return ['success' => false, 'message' => 'Lỗi hệ thống! Vui lòng thử lại sau ít phút.'];
         }
         
+    }
+
+    public function importStockExcel(array $data)
+    {
+        try {
+            DB::beginTransaction();
+
+            $stockMovement = $this->stockMovementRepository->create([
+                'code_number' => $this->generateCodeNumber(),
+                'user_id' => $data['user_id'],
+                'type' => StockMovementType::IMPORT
+            ]);
+
+            Excel::import(new StockMovementDetailsImport($stockMovement->id), $data['file']);
+            DB::commit();
+
+            return ['success' => true, 'message' => 'Nhập kho thành công !', 'status' => Response::HTTP_CREATED];
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            DB::rollBack();
+            Log::error(
+                __CLASS__ . '@' . __FUNCTION__,
+                ['error' => $e->getMessage()],
+            );
+            
+            return back()->withErrors($e->getMessage());
+        }
     }
 
     public function generateCodeNumber($prefix = 'NK')

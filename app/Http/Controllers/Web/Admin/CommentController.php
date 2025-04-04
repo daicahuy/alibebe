@@ -25,7 +25,7 @@ class CommentController extends Controller
 
         return view('admin.pages.comments.list', compact('listComment', 'limit', 'keyword')); 
     }
-    public function show(Request $request, Product $product)
+    public function show(Product $product, Request $request )
     {
         $search = $request->input('search');
         $dateFrom = $request->input('date_from');
@@ -33,6 +33,7 @@ class CommentController extends Controller
         $sort = $request->input('sort'); 
 
         $showComment = $this->commentService->showComment($product->id, $search, $dateFrom, $dateTo, $sort);
+        // dd($product);
         $totalCommentsAndReplies = $this->commentService->getTotalCommentsAndRepliesCount($product->id);
         return view('admin.pages.comments.show', compact('showComment', 'product', 'search', 'dateFrom', 'dateTo', 'sort','totalCommentsAndReplies'));
     }

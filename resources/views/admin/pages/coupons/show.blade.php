@@ -89,13 +89,13 @@
                                 <div class="col-sm-6">
                                     <label for="start-date" class="form-label">{{ __('form.coupon.start_date') }}:</label>
                                     <input type="text" id="start-date" class="form-control"
-                                        value=" {{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}"
+                                        value=" {{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y H:i A') : 'N/A' }}"
                                         readonly>
                                 </div>
                                 <div class="col-sm-6">
                                     <label for="end-date" class="form-label">{{ __('form.coupon.end_date') }}:</label>
                                     <input type="text" id="end-date" class="form-control"
-                                        value="{{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}"
+                                        value="{{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y H:i A') : 'N/A' }}"
                                         readonly>
                                 </div>
                             </div>

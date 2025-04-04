@@ -221,16 +221,15 @@ class DetailProductService
 
                 if (isset($files['videos'])) {
                     Log::info('Bắt đầu xử lý video'); // Log bắt đầu xử lý video
-                    foreach ($files['videos'] as $video) {
-                        $path = $video->store('reviews', 'public');
-                        $review->reviewMultimedia()->create([
-                            'review_id' => $review->id,
-                            'file' => $path,
-                            'file_type' => 1,
-                            'mime_type' => $video->getMimeType(),
-                        ]);
-                        Log::info('Video đã lưu:', ['path' => $path]); // Log đường dẫn từng video
-                    }
+                    $video = $files['videos'];
+                    $path = $video->store('reviews', 'public');
+                    $review->reviewMultimedia()->create([
+                        'review_id' => $review->id,
+                        'file' => $path,
+                        'file_type' => 1,
+                        'mime_type' => $video->getMimeType(),
+                    ]);
+                    Log::info('Video đã lưu:', ['path' => $path]); // Log đường dẫn video
                     Log::info('Hoàn tất xử lý video'); // Log kết thúc xử lý video
                 }
 

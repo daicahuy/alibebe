@@ -5,6 +5,8 @@
 {{-- ================================== --}}
 
 @push('css_library')
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 @endpush
 
 @push('css')
@@ -232,10 +234,10 @@
                                                     </div>
                                                 </td>
                                                 <td class="cursor-pointer">
-                                                    {{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}
+                                                    {{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y H:i A') : 'N/A' }}
                                                 </td>
                                                 <td class="cursor-pointer">
-                                                    {{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y h:i A') : 'N/A' }}
+                                                    {{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->locale('vi')->timezone('Asia/Ho_Chi_Minh')->format('d M Y H:i A') : 'N/A' }}
                                                 </td>
                                                 <td>
                                                     <ul id="actions">
@@ -304,14 +306,20 @@
                                                                         <div class="mb-3">
                                                                             <label for="newExpiryDate{{ $coupon->id }}"
                                                                                 class="form-label">Ngày hết hạn mới</label>
-                                                                            <input type="datetime-local"
-                                                                                class="form-control"
-                                                                                id="newExpiryDate{{ $coupon->id }}"
-                                                                                name="end_date"
-                                                                                value="{{ old('end_date', $coupon->end_date) }}">
+                                                                            <div class="input-group custom-dt-picker">
+                                                                                <input placeholder="yyyy-mm-dd"
+                                                                                    name="end_date"
+                                                                                    value=" {{ old('end_date', $coupon->end_date) }}"
+                                                                                    id="end_date_input" readonly=""
+                                                                                    class="form-control">
+                                                                                <button type="button"
+                                                                                    id="endDatePickerBtn"
+                                                                                    class="btn btn-outline-secondary">
+                                                                                    <i class="ri-calendar-line"></i>
+                                                                                </button>
+                                                                            </div>
                                                                         </div>
                                                                     @endif
-
                                                                     @if ($isUsageReached)
                                                                         <div class="mb-3">
                                                                             <label for="newUsageLimit{{ $coupon->id }}"
@@ -363,6 +371,8 @@
 {{-- ================================== --}}
 
 @push('js_library')
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 @endpush
 
 @push('js')
@@ -380,6 +390,16 @@
                     showConfirmButton: true
                 });
             @endif
+
+            $("[id^='endDatePickerBtn']").on('click', function() {
+                const inputId = $(this).closest('.input-group').find('input').attr('id');
+                $("#" + inputId).flatpickr({
+                    enableTime: true,
+                    enableSeconds: true,
+                    time_24hr: true,
+                    dateFormat: "Y-m-d H:i:s"
+                }).open();
+            });
 
             // --- Logic Checkbox ---
             $('#checkbox-table').on('click', function() {
