@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\HistoryOrderStatus;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -30,7 +31,7 @@ class OrderSeeder extends Seeder
         $users = User::with('addresses')->where('id', '<>', 1)->get();
 
         foreach ($users as $user) {
-            for ($i = 0; $i < rand(0, 10); $i++) {
+            for ($i = 0; $i < rand(0, 50); $i++) {
                 $orders[] = [
                     'code' => fake()->randomElement(['HN-', 'HCM-', 'HP-', 'NA-', 'TH-']) . fake()->unique()->numberBetween(1000, 90000),
                     'user_id' => $user->id,
@@ -47,7 +48,7 @@ class OrderSeeder extends Seeder
                     'coupon_description' => null,
                     'coupon_discount_type' => null,
                     'coupon_discount_value' => null,
-                    'created_at' => now()->subDays(rand(0, 90)),
+                    'created_at' => now()->subDays(rand(0, 1095)),
                     'updated_at' => now(),
                 ];
             }
@@ -125,7 +126,18 @@ class OrderSeeder extends Seeder
     {
         $orders = Order::all();
         foreach ($orders as $order) {
-            $order->orderStatuses()->attach(1);
+            $orderStatus = rand(2, 7);
+            $userId = rand(2, 30);
+            $order->orderStatuses()->attach([
+                $orderStatus => [
+                    'modified_by' => $userId
+                ]
+            ]);
+            HistoryOrderStatus::query()->create([
+                'order_id' => $order->id,
+                'order_status_id' => $orderStatus,
+                'user_id' => $userId,
+            ]);
         }
     }
 }

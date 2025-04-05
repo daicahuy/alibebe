@@ -95,8 +95,8 @@
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
-                                <h5>{{ __('message.total_products') }}</h5>
-                                <h3>{{ $countProduct ?? 0 }}</h3>
+                                <h5>Đơn chờ xử lý</h5>
+                                <h3>{{ $countOrderPending ?? 0 }}</h3>
                             </div>
                             <div class="icon-box"><i class="ri-store-3-line"></i></div>
                         </div>
@@ -104,21 +104,13 @@
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
-                                <h5>{{ __('message.total_customers') }}</h5>
-                                <h3>{{ $newCountUser ?? 0 }}(mới)/{{ $countUser ?? 0 }}</h3>
+                                <h5>Đã đi đơn</h5>
+                                <h3>{{ $countOrderDelivery ?? 0 }}</h3>
                             </div>
-                            <div class="icon-box"><i class="ri-group-line"></i></div>
+                            <div class="icon-box"><i class="ri-store-3-line"></i></div>
                         </div>
                     </div>
-                    <div class="col-xl-3 col-sm-6">
-                        <div class="card-tiles">
-                            <div>
-                                <h5>Tổng đơn hàng</h5>
-                                <h3> {{ $countOrder ?? 0 }}</h3>
-                            </div>
-                            <div class="icon-box"><i class="ri-archive-line"></i></div>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
         </section>

@@ -459,9 +459,20 @@ public function revenueEmployee($start_date = null, $end_date = null)
     return $query->sum('total_amount');
 }
 
-public function countProductEmployee()
+public function countOrderPendingEmployee()
 {
-    $countProduct = DB::table('products')->count();
+    $employee= Auth::id();
+    $countProduct = Order::whereHas('orderStatuses', function ($query) use($employee) {
+        $query->where('order_status_id', 1)->where('modified_by', $employee);
+    })->whereDate('created_at', now()->toDateString())->count();
+    return $countProduct;
+}
+public function countOrderDeliveryEmployee()
+{
+    $employee= Auth::id();
+    $countProduct = Order::whereHas('orderStatuses', function ($query) use($employee) {
+        $query->where('order_status_id', 3)->where('modified_by', $employee);
+    })->whereDate('created_at', now()->toDateString())->count();
     return $countProduct;
 }
 public function countUserEmployee()

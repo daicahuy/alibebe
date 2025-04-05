@@ -79,9 +79,13 @@ class DashboardService
     {
         return $this->dashboardRepository->revenueEmployee($start_date, $end_date);
     }
-    public function countProductEmployee()
+    public function countOrderPendingEmployee()
     {
-        return $this->dashboardRepository->countProductEmployee();
+        return $this->dashboardRepository->countOrderPendingEmployee();
+    }
+    public function countOrderDeliveryEmployee()
+    {
+        return $this->dashboardRepository->countOrderDeliveryEmployee();
     }
     public function countUserEmployee()
     {

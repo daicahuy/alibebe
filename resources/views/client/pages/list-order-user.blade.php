@@ -477,17 +477,15 @@
                 <form class="product-review-form" id="reviewForm" action="{{ route('reviewsSp.store') }}"
                     method="POST" enctype="multipart/form-data">
                     @csrf
-                  
+
                     <input type="hidden" name="order_id" id="review_order_id" value="">
                     <div class="product-wrapper">
                         <div class="product-image">
-                            
-                            <img class="img-fluid" alt=""
-                                src=""
-                                width="100px">
+
+                            <img class="img-fluid" alt="" src="" width="100px">
                         </div>
                         <div class="product-content">
-                           
+
                             <h5 class="name"></h5>
                             <div class="product-review-rating">
                                 <div class="product-rating">
@@ -521,14 +519,13 @@
                     </div>
                     <div class="review-box">
                         <label for="images" class="form-label">Hình ảnh (tối đa 5)</label>
-                        <input type="file" name="images[]" id="images" class="form-control"
-                            accept="image/*" multiple>
+                        <input type="file" name="images[]" id="images" class="form-control" accept="image/*"
+                            multiple>
                         <span class="text-danger error-message" id="images-error"></span>
                     </div>
                     <div class="review-box">
                         <label for="videos" class="form-label">Video (tối đa 1)</label>
-                        <input type="file" name="videos" id="videos" class="form-control" accept="video/*"
-                            >
+                        <input type="file" name="videos" id="videos" class="form-control" accept="video/*">
                         <span class="text-danger error-message" id="videos-error"></span>
                     </div>
                 </form>
@@ -712,21 +709,21 @@
                     <div class="d-flex align-items-center">
                         <div class="d-flex" style="align-items:center">
 ${order.status == "receiving" && order.bank_account_status == "sent" ? `
-                                                                                                                                                                                                                                                                                                <h5 class="show-error confirm_bank" style="cursor: pointer; color: red" data-idorder="${order.id}">Xác nhận tài khoản ngân hàng</h5>
-                                                                                                                                                                                                                                                                                                `:""}
+                                                                                                                                                                                                                                                                                                    <h5 class="show-error confirm_bank" style="cursor: pointer; color: red" data-idorder="${order.id}">Xác nhận tài khoản ngân hàng</h5>
+                                                                                                                                                                                                                                                                                                    `:""}
 
                             ${order.status == "pending" ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                <h5 class="cancel-order-refund" data-idorder="${order.id}" style="cursor: pointer;" >Hủy đơn hàng hoàn</h5>
-                                                                                                                                                                                                                                                                                                ` :""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                                                                                                                                                                                                                                                                                                    <h5 class="cancel-order-refund" data-idorder="${order.id}" style="cursor: pointer;" >Hủy đơn hàng hoàn</h5>
+                                                                                                                                                                                                                                                                                                    ` :""}
                             ${order.status == "failed" ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                <h5 class="show-fail" style="cursor: pointer;" data-failreason="${order.fail_reason}" data-imgfailorcompleted="${order.img_fail_or_completed}">Xem lý do thất bại</h5>
-                                                                                                                                                                                                                                                                                                ` :""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                                                                                                                                                                                                                                                                                                    <h5 class="show-fail" style="cursor: pointer;" data-failreason="${order.fail_reason}" data-imgfailorcompleted="${order.img_fail_or_completed}">Xem lý do thất bại</h5>
+                                                                                                                                                                                                                                                                                                    ` :""}
                             ${order.status == "completed" ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                <h5 class="show-complate" style="cursor: pointer;" data-idorder="${order.id}" data-imgfailorcompleted="${order.img_fail_or_completed}" data-checkmoney="${order.is_send_money}">Xem minh chứng</h5>
-                                                                                                                                                                                                                                                                                                ` :""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                                                                                                                                                                                                                                                                                                    <h5 class="show-complate" style="cursor: pointer;" data-idorder="${order.id}" data-imgfailorcompleted="${order.img_fail_or_completed}" data-checkmoney="${order.is_send_money}">Xem minh chứng</h5>
+                                                                                                                                                                                                                                                                                                    ` :""}
                             <span class="badge bg-warning complete ms-2 btn-show-reason"  id="" data-reason="${order.reason}" data-reasonimg="${order.reason_image}" data-adminreason="${order.admin_reason}"  style="font-size: 1.2em;cursor: pointer;background-color: rgb(7 255 16) !important;">
                                 Lý do
                             </span>
@@ -1595,11 +1592,11 @@ ${order.status == "receiving" && order.bank_account_status == "sent" ? `
             ${order.is_refund_cancel == 1&&order.check_refund_cancel==0? "<p  class='' style='color:red; margin:unset'>(Chưa nhận tiền)</p>" : ""}
             ${order.is_refund_cancel == 1&&order.check_refund_cancel==1? "<p  class='' style='color:red; margin:unset'>(Đã nhận tiền)</p>" : ""}
             ${order.img_send_refund_money ? `
-                                                                            <span class="badge bg-warning complete ms-2 btn-show-img-money" id="" data-orderid="${order.id}" data-img="${order.img_send_refund_money}" style="font-size: 1.2em;cursor: pointer;background-color: rgb(7 255 16) !important;">
-                                                                                                Ảnh chuyển khoản
-                                                                                            </span>
-                                                                            
-                                                                            `:""}
+                                                                                <span class="badge bg-warning complete ms-2 btn-show-img-money" id="" data-orderid="${order.id}" data-img="${order.img_send_refund_money}" style="font-size: 1.2em;cursor: pointer;background-color: rgb(7 255 16) !important;">
+                                                                                                    Ảnh chuyển khoản
+                                                                                                </span>
+                                                                                
+                                                                                `:""}
             </div>
 
            
@@ -1679,16 +1676,16 @@ ${order.status == "receiving" && order.bank_account_status == "sent" ? `
                     </div>
                    <div class="d-flex" style="margin-right: 15px;flex-direction: column;">
     ${showReviewButton ? `
-            <a data-bs-toggle="modal"
-               data-bs-target="#writereview"
-               href="#"
-               class="text"
-               style="align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;"
-               data-order-id="${item.order_id}"
-           data-product-id="${item.product.id || item.product_variant_id}"
-           data-product-name="${item.product.name}"
-           data-product-image="{{ Storage::url('${item.product.thumbnail}') }} ">Đánh giá</a>
-        `:""}
+                <a data-bs-toggle="modal"
+                   data-bs-target="#writereview"
+                   href="#"
+                   class="text"
+                   style="align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;"
+                   data-order-id="${item.order_id}"
+               data-product-id="${item.product.id || item.product_variant_id}"
+               data-product-name="${item.product.name}"
+               data-product-image="{{ Storage::url('${item.product.thumbnail}') }} ">Đánh giá</a>
+            `:""}
     <div class="d-flex flex-row " style="align-items: center;justify-content: center;justify-items: center;">
         <span>Thành tiền: </span> <p class="price-new" style="margin-bottom: unset">${item.product_variant_id ? formatCurrency(parseFloat(item.quantity_variant) * parseFloat(item.price_variant)) : formatCurrency(parseFloat(item.quantity) * parseFloat(item.price))}₫</p>
     </div>
@@ -1717,43 +1714,43 @@ ${order.status == "receiving" && order.bank_account_status == "sent" ? `
                 <div class="d-flex flex-row">
                     ${showRefundButton ? `
 
-                                                                                                                                            <button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund="${order.id}" style="background-color: red; color: #fff;">
-                                                                                                                                                    Hoàn hàng
-                                                                                                                                                </button>
+                                                                                                                                                <button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund="${order.id}" style="background-color: red; color: #fff;">
+                                                                                                                                                        Hoàn hàng
+                                                                                                                                                    </button>
 
-                                                                                                                                            `:""}
+                                                                                                                                                `:""}
 
                     ${order.order_statuses[0].id == 7 && order.is_refund_cancel ==1 &&order.check_refund_cancel !=1 ?`
-                                                                                                                                                
-                                                                                                                                                <button class="btn me-2 btn-not-get btn-received-money"  data-idorder="${order.id}" style="background-color: green; color: #fff;">
-                                                                                                                                                Đã nhận tiền
-                                                                                                                                                </button>
-                                                                                                                                                <button class="btn btn-reorder btn-not-received-money me-2"  data-idorder="${order.id}" >Chưa nhận tiền</button>
-                                                                                                                                                
-                                                                                                                                                `:""}
+                                                                                                                                                    
+                                                                                                                                                    <button class="btn me-2 btn-not-get btn-received-money"  data-idorder="${order.id}" style="background-color: green; color: #fff;">
+                                                                                                                                                    Đã nhận tiền
+                                                                                                                                                    </button>
+                                                                                                                                                    <button class="btn btn-reorder btn-not-received-money me-2"  data-idorder="${order.id}" >Chưa nhận tiền</button>
+                                                                                                                                                    
+                                                                                                                                                    `:""}
     ${
         order.order_statuses[0].id === 1
             ? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}" data-ispaid="${order.is_paid}">Hủy hàng</button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        `
             : order.order_statuses[0].id === 4
             ? `
-                                                                                                                                                <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
-                                                                                                                                                Đã nhận
-                                                                                                                                                </button>
-                                                                                                                                                <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
-                                                                                                                                                `
+                                                                                                                                                    <button class="btn me-2 btn-not-get btn-received-order"  data-idOrderReceived="${order.id}" style="background-color: green; color: #fff;">
+                                                                                                                                                    Đã nhận
+                                                                                                                                                    </button>
+                                                                                                                                                    <button class="btn btn-reorder btn-not-received-order me-2"  data-idOrderNotReceived="${order.id}" >Chưa nhận</button>
+                                                                                                                                                    `
             : ""
     }
 </div>
                 <div>
                     <div>${order.coupon_discount_type ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                <span>Giảm giá: </span>
-                                                                                                                                <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
-                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                    <span>Giảm giá: </span>
+                                                                                                                                    <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
+                                                                                                                                    </div>
 
 
-                                                                                                                                `:""}
+                                                                                                                                    `:""}
                     <div>
                         <span>Tổng tiền: </span>
                     <span class="price-new">${formatCurrency(order.total_amount)}₫</span>
@@ -2157,34 +2154,35 @@ ${order.status == "receiving" && order.bank_account_status == "sent" ? `
         // Gọi hàm này khi trang sản phẩm được tải
         updateCompareCountBadge(); //end compare
 
-        $('#writereview').on('show.bs.modal', function (event) {
-        const reviewButton = $(event.relatedTarget);
-        const orderId = reviewButton.data('order-id');
-        const productId = reviewButton.data('product-id');
-        const productName = reviewButton.data('product-name'); // Lấy tên sản phẩm
-        const productImage = reviewButton.data('product-image'); // Lấy URL hình ảnh sản phẩm
+        $('#writereview').on('show.bs.modal', function(event) {
+            const reviewButton = $(event.relatedTarget);
+            const orderId = reviewButton.data('order-id');
+            const productId = reviewButton.data('product-id');
+            const productName = reviewButton.data('product-name'); // Lấy tên sản phẩm
+            const productImage = reviewButton.data('product-image'); // Lấy URL hình ảnh sản phẩm
 
-        $('#review_order_id').val(orderId);
+            $('#review_order_id').val(orderId);
 
-        const productIdInput = $("#reviewForm input[name='product_id']");
-        if (productIdInput.length === 0) {
-            $("#reviewForm").append(`<input type="hidden" name="product_id" value="${productId}">`);
-        } else {
-            productIdInput.val(productId);
-        }
+            const productIdInput = $("#reviewForm input[name='product_id']");
+            if (productIdInput.length === 0) {
+                $("#reviewForm").append(`<input type="hidden" name="product_id" value="${productId}">`);
+            } else {
+                productIdInput.val(productId);
+            }
 
-        // Hiển thị thông tin sản phẩm trong modal
-        const modalProductImage = $(this).find('.product-image');
-        const modalProductName = $(this).find('.product-content .name');
+            // Hiển thị thông tin sản phẩm trong modal
+            const modalProductImage = $(this).find('.product-image');
+            const modalProductName = $(this).find('.product-content .name');
 
-        if (modalProductImage.length > 0) {
-            modalProductImage.html(`<img class="img-fluid" alt="${productName}" src="${productImage}" width="100px">`);
-        }
+            if (modalProductImage.length > 0) {
+                modalProductImage.html(
+                    `<img class="img-fluid" alt="${productName}" src="${productImage}" width="100px">`);
+            }
 
-        if (modalProductName.length > 0) {
-            modalProductName.text(productName);
-        }
-    });
+            if (modalProductName.length > 0) {
+                modalProductName.text(productName);
+            }
+        });
 
 
         // đánh giá
@@ -2221,8 +2219,7 @@ ${order.status == "receiving" && order.bank_account_status == "sent" ? `
                     }
                 });
             }
-            return cookieValue;
-        }
+            // return cookieValue; // Dòng này có vẻ như bạn muốn trả về cookie ở đây, nhưng nó nằm ngoài hàm
 
             // --- Hàm hiển thị thông báo yêu cầu đăng nhập ---
             function showLoginRequiredAlert() {

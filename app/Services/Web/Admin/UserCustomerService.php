@@ -106,23 +106,28 @@ class UserCustomerService
         $allOrders = $order['countAllDetail'];// tổng số đơn
 
         //2. Doanh số
-        $totalRevenue = $this->orderRepo->getTotalRevenue($userId, $startDate, $endDate); //tổng doanh thu
         $successFullRevenue = $order['revenueSuccessDetail']; // doanh thu đơn thành công
         $cancelledRevenue = $order['revenueCancelDetail']; // doanh thu hủy
         $processingRevenue = $order['revenueProcessingDetail']; // doanh thu đang xử lý 
         $refundRevenue = $order['revenueRefundDetail']; // doanh thu hoàn hàng 
+        $totalRevenue = $this->orderRepo->getTotalRevenue($userId, $startDate, $endDate) + $refundRevenue; //tổng doanh thu
 
 
+        // dd($totalRevenue);
         // tính phần trăm doanh thu và số lượng đơn thành công
         $percentCountSuccess = 0;
         $percentPriceSuccess = 0;
         if ($allOrders > 0) {
-            $percentCountSuccess = round(($orderSuccess / $allOrders) * 100, 2);
-            $percentCountCancel = round($order['countCancelDetail'] / $allOrders * 100, 2);
-            $percentCountProcessing = round($order['countProcessingDetail'] / $allOrders * 100, 2);
-            $percentCountRefund = round($order['countRefundDetail'] / $allOrders * 100, 2);
+             $percentCountSuccess = round(($orderSuccess / $allOrders) * 100, 2);
+                $percentCountCancel = round($order['countCancelDetail'] / $allOrders * 100, 2);
+                $percentCountProcessing = round($order['countProcessingDetail'] / $allOrders * 100, 2);
+                $percentCountRefund = round($order['countRefundDetail'] / $allOrders * 100, 2);
 
-            $percentPriceSuccess = round($successFullRevenue / $totalRevenue * 100, 2);
+                $percentPriceSuccess = round($successFullRevenue / $totalRevenue * 100, 2);
+            // if ($totalRevenue > 0) {
+               
+            // }
+
         }
 
         //3. Chi Tiết Đơn Hàng
@@ -212,7 +217,7 @@ class UserCustomerService
             'successFullRevenue' => $successFullRevenue,
             'cancelledRevenue' => $cancelledRevenue,
             'refundRevenue' => $refundRevenue,
-            'percentPriceSuccess' => $percentPriceSuccess, //tính phần trăm doanh thu đơn thành công
+            'percentPriceSuccess' => $percentPriceSuccess ?? 0, //tính phần trăm doanh thu đơn thành công
 
             'orderDetails' => $orderDetails,
             'paymentMethodData' => $paymentMethodData,

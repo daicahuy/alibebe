@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $this->fakeAdmin();
-        $this->fakeEmployee(50);
+        $this->fakeEmployee(30);
         $this->fakeCustomer(500);
     }
 
@@ -62,10 +62,7 @@ class UserSeeder extends Seeder
                 'birthday' => fake()->date(),  
                 'loyalty_points' => fake()->numberBetween(0, 1000),  
                 'role' => UserRoleType::CUSTOMER,  
-                'status' => fake()->randomElement([  
-                    UserStatusType::ACTIVE,
-                    UserStatusType::LOCK
-                ]),
+                'status' => UserStatusType::ACTIVE,
                 'code_verified_email' => Str::random(50),
                 'remember_token' => Str::random(10),
                 'email_verified_at' => now(),

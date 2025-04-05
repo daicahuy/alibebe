@@ -138,6 +138,18 @@
                 </div>
             </div>
         </section>
+        <div class="d-flex justify-content-end align-items-center mb-3">
+            <form action="{{ route('admin.export') }}" method="GET">
+                <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
+                <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
+                <input type="hidden" name="is_employee" id="is_employee" value="{{ request('is_employee') }}">
+
+                <button type="submit" class="btn btn-primary">Xuất Excel</button>
+            </form>
+            
+        </div>
+        
+
         <section>
             <div class="row m-0">
                 <div class="col-xl-8 col-md-6 p-0">
@@ -436,12 +448,8 @@
                 tooltip: {
                     shared: true,
                     formatter: function() {
-                        let tooltipHtml = `<b>${this.x}</b><br>`;
-                        this.points.forEach(point => {
-                            tooltipHtml +=
-                                `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${point.y} đơn</b><br>`;
-                        });
-                        return tooltipHtml;
+                        let label = "Dữ liệu" ;
+                        return `<b>${label}</b><br/>${this.points.map(point => `${point.series.name}: <b>${point.y} đơn</b>`).join('<br/>')}`;
                     }
                 },
                 series: seriesData

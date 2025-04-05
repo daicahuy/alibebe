@@ -25,7 +25,7 @@ class ProductVariantSeeder extends Seeder
                     'product_id' => $product->id,
                     'sku' => fake()->unique()->numerify('SPBT-#####'),
                     'price' => $price,
-                    'sale_price' => $product->is_sale ? ($price * 0.9) : null,
+                    'sale_price' => $product->is_sale ? ceil($price * 0.9) : null,
                     'thumbnail' => fake()->randomElement(['product_variants/product_variant_1.jpg', 'product_variants/product_variant_2.jpg', 'product_variants/product_variant_3.jpg']),
                     'is_active' => fake()->boolean(90),
                     'created_at' => now(),
