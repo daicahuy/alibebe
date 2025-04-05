@@ -305,9 +305,6 @@ class OrderController extends Controller
             event(new OrderStatusUpdated($idOrder, 4, $order, ""));
             event(new OrderPendingCountUpdated());
 
-
-
-
             return response()->json(["data" => $data, "status" => Response::HTTP_OK]);
 
 

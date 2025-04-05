@@ -118,7 +118,10 @@ class AuthCustomerApiController extends Controller
             if (Auth::attempt($credentials, $remember)) {
                 $user = Auth::user();
                 if ($user->status == 0) {
-                    return response()->json(['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errorsLogin' => 'Tài khoản đã bị khóa.']);
+                    return response()->json(['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errorsLogin' => 'Tài khoản không còn hoạt động!']);
+                }
+                if ($user->status == 2) {
+                    return response()->json(['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errorsLogin' => 'Tài khoản đã bị khóa!']);
                 }
                 $token = $user->createToken('token')->plainTextToken;
                 return response()->json(['status' => Response::HTTP_OK, 'user' => $user, 'token' => $token], 200);
@@ -149,8 +152,10 @@ class AuthCustomerApiController extends Controller
 
         if ($user) {
             if ($user->status == 0) {
+                return redirect()->intended('/login')->with('error', "Tài khoản không còn hoạt động");
+            }
+            if ($user->status == 2) {
                 return redirect()->intended('/login')->with('error', "Tài khoản đã bị khóa");
-
             }
             Auth::login($user);
             return redirect()->intended('/');
@@ -198,6 +203,9 @@ class AuthCustomerApiController extends Controller
         }
         if ($user) {
             if ($user->status == 0) {
+                return response()->json(['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errorsLogin' => 'Tài khoản không còn hoạt động']);
+            }
+            if ($user->status == 2) {
                 return response()->json(['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errorsLogin' => 'Tài khoản đã bị khóa.']);
             }
             Auth::login($user);
