@@ -25,20 +25,18 @@ class HomeController extends Controller
         $trendingProducts = $this->HomeService->getTrendingProduct();
         $bestSellProductsToday = $this->HomeService->getBestSellerProductsToday();
         $topCategoriesInweek = $this->HomeService->topCategoriesInWeek();
-        $bestSellingProducts = $this->HomeService->getBestSellingProduct();
-        $productForYou = $this->HomeService->productForYou();
+        $productForYou = $this->HomeService->bestSellingProduct();
 
         $wishlistProductIds = $this->wishlistRepository->getWishlistForUserLogin()
         ->pluck('product_id')
         ->toArray();
-        $aiSuggestedProducts = $userId ? $this->HomeService->getAIFakeSuggest($userId) : $this->HomeService->getTrendingProduct();
+        $getProductByView =  $this->HomeService->getProductByView();
         return view('client.pages.index',
             compact('categories',
             'trendingProducts',
             'bestSellProductsToday',
             'topCategoriesInweek',
-            'bestSellingProducts',
-            'aiSuggestedProducts',
+            'getProductByView',
             'wishlistProductIds',
             'productForYou'
         ));

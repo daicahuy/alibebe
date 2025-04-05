@@ -73,16 +73,12 @@ class HomeService
     {
         return $this->categoryRepo->topCategoryInWeek();
     }
-    public function productForYou()  {
-        return $this->productRepository->getPopularProducts();
+    public function bestSellingProduct()  {
+        return $this->productRepository->bestSellingProduct();
     }
-    public function getBestSellingProduct()
+    public function getProductByView()
     {
-        return $this->productRepository->getBestSellingProduct();
-    }
-    public function getAIFakeSuggest($userId)
-    {
-        return $this->productRepository->getUserRecommendations($userId);
+        return $this->productRepository->getProductByView();
     }
     public function detailModal($id)
     {
