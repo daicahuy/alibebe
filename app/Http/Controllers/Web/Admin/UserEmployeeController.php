@@ -28,10 +28,29 @@ class UserEmployeeController extends Controller
         return view('admin.pages.user_employee.list', compact('ListUsers', 'totalUserLock', 'limit'));
     }
 
-    public function detail(Request $request)
+    public function detail(Request $request, User $user)
     {
-        
-        return view('admin.pages.user_employee.detail');
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+
+        if (!$startDate) {
+            $startDate = now()->startOfDay()->toDateString();
+        }
+        if (!$endDate) {
+            $endDate = now()->endOfDay()->toDateString();
+        }
+        $filterStatus = $request->input('status');
+        $data = $this->userService->detail(
+            $user->id,
+            $startDate,
+            $endDate
+            ,
+            $filterStatus
+        );
+        // dd($data);
+        return view('admin.pages.user_employee.detail', compact(
+            'data'
+        ));
     }
 
     public function lock(Request $request)

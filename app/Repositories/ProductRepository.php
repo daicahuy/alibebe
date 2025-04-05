@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\CommentReply;
@@ -32,7 +33,7 @@ class ProductRepository extends BaseRepository
                 $query->select('value');
             }
         ])->orderByRaw("FIELD(id, " . implode(',', $ids) . ")")
-        ->get();
+            ->get();
     }
 
     // Lấy danh sách sản phẩm theo category
@@ -243,10 +244,14 @@ END');
             // Lọc theo thuộc tính - biến thể
 
             $variantAttributeFilters = [];
+            // Lấy danh sách slug của tất cả các thuộc tính biến thể 
+            $variantAttributeSlugs = Attribute::where('is_variant', 1)->pluck('slug')->toArray();
+
             foreach ($filters as $filterName => $filterValues) {
-                if (in_array($filterName, ['kich-thuoc-man-hinh', 'bo-nho-ram', 'mau-sac'])) { // tạo mảng với key
-                    if (is_array($filterValues)) { // check mảng 
-                        $variantAttributeFilters[$filterName] = $filterValues; // gán giá trị vào mảng
+                // Kiểm tra xem $filterName có nằm trong danh sách slug của thuộc tính biến thể 
+                if (in_array($filterName, $variantAttributeSlugs)) {
+                    if (is_array($filterValues)) {
+                        $variantAttributeFilters[$filterName] = $filterValues;
                     }
                 }
             }

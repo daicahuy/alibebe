@@ -1042,16 +1042,16 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
 
                     <div class="col-auto">
-                        <h2 class="mb-0">Chi tiết khách hàng</h2>
+                        <h2 class="mb-0">Chi tiết nhân viên</h2>
                     </div>
-                    <div class="d-flex">
+                    {{-- <div class="d-flex">
                         <button class="btn btn-outline-danger btn-sm me-2">
                             <i class="fas fa-trash-alt me-1"></i> Xóa khách hàng
                         </button>
                         <button class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-key me-1"></i> Đặt lại mật khẩu
                         </button>
-                    </div>
+                    </div> --}}
                 </div>
 
 
@@ -1060,15 +1060,24 @@
                         <div class="card ">
 
                             <div class="row">
-                                
+
                                 <div class="col-lg-6">
                                     <div class="card mb-6">
                                         <div class="card-body">
                                             <div class="text-center mb-3">
-                                                <img src="https://picsum.photos/id/237/100/100"
-                                                    alt="Ảnh đại diện khách hàng" class="customer-avatar mb-2">
-                                                <h5 class="mb-0">Ansolo Lazinatov</h5>
-                                                <p class="text-muted small">Tham gia 3 tháng trước</p>
+                                                @if ($data['user']->avatar == null)
+                                                    <td class="cursor-pointer">
+                                                        <div class="user-round">
+                                                            <h4>{{ strtoupper(substr($data['user']->fullname, 0, 1)) }}</h4>
+                                                        </div>
+                                                    </td>
+                                                @else
+                                                    <img src="{{ Storage::url($data['user']->avatar) }}"
+                                                        alt="Ảnh đại diện nhân viên" class="customer-avatar mb-2">
+                                                @endif
+
+                                                <h5 class="mb-0">{{ $data['user']->fullname }}</h5>
+                                                <p class="text-muted small">Tham gia: {{ $data['accountCreatedAt'] }} </p>
                                                 <div class="social-icons">
                                                     <a href="#"><i class="fab fa-linkedin"></i></a>
                                                     <a href="#"><i class="fab fa-facebook"></i></a>
@@ -1079,19 +1088,22 @@
                                             <div class="row text-center mb-3">
                                                 <div class="col-4">
                                                     <div class="stat-box">
-                                                        <div class="stat-number text-primary">297</div>
+                                                        <div class="stat-number text-primary">
+                                                            {{ $data['countOrder']['allCount'] }}</div>
                                                         <div class="stat-label">Đơn hàng</div>
                                                     </div>
                                                 </div>
                                                 <div class="col-4">
                                                     <div class="stat-box">
-                                                        <div class="stat-number text-primary">56</div>
+                                                        <div class="stat-number text-primary">
+                                                            {{ $data['countOrder']['successCount'] }}</div>
                                                         <div class="stat-label">Thành công</div>
                                                     </div>
                                                 </div>
                                                 <div class="col-4">
                                                     <div class="stat-box">
-                                                        <div class="stat-number text-primary">97</div>
+                                                        <div class="stat-number text-primary">
+                                                            {{ $data['countOrder']['cancelCount'] }}</div>
                                                         <div class="stat-label">Hủy</div>
                                                     </div>
                                                 </div>
@@ -1113,21 +1125,21 @@
                                             </div>
                                             <div class="mb-3">
                                                 <p class="mb-1 fw-bold">Địa chỉ</p>
-                                                {{-- <p class="mb-0">Phú Thọ</p>
-                                    <p class="mb-0">Hoàng Cương, Thanh Ba</p>
-                                    <p class="mb-0">Khu 2</p> --}}
-                                                <p>Khu 2, Hoàng Cương, Thanh Bả, Phú Thọ</p>
+                                                <p>{{ $data['defaultAddress']->address ?? 'Người dùng chưa cập nhật' }}</p>
                                             </div>
 
                                             <div class="mb-3">
                                                 <p class="mb-1 fw-bold">Email</p>
                                                 <p class="mb-0"><a href="mailto:shatinon@jaemail.com"
-                                                        class="text-decoration-none">shatinon@jaemail.com</a></p>
+                                                        class="text-decoration-none">{{ $data['user']->email ?? 'Người dùng chưa cập nhật' }}</a>
+                                                </p>
                                             </div>
 
                                             <div>
                                                 <p class="mb-1 fw-bold">Điện thoại</p>
-                                                <p class="mb-0">+1234567890</p>
+                                                <p class="mb-0">
+                                                    {{ $data['defaultAddress']->phone_number ?? 'Người dùng chưa cập nhật' }}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -1210,14 +1222,16 @@
                                     <i class="fas fa-chart-line me-2"></i>Báo Cáo Chi Tiết
                                 </h4>
                                 <div class="filter-container">
-                                    <form method="GET" action="{{ route('admin.reviews.index') }}"
+                                    <form method="GET"
+                                        action="{{ route('admin.users.employee.detail', $data['user']->id) }}"
                                         class="d-flex justify-content-evenly align-items-end flex-wrap gap-3 w-100">
                                         <!-- Start Date -->
                                         <div class="flex-grow-1">
                                             <label for="startDate" class="form-label fw-bold mb-0">Ngày bắt
                                                 đầu</label>
                                             <input type="date" id="startDate" name="startDate"
-                                                value="{{ request('startDate') }}" class="form-control">
+                                                value="{{ request('startDate', now()->toDateString()) }}"
+                                                class="form-control">
                                         </div>
 
                                         <!-- End Date -->
@@ -1225,13 +1239,15 @@
                                             <label for="endDate" class="form-label fw-bold mb-0">Ngày kết
                                                 thúc</label>
                                             <input type="date" id="endDate" name="endDate"
-                                                value="{{ request('endDate') }}" class="form-control">
+                                                value="{{ request('endDate', now()->toDateString()) }}"
+                                                class="form-control">
                                         </div>
 
                                         <!-- Filter & Reset Buttons -->
                                         <div class="d-flex gap-2">
                                             <button type="submit" class="btn btn-theme">Lọc</button>
-                                            <a href="{{ route('admin.reviews.index') }}" class="btn btn-secondary">Reset</a>
+                                            <a href="{{ route('admin.users.employee.detail', $data['user']->id) }}"
+                                                class="btn btn-secondary">Reset</a>
                                         </div>
                                     </form>
                                 </div>
@@ -1244,22 +1260,28 @@
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <span>Tổng Số Đơn</span>
-                                                    <strong class="text-primary">97</strong>
+                                                    <strong
+                                                        class="text-primary">{{ $data['order']['countAllDetail'] }}</strong>
                                                 </div>
                                                 <div class="progress" style="height: 20px;">
                                                     <div class="progress-bar progress-bar-custom" role="progressbar"
-                                                        style="width: 50%" aria-valuenow="50" aria-valuemin="0"
-                                                        aria-valuemax="100">Hoàn Thành 50%</div>
+                                                        style="width: {{ $data['percentCountSuccess'] }}%"
+                                                        aria-valuenow="{{ $data['percentCountSuccess'] }}"
+                                                        aria-valuemin="0" aria-valuemax="100">Hoàn Thành
+                                                        {{ $data['percentCountSuccess'] }}%</div>
                                                 </div>
                                                 <div class="mt-2">
+                                                    {{-- @dd($data) --}}
                                                     <small class="text-muted">Chi Tiết Trạng Thái</small>
                                                     <div class="d-flex justify-content-between mt-1">
                                                         <span class="badge bg-success badge-custom">Thành Công:
-                                                            48</span>
+                                                            {{ $data['order']['countSuccessDetail'] }}</span>
                                                         <span class="badge bg-warning badge-custom">Đang Xử Lý:
-                                                            15</span>
-                                                        <span class="badge bg-danger badge-custom">Hủy: 34</span>
-                                                        <span class="badge bg-dark badge-custom">Hoàn hàng: 3</span>
+                                                            {{ $data['order']['countProcessingDetail'] }}</span>
+                                                        <span class="badge bg-danger badge-custom">Hủy:
+                                                            {{ $data['order']['countCancelDetail'] }}</span>
+                                                        <span class="badge bg-dark badge-custom">Hoàn hàng:
+                                                            {{ $data['order']['countRefundDetail'] }}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1271,50 +1293,39 @@
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between mb-2">
                                                     <span>Tổng Doanh Số</span>
-                                                    <strong class="text-success">132.540.000₫</strong>
+                                                    <strong
+                                                        class="text-success">{{ number_format($data['totalRevenue']) }}đ</strong>
                                                 </div>
                                                 <div class="progress" style="height: 20px;">
                                                     <div class="progress-bar bg-success" role="progressbar"
-                                                        style="width: 75%" aria-valuenow="75" aria-valuemin="0"
-                                                        aria-valuemax="100">Đạt 75%</div>
+                                                        style="width: {{ $data['percentPriceSuccess'] }}%"
+                                                        aria-valuenow="{{ $data['percentPriceSuccess'] }}"
+                                                        aria-valuemin="0" aria-valuemax="100">Đạt
+                                                        {{ $data['percentPriceSuccess'] }}%</div>
                                                 </div>
                                                 <div class="mt-2">
                                                     <div class="row">
-                                                        <div class="col-6">
+                                                        <div class="col-4">
                                                             <small class="text-muted">Đơn Thành Công</small>
-                                                            <div class="text-success">96.490.000₫</div>
+                                                            <div class="text-success">
+                                                                {{ number_format($data['successFullRevenue']) }}₫</div>
                                                         </div>
-                                                        <div class="col-6">
+                                                        <div class="col-4">
                                                             <small class="text-muted">Đơn Hủy</small>
-                                                            <div class="text-danger">29.320.000₫</div>
+                                                            <div class="text-danger">
+                                                                {{ number_format($data['cancelledRevenue']) }}₫</div>
+                                                        </div>
+                                                        <div class="col-4">
+                                                            <small class="text-muted">Đơn Hoàn</small>
+                                                            <div class="text-dark">
+                                                                {{ number_format($data['refundRevenue']) }}₫</div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    {{-- <div class="col-md-4">
-                                            <div class="card mb-3">
-                                                <div class="card-header">Hiệu Suất</div>
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col-6 text-center">
-                                                            <div class="fs-4 text-primary">4.8/5</div>
-                                                            <small class="text-muted">Đánh Giá</small>
-                                                        </div>
-                                                        <div class="col-6 text-center">
-                                                            <div class="fs-4 text-success">98%</div>
-                                                            <small class="text-muted">Độ Hài Lòng</small>
-                                                        </div>
-                                                    </div>
-                                                    <hr>
-                                                    <div class="text-center">
-                                                        <span class="badge bg-warning me-1">Cần Cải Thiện</span>
-                                                        <span class="badge bg-info">Tiềm Năng Cao</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div> --}}
+                                  
                                 </div>
 
                                 <div class="row">
@@ -1332,30 +1343,18 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr>
-                                                            <td>Đã Hoàn Thành</td>
-                                                            <td>48</td>
-                                                            <td>96.490.000₫</td>
-                                                            <td><span class="badge bg-success">72.5%</span></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Đã Hủy</td>
-                                                            <td>34</td>
-                                                            <td>29.320.000₫</td>
-                                                            <td><span class="badge bg-danger">22.1%</span></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Đang Xử Lý</td>
-                                                            <td>15</td>
-                                                            <td>3.750.000₫</td>
-                                                            <td><span class="badge bg-warning">5.4%</span></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Hoàn hàng</td>
-                                                            <td>5</td>
-                                                            <td>3.750.000₫</td>
-                                                            <td><span class="badge bg-dark">3.4%</span></td>
-                                                        </tr>
+                                                        @foreach ($data['orderDetails'] as $orderDetail)
+                                                            <tr>
+                                                                <td>{{ $orderDetail['type'] }}</td>
+                                                                <td>{{ $orderDetail['quantity'] }}</td>
+                                                                <td>{{ number_format($orderDetail['revenue']) }}₫</td>
+                                                                <td><span
+                                                                        class="badge {{ $orderDetail['badge_class'] }}">{{ $orderDetail['percentCount'] }}%</span>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+
+
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -1371,28 +1370,32 @@
                                                             <th>Phương Thức</th>
                                                             <th>Số Lượng</th>
                                                             <th>Doanh Số</th>
-                                                            <th>Tỷ Lệ</th>
+                                                            <th>Tỷ Lệ(số lượng)</th>
+                                                            <th>Tỷ Lệ(doanh số )</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr>
-                                                            <td>Khi nhận hàng </td>
-                                                            <td>23</td>
-                                                            <td>46.320.000₫</td>
-                                                            <td><span class="badge bg-primary">35%</span></td>
-                                                        </tr>
-                                                        {{-- <tr>
-                                                                <td>Chuyển Khoản</td>
-                                                                <td>35</td>
-                                                                <td>62.540.000₫</td>
-                                                                <td><span class="badge bg-success">47%</span></td>
-                                                            </tr> --}}
-                                                        <tr>
-                                                            <td>Online</td>
-                                                            <td>24</td>
-                                                            <td>23.680.000₫</td>
-                                                            <td><span class="badge bg-info">18%</span></td>
-                                                        </tr>
+                                                        @if ($data['paymentMethodData'] == null)
+                                                            <tr>
+                                                                <td colspan="6" class="text-center text-muted">Chưa
+                                                                    có đơn hàng nào được thanh toán.</td>
+                                                            </tr>
+                                                        @endif
+                                                        @foreach ($data['paymentMethodData'] as $pay)
+                                                            <tr>
+                                                                <td>{{ $pay['name'] }} </td>
+                                                                <td>{{ $pay['quantity'] }}</td>
+                                                                <td>{{ number_format($pay['revenue']) }}₫</td>
+                                                                <td><span
+                                                                        class="badge bg-primary">{{ $pay['percentCount'] }}%</span>
+                                                                </td>
+                                                                <td><span
+                                                                        class="badge bg-info">{{ $pay['percentPrice'] }}%</span>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+
+
                                                     </tbody>
                                                 </table>
                                             </div>

@@ -49,7 +49,7 @@ class UserCustomerController extends Controller
         $data = $this->userService->detail($user->id, $startDate, $endDate, $filterStatus);
 
 
-        // dd($data);
+        dd($data);
 
         return view('admin.pages.user_customer.detail', compact(
             'data'

@@ -216,7 +216,7 @@ class OrderRepository extends BaseRepository
         $listOrders = $this->model->where('user_id', $userId)
 
             ->with(['payment', 'orderStatuses'])
-            ->select('id','code', 'user_id', 'payment_id', 'is_refund', 'total_amount', 'created_at')
+            ->select('id', 'code', 'user_id', 'payment_id', 'is_refund', 'total_amount', 'created_at')
             ->orderByDesc('created_at');
         if ($filterStatus) {
             if ($filterStatus == 'refunded') {
@@ -228,7 +228,7 @@ class OrderRepository extends BaseRepository
             }
         }
 
-        return $listOrders->paginate(5,['*'],'order_page');
+        return $listOrders->paginate(5, ['*'], 'order_page');
     }
     public function countUserOrderById($userId)
     {
@@ -275,7 +275,7 @@ class OrderRepository extends BaseRepository
             $q->where('is_refund', 1);
         })->count();
         return [
-            'allCount' => $allCount,
+            'allCount' => $allCount + $refundCount,
             'successCount' => $successCount,
             'cancelCount' => $cancelCount,
             'refundCount' => $refundCount
@@ -302,6 +302,7 @@ class OrderRepository extends BaseRepository
     {
         return $this->filterDate(
             $this->model->where('user_id', $userId),
+            // ->where('is_paid', 1),
             $startDate,
             $endDate
         )->sum('total_amount');
@@ -325,7 +326,7 @@ class OrderRepository extends BaseRepository
 
 
         return [
-            'countAllDetail' => $allCount,
+            'countAllDetail' => $allCount + $refundCount,
             'countSuccessDetail' => $successCount,
             'countProcessingDetail' => $processingCount,
             'countCancelDetail' => $cancelCount,
@@ -366,5 +367,169 @@ class OrderRepository extends BaseRepository
         return $query;
     }
 
+
+
+    // employee - detail
+
+    // Lấy phương thức thanh toán các đơn hàng mà nhân viên đã xử lý
+    public function getPaymentMethodForEmployee($employeeId, $startDate = null, $endDate = null)
+    {
+        return $this->filterDate(
+            $this->model->whereHas('orderStatuses', function ($query) use ($employeeId) {
+                $query->where('order_order_status.modified_by', $employeeId);
+            }),
+            $startDate,
+            $endDate
+        )
+            ->with('payment', function ($q) {
+                $q->select(['id', 'name']);
+            })
+            ->get()
+            ->groupBy('payment.name')
+            ->map(function ($orders, $paymentName) {
+                return [
+                    'payment_method' => $paymentName,
+                    'order_count' => $orders->count(),
+                    'total_revenue' => $orders->sum('total_amount'),
+                ];
+            })->values();
+    }
+
+    // B3 hàm chung gọi ra từng trạng thái cho nhân viên
+    public function countOrderDetailForEmployee($employeeId, $startDate, $endDate)
+    {
+        // số lượng đơn
+        $allCount = $this->filterDate(
+            $this->model->where(function ($query) use ($employeeId) {
+                $query->whereHas('orderStatuses', function ($q) use ($employeeId) {
+                    $q->where('order_order_status.modified_by', $employeeId);
+                })->orWhere(function ($q) use ($employeeId) {
+                    $q->where('is_refund', 1)
+                      ->whereHas('orderStatuses', function ($q2) use ($employeeId) {
+                          $q2->where('order_order_status.modified_by', $employeeId);
+                      });
+                });
+            }),
+            $startDate,
+            $endDate
+        )->count();
+
+        $successCount = $this->countOrdersByDateAndStatusForEmployee($employeeId, 'Hoàn thành', $startDate, $endDate);
+        $processingCount = $this->countOrdersByDateAndStatusForEmployee($employeeId, 'Đang xử lý', $startDate, $endDate);
+        $cancelCount = $this->countOrdersByDateAndStatusForEmployee($employeeId, 'Đã hủy', $startDate, $endDate);
+        $refundCount = $this->filterDate(
+            $this->model->where('is_refund', 1)
+                ->whereHas('orderStatuses', function ($q) use ($employeeId) {
+                    $q->where('order_order_status.modified_by', $employeeId);
+                }),
+            $startDate,
+            $endDate
+        )->count();
+
+        // tiền
+        $successRevenue = $this->getRevenueByDateAndStatusForEmployee($employeeId, 'Hoàn thành', $startDate, $endDate);
+        $processingRevenue = $this->getRevenueByDateAndStatusForEmployee($employeeId, 'Đang xử lý', $startDate, $endDate);
+        $cancelRevenue = $this->getRevenueByDateAndStatusForEmployee($employeeId, 'Đã hủy', $startDate, $endDate);
+        $refundRevenue = $this->filterDate(
+            $this->model->where('is_refund', 1)
+                ->whereHas('orderStatuses', function ($q) use ($employeeId) {
+                    $q->where('order_order_status.modified_by', $employeeId);
+                }),
+            $startDate,
+            $endDate
+        )->sum('total_amount');
+
+
+
+        return [
+            'countAllDetail' => $allCount,
+            'countSuccessDetail' => $successCount,
+            'countProcessingDetail' => $processingCount,
+            'countCancelDetail' => $cancelCount,
+            'countRefundDetail' => $refundCount,
+
+            'revenueSuccessDetail' => $successRevenue,
+            'revenueProcessingDetail' => $processingRevenue,
+            'revenueCancelDetail' => $cancelRevenue,
+            'revenueRefundDetail' => $refundRevenue,
+        ];
+    }
+
+    // B2: hàm chung đếm đơn hàng theo trạng thái truyền vào, điều kiện lọc theo date cho nhân viên
+    public function countOrdersByDateAndStatusForEmployee($employeeId, $status, $startDate, $endDate)
+    {
+        return $this->filterDate(
+            $this->model->whereHas('orderStatuses', function ($q) use ($status, $employeeId) {
+                $q->where('name', $status)
+                    ->where('order_order_status.modified_by', $employeeId);
+            }),
+            $startDate,
+            $endDate
+        )->count();
+    }
+
+    // Hàm lấy doanh thu theo status và date cho nhân viên xử lý
+    public function getRevenueByDateAndStatusForEmployee($employeeId, $status, $startDate, $endDate)
+    {
+        return $this->filterDate(
+            $this->model->whereHas('orderStatuses', function ($q) use ($status, $employeeId) {
+                $q->where('name', $status)
+                    ->where('order_order_status.modified_by', $employeeId);
+            }),
+            $startDate,
+            $endDate
+        )->sum('total_amount');
+    }
+
+    // lấy tổng doanh thu 
+    public function getTotalRevenueForEmployee($employeeId, $startDate, $endDate)
+    {
+        return $this->filterDate(
+            $this->model->whereHas('orderStatuses', function ($q) use ($employeeId) {
+
+                $q->where('order_order_status.modified_by', $employeeId);
+            }),
+            $startDate,
+            $endDate
+        )->sum('total_amount');
+    }
+
+
+
+    // Đếm toàn bộ số lượng đơn đã xử lý theo 3 trạng thái cơ bản tổng, success, cancel
+    public function countOrderByEmployeeId($employeeId)
+    {
+        // $employee = Auth::user();
+        // if (!$employee || $employee->role != 1) {
+        //     return null;
+        // }
+        // $employeeId = $employee->id;
+        $allCount = $this->model->whereHas('orderStatuses', function ($query) use ($employeeId) {
+            $query->where('order_order_status.modified_by', $employeeId);
+        })->count(); // tất cả các đơn mà nhẫn viên đã xử lý
+        $successCount = $this->model->whereHas('orderStatuses', function ($q) use ($employeeId) {
+            $q->where('order_status_id', 6) //hoàn thành
+                ->where('order_order_status.modified_by', $employeeId);
+        })->count();
+
+        $cancelCount = $this->model->whereHas('orderStatuses', function ($q) use ($employeeId) {
+            $q->where('order_status_id', 7) //hủy
+                ->where('order_order_status.modified_by', $employeeId);
+        })->count();
+        $refundCount = $this->model->whereHas('orderStatuses', function ($q) use ($employeeId) {
+            $q->where('is_refund', 1) //hoàn thành
+                ->where('order_order_status.modified_by', $employeeId);
+        })->count();
+        //hoàn hàng
+        // $refundCount = $this->model->where('user_id', $userId)->whereHas('orderStatuses', function ($q) {
+        //     $q->where('is_refund', 1);
+        // })->count();
+        return [
+            'allCount' => $allCount,
+            'successCount' => $successCount,
+            'cancelCount' => $cancelCount,
+            'refundCount' => $refundCount
+        ];
+    }
 
 }
