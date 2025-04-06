@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\Admin\CategoryController;
 use App\Http\Controllers\Web\Admin\CommentController;
 use App\Http\Controllers\Web\Admin\CouponController;
 use App\Http\Controllers\Web\Admin\DashboardController;
+use App\Http\Controllers\Web\Admin\DetailDashboardController;
 use App\Http\Controllers\Web\Admin\InventoryController;
 use App\Http\Controllers\Web\Admin\OrderController;
 use App\Http\Controllers\web\admin\OrderRefundController;
@@ -175,6 +176,8 @@ Route::prefix('/admin')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->middleware('role:admin')->name('index');
+        Route::get('/detail-index', [DetailDashboardController::class, 'detailIndex'])->middleware('role:admin')->name('detail-index');
+
         Route::get('/nhanvien', [DashboardController::class, 'indexNhanVien'])->middleware('role:employee')->name('indexNhanVien');
         Route::get('/export-dashboard', [DashboardController::class, 'exportDashboardData'])->middleware('role:admin')->name('export');
         

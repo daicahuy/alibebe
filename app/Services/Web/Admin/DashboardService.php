@@ -14,48 +14,62 @@ class DashboardService
     public function employee(){
         return $this->dashboardRepository->employee();
     }
-    public function revenue($start_date = null, $end_date = null,$IdEmployee = '')
+    public function revenue($start_date = null, $IdEmployee = '')
     {
-        return $this->dashboardRepository->revenue($start_date, $end_date,$IdEmployee);
+        return $this->dashboardRepository->revenue($start_date, $IdEmployee);
     }
-    public function countProduct()
-    {
-        return $this->dashboardRepository->countProduct();
-    }
+    
     public function countUser()
     {
         return $this->dashboardRepository->countUser();
     }
-    public function newCountUser($start_date = null, $end_date = null)
+    
+    public function newCountUser($start_date = null)
     {
-        return $this->dashboardRepository->newCountUser($start_date, $end_date);
+        return $this->dashboardRepository->newCountUser($start_date);
     }
-    public function countOrder($start_date = null, $end_date = null,$IdEmployee = '')
+    
+    public function countOrder($start_date = null, $IdEmployee = '')
     {
-        return $this->dashboardRepository->countOrder($start_date, $end_date,$IdEmployee);
+        return $this->dashboardRepository->countOrder($start_date, $IdEmployee);
     }
-
-    public function getRevenueAndOrdersByHour($start_date = null,$end_date = null,$IdEmployee='')
+    
+    public function getRevenueAndOrdersByHour($start_date = null, $IdEmployee = '')
     {
-        return $this->dashboardRepository->getRevenueAndOrdersByHour($start_date,$end_date,$IdEmployee);
+        // dd($start_date);
+        return $this->dashboardRepository->getRevenueAndOrdersByHour($start_date, $IdEmployee);
     }
-    public function getOrderStatusByHour($start_date = null,$end_date = null,$IdEmployee = '')
+    
+    public function getOrderStatusByHour($start_date = null, $IdEmployee = '')
     {
-        return $this->dashboardRepository->getOrderStatusByHour($start_date,$end_date,$IdEmployee);
+        return $this->dashboardRepository->getOrderStatusByHour($start_date, $IdEmployee);
     }
+    
     public function topProduct()
     {
         return $this->dashboardRepository->topProduct();
     }
+    
     public function topUser()
     {
         return $this->dashboardRepository->topUser();
     }
-
+    
     public function getUserRank($loyaltyPoints = null)
     {
         return $this->dashboardRepository->getUserRank($loyaltyPoints);
     }
+    
+    public function countOrderPending()
+    {
+        return $this->dashboardRepository->countOrderPending();
+    }
+    
+    public function countOrderDelivery($start_date = null, $IdEmployee = '')
+    {
+        return $this->dashboardRepository->countOrderDelivery($start_date, $IdEmployee);
+    }
+    
 
 
 

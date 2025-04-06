@@ -21,60 +21,50 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
-        // Chỉ validate khi có start_date hoặc end_date trong request (người dùng nhấn lọc)
-        if ($request->has('start_date') || $request->has('end_date')) {
-            $validated = $request->validate([
-                'start_date' => 'required|date|before_or_equal:today',
-                'end_date'   => 'required|date|after_or_equal:start_date|before_or_equal:today',
-            ], [
-                'start_date.required' => 'Vui lòng chọn ngày bắt đầu!',
-                'start_date.date' => 'Ngày bắt đầu không hợp lệ!',
-                'start_date.before_or_equal' => 'Ngày bắt đầu không thể là ngày trong tương lai!',
-
-                'end_date.required' => 'Vui lòng chọn ngày kết thúc!',
-                'end_date.date' => 'Ngày kết thúc không hợp lệ!',
-                'end_date.after_or_equal' => 'Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu!',
-                'end_date.before_or_equal' => 'Ngày kết thúc không thể là ngày trong tương lai!',
-            ]);
-        }
-
-        if ($request->has('start_date') && $request->has('end_date')) {
-            $validated = $request->validate([
-                'start_date' => 'required|date|before_or_equal:end_date',
-                'end_date'   => 'required|date|after_or_equal:start_date',
-            ]);
-        }
-
-        $start_date = $request->input('start_date');
-        $end_date = $request->input('end_date');
+        $start_date = $request->input('start_date', 0);
         $IdEmployee = $request->input('is_employee');
-
-        $revenue = $this->dashboardService->revenue($start_date, $end_date, $IdEmployee);
-        $countProduct = $this->dashboardService->countProduct();
+    
+        // Xử lý start_date như là một Carbon instance, không cần chuyển thành timestamp
+        // if ($start_date == 1) {
+        //     // 7 ngày qua
+        //     $start_date = now()->subDays(7)->startOfDay();
+        // } elseif ($start_date == 2) {
+        //     // 30 ngày qua
+        //     $start_date = now()->subDays(30)->startOfDay();
+        // } elseif ($start_date == 3) {
+        //     // 1 năm qua
+        //     $start_date = now()->subYear()->startOfDay();
+        // } else {
+        //     // Hôm nay
+        //     $start_date = now()->startOfDay();
+        // }
+        // dd($start_date);
+    
+        $revenue = $this->dashboardService->revenue($start_date, $IdEmployee);
         $countUser = $this->dashboardService->countUser();
-        $newCountUser = $this->dashboardService->newCountUser($start_date, $end_date);
-        $countOrder = $this->dashboardService->countOrder($start_date, $end_date, $IdEmployee);
-        $chartData = $this->dashboardService->getRevenueAndOrdersByHour($start_date, $end_date, $IdEmployee);
-        $order_status = $this->dashboardService->getOrderStatusByHour($start_date, $end_date, $IdEmployee);
+        $newCountUser = $this->dashboardService->newCountUser($start_date);
+        $countOrder = $this->dashboardService->countOrder($start_date, $IdEmployee);
+        $chartData = $this->dashboardService->getRevenueAndOrdersByHour($start_date, $IdEmployee);
+        $order_status = $this->dashboardService->getOrderStatusByHour($start_date, $IdEmployee);
         $topProduct = $this->dashboardService->topProduct();
         $topUser = $this->dashboardService->topUser();
         $employee = $this->dashboardService->employee();
-        // Kiểm tra nếu hàm trả về RedirectResponse thì return luôn
+        $countOrderPending = $this->dashboardService->countOrderPending();
+        $countOrderDelivery = $this->dashboardService->countOrderDelivery($start_date, $IdEmployee);
+    
         if ($chartData instanceof \Illuminate\Http\RedirectResponse) {
             return $chartData;
         }
-
-        // Nếu hợp lệ, tiếp tục xử lý dữ liệu
+    
         $chartData['revenues'] = array_map('floatval', $chartData['revenues']);
-        // dd($IdEmployee);
-        //  dd($employee);
-
+    
         return view(
             'admin.pages.index',
             compact(
                 'revenue',
-                'countProduct',
                 'countUser',
+                'countOrderPending',
+                'countOrderDelivery',
                 'countOrder',
                 'chartData',
                 'order_status',
@@ -82,10 +72,11 @@ class DashboardController extends Controller
                 'topUser',
                 'newCountUser',
                 'employee'
-
             )
         )->with('dashboardService', $this->dashboardService);
     }
+    
+   
     public function exportDashboardData(Request $request,DashboardRepository $dashboardRepository)
 {
     // Lấy dữ liệu từ request

@@ -54,19 +54,23 @@
                     {{-- @csrf --}}
                     <div class="d-flex align-items-center mb-2">
                         <div class="d-flex justify-content-center align-items-center me-4">
-                            <p class="mb-0 me-2 fw-bold">Thời gian</p>
+                            <p class="mb-0 me-2 fw-bold">{{ __('message.from') }}</p>
                             <div class="input-group custom-dt-picker">
-                                <select name="start_date" class="form-control form-date">
-                                    <option value="0" class="form-control form-date" 
-                                        {{ request('start_date') == 0 ? 'selected' : '' }}>Hôm nay</option>
-                                        <option value="1" class="form-control form-date" 
-                                        {{ request('start_date') == 1 ? 'selected' : '' }}>7 ngày qua</option>
-                                        <option value="2" class="form-control form-date" 
-                                        {{ request('start_date') == 2 ? 'selected' : '' }}>30 ngày qua</option>
-                                        <option value="3" class="form-control form-date" 
-                                        {{ request('start_date') == 3 ? 'selected' : '' }}>1 năm qua</option>
-                                        
-                                </select>
+                                <input placeholder="YYY-MM-DD" id="start_date_input" name="start_date"
+                                    class="form-control form-date" value="{{ request('start_date') }}">
+                                <button type="button" class="btn btn-outline-secondary">
+                                    <i class="ri-calendar-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-center align-items-center me-4">
+                            <p class="mb-0 me-2 fw-bold">{{ __('message.to') }}</p>
+                            <div class="input-group custom-dt-picker">
+                                <input placeholder="YYY-MM-DD" id="end_date_input" name="end_date"
+                                    class="form-control form-date" value="{{ request('end_date') }}">
+                                <button type="button" class="btn btn-outline-secondary">
+                                    <i class="ri-calendar-line"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="d-flex justify-content-center align-items-center me-4">
@@ -82,10 +86,9 @@
                                         </option>
                                     @endforeach
                                 </select>
+
                             </div>
                         </div>
-
-
                         <div class="d-flex justify-content-center align-items-center">
                             <button type="submit" class="btn btn-primary" data-bs-original-title="" title=""
                                 fdprocessedid="yl65za">Lọc</button>
@@ -136,20 +139,14 @@
                 </div>
             </div>
         </section>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <a href="{{route('admin.detail-index')}}"><button type="submit" class="btn btn-primary">Lọc chi tiết</button></a>
-            </div>
-            <div>
-               <form action="{{ route('admin.export') }}" method="GET">
+        <div class="d-flex justify-content-end align-items-center mb-3">
+            <form action="{{ route('admin.export') }}" method="GET">
                 <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
                 <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
                 <input type="hidden" name="is_employee" id="is_employee" value="{{ request('is_employee') }}">
 
                 <button type="submit" class="btn btn-primary">Xuất Excel</button>
-            </form> 
-            </div>
-            
+            </form>
             
         </div>
         
@@ -211,7 +208,7 @@
                                                                 </td>
                                                                 <td class="cursor-pointer ">
                                                                     <div>
-                                                                        {{ $dashboardService->getUserRank($data->loyalty_points) }}
+                                                                        {{ $detailDashboardService->getUserRank($data->loyalty_points) }}
                                                                     </div>
                                                                 </td>
                                                             </tr>
