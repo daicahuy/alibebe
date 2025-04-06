@@ -11,6 +11,6 @@ use BenSampo\Enum\Enum;
  */
 final class UserStatusType extends Enum
 {
-    const INACTIVE = 0;     // 0. Bị khóa
-    const ACTIVE = 1;       // 1. Hoạt động
+    const LOCK = 0;     // 0. Bị khóa
+    const ACTIVE = 1;   // 1. Hoạt động
 }

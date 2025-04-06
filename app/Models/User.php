@@ -20,10 +20,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    const STATUS_INACTIVE = 'inactive';
-    const STATUS_ACTIVE = 'active';
-    const STATUS_LOCK = 'lock';
-
     /**
      * The attributes that are mass assignable.
      *
@@ -154,11 +150,6 @@ class User extends Authenticatable
     public function isActive()
     {
         return $this->status === UserStatusType::ACTIVE;
-    }
-
-    public function isInactive()
-    {
-        return $this->status === UserStatusType::INACTIVE;
     }
 
     public function isLock()
