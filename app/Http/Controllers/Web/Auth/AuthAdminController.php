@@ -13,6 +13,7 @@ use App\Mail\SendOtpMail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
+use App\Enums\UserStatusType;
 
 class AuthAdminController extends Controller
 {
@@ -32,13 +33,31 @@ class AuthAdminController extends Controller
              * @var User
              */
             $user = Auth::user();
-    
-            if ($user->isAdmin() || $user->isEmployee()) {
-                return redirect()->route($user->isAdmin() ? 'admin.index' : 'admin.indexNhanVien')->with('success', 'Đăng nhập thành công!');
-            } else {
-                Auth::logout(); // Đăng xuất ngay nếu không phải Admin/Nhân viên
+            $userFromDb = User::find($user->id);
+            if ($user->status == UserStatusType::LOCK) {
+                Auth::logout(); // Đăng xuất ngay nếu tài khoản bị khóa
                 return redirect()->route('auth.admin.showFormLogin')
-                    ->withErrors(['email' => 'Tài khoản không có quyền truy cập.']);
+                    ->withErrors(['email' => 'Tài khoản của bạn đã bị khóa.Vui lòng check mail']);
+            }
+            if ($userFromDb->status != $user->status) {
+                // Nếu trạng thái đã thay đổi, đăng xuất và thông báo
+                Auth::logout(); // Đăng xuất người dùng
+                return redirect()->route('auth.admin.showFormLogin')
+                    ->withErrors(['email' => 'Trạng thái tài khoản của bạn đã thay đổi. Vui lòng đăng nhập lại.']);
+            }
+            if ($user->status == UserStatusType::ACTIVE) {
+                if ($user->isAdmin() || $user->isEmployee()) {
+                    return redirect()->route($user->isAdmin() ? 'admin.index' : 'admin.indexNhanVien')
+                        ->with('success', 'Đăng nhập thành công!');
+                } else {
+                    Auth::logout(); // Đăng xuất ngay nếu không phải Admin/Nhân viên
+                    return redirect()->route('auth.admin.showFormLogin')
+                        ->withErrors(['email' => 'Tài khoản không có quyền truy cập.']);
+                }
+            } else {
+                Auth::logout(); // Đăng xuất nếu tài khoản bị khóa
+                return redirect()->route('auth.admin.showFormLogin')
+                    ->withErrors(['email' => 'Tài khoản của bạn đã bị khóa.']);
             }
         }
     

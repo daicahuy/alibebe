@@ -2,7 +2,7 @@
     <div>
         <!-- START LOGO -->
         <div class="logo-wrapper logo-wrapper-center">
-            <a href="{{ Auth::user()->isAdmin() ? route('admin.index') : route('admin.indexNhanVien') }}">
+            <a href="{{ Auth::user()->isAdmin() ? route('admin.index') : route('admin.detail-index-employee') }}">
                 <img alt="logo" class="img-fluid for-white"
                     src="{{ asset('theme/admin/assets/images/logo/full-white.png') }}">
             </a>
@@ -36,7 +36,7 @@
                     @endif
                     @if (Auth::user()->isEmployee())
                         <li class="sidebar-list">
-                            <a href="{{ route('admin.indexNhanVien') }}"
+                            <a href="{{ route('admin.detail-index-employee') }}"
                                 class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin') ? 'active' : '' }}">
                                 <span>
                                     <div class="d-flex align-items-center">

@@ -300,7 +300,7 @@
                                                             @php
                                                                 // Kiểm tra nếu có productVariant thì lấy ảnh từ productVariant, nếu không thì lấy ảnh từ product
                                                                 $thumbnail =
-                                                                    $cartItem->productVariant->product->thumbnail ??
+                                                                    $cartItem->productVariant->thumbnail ??
                                                                     $cartItem->product->thumbnail;
                                                             @endphp
 

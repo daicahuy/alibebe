@@ -54,23 +54,19 @@
                     {{-- @csrf --}}
                     <div class="d-flex align-items-center mb-2">
                         <div class="d-flex justify-content-center align-items-center me-4">
-                            <p class="mb-0 me-2 fw-bold">{{ __('message.from') }}</p>
+                            <p class="mb-0 me-2 fw-bold">Thời gian</p>
                             <div class="input-group custom-dt-picker">
-                                <input placeholder="YYY-MM-DD" id="start_date_input" name="start_date"
-                                    class="form-control form-date" value="{{ request('start_date') }}">
-                                <button type="button" class="btn btn-outline-secondary">
-                                    <i class="ri-calendar-line"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-center align-items-center me-4">
-                            <p class="mb-0 me-2 fw-bold">{{ __('message.to') }}</p>
-                            <div class="input-group custom-dt-picker">
-                                <input placeholder="YYY-MM-DD" id="end_date_input" name="end_date"
-                                    class="form-control form-date" value="{{ request('end_date') }}">
-                                <button type="button" class="btn btn-outline-secondary">
-                                    <i class="ri-calendar-line"></i>
-                                </button>
+                                <select name="start_date" class="form-control form-date">
+                                    <option value="0" class="form-control form-date" 
+                                        {{ request('start_date') == 0 ? 'selected' : '' }}>Hôm nay</option>
+                                        <option value="1" class="form-control form-date" 
+                                        {{ request('start_date') == 1 ? 'selected' : '' }}>7 ngày qua</option>
+                                        <option value="2" class="form-control form-date" 
+                                        {{ request('start_date') == 2 ? 'selected' : '' }}>30 ngày qua</option>
+                                        <option value="3" class="form-control form-date" 
+                                        {{ request('start_date') == 3 ? 'selected' : '' }}>1 năm qua</option>
+                                        
+                                </select>
                             </div>
                         </div>
                         <div class="d-flex justify-content-center align-items-center">
@@ -95,8 +91,8 @@
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
-                                <h5>Đơn chờ xử lý</h5>
-                                <h3>{{ $countOrderPending ?? 0 }}</h3>
+                                <h5>Đã đi đơn/Tổng đơn</h5>
+                                <h3>{{ $countOrderDelivery ?? 0 }}/{{ $countOrder ?? 0 }} đơn</h3>
                             </div>
                             <div class="icon-box"><i class="ri-store-3-line"></i></div>
                         </div>
@@ -104,8 +100,44 @@
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
-                                <h5>Đã đi đơn</h5>
-                                <h3>{{ $countOrderDelivery ?? 0 }}</h3>
+                                <h5>Chờ xử lý</h5>
+                                <h3>{{ $countOrderPending ?? 0 }} đơn</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-store-3-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h5>Đang xử lý</h5>
+                                <h3>{{ $countOrderProcessing ?? 0 }} đơn</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-store-3-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h5>Hoàn thành</h5>
+                                <h3>{{ $countOrderComplete ?? 0 }} đơn</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-store-3-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h5>Hoàn hàng</h5>
+                                <h3>{{ $countOrderReturns ?? 0 }} đơn</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-store-3-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h5>Giao không thành công</h5>
+                                <h3>{{ $countOrderFailed ?? 0 }} đơn</h3>
                             </div>
                             <div class="icon-box"><i class="ri-store-3-line"></i></div>
                         </div>
@@ -114,6 +146,14 @@
                 </div>
             </div>
         </section>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <a href="{{route('admin.detail-index-employee')}}"><button type="submit" class="btn btn-primary">Lọc chi tiết</button></a>
+            </div>
+        </div>
+            
+            
+        </div>
         <section>
             <div class="row m-0">
                 <div class="col-xl-8 col-md-6 p-0">
@@ -164,7 +204,7 @@
                                                         @foreach ($topUser as $data)
                                                             <tr>
                                                                 <td class="cursor-pointer ">
-                                                                    <div>{{ Str::limit($data->fullname, 15, '...') }}</div>
+                                                                    <a href="{{route('admin.users.customer.detail',['user'=>$data->id])}}"><div>{{ Str::limit($data->fullname, 15, '...') }}</div></a>
                                                                 </td>
                                                                 <td class="cursor-pointer ">
                                                                     <div>{{ $data->loyalty_points }}</div>

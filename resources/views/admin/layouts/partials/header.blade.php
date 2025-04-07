@@ -13,8 +13,9 @@
         <div class="header-logo-wrapper p-0">
             <div checked="checked" class="toggle-sidebar">
                 <i class="ri-apps-line status_toggle middle sidebar-toggle"></i>
-                <a href="{{ Auth::user()->isAdmin() ? route('admin.index') : route('admin.indexNhanVien') }}">
-                    <img alt="header-logo" class="img-fluid" src="{{ asset('theme/admin/assets/images/logo/1.png') }}">
+                <a href="{{ Auth::user()->isAdmin() ? route('admin.index') : route('admin.detail-index-employee') }}">
+                    <img alt="header-logo" class="img-fluid"
+                        src="{{ asset('theme/admin/assets/images/logo/1.png') }}">
                 </a>
             </div>
         </div>
