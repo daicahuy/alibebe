@@ -53,7 +53,7 @@ class OrderSeeder extends Seeder
                 ];
             }
             if (count($orders) >= $batchSize) {
-                DB::table('orders')->insert($orders); 
+                DB::table('orders')->insert($orders);
                 $orders = [];
             }
         }
@@ -94,8 +94,7 @@ class OrderSeeder extends Seeder
                         'price_variant' => $productVariant->sale_price ? $productVariant->sale_price : $productVariant->price,
                         'quantity_variant' => rand(1, 5),
                     ];
-                }
-                else if ($product->isSingle()) {
+                } else if ($product->isSingle()) {
                     $orderItems[] = [
                         'order_id' => $order->id,
                         'product_id' => $product->id,
@@ -126,7 +125,7 @@ class OrderSeeder extends Seeder
     {
         $orders = Order::all();
         foreach ($orders as $order) {
-            $orderStatus = rand(2, 7);
+            $orderStatus = rand(2, 6);
             $userId = rand(2, 30);
             $order->orderStatuses()->attach([
                 $orderStatus => [

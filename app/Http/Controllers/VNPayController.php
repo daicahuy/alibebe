@@ -296,6 +296,8 @@ class VNPayController extends Controller
                         'coupon_discount_value' => $dataOrderCustomer["coupon_discount_value"],
                         'coupon_discount_type' => $dataOrderCustomer["coupon_discount_type"],
                         'coupon_code' => $dataOrderCustomer["coupon_code"],
+                        'max_discount_value' => $dataOrderCustomer["max_discount_value"],
+
                     ]);
 
                     foreach ($ordersItem as $item) {
@@ -400,10 +402,10 @@ class VNPayController extends Controller
 
                     foreach ($admins as $admin) {
                         Notification::create([
-                            'user_id'   => $admin->id,
-                            'message'   => $message,
-                            'read'      => false,
-                            'type'      => NotificationType::Order,
+                            'user_id' => $admin->id,
+                            'message' => $message,
+                            'read' => false,
+                            'type' => NotificationType::Order,
                             'order_id' => $order->id
                         ]);
                     }

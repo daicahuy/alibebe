@@ -175,7 +175,7 @@ class OrderController extends Controller
             DB::beginTransaction();
 
             $orderArray = $order->toArray();
-            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 7) {
+            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6) {
 
                 foreach ($orderArray['order_items'] as $key => $value) {
                     if ($value['product_variant_id']) {
@@ -305,9 +305,6 @@ class OrderController extends Controller
             $this->orderService->updateConfirmCustomer($data["note"], $data["employee_evidence"], $idOrder);
             event(new OrderStatusUpdated($idOrder, 4, $order, ""));
             event(new OrderPendingCountUpdated());
-
-
-
 
             return response()->json(["data" => $data, "status" => Response::HTTP_OK]);
 

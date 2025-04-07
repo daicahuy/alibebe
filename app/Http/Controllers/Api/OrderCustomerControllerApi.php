@@ -112,6 +112,7 @@ class OrderCustomerControllerApi extends Controller
                 'coupon_discount_value' => $dataOrderCustomer["coupon_discount_value"],
                 'coupon_discount_type' => $dataOrderCustomer["coupon_discount_type"],
                 'coupon_code' => $dataOrderCustomer["coupon_code"],
+                'max_discount_value' => $dataOrderCustomer["max_discount_value"],
             ]);
 
             foreach ($ordersItem as $item) {
@@ -213,22 +214,22 @@ class OrderCustomerControllerApi extends Controller
             ]);
 
             $admins = User::where('role', 2)
-            ->orWhere('role', 1)
-            ->get();
+                ->orWhere('role', 1)
+                ->get();
 
             $message = "Đơn Hàng {$order->code} Mới Được Đặt !";
 
-            foreach($admins as $admin) {
+            foreach ($admins as $admin) {
                 Notification::create([
-                    'user_id'   => $admin->id,
-                    'message'   => $message,
-                    'read'      => false,
-                    'type'      => NotificationType::Order,
+                    'user_id' => $admin->id,
+                    'message' => $message,
+                    'read' => false,
+                    'type' => NotificationType::Order,
                     'order_id' => $order->id
                 ]);
             }
 
-            event(new OrderCustomer($order,$message));
+            event(new OrderCustomer($order, $message));
             event(new OrderCreateUpdate($order));
             event(new OrderPendingCountUpdated());
 
