@@ -22,7 +22,13 @@ class CouponApiController extends Controller
 
             if ($code) {
                 $listCouponsByUser = CouponUser::query()->where("user_id", $idUser)->where("amount", ">", 0)->whereHas('coupon', function ($query) use ($code) {
-                    $query->where("code", "LIKE", '%' . $code . '%')->where('usage_limit', ">", 0)->where('start_date', '<=', now())->where('end_date', '>=', now());
+                    $query->where("code", "LIKE", '%' . $code . '%')->where('usage_limit', ">", 0);
+                    $query->where(function ($q) {
+                        $q->where('is_expired', 1)
+                            ->where('start_date', '<=', now())
+                            ->where('end_date', '>=', now())
+                            ->orWhere('is_expired', 0);
+                    });
                 })->with([
                             'coupon' => function ($query) use ($code) {
                                 $query->with("restriction");
@@ -38,7 +44,13 @@ class CouponApiController extends Controller
                 $listCouponsByUser = CouponUser::query()
                     ->where("user_id", $idUser)
                     ->where("amount", ">", 0)->whereHas('coupon', function ($query) use ($code) {
-                        $query->where('usage_limit', ">", 0)->where('start_date', '<=', now())->where('end_date', '>=', now());
+                        $query->where('usage_limit', ">", 0);
+                        $query->where(function ($q) {
+                            $q->where('is_expired', 1)
+                                ->where('start_date', '<=', now())
+                                ->where('end_date', '>=', now())
+                                ->orWhere('is_expired', 0);
+                        });
                     })
                     ->with([
                         'coupon' => function ($query) {
