@@ -347,30 +347,8 @@ END');
     {
         return $this->model->trending()->get();
     }
-    public function getBestSellerProductsToday($limit = 12)
+    public function getBestSellerProductsToday($limit = 8)
     {
-        $today = Carbon::today()->toDateString(); // 'YYYY-MM-DD'
-
-        $totalSoldSubQuery = "
-        (SELECT COALESCE(SUM(order_items.quantity), 0) + COALESCE(SUM(order_items.quantity_variant), 0)
-        FROM order_items
-        JOIN orders ON order_items.order_id = orders.id
-        JOIN order_order_status ON orders.id = order_order_status.order_id
-        JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
-        WHERE order_statuses.name = 'Hoàn thành'
-        AND DATE(orders.created_at) = '{$today}'
-        AND (
-            order_items.product_id = products.id 
-            OR order_items.product_variant_id IN (
-                SELECT id FROM product_variants WHERE product_variants.product_id = products.id
-            )
-        )) as total_sold";
-
-        $averageRatingSubQuery = "
-        (SELECT COALESCE(AVG(reviews.rating), 0)
-        FROM reviews
-        WHERE reviews.product_id = products.id AND reviews.is_active = 1) as average_rating";
-
         // ✅ Giá hiển thị (display_price) - Ưu tiên lấy `sale_price` của sản phẩm chính trước
         $displayPriceSubQuery = "
         (CASE
@@ -423,123 +401,17 @@ END');
             products.views, 
             products.slug, 
             COALESCE(product_stocks.stock, 0) as stock_quantity, 
-            {$totalSoldSubQuery}, 
-            {$averageRatingSubQuery}
+           'products.created_at'
         ")
             ->leftJoin('product_stocks', 'product_stocks.product_id', '=', 'products.id')
             ->where('products.is_active', 1)
-            ->having('total_sold', '>', 0) // ✅ Chỉ lấy sản phẩm có lượt bán
             ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.sale_price', 'products.views', 'product_stocks.stock')
-            ->orderByDesc('total_sold')
+            ->orderByDesc('products.created_at')
             ->limit($limit)
             ->get();
     }
 
-
-
-
-    public function getBestSellingProduct($limit = 12)
-    {
-        $query = $this->model->query();
-
-        // Tổng số lượng bán (bao gồm cả sản phẩm đơn và biến thể)
-        $totalSoldSubQuery = DB::raw('(
-            SELECT COALESCE(SUM(order_items.quantity), 0) + COALESCE(SUM(order_items.quantity_variant), 0)
-            FROM order_items
-            JOIN orders ON order_items.order_id = orders.id
-            JOIN order_order_status ON orders.id = order_order_status.order_id
-            JOIN order_statuses ON order_order_status.order_status_id = order_statuses.id
-            WHERE order_statuses.name = "Hoàn thành"
-            AND (
-                order_items.product_id = products.id 
-                OR order_items.product_variant_id IN (
-                    SELECT id FROM product_variants WHERE product_variants.product_id = products.id
-                )
-            )
-        ) as total_sold');
-
-        // Trung bình đánh giá
-        $averageRatingSubQuery = DB::raw('(
-            SELECT COALESCE(AVG(reviews.rating), 0)
-            FROM reviews
-            WHERE reviews.product_id = products.id AND reviews.is_active = 1
-        ) as average_rating');
-
-        // ✅ Giá hiển thị (display_price)
-        $displayPriceSubQuery = DB::raw('(
-            CASE
-                WHEN products.type = 1 THEN (  -- Sản phẩm có biến thể
-                    SELECT 
-                        CASE 
-                            WHEN products.is_sale = 1 THEN 
-                                CASE 
-                                    WHEN MIN(product_variants.sale_price) > 0 THEN MIN(product_variants.sale_price) 
-                                    ELSE MIN(product_variants.price) 
-                                END
-                            ELSE 
-                                MIN(product_variants.price)
-                        END
-                    FROM product_variants
-                    WHERE product_variants.product_id = products.id 
-                    AND product_variants.is_active = 1
-                    AND product_variants.price > 0
-                )
-                ELSE  -- Sản phẩm đơn (type = 0)
-                    CASE
-                        WHEN products.is_sale = 1 THEN 
-                            CASE 
-                                WHEN products.sale_price > 0 THEN products.sale_price
-                                ELSE products.price 
-                            END
-                        ELSE 
-                            products.price
-                    END
-            END
-        ) as display_price');
-
-        // ✅ Giá gốc (original_price)
-        $originalPriceSubQuery = DB::raw('(
-            CASE
-                WHEN products.type = 1 THEN ( -- Sản phẩm có biến thể
-                    SELECT 
-                        CASE 
-                            WHEN COUNT(*) > 0 THEN MAX(product_variants.price) 
-                            ELSE products.price  
-                        END
-                    FROM product_variants
-                    WHERE product_variants.product_id = products.id 
-                    AND product_variants.is_active = 1
-                    AND product_variants.price > 0
-                )
-                ELSE products.price
-            END
-        ) as original_price');
-
-        $query->select(
-            'products.id',
-            'products.name',
-            'products.thumbnail',
-            $displayPriceSubQuery,
-            $originalPriceSubQuery,
-            'products.sale_price',
-            'products.views',
-            'products.slug',
-            DB::raw('COALESCE(product_stocks.stock, 0) as stock_quantity'),
-            $totalSoldSubQuery,
-            $averageRatingSubQuery
-        )
-            ->leftJoin('product_stocks', 'product_stocks.product_id', '=', 'products.id')
-            ->where('products.is_active', 1)
-            ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.sale_price', 'products.views', 'product_stocks.stock')
-            ->orderByDesc('total_sold')
-            ->limit($limit);
-
-        return $query->get();
-    }
-
-
-
-    public function getPopularProducts($limit = 12)
+    public function bestSellingProduct($limit = 8)
     {
         $query = Product::query();
 
@@ -632,61 +504,9 @@ END');
         return $popularProducts;
     }
 
-
-
-
-
-
-
-    public function getUserRecommendations($userId)
+    public function getProductByView()
     {
-        // 🔹 Lấy danh sách sản phẩm đã mua trong các đơn hàng hoàn thành
-        $purchasedProducts = Order::where('user_id', $userId)
-            ->whereHas('orderStatuses', fn($query) => $query->where('order_status_id', 6))
-            ->with('orderItems.product')
-            ->get()
-            ->pluck('orderItems.*.product_id')
-            ->flatten()
-            ->unique()
-            ->toArray();
-
-        // 🔹 Nếu chưa mua sản phẩm nào, gợi ý sản phẩm phổ biến
-        if (empty($purchasedProducts)) {
-            return $this->getTrendingProducts();
-        }
-
-        // 🔹 Lấy danh sách sản phẩm gợi ý theo nhiều tiêu chí
-        $suggestedProducts = Product::whereHas('orderItems.order', function ($query) use ($purchasedProducts) {
-            $query->whereHas('orderItems', fn($q) => $q->whereIn('product_id', $purchasedProducts))
-                ->whereHas('orderStatuses', fn($q) => $q->where('order_status_id', 6));
-        })
-            ->whereNotIn('id', $purchasedProducts)
-            ->limit(6)
-            ->pluck('id')
-            ->toArray();
-
-        $categoryProducts = Product::whereHas('categories.products', fn($q) => $q->whereIn('id', $purchasedProducts))
-            ->whereNotIn('id', array_merge($purchasedProducts, $suggestedProducts))
-            ->limit(4)
-            ->pluck('id')
-            ->toArray();
-
-        $brandProducts = Product::whereHas('brand.products', fn($q) => $q->whereIn('id', $purchasedProducts))
-            ->whereNotIn('id', array_merge($purchasedProducts, $suggestedProducts, $categoryProducts))
-            ->limit(4)
-            ->pluck('id')
-            ->toArray();
-
-        $accessoryProducts = Product::whereHas('productAccessories', fn($query) => $query->whereIn('id', $purchasedProducts))
-            ->whereNotIn('id', array_merge($purchasedProducts, $suggestedProducts, $categoryProducts, $brandProducts))
-            ->limit(4)
-            ->pluck('id')
-            ->toArray();
-
-        // 🔹 Tổng hợp danh sách ID sản phẩm
-        $allSuggestedProductIds = array_merge($suggestedProducts, $categoryProducts, $brandProducts, $accessoryProducts);
-
-        // 🔹 Truy vấn sản phẩm theo danh sách ID, với đầy đủ thông tin như getPopularProducts
+        
         return Product::query()
             ->select(
                 'products.id',
@@ -747,19 +567,13 @@ END');
                     ELSE products.price
                  END) as original_price')
             )
-            ->whereIn('products.id', $allSuggestedProductIds)
             ->where('products.is_active', 1)
             ->groupBy('products.id', 'products.name', 'products.thumbnail', 'products.price', 'products.sale_price', 'products.is_sale')
-            ->orderByDesc('total_sold')
-            ->limit(12)
+            ->orderByDesc('products.views')
+            ->limit(8)
             ->get();
 
     }
-
-
-
-
-
 
     // Mạnh - admin - list - delete - products
     public function getProducts($perPage = 15, $categoryId, $stockStatus = null, $keyword = null, $filters = [])
