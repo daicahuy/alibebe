@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Charts\Analysis;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DashboardExport;
+use App\Exports\DetailDashboardExport;
+use App\Repositories\DetailDashboardRepository;
 use App\Services\Web\Admin\DetailDashboardService;
 
 class DetailDashboardController extends Controller
@@ -60,6 +62,10 @@ class DetailDashboardController extends Controller
         $employee = $this->detailDashboardService->employee();
         $countOrderPending = $this->detailDashboardService->countOrderPending();
         $countOrderDelivery = $this->detailDashboardService->countOrderDelivery($start_date,$end_date, $IdEmployee);
+        $countOrderComplete = $this->detailDashboardService->countOrderComplete($start_date,$end_date,  $IdEmployee);
+        $countOrderReturns = $this->detailDashboardService->countOrderReturns($start_date, $end_date, $IdEmployee);
+        $countOrderFailed = $this->detailDashboardService->countOrderFailed($start_date,$end_date,  $IdEmployee);
+        $countOrderProcessing = $this->detailDashboardService->countOrderProcessing($start_date, $end_date, $IdEmployee);
         // Kiểm tra nếu hàm trả về RedirectResponse thì return luôn
         if ($chartData instanceof \Illuminate\Http\RedirectResponse) {
             return $chartData;
@@ -75,6 +81,10 @@ class DetailDashboardController extends Controller
             compact(
                 'revenue',
                 'countUser','countOrderPending','countOrderDelivery',
+                'countOrderReturns',
+                'countOrderProcessing',
+                'countOrderComplete',
+                'countOrderFailed',
                 'countOrder',
                 'chartData',
                 'order_status',
@@ -86,7 +96,7 @@ class DetailDashboardController extends Controller
             )
         )->with('detailDashboardService', $this->detailDashboardService);
     }
-    public function exportDashboardData(Request $request,DashboardRepository $dashboardRepository)
+    public function exportDashboardData(Request $request,DetailDashboardRepository $detailDashboardRepository)
 {
     // Lấy dữ liệu từ request
     $start_date = $request->input('start_date');
@@ -95,13 +105,56 @@ class DetailDashboardController extends Controller
     // dd($start_date, $end_date, $IdEmployee); 
     // Xuất dữ liệu ra file Excel
     // dump($row);
-    return Excel::download(new DashboardExport($dashboardRepository,$start_date, $end_date, $IdEmployee), 'dashboard_data.xlsx');
+    return Excel::download(new DetailDashboardExport($detailDashboardRepository,$start_date, $end_date, $IdEmployee), 'dashboard_data.xlsx');
 }
 
 
 
 
-    public function indexNhanVien(Request $request)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public function detailIndexEmployee(Request $request)
     {
         // Chỉ validate khi có start_date hoặc end_date trong request (người dùng nhấn lọc)
         if ($request->has('start_date') || $request->has('end_date')) {
@@ -133,7 +186,11 @@ class DetailDashboardController extends Controller
 
         $revenue = $this->detailDashboardService->revenueEmployee($start_date, $end_date);
         $countOrderPending = $this->detailDashboardService->countOrderPendingEmployee();
-        $countOrderDelivery = $this->detailDashboardService->countOrderDeliveryEmployee();
+        $countOrderDelivery = $this->detailDashboardService->countOrderDeliveryEmployee($start_date,$end_date);
+        $countOrderComplete = $this->detailDashboardService->countOrderCompleteEmployee($start_date,$end_date,);
+        $countOrderReturns = $this->detailDashboardService->countOrderReturnsEmployee($start_date, $end_date);
+        $countOrderFailed = $this->detailDashboardService->countOrderFailedEmployee($start_date,$end_date,);
+        $countOrderProcessing = $this->detailDashboardService->countOrderProcessingEmployee($start_date, $end_date);
 
         $countUser = $this->detailDashboardService->countUserEmployee();
         $newCountUser = $this->detailDashboardService->newCountUserEmployee($start_date, $end_date);
@@ -153,10 +210,14 @@ class DetailDashboardController extends Controller
         //  dd($employee);
 
         return view(
-            'admin.pages.indexNhanVien',
+            'admin.pages.detail-index-employee',
             compact(
                 'revenue',
                 'countOrderPending','countOrderDelivery',
+                'countOrderReturns',
+                'countOrderProcessing',
+                'countOrderComplete',
+                'countOrderFailed',
                 'countUser',
                 'countOrder',
                 'chartData',

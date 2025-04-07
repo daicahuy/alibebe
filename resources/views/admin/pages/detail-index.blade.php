@@ -120,8 +120,8 @@
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
-                                <h5>Chờ xử lý</h5>
-                                <h3>{{ $countOrderPending ?? 0 }}</h3>
+                                <h5>Đã đi đơn/Tổng đơn</h5>
+                                <h3>{{ $countOrderDelivery ?? 0 }}/{{ $countOrder ?? 0 }} đơn</h3>
                             </div>
                             <div class="icon-box"><i class="ri-store-3-line"></i></div>
                         </div>
@@ -129,8 +129,44 @@
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
-                                <h5>Đã đi đơn/Tổng đơn</h5>
-                                <h3>{{ $countOrderDelivery ?? 0 }}/{{ $countOrder ?? 0 }} đơn</h3>
+                                <h5>Chờ xử lý</h5>
+                                <h3>{{ $countOrderPending ?? 0 }} đơn</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-store-3-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h5>Đang xử lý</h5>
+                                <h3>{{ $countOrderProcessing ?? 0 }} đơn</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-store-3-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h5>Hoàn thành</h5>
+                                <h3>{{ $countOrderComplete ?? 0 }} đơn</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-store-3-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h5>Hoàn hàng</h5>
+                                <h3>{{ $countOrderReturns ?? 0 }} đơn</h3>
+                            </div>
+                            <div class="icon-box"><i class="ri-store-3-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card-tiles">
+                            <div>
+                                <h5>Giao không thành công</h5>
+                                <h3>{{ $countOrderFailed ?? 0 }} đơn</h3>
                             </div>
                             <div class="icon-box"><i class="ri-store-3-line"></i></div>
                         </div>
@@ -140,12 +176,15 @@
             </div>
         </section>
         <div class="d-flex justify-content-end align-items-center mb-3">
-            <form action="{{ route('admin.export') }}" method="GET">
+                <div>
+                    <a href="{{route('admin.index')}}"><button type="submit" class="btn btn-primary">Quay lại</button></a>
+                </div>
+            <form action="{{ route('admin.export-detail') }}" method="GET">
                 <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
                 <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
                 <input type="hidden" name="is_employee" id="is_employee" value="{{ request('is_employee') }}">
 
-                <button type="submit" class="btn btn-primary">Xuất Excel</button>
+                <button type="submit" class="btn btn-primary">Xuất Dữ Liệu</button>
             </form>
             
         </div>

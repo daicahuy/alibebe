@@ -85,7 +85,7 @@ class DashboardRepository extends BaseRepository
     }
     public function countOrderDelivery($start_date = null, $IdEmployee = '')
     {
-        $statusIds = [3, 4, 5, 6];
+        $statusIds = [3, 4, 5, 6, 8];
         switch ($start_date) {
             case 0: // Hôm nay
                 $start = now()->startOfDay();
@@ -131,13 +131,205 @@ class DashboardRepository extends BaseRepository
         // dd($countOrderDelivery);
         return $countOrderDelivery;
     }
+    public function countOrderComplete($start_date = null, $IdEmployee = '')
+    {
+        $statusIds = [6];
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        // dd($IdEmployee);
+        if ($IdEmployee == 0) {
+            $countOrderComplete = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
+                $query->whereIn('order_status_id', $statusIds);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else if ($IdEmployee != 0) {
+            $countOrderComplete = Order::whereHas('orderStatuses', function ($query) use ($IdEmployee, $statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $IdEmployee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else {
+            $countOrderComplete = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
+                $query->whereIn('order_status_id', $statusIds);
+            })->whereDate('created_at', now()->toDateString())->count();
+        }
+        // dd($countOrderComplete);
+        return $countOrderComplete;
+    }
+    public function countOrderReturns($start_date = null, $IdEmployee = '')
+    {
+        $statusIds = [8];
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        // dd($IdEmployee);
+        if ($IdEmployee == 0) {
+            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
+                $query->whereIn('order_status_id', $statusIds);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else if ($IdEmployee != 0) {
+            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($IdEmployee, $statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $IdEmployee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else {
+            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
+                $query->whereIn('order_status_id', $statusIds);
+            })->whereDate('created_at', now()->toDateString())->count();
+        }
+        // dd($countOrderReturns);
+        return $countOrderReturns;
+    }
+    public function countOrderFailed($start_date = null, $IdEmployee = '')
+    {
+        $statusIds = [5];
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        // dd($IdEmployee);
+        if ($IdEmployee == 0) {
+            $countOrderFailed = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
+                $query->whereIn('order_status_id', $statusIds);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else if ($IdEmployee != 0) {
+            $countOrderFailed = Order::whereHas('orderStatuses', function ($query) use ($IdEmployee, $statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $IdEmployee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else {
+            $countOrderFailed = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
+                $query->whereIn('order_status_id', $statusIds);
+            })->whereDate('created_at', now()->toDateString())->count();
+        }
+        // dd($countOrderFailed);
+        return $countOrderFailed;
+    }
+    public function countOrderProcessing($start_date = null, $IdEmployee = '')
+    {
+        $statusIds = [2];
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        // dd($IdEmployee);
+        if ($IdEmployee == 0) {
+            $countOrderProcessing = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
+                $query->whereIn('order_status_id', $statusIds);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else if ($IdEmployee != 0) {
+            $countOrderProcessing = Order::whereHas('orderStatuses', function ($query) use ($IdEmployee, $statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $IdEmployee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else {
+            $countOrderProcessing = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
+                $query->whereIn('order_status_id', $statusIds);
+            })->whereDate('created_at', now()->toDateString())->count();
+        }
+        // dd($countOrderProcessing);
+        return $countOrderProcessing;
+    }
 
     public function countUser()
     {
         $countUser = DB::table('users')->count();
         return $countUser;
     }
-    public function newCountUser($start_date = null, $end_date = null)
+    public function newCountUser($start_date = null)
     {
         switch ($start_date) {
             case 0: // Hôm nay
@@ -602,19 +794,46 @@ class DashboardRepository extends BaseRepository
 
 
 
-    public function revenueEmployee($start_date = null, $end_date = null)
+    public function revenueEmployee($start_date = null)
     {
         $employee = Auth::id();
+        $sevenDaysAgo = now()->subDays(7)->startOfDay();
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
 
-        if ($start_date && $end_date) {
-            $start = Carbon::parse($start_date)->startOfDay();
-            $end = Carbon::parse($end_date)->endOfDay();
-            $query = Order::whereHas('orderStatuses', function ($query) use ($employee) {
-                $query->where('order_status_id', 6)->where('modified_by', $employee);
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        if ($start_date) {
+          
+            $query = Order::whereHas('orderStatuses', function ($query) use ($employee,$sevenDaysAgo) {
+                $query->where('order_status_id', 6)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
             })->whereBetween('created_at', [$start, $end]);
         } else {
-            $query = Order::whereHas('orderStatuses', function ($query) use ($employee) {
-                $query->where('order_status_id', 6)->where('modified_by', $employee);
+            $query = Order::whereHas('orderStatuses', function ($query) use ($employee,$sevenDaysAgo) {
+                $query->where('order_status_id', 6)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
             })->whereDate('created_at', now()->toDateString());
         }
         // dd($query->sum('total_amount'));
@@ -629,14 +848,255 @@ class DashboardRepository extends BaseRepository
         })->whereDate('created_at', now()->toDateString())->count();
         return $countProduct;
     }
-    public function countOrderDeliveryEmployee()
+    public function countOrderDeliveryEmployee($start_date = null)
     {
-        $statusIds = [3, 4, 5, 6];
         $employee = Auth::id();
-        $countProduct = Order::whereHas('orderStatuses', function ($query) use ($employee, $statusIds) {
-            $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
-        })->whereDate('created_at', now()->toDateString())->count();
-        return $countProduct;
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        $statusIds = [3, 4, 5, 6,8];
+        if ($start_date ) {
+          
+            $countOrderDelivery = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else if ($start_date ) {
+            
+            $countOrderDelivery = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else {
+            $countOrderDelivery = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereDate('created_at', now()->toDateString())->count();
+        }
+        // dd($countOrderDelivery);
+        return $countOrderDelivery;
+    }
+    public function countOrderCompleteEmployee($start_date = null)
+    {
+        $statusIds = [6];
+        $employee = Auth::id();
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        if ($start_date ) {
+            
+            $countOrderComplete = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else if ($start_date) {
+           
+            $countOrderComplete = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else {
+            $countOrderComplete = Order::whereHas('orderStatuses', function ($query)use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereDate('created_at', now()->toDateString())->count();
+        }
+        // dd($countOrderComplete);
+        return $countOrderComplete;
+    }
+    public function countOrderReturnsEmployee($start_date = null)
+    {
+        $statusIds = [8];
+        $employee = Auth::id();
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        if ($start_date ) {
+           
+            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else if ($start_date ) {
+          
+            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else {
+            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereDate('created_at', now()->toDateString())->count();
+        }
+        // dd($countOrderReturns);
+        return $countOrderReturns;
+    }
+    public function countOrderFailedEmployee($start_date = null)
+    {
+        $statusIds = [5];
+        $employee = Auth::id();
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        if ($start_date ) {
+          
+            $countOrderFailed = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else if ($start_date ) {
+           
+            $countOrderFailed = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else {
+            $countOrderFailed = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereDate('created_at', now()->toDateString())->count();
+        }
+        // dd($countOrderFailed);
+        return $countOrderFailed;
+    }
+    public function countOrderProcessingEmployee($start_date = null)
+    {
+        $statusIds = [2];
+        $employee = Auth::id();
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        if ($start_date ) {
+         
+            $countOrderProcessing = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else if ($start_date ) {
+            
+            $countOrderProcessing = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereBetween('created_at', [$start, $end])->count();
+        } else {
+            $countOrderProcessing = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
+                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
+            })->whereDate('created_at', now()->toDateString())->count();
+        }
+        // dd($countOrderProcessing);
+        return $countOrderProcessing;
     }
     public function countUserEmployee()
     {
@@ -644,11 +1104,38 @@ class DashboardRepository extends BaseRepository
         $countUser = DB::table('users')->count();
         return $countUser;
     }
-    public function newCountUserEmployee($start_date = null, $end_date = null)
+    public function newCountUserEmployee($start_date = null)
     {
-        if ($start_date && $end_date) {
-            $start = Carbon::parse($start_date)->startOfDay();
-            $end = Carbon::parse($end_date)->endOfDay();
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        if ($start_date) {
+         
             $newCountUser = DB::table('users')->whereBetween('created_at', [$start, $end])->count();
         } else {
             $newCountUser = DB::table('users')->whereDate('created_at', now()->toDateString())->count();
@@ -656,13 +1143,39 @@ class DashboardRepository extends BaseRepository
         // dd($newCountUser);
         return $newCountUser;
     }
-    public function countOrderEmployee($start_date = null, $end_date = null, $IdEmployee = '')
+    public function countOrderEmployee($start_date = null, $IdEmployee = '')
     {
         $employee = Auth::id();
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
 
-        if ($start_date && $end_date && $IdEmployee == 0) {
-            $start = Carbon::parse($start_date)->startOfDay();
-            $end = Carbon::parse($end_date)->endOfDay();
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+        if ($start_date && $IdEmployee == 0) {
+       
             $countOrder = Order::whereHas('orderStatuses', function ($query) use ($employee) {
                 $query->where('modified_by', $employee);
             })->whereBetween('created_at', [$start, $end])->count();
@@ -696,21 +1209,51 @@ class DashboardRepository extends BaseRepository
         return $topProduct;
     }
 
-    public function getRevenueAndOrdersByHourEmployee($start_date = null, $end_date = null)
+    public function getRevenueAndOrdersByHourEmployee($start_date = null)
     {
         $employee = Auth::id();
         $diffInDays = 0;
         $diffInMonths = 0;
         $interval = '1 day'; // Mặc định khoảng cách là 1 ngày
+        $sevenDaysAgo = now()->subDays(7)->startOfDay();
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
 
-        if ($start_date && $end_date) {
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
 
-            $start = Carbon::parse($start_date)->startOfDay();
-            $end = $end_date ? Carbon::parse($end_date)->endOfDay() : now()->endOfDay();
-            $diffInDays = $start->diffInDays($end);
-            $diffInMonths = $start->diffInMonths($end);
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
 
-            // Xác định cách nhóm dữ liệu
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+
+
+        // Debug các giá trị start và end
+        // dd($start, $end);
+
+        // 🧠 Xác định khoảng cách thời gian
+        $diffInDays = $start->diffInDays($end);
+        $diffInMonths = $start->diffInMonths($end);
+        if ($start_date) {
+
             if ($diffInDays == 0) {
                 $groupBy = 'FLOOR(HOUR(created_at) / 2) * 2';
                 $selectFormat = 'FLOOR(HOUR(created_at) / 2) * 2 as time_label';
@@ -730,8 +1273,8 @@ class DashboardRepository extends BaseRepository
             }
 
             $data = Order::with('orderStatuses')
-                ->whereHas('orderStatuses', function ($query) use ($employee) {
-                    $query->where('order_status_id', 6)->where('modified_by', $employee);
+                ->whereHas('orderStatuses', function ($query) use ($employee,$sevenDaysAgo) {
+                    $query->where('order_status_id', 6)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
                 })
                 ->whereBetween('created_at', [$start, $end])
                 ->selectRaw("$selectFormat, SUM(total_amount) as revenue, COUNT(id) as orders")
@@ -746,8 +1289,8 @@ class DashboardRepository extends BaseRepository
             $interval = '2 hours';
 
             $data = Order::with('orderStatuses')
-                ->whereHas('orderStatuses', function ($query) use ($employee) {
-                    $query->where('order_status_id', 6)->where('modified_by', $employee);
+                ->whereHas('orderStatuses', function ($query) use ($employee,$sevenDaysAgo) {
+                    $query->where('order_status_id', 6)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
                 })
                 ->whereDate('created_at', now()->toDateString())
                 ->selectRaw('FLOOR(HOUR(created_at) / 2) * 2 as time_label, SUM(total_amount) as revenue, COUNT(id) as orders')
@@ -791,7 +1334,7 @@ class DashboardRepository extends BaseRepository
         ];
     }
 
-    public function getOrderStatusByHourEmployee($start_date = null, $end_date = null)
+    public function getOrderStatusByHourEmployee($start_date = null)
     {
         $employee = Auth::id();
         $orderStatuses = OrderStatus::pluck('name', 'id')->toArray();
@@ -799,10 +1342,44 @@ class DashboardRepository extends BaseRepository
         $diffInDays = 0;
         $diffInMonths = 0;
         $interval = '1 day';
+        switch ($start_date) {
+            case 0: // Hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
 
-        if ($start_date && $end_date) {
-            $start = Carbon::parse($start_date)->startOfDay();
-            $end = Carbon::parse($end_date)->endOfDay();
+                break;
+            case 1: // 7 ngày qua
+                $start = now()->subDays(6)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 2: // 30 ngày qua
+                $start = now()->subDays(29)->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            case 3: // 1 năm qua
+                $start = now()->subYear()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+            default:
+                // Nếu không có giá trị phù hợp, mặc định là hôm nay
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+
+                break;
+        }
+
+
+        // Debug các giá trị start và end
+        // dd($start, $end);
+
+        // 🧠 Xác định khoảng cách thời gian
+        $diffInDays = $start->diffInDays($end);
+        $diffInMonths = $start->diffInMonths($end);
+        if ($start_date) {
+        
             $diffInDays = $start->diffInDays($end);
             $diffInMonths = $start->diffInMonths($end);
 

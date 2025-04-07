@@ -54,45 +54,32 @@
                     {{-- @csrf --}}
                     <div class="d-flex align-items-center mb-2">
                         <div class="d-flex justify-content-center align-items-center me-4">
-                            <p class="mb-0 me-2 fw-bold">Thời gian</p>
+                            <p class="mb-0 me-2 fw-bold">{{ __('message.from') }}</p>
                             <div class="input-group custom-dt-picker">
-                                <select name="start_date" class="form-control form-date">
-                                    <option value="0" class="form-control form-date" 
-                                        {{ request('start_date') == 0 ? 'selected' : '' }}>Hôm nay</option>
-                                        <option value="1" class="form-control form-date" 
-                                        {{ request('start_date') == 1 ? 'selected' : '' }}>7 ngày qua</option>
-                                        <option value="2" class="form-control form-date" 
-                                        {{ request('start_date') == 2 ? 'selected' : '' }}>30 ngày qua</option>
-                                        <option value="3" class="form-control form-date" 
-                                        {{ request('start_date') == 3 ? 'selected' : '' }}>1 năm qua</option>
-                                        
-                                </select>
+                                <input placeholder="YYY-MM-DD" id="start_date_input" name="start_date"
+                                    class="form-control form-date" value="{{ request('start_date') }}">
+                                <button type="button" class="btn btn-outline-secondary">
+                                    <i class="ri-calendar-line"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="d-flex justify-content-center align-items-center me-4">
-                            <p class="mb-0 me-2 fw-bold">Nhân Viên:</p>
+                            <p class="mb-0 me-2 fw-bold">{{ __('message.to') }}</p>
                             <div class="input-group custom-dt-picker">
-                                <select name="is_employee" class="form-control form-date">
-                                    <option value="0" class="form-control form-date" 
-                                        {{ request('is_employee') == 0 ? 'selected' : '' }}>Tất Cả</option>
-                                    @foreach ($employee as $e)
-                                        <option value="{{ $e->id }}" class="form-control form-date" 
-                                            {{ request('is_employee') == $e->id ? 'selected' : '' }}>
-                                            {{ $e->fullname }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <input placeholder="YYY-MM-DD" id="end_date_input" name="end_date"
+                                    class="form-control form-date" value="{{ request('end_date') }}">
+                                <button type="button" class="btn btn-outline-secondary">
+                                    <i class="ri-calendar-line"></i>
+                                </button>
                             </div>
                         </div>
-
-
                         <div class="d-flex justify-content-center align-items-center">
                             <button type="submit" class="btn btn-primary" data-bs-original-title="" title=""
                                 fdprocessedid="yl65za">Lọc</button>
                         </div>
                     </div>
                 </form>
-                <div class="row g-2 ">
+                <div class="row g-3 ">
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
@@ -105,15 +92,6 @@
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-sm-6">
-                        <div class="card-tiles">
-                            <div>
-                                <h5>{{ __('message.total_customers') }}</h5>
-                                <h3>{{ $newCountUser ?? 0 }}(mới)/{{ $countUser ?? 0 }}</h3>
-                            </div>
-                            <div class="icon-box"><i class="ri-group-line"></i></div>
-                        </div>
-                    </div>
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
@@ -168,27 +146,15 @@
                             <div class="icon-box"><i class="ri-store-3-line"></i></div>
                         </div>
                     </div>
-                   
-                   
+                    
                 </div>
             </div>
         </section>
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <a href="{{route('admin.detail-index')}}"><button type="submit" class="btn btn-primary">Lọc chi tiết</button></a>
+                <a href="{{route('admin.index-employee')}}"><button type="submit" class="btn btn-primary">Quay lại</button></a>
             </div>
-            <div>
-               <form action="{{ route('admin.export') }}" method="GET">
-                <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
-                <input type="hidden" name="is_employee" id="is_employee" value="{{ request('is_employee') }}">
-                <button type="submit" class="btn btn-primary">Xuất Dữ Liệu</button>
-            </form> 
-            </div>
-            
-            
         </div>
-        
-
         <section>
             <div class="row m-0">
                 <div class="col-xl-8 col-md-6 p-0">
@@ -246,7 +212,7 @@
                                                                 </td>
                                                                 <td class="cursor-pointer ">
                                                                     <div>
-                                                                        {{ $dashboardService->getUserRank($data->loyalty_points) }}
+                                                                        {{ $detailDashboardService->getUserRank($data->loyalty_points) }}
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -487,8 +453,12 @@
                 tooltip: {
                     shared: true,
                     formatter: function() {
-                        let label = "Dữ liệu" ;
-                        return `<b>${label}</b><br/>${this.points.map(point => `${point.series.name}: <b>${point.y} đơn</b>`).join('<br/>')}`;
+                        let tooltipHtml = `<b>${this.x}</b><br>`;
+                        this.points.forEach(point => {
+                            tooltipHtml +=
+                                `<span style="color:${point.color}">●</span> ${point.series.name}: <b>${point.y} đơn</b><br>`;
+                        });
+                        return tooltipHtml;
                     }
                 },
                 series: seriesData

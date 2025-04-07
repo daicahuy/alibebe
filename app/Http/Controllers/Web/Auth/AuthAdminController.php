@@ -34,7 +34,7 @@ class AuthAdminController extends Controller
              */
             $user = Auth::user();
             $userFromDb = User::find($user->id);
-            if ($user->status == UserStatusType::INACTIVE) {
+            if ($user->status == UserStatusType::LOCK) {
                 Auth::logout(); // Đăng xuất ngay nếu tài khoản bị khóa
                 return redirect()->route('auth.admin.showFormLogin')
                     ->withErrors(['email' => 'Tài khoản của bạn đã bị khóa.Vui lòng check mail']);

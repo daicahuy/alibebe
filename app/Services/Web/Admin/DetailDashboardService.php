@@ -66,6 +66,24 @@ class DetailDashboardService
     {
         return $this->detailDashboardRepository->countOrderDelivery($start_date,$end_date, $IdEmployee);
     }
+    public function countOrderComplete($start_date = null, $end_date = null, $IdEmployee = '')
+    {
+        return $this->detailDashboardRepository->countOrderComplete($start_date,$end_date, $IdEmployee);
+    }
+    
+    public function countOrderFailed($start_date = null, $end_date = null, $IdEmployee = '')
+    {
+        return $this->detailDashboardRepository->countOrderFailed($start_date,$end_date, $IdEmployee);
+    }
+    
+    public function countOrderReturns($start_date = null, $end_date = null, $IdEmployee = '')
+    {
+        return $this->detailDashboardRepository->countOrderReturns($start_date,$end_date, $IdEmployee);
+    }
+    public function countOrderProcessing($start_date = null, $end_date = null, $IdEmployee = '')
+    {
+        return $this->detailDashboardRepository->countOrderProcessing($start_date,$end_date, $IdEmployee);
+    }
 
 
 
@@ -93,9 +111,27 @@ class DetailDashboardService
     {
         return $this->detailDashboardRepository->countOrderPendingEmployee();
     }
-    public function countOrderDeliveryEmployee()
+    public function countOrderDeliveryEmployee($start_date = null, $end_date = null)
     {
-        return $this->detailDashboardRepository->countOrderDeliveryEmployee();
+        return $this->detailDashboardRepository->countOrderDeliveryEmployee($start_date, $end_date);
+    }
+    public function countOrderCompleteEmployee($start_date = null, $end_date = null)
+    {
+        return $this->detailDashboardRepository->countOrderCompleteEmployee($start_date, $end_date);
+    }
+    
+    public function countOrderFailedEmployee($start_date = null, $end_date = null)
+    {
+        return $this->detailDashboardRepository->countOrderFailedEmployee($start_date, $end_date);
+    }
+    
+    public function countOrderReturnsEmployee($start_date = null, $end_date = null)
+    {
+        return $this->detailDashboardRepository->countOrderReturnsEmployee($start_date, $end_date);
+    }
+    public function countOrderProcessingEmployee($start_date = null, $end_date = null)
+    {
+        return $this->detailDashboardRepository->countOrderProcessingEmployee($start_date, $end_date);
     }
     public function countUserEmployee()
     {
