@@ -34,5 +34,18 @@ class CheckValidSpecificationRule implements ValidationRule
         if ($attribute && $attribute->is_variant == 1) {
             $fail("Giá trị $value thuộc một attribute biến thể, không hợp lệ.");
         }
+
+        $attributeIDs = [];
+        foreach (request()->input('product_specifications') as $attributeValueID) {
+            $attributeValue = AttributeValue::query()
+            ->where('id', $attributeValueID)
+            ->first();
+
+            $attributeIDs[] = $attributeValue->attribute_id;
+        }
+
+        if (count($attributeIDs) !== count(array_unique($attributeIDs))) {
+            $fail("Thông số kĩ thuật không được trùng nhau");
+        }
     }
 }

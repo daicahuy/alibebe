@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Web\Client;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Repositories\WishlistRepository;
 use App\Services\Web\Client\HomeService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
