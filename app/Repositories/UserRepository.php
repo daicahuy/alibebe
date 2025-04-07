@@ -126,7 +126,7 @@ class UserRepository extends BaseRepository
     public function getUserCustomerLock(Request $request, $limit)
     {
         $query = $this->model
-            ->where('status', UserStatusType::LOCK)
+            ->where('status', UserStatusType::INACTIVE)
             ->where('role', UserRoleType::CUSTOMER);
 
         if ($request->filled('_keyword')) {
@@ -153,7 +153,7 @@ class UserRepository extends BaseRepository
     public function countUserCustomerLock()
     {
         return $this->model
-            ->where('status', UserStatusType::LOCK)
+            ->where('status', UserStatusType::INACTIVE)
             ->where('role', UserRoleType::CUSTOMER)
             ->count();
     }
@@ -189,7 +189,7 @@ class UserRepository extends BaseRepository
     public function countUserEmployeeLock()
     {
         return $this->model
-            ->where('status', UserStatusType::LOCK)
+            ->where('status', UserStatusType::INACTIVE)
             ->where('role', UserRoleType::EMPLOYEE)
             ->count();
     }
@@ -206,7 +206,7 @@ class UserRepository extends BaseRepository
     {
 
         $query = $this->model
-            ->where('status', UserStatusType::LOCK)
+            ->where('status', UserStatusType::INACTIVE)
             ->where('role', UserRoleType::EMPLOYEE);
 
         if ($request->filled('_keyword')) {

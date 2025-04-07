@@ -25,7 +25,8 @@ class LockUserRequest extends FormRequest
         $userId = $this->route('user');
         return [
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:users,id'
+            'user_ids.*' => 'exists:users,id',
+            // 'reason_lock' => 'required|string|max:255',
         ];
     }
 }
