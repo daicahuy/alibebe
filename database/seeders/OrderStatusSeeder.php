@@ -18,7 +18,7 @@ class OrderStatusSeeder extends Seeder
 
     public function orderStatus()
     {
-        
+
         $statuses = [
             [
                 'name' => 'Chờ xử lý',
@@ -29,9 +29,9 @@ class OrderStatusSeeder extends Seeder
             [
                 'name' => 'Đang giao hàng',
             ],
-            [
-                'name' => 'Đã giao hàng',
-            ],
+            // [
+            //     'name' => 'Đã giao hàng',
+            // ],
             [
                 'name' => 'Giao hàng thất bại',
             ],

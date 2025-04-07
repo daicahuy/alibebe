@@ -58,8 +58,8 @@ class UpdateCouponRequest extends FormRequest
                 'min:0',
                 function ($attribute, $value, $fail) {
                     // Kiểm tra nếu discount_type là PERCENT và giá trị nằm ngoài khoảng 1 - 100%
-                    if (request('discount_type') == CouponDiscountType::PERCENT && ($value < 0 || $value > 100)) {
-                        $fail('Giá trị giảm giá phải nằm trong khoảng 1 - 100%.');
+                    if (request('discount_type') == CouponDiscountType::PERCENT && ($value < 0 || $value > 70)) {
+                        $fail('Giá trị giảm giá phải nằm trong khoảng 1 - 70%.');
                     }
                 }
             ],

@@ -637,23 +637,23 @@
                                 name: "Đang giao hàng",
                                 next: [3, 4, 5]
                             },
+                            // {
+                            //     id: 4,
+                            //     name: "Đã giao hàng",
+                            //     next: [4, 6, 7]
+                            // },
                             {
                                 id: 4,
-                                name: "Đã giao hàng",
-                                next: [4, 6, 7]
+                                name: "Giao hàng thất bại",
+                                next: [4, 6]
                             },
                             {
                                 id: 5,
-                                name: "Giao hàng thất bại",
-                                next: [5, 7]
+                                name: "Hoàn thành",
+                                next: [5, 6]
                             },
                             {
                                 id: 6,
-                                name: "Hoàn thành",
-                                next: [6, 7]
-                            },
-                            {
-                                id: 7,
                                 name: "Đã hủy",
                                 next: []
                             }
@@ -720,19 +720,19 @@
                                 return;
                             }
 
-                            if (selectedValue === 4) { // Nếu chọn "Đã giao hàng" (id 4)
+                            // if (selectedValue === 4) { // Nếu chọn "Đã giao hàng" (id 4)
 
-                                $("#modalUpload .hiddenIDOrderUpload").val(orderId);
-                                $('#modalUpload').on('hidden.bs.modal', function() {
-                                    if (!imageUploaded) {
-                                        // Nếu ảnh chưa được upload, đặt lại trạng thái về "Đang giao hàng"
-                                        $('.orderStatus').val(3);
-                                        updateSelectStatus();
-                                    }
-                                });
-                                $('#modalUpload').modal('show');
-                                return;
-                            }
+                            //     $("#modalUpload .hiddenIDOrderUpload").val(orderId);
+                            //     $('#modalUpload').on('hidden.bs.modal', function() {
+                            //         if (!imageUploaded) {
+                            //             // Nếu ảnh chưa được upload, đặt lại trạng thái về "Đang giao hàng"
+                            //             $('.orderStatus').val(3);
+                            //             updateSelectStatus();
+                            //         }
+                            //     });
+                            //     $('#modalUpload').modal('show');
+                            //     return;
+                            // }
 
                             $.ajax({
                                 url: '{{ route('api.orders.changeStatusOrder') }}',

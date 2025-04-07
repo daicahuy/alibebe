@@ -89,6 +89,8 @@ class OrderOrderStatusRepository extends BaseRepository
                 ->update(['note' => $note, 'employee_evidence' => $employee_evidence, "order_status_id" => 4]);
             ;
 
+            Order::query()->where('id', $idOrder)->update(["is_paid" => 1]);
+
             HistoryOrderStatus::create([
                 'order_id' => $idOrder,
                 'order_status_id' => 4,
