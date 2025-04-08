@@ -879,7 +879,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Tài khoản bị khóa',
-                        text: 'Tài khoản của bạn đã bị khóa bởi quản trị viên. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.',
+                        text:  `Lý do: ${data.reason}`,
                         confirmButtonText: 'OK'
                     }).then(() => {
                         // Gọi API đăng xuất

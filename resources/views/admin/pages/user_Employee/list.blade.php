@@ -113,6 +113,7 @@
                                                 </div>
                                             </th>
                                             <th>{{ __('form.user.phone_number') }}</th>
+                                            <th>Email</th>
                                             <th>{{ __('form.user.role') }}</th>
                                             <th class="cursor-pointer"> {{ __('form.user.created_at') }}
                                                 <div class="filter-arrow">
@@ -146,6 +147,7 @@
                                                 </td>
                                                 <td class="cursor-pointer">{{ $item->fullname }}</td>
                                                 <td class="cursor-pointer">{{ $item->phone_number }}</td>
+                                                <td class="cursor-pointer">{{ $item->email }}</td>
                                                 <td class="cursor-pointer">
                                                     @if ($item->role == 0)
                                                         <span>{{ __('form.user_employee') }}</span>
@@ -182,17 +184,28 @@
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <form id="lockUserForm-{{ $item->id }}"
-                                                                action="{{ route('admin.users.customer.lockUser', $item->id) }}"
-                                                                method="POST">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <button type="button" class="btn-lock"
-                                                                    onclick="confirmLockUser('{{ $item->id }}')">
-                                                                    <i class="ri-lock-line"></i>
-                                                                </button>
-                                                            </form>
+                                                            <button type="button" class="btn-lock" data-bs-toggle="modal"
+                                                                data-bs-target="#lockUserModal"
+                                                                data-user-id="{{ $item->id }}">
+                                                                <i class="ri-lock-line"></i>
+                                                            </button>
                                                         </li>
+                                                        @if (Auth::user()->role == 2)
+                                                            <li>
+                                                                <form id="decentralizationForm-{{ $item->id }}"
+                                                                    action="{{ route('admin.users.customer.decentralization', $item->id) }}"
+                                                                    method="post">
+                                                                    @csrf
+                                                                    @method('PUT')
+                                                                    <button type="button" class="btn-lock"
+                                                                        onclick="confirmDecentralization({{ $item->id }})">
+                                                                        <i class="ri-arrow-down-circle-fill"
+                                                                            style="color: #dc3545"></i>
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                        @endif
+
                                                     </ul>
                                                 </td>
                                             </tr>
@@ -217,6 +230,30 @@
             </div>
         </div>
     </div>
+    <!-- Modal nhập lý do khóa -->
+    <div class="modal fade" id="lockUserModal" tabindex="-1" aria-labelledby="lockUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="lockUserForm" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="lockUserModalLabel">Bạn có chắc muốn khóa người này !</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <textarea name="reason_lock" id="reason_lock" class="form-control" placeholder="Nhập lý do khóa..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-danger">Khóa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 
@@ -230,21 +267,57 @@
 
 @push('js')
     <script>
-        function confirmLockUser(userId) {
-            Swal.fire({
-                title: "{{ __('message.confirm_lock_user') }}",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Xác nhận",
-                cancelButtonText: "{{ __('message.cancel') }}"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('lockUserForm-' + userId).submit();
-                }
-            });
+
+function confirmDecentralization(userId) {
+    Swal.fire({
+        title: 'Xác nhận',
+        text: 'Bạn có chắc muốn hạ quyền nhân viên này không?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Gửi form nếu người dùng xác nhận
+            document.getElementById('decentralizationForm-' + userId).submit();
         }
+    });
+}
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Khi modal được hiển thị
+            const lockUserModal = document.getElementById('lockUserModal');
+            lockUserModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget; // Nút kích hoạt modal
+                const userId = button.getAttribute('data-user-id'); // Lấy user ID từ data attribute
+
+                // Cập nhật action của form trong modal
+                const form = document.getElementById('lockUserForm');
+                form.action = `/admin/users/employee/lockUser/${userId}`;
+            });
+
+            // Xử lý gửi form
+            const lockUserForm = document.getElementById('lockUserForm');
+            lockUserForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const reason = document.getElementById('reason_lock').value.trim();
+                if (!reason) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Thông báo!',
+                        text: 'Vui lòng nhập lý do khóa trước khi thực hiện!',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                // Gửi form
+                lockUserForm.submit();
+            });
+        });
 
         document.addEventListener("DOMContentLoaded", function() {
             @if (session('success'))
@@ -358,22 +431,31 @@
                 }
 
                 Swal.fire({
-                    title: 'Bạn có chắc chắn?',
-                    text: 'Bạn có muốn khóa những người dùng đã chọn không?',
-                    icon: 'warning',
+                    title: 'Nhập lý do khóa',
+                    input: 'textarea',
+                    inputPlaceholder: 'Nhập lý do khóa...',
+                    inputAttributes: {
+                        'aria-label': 'Nhập lý do khóa'
+                    },
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
                     confirmButtonText: 'Xác nhận',
-                    cancelButtonText: 'Hủy'
+                    cancelButtonText: 'Hủy',
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Vui lòng nhập lý do khóa!';
+                        }
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        const reason = result.value;
+
                         $.ajax({
-                            url: "{{ route('admin.users.employee.lockMultipleUsers') }}",
-                            type: "POST",
+                            url: "{{ route('admin.users.employee.lockMultipleUsers') }}", // Đảm bảo route này đúng
+                            type: "POST", // Phương thức POST
                             data: {
                                 user_ids: selectedUsers,
-                                _token: "{{ csrf_token() }}"
+                                reason_lock: reason,
+                                _token: "{{ csrf_token() }}" // CSRF token
                             },
                             success: function(response) {
                                 Swal.fire({
@@ -387,7 +469,7 @@
                                 });
                             },
                             error: function(xhr) {
-                                console.log(xhr.responseJSON);
+                                console.log(xhr.responseJSON); // Debug lỗi từ server
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Lỗi!',

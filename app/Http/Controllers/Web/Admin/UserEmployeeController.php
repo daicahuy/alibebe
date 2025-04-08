@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Enums\UserStatusType;
+use App\Events\UserLocked;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LockUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Mail\UserLockedMail;
 use App\Models\User;
 use App\Services\Web\Admin\UserEmployeeService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class UserEmployeeController extends Controller
 {
@@ -125,31 +129,108 @@ class UserEmployeeController extends Controller
         }
     }
 
-    public function lockUser(User $user)
+    // public function lockUser(User $user)
+    // {
+    //     $lock = $this->userService->showUserEmployee($user->id, ['*']);
+
+    //     if ($lock->status == UserStatusType::ACTIVE) {
+
+    //         $this->userService->UpdateUserEmployee($user->id, ['status' => UserStatusType::INACTIVE]);
+    //         return redirect()->back()->with('success', 'Đã khóa thành công !');
+    //     } else if ($lock->status == UserStatusType::INACTIVE) {
+
+    //         $this->userService->UpdateUserEmployee($user->id, ['status' => UserStatusType::ACTIVE]);
+    //         return redirect()->back()->with('success', 'Đã mở khóa thành công !');
+    //     } else {
+    //         return redirect()->back()->with('error', 'Thất bại xin kiểm tra lại');
+    //     }
+    // }
+
+    // public function lockMultipleUsers(LockUserRequest $request)
+    // {
+    //     $validated = $request->validated();
+
+    //     $this->userService->UpdateUserEmployee($validated['user_ids'], ['status' => UserStatusType::INACTIVE]);
+
+    //     return response()->json([
+    //         'message' => ('Đã khóa thành công')
+    //     ]);
+    // }
+
+
+    public function lockUser(Request $request, User $user)
     {
+        // Lấy thông tin người dùng
         $lock = $this->userService->showUserEmployee($user->id, ['*']);
-
+    
+        // Kiểm tra trạng thái hiện tại của người dùng
         if ($lock->status == UserStatusType::ACTIVE) {
-
-            $this->userService->UpdateUserEmployee($user->id, ['status' => UserStatusType::LOCK]);
-            return redirect()->back()->with('success', 'Đã khóa thành công !');
-        } else if ($lock->status == UserStatusType::LOCK) {
-
-            $this->userService->UpdateUserEmployee($user->id, ['status' => UserStatusType::ACTIVE]);
-            return redirect()->back()->with('success', 'Đã mở khóa thành công !');
+            // Lấy lý do khóa từ request
+            $reason = $request->input('reason_lock');
+    
+            // Cập nhật trạng thái thành "INACTIVE" và lưu lý do khóa
+            $this->userService->UpdateUserEmployee($user->id, [
+                'status' => UserStatusType::INACTIVE,
+                'reason_lock' => $reason,
+            ]);
+    
+            // Thêm log để kiểm tra
+            Log::info('Locking user with ID: ' . $user->id . ' with reason: ' . $reason);
+    
+            // Phát sự kiện UserLocked
+            event(new UserLocked($user->id, $reason));
+    
+            // Gửi email thông báo
+            if ($lock->email) {
+                Mail::to($lock->email)->send(new UserLockedMail($lock, $reason));
+            }
+    
+            Log::info('UserLocked event broadcasted and email sent for user ID: ' . $user->id);
+    
+            return redirect()->back()->with('success', 'Đã khóa thành công!');
+        } elseif ($lock->status == UserStatusType::INACTIVE) {
+            // Cập nhật trạng thái thành "ACTIVE" và xóa lý do khóa
+            $this->userService->UpdateUserEmployee($user->id, [
+                'status' => UserStatusType::ACTIVE,
+                'reason_lock' => null,
+            ]);
+    
+            return redirect()->back()->with('success', 'Đã mở khóa thành công!');
         } else {
-            return redirect()->back()->with('error', 'Thất bại xin kiểm tra lại');
+            return redirect()->back()->with('error', 'Thất bại, xin kiểm tra lại.');
         }
     }
 
     public function lockMultipleUsers(LockUserRequest $request)
     {
+        // Lấy danh sách user_ids và lý do từ request
         $validated = $request->validated();
-
-        $this->userService->UpdateUserEmployee($validated['user_ids'], ['status' => UserStatusType::LOCK]);
-
+        $userIds = $validated['user_ids'];
+        $reason = $validated['reason_lock']; // Lý do khóa
+    
+        // Cập nhật trạng thái của tất cả người dùng thành "INACTIVE" và lưu lý do khóa
+        $this->userService->UpdateUserEmployee($userIds, [
+            'status' => UserStatusType::INACTIVE,
+            'reason_lock' => $reason,
+        ]);
+    
+        // Phát sự kiện UserLocked và gửi email cho từng người dùng
+        foreach ($userIds as $userId) {
+            // Lấy thông tin người dùng
+            $user = $this->userService->UpdateUserEmployee($userId, ['email', 'fullname']);
+    
+            // Phát sự kiện UserLocked
+            event(new UserLocked($userId, $reason));
+    
+            // Gửi email thông báo
+            if ($user && $user->email) {
+                Mail::to($user->email)->send(new UserLockedMail($user, $reason));
+                Log::info('Email sent to user ID: ' . $userId . ' with reason: ' . $reason);
+            }
+        }
+    
         return response()->json([
-            'message' => ('Đã khóa thành công')
+            'message' => 'Đã khóa thành công!'
         ]);
     }
 
