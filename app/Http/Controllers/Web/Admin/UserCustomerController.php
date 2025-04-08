@@ -129,7 +129,7 @@ class UserCustomerController extends Controller
     
             // Cập nhật trạng thái thành "INACTIVE" và lưu lý do khóa
             $this->userService->UpdateUserCustomer($user->id, [
-                'status' => UserStatusType::INACTIVE,
+                'status' => UserStatusType::LOCK,
                 'reason_lock' => $reason,
             ]);
     
@@ -147,7 +147,7 @@ class UserCustomerController extends Controller
             Log::info('UserLocked event broadcasted and email sent for user ID: ' . $user->id);
     
             return redirect()->back()->with('success', 'Đã khóa thành công!');
-        } elseif ($lock->status == UserStatusType::INACTIVE) {
+        } elseif ($lock->status == UserStatusType::LOCK) {
             // Cập nhật trạng thái thành "ACTIVE" và xóa lý do khóa
             $this->userService->UpdateUserCustomer($user->id, [
                 'status' => UserStatusType::ACTIVE,
@@ -169,7 +169,7 @@ class UserCustomerController extends Controller
     
         // Cập nhật trạng thái của tất cả người dùng thành "INACTIVE" và lưu lý do khóa
         $this->userService->UpdateUserCustomer($userIds, [
-            'status' => UserStatusType::INACTIVE,
+            'status' => UserStatusType::LOCK,
             'reason_lock' => $reason,
         ]);
     

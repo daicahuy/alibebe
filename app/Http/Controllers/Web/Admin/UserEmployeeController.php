@@ -129,34 +129,6 @@ class UserEmployeeController extends Controller
         }
     }
 
-    // public function lockUser(User $user)
-    // {
-    //     $lock = $this->userService->showUserEmployee($user->id, ['*']);
-
-    //     if ($lock->status == UserStatusType::ACTIVE) {
-
-    //         $this->userService->UpdateUserEmployee($user->id, ['status' => UserStatusType::INACTIVE]);
-    //         return redirect()->back()->with('success', 'Đã khóa thành công !');
-    //     } else if ($lock->status == UserStatusType::INACTIVE) {
-
-    //         $this->userService->UpdateUserEmployee($user->id, ['status' => UserStatusType::ACTIVE]);
-    //         return redirect()->back()->with('success', 'Đã mở khóa thành công !');
-    //     } else {
-    //         return redirect()->back()->with('error', 'Thất bại xin kiểm tra lại');
-    //     }
-    // }
-
-    // public function lockMultipleUsers(LockUserRequest $request)
-    // {
-    //     $validated = $request->validated();
-
-    //     $this->userService->UpdateUserEmployee($validated['user_ids'], ['status' => UserStatusType::INACTIVE]);
-
-    //     return response()->json([
-    //         'message' => ('Đã khóa thành công')
-    //     ]);
-    // }
-
 
     public function lockUser(Request $request, User $user)
     {
@@ -168,9 +140,9 @@ class UserEmployeeController extends Controller
             // Lấy lý do khóa từ request
             $reason = $request->input('reason_lock');
     
-            // Cập nhật trạng thái thành "INACTIVE" và lưu lý do khóa
+            // Cập nhật trạng thái thành "LOCK" và lưu lý do khóa
             $this->userService->UpdateUserEmployee($user->id, [
-                'status' => UserStatusType::INACTIVE,
+                'status' => UserStatusType::LOCK,
                 'reason_lock' => $reason,
             ]);
     
@@ -188,7 +160,7 @@ class UserEmployeeController extends Controller
             Log::info('UserLocked event broadcasted and email sent for user ID: ' . $user->id);
     
             return redirect()->back()->with('success', 'Đã khóa thành công!');
-        } elseif ($lock->status == UserStatusType::INACTIVE) {
+        } elseif ($lock->status == UserStatusType::LOCK) {
             // Cập nhật trạng thái thành "ACTIVE" và xóa lý do khóa
             $this->userService->UpdateUserEmployee($user->id, [
                 'status' => UserStatusType::ACTIVE,
@@ -208,9 +180,9 @@ class UserEmployeeController extends Controller
         $userIds = $validated['user_ids'];
         $reason = $validated['reason_lock']; // Lý do khóa
     
-        // Cập nhật trạng thái của tất cả người dùng thành "INACTIVE" và lưu lý do khóa
+        // Cập nhật trạng thái của tất cả người dùng thành "LOCK" và lưu lý do khóa
         $this->userService->UpdateUserEmployee($userIds, [
-            'status' => UserStatusType::INACTIVE,
+            'status' => UserStatusType::LOCK,
             'reason_lock' => $reason,
         ]);
     
