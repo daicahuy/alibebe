@@ -183,7 +183,7 @@ class CouponRepository extends BaseRepository
                 $query->where('is_active', 1)
                     ->where(function ($q) {
                         $q->where('end_date', '>=', Carbon::now()) // Coupon chưa hết hạn
-                            ->orWhere('is_expired', 0); // Hoặc chưa bị đánh dấu hết hạn
+                            ->orWhere('is_expired', 0);// Hoặc chưa bị đánh dấu hết hạn
                     });
             })
             ->get()
