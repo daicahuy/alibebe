@@ -31,20 +31,78 @@
                                         <div class="sidebar-main-link">{{ __('message.dashboard') }}</div>
                                     </div>
                                 </span>
+                                <div class="according-menu">
+                                    @if (Request::is('admin/detail-index*')
+                                    )
+                                        <i class="ri-arrow-down-s-line"></i>
+                                    @else
+                                        <i class="ri-arrow-right-s-line"></i>
+                                    @endif
+                                </div>
                             </a>
+                            <ul class="sidebar-submenu" @style([
+                                'display: block;' => Request::is('admin/index*')
+                            ])>
+                             <li>
+                                <a href="{{ route('admin.index') }}"
+                                    class="{{ Request::is('admin/index*') ? 'active' : '' }}">
+                                    <div>Thống kê</div>
+                                    {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
+                                </a>
+                                <ul class="sidebar-submenu"></ul>
+                            </li>
+                                <li>
+                                    <a href="{{ route('admin.detail-index') }}"
+                                        class="{{ Request::is('admin/detail-index*') ? 'active' : '' }}">
+                                        <div>Thống kê chi tiết</div>
+                                        {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
+                                    </a>
+                                    <ul class="sidebar-submenu"></ul>
+                                </li>
+                             
+                            </ul>
                         </li>
                     @endif
                     @if (Auth::user()->isEmployee())
                         <li class="sidebar-list">
-                            <a href="{{ route('admin.detail-index-employee') }}"
-                                class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin') ? 'active' : '' }}">
+                            <a href="{{ route('admin.index-employee') }}"
+                                class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/index-employee') ? 'active' : '' }}">
                                 <span>
                                     <div class="d-flex align-items-center">
                                         <i class="ri-home-line"></i>
                                         <div class="sidebar-main-link">{{ __('message.dashboard') }}</div>
                                     </div>
                                 </span>
+                                <div class="according-menu">
+                                    @if (Request::is('admin/detail-index-employee*')
+                                    )
+                                        <i class="ri-arrow-down-s-line"></i>
+                                    @else
+                                        <i class="ri-arrow-right-s-line"></i>
+                                    @endif
+                                </div>
                             </a>
+                            <ul class="sidebar-submenu" @style([
+                                'display: block;' => Request::is('admin/index-employee*')
+                            ])>
+                             <li>
+                                <a href="{{ route('admin.index-employee') }}"
+                                    class="{{ Request::is('admin/index-employee*') ? 'active' : '' }}">
+                                    <div>Thống kê</div>
+                                    {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
+                                </a>
+                                <ul class="sidebar-submenu"></ul>
+                            </li>
+                                <li>
+                                    <a href="{{ route('admin.detail-index-employee') }}"
+                                        class="{{ Request::is('admin/detail-index-employee*') ? 'active' : '' }}">
+                                        <div>Thống kê chi tiết</div>
+                                        {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
+                                    </a>
+                                    <ul class="sidebar-submenu"></ul>
+                                </li>
+                             
+                            </ul>
                         </li>
                     @endif
                     @if (Auth::user()->isAdmin())

@@ -150,11 +150,6 @@
                 </div>
             </div>
         </section>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <a href="{{route('admin.index-employee')}}"><button type="submit" class="btn btn-primary">Quay lại</button></a>
-            </div>
-        </div>
         <section>
             <div class="row m-0">
                 <div class="col-xl-8 col-md-6 p-0">
