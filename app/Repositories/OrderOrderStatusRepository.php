@@ -22,9 +22,16 @@ class OrderOrderStatusRepository extends BaseRepository
         return DB::transaction(function () use ($idOrder, $idStatus, $user_id) {
             if (is_array($idOrder)) {
                 foreach ($idOrder as $orderId) {
-                    OrderOrderStatus::query()
-                        ->where('order_id', $orderId)
-                        ->update(['order_status_id' => $idStatus, "modified_by" => $user_id]);
+                    if ($idStatus == 5) {
+                        OrderOrderStatus::query()
+                            ->where('order_id', $orderId)
+                            ->update(['order_status_id' => $idStatus, "modified_by" => $user_id]);
+                        Order::query()->where('id', $orderId)->update(["is_paid" => 1]);
+                    } else {
+                        OrderOrderStatus::query()
+                            ->where('order_id', $orderId)
+                            ->update(['order_status_id' => $idStatus, "modified_by" => $user_id]);
+                    }
                     HistoryOrderStatus::create([
                         'order_id' => $orderId,
                         'order_status_id' => $idStatus,
@@ -34,9 +41,17 @@ class OrderOrderStatusRepository extends BaseRepository
                 return true;
 
             } else {
-                OrderOrderStatus::query()
-                    ->where('order_id', $idOrder)
-                    ->update(['order_status_id' => $idStatus, "modified_by" => $user_id]);
+                if ($idStatus == 5) {
+                    OrderOrderStatus::query()
+                        ->where('order_id', $idOrder)
+                        ->update(['order_status_id' => $idStatus, "modified_by" => $user_id]);
+                    Order::query()->where('id', $idOrder)->update(["is_paid" => 1]);
+                } else {
+                    OrderOrderStatus::query()
+                        ->where('order_id', $idOrder)
+                        ->update(['order_status_id' => $idStatus, "modified_by" => $user_id]);
+                }
+
                 HistoryOrderStatus::create([
                     'order_id' => $idOrder,
                     'order_status_id' => $idStatus,
