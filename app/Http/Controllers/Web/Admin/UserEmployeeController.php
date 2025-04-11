@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LockUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Jobs\SendUserLockedEmail;
 use App\Mail\UserLockedMail;
 use App\Models\User;
 use App\Services\Web\Admin\UserEmployeeService;
@@ -47,8 +48,7 @@ class UserEmployeeController extends Controller
         $data = $this->userService->detail(
             $user->id,
             $startDate,
-            $endDate
-            ,
+            $endDate,
             $filterStatus
         );
         // dd($data);
@@ -132,8 +132,8 @@ class UserEmployeeController extends Controller
 
     public function lockUser(Request $request, User $user)
     {
-        // Lấy thông tin người dùng
-        $lock = $this->userService->showUserEmployee($user->id, ['*']);
+        // Lấy thông tin người dùng (chúng ta đã có $user instance rồi)
+        $lock = $user; // Không cần gọi lại userService để lấy
     
         // Kiểm tra trạng thái hiện tại của người dùng
         if ($lock->status == UserStatusType::ACTIVE) {
@@ -146,18 +146,8 @@ class UserEmployeeController extends Controller
                 'reason_lock' => $reason,
             ]);
     
-            // Thêm log để kiểm tra
-            Log::info('Locking user with ID: ' . $user->id . ' with reason: ' . $reason);
-    
-            // Phát sự kiện UserLocked
-            event(new UserLocked($user->id, $reason));
-    
-            // Gửi email thông báo
-            if ($lock->email) {
-                Mail::to($lock->email)->send(new UserLockedMail($lock, $reason));
-            }
-    
-            Log::info('UserLocked event broadcasted and email sent for user ID: ' . $user->id);
+            // Dispatch job để gửi email (chỉ truyền user ID)
+            dispatch(new SendUserLockedEmail($user->id, $reason));
     
             return redirect()->back()->with('success', 'Đã khóa thành công!');
         } elseif ($lock->status == UserStatusType::LOCK) {
@@ -173,40 +163,33 @@ class UserEmployeeController extends Controller
         }
     }
 
-    public function lockMultipleUsers(LockUserRequest $request)
-    {
-        // Lấy danh sách user_ids và lý do từ request
-        $validated = $request->validated();
-        $userIds = $validated['user_ids'];
-        $reason = $validated['reason_lock']; // Lý do khóa
-    
-        // Cập nhật trạng thái của tất cả người dùng thành "LOCK" và lưu lý do khóa
-        $this->userService->UpdateUserEmployee($userIds, [
-            'status' => UserStatusType::LOCK,
-            'reason_lock' => $reason,
-        ]);
-    
-        // Phát sự kiện UserLocked và gửi email cho từng người dùng
-        foreach ($userIds as $userId) {
-            // Lấy thông tin người dùng
-            $user = $this->userService->UpdateUserEmployee($userId, ['email', 'fullname']);
-    
-            // Phát sự kiện UserLocked
-            event(new UserLocked($userId, $reason));
-    
-            // Gửi email thông báo
-            if ($user && $user->email) {
-                Mail::to($user->email)->send(new UserLockedMail($user, $reason));
-                Log::info('Email sent to user ID: ' . $userId . ' with reason: ' . $reason);
-            }
-        }
-    
-        return response()->json([
-            'message' => 'Đã khóa thành công!'
-        ]);
+public function lockMultipleUsers(LockUserRequest $request)
+{
+    // Lấy danh sách user_ids và lý do từ request
+    $validated = $request->validated();
+    $userIds = $validated['user_ids'];
+    $reason = $request->input('reason_lock'); // Lý do khóa
+
+    // Cập nhật trạng thái của tất cả người dùng thành "LOCK" và lưu lý do khóa
+    $this->userService->UpdateUserEmployee($userIds, [
+        'status' => UserStatusType::LOCK,
+        'reason_lock' => $reason,
+    ]);
+
+    // Dispatch job để gửi email cho từng người dùng
+    foreach ($userIds as $userId) {
+        // Dispatch event UserLocked
+        event(new UserLocked($userId, $reason));
+
+        // Dispatch job để gửi email
+        dispatch(new SendUserLockedEmail($userId, $reason));
+        Log::info('Job dispatched to send email to user ID: ' . $userId . ' with reason: ' . $reason);
     }
 
-    public function unLockMultipleUsers(LockUserRequest $request)
+    return response()->json([
+        'message' => 'Đã khóa thành công!'
+    ]);
+}    public function unLockMultipleUsers(LockUserRequest $request)
     {
         $validated = $request->validated();
 

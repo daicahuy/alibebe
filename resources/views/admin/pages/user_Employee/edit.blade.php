@@ -107,7 +107,7 @@
                                         </div>
 
 
-                                        {{-- <div class="align-items-center g-2 mb-4 row">
+                                        <div class="align-items-center g-2 mb-4 row">
                                             <label class="col-sm-3 form-label-title mb-0">
                                                 {{ __('form.user.role') }}
                                                 <span class="theme-color ms-2 required-dot ">*</span>
@@ -122,7 +122,7 @@
 
                                                 </select>
                                             </div>
-                                        </div> --}}
+                                        </div>
 
 
                                         <button class="btn btn-theme ms-auto mt-4" type="submit">
