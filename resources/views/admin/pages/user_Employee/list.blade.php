@@ -190,7 +190,7 @@
                                                                 <i class="ri-lock-line"></i>
                                                             </button>
                                                         </li>
-                                                        @if (Auth::user()->role == 2)
+                                                        {{-- @if (Auth::user()->role == 2)
                                                             <li>
                                                                 <form id="decentralizationForm-{{ $item->id }}"
                                                                     action="{{ route('admin.users.customer.decentralization', $item->id) }}"
@@ -204,7 +204,7 @@
                                                                     </button>
                                                                 </form>
                                                             </li>
-                                                        @endif
+                                                        @endif --}}
 
                                                     </ul>
                                                 </td>
@@ -268,56 +268,169 @@
 @push('js')
     <script>
 
-function confirmDecentralization(userId) {
+// function confirmDecentralization(userId) {
+//     Swal.fire({
+//         title: 'Xác nhận',
+//         text: 'Bạn có chắc muốn hạ quyền nhân viên này không?',
+//         icon: 'warning',
+//         showCancelButton: true,
+//         confirmButtonColor: '#3085d6',
+//         cancelButtonColor: '#d33',
+//         confirmButtonText: 'Xác nhận',
+//         cancelButtonText: 'Hủy'
+//     }).then((result) => {
+//         if (result.isConfirmed) {
+//             // Gửi form nếu người dùng xác nhận
+//             document.getElementById('decentralizationForm-' + userId).submit();
+//         }
+//     });
+// }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Khi modal được hiển thị
+    const lockUserModal = document.getElementById('lockUserModal');
+    lockUserModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget; // Nút kích hoạt modal
+        const userId = button.getAttribute('data-user-id'); // Lấy user ID từ data attribute
+
+        // Cập nhật action của form trong modal
+        const form = document.getElementById('lockUserForm');
+        form.action = `/admin/users/customer/lockUser/${userId}`;
+    });
+
+    // Xử lý gửi form bằng AJAX
+    const lockUserForm = document.getElementById('lockUserForm');
+    lockUserForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const userId = this.action.split('/').pop(); // Lấy userId từ action của form
+        const reason = document.getElementById('reason_lock').value.trim();
+        const url = `/admin/users/customer/lockUser/${userId}`;
+        const method = 'POST'; // Hoặc 'PUT' tùy thuộc vào route bạn định nghĩa
+
+        if (!reason) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Thông báo!',
+                text: 'Vui lòng nhập lý do khóa trước khi thực hiện!',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ reason_lock: reason })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: data.message,
+                    timer: 2000, // Thời gian hiển thị (milliseconds)
+                    showConfirmButton: false // Ẩn nút OK
+                }).then(() => {
+                    // Đóng modal sau khi thông báo tự đóng
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('lockUserModal'));
+                    modal.hide();
+                    window.location.reload(); // Tải lại trang (nếu bạn vẫn muốn tải lại)
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: data.message,
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: error.message || 'Đã xảy ra lỗi khi gửi yêu cầu.',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
+});
+
+
+function confirmLockUser(userId) {
     Swal.fire({
-        title: 'Xác nhận',
-        text: 'Bạn có chắc muốn hạ quyền nhân viên này không?',
-        icon: 'warning',
+        title: "{{ __('message.confirm_unlock_user') }}", // Giữ nguyên title này vì bạn dùng chung hàm
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Xác nhận',
-        cancelButtonText: 'Hủy'
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Xác nhận",
+        cancelButtonText: "{{ __('message.cancel') }}"
     }).then((result) => {
         if (result.isConfirmed) {
-            // Gửi form nếu người dùng xác nhận
-            document.getElementById('decentralizationForm-' + userId).submit();
+            const url = `/admin/users/customer/lockUser/${userId}`;
+            const method = 'POST';
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: data.message,
+                        timer: 2000, // Thời gian hiển thị (milliseconds)
+                        showConfirmButton: false // Ẩn nút OK
+                    }).then(() => {
+                        // Đóng modal sau khi thông báo tự đóng
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('lockUserModal'));
+                        modal.hide();
+                        window.location.reload(); // Tải lại trang (nếu bạn vẫn muốn tải lại)
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: data.message || 'Đã xảy ra lỗi khi gửi yêu cầu.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Đã xảy ra lỗi khi gửi yêu cầu.',
+                    confirmButtonText: 'OK'
+                });
+            });
         }
     });
 }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Khi modal được hiển thị
-            const lockUserModal = document.getElementById('lockUserModal');
-            lockUserModal.addEventListener('show.bs.modal', function(event) {
-                const button = event.relatedTarget; // Nút kích hoạt modal
-                const userId = button.getAttribute('data-user-id'); // Lấy user ID từ data attribute
-
-                // Cập nhật action của form trong modal
-                const form = document.getElementById('lockUserForm');
-                form.action = `/admin/users/employee/lockUser/${userId}`;
-            });
-
-            // Xử lý gửi form
-            const lockUserForm = document.getElementById('lockUserForm');
-            lockUserForm.addEventListener('submit', function(event) {
-                event.preventDefault();
-
-                const reason = document.getElementById('reason_lock').value.trim();
-                if (!reason) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Thông báo!',
-                        text: 'Vui lòng nhập lý do khóa trước khi thực hiện!',
-                        confirmButtonText: 'OK'
-                    });
-                    return;
-                }
-
-                // Gửi form
-                lockUserForm.submit();
-            });
-        });
 
         document.addEventListener("DOMContentLoaded", function() {
             @if (session('success'))

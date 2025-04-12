@@ -44,7 +44,8 @@ class User extends Authenticatable
         'is_change_password',
         'bank_name',
         'user_bank_name',
-        'bank_account'
+        'bank_account',
+        'reason_lock'
     ];
 
 

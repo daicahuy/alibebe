@@ -219,21 +219,66 @@
 
 @push('js')
     <script>
-        function confirmLockUser(userId) {
-            Swal.fire({
-                title: "{{ __('message.confirm_unlock_user') }}",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Xác nhận",
-                cancelButtonText: "{{ __('message.cancel') }}"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('unLockUserForm-' + userId).submit();
+             function confirmLockUser(userId) {
+    Swal.fire({
+        title: "{{ __('message.confirm_unlock_user') }}", // Title khi bạn chuẩn bị mở khóa
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Xác nhận",
+        cancelButtonText: "{{ __('message.cancel') }}"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = `/admin/users/customer/lockUser/${userId}`; // Sử dụng cùng route cho cả khóa và mở khóa
+            const method = 'POST'; // Hoặc 'PUT' tùy thuộc vào route của bạn
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
                 }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: data.message, // Sử dụng trực tiếp message từ server ("Đã mở khóa thành công!")
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload(); // Tải lại trang sau khi mở khóa thành công (nếu cần)
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: data.message || 'Đã xảy ra lỗi khi thực hiện thao tác.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Đã xảy ra lỗi khi gửi yêu cầu.',
+                    confirmButtonText: 'OK'
+                });
             });
         }
+    });
+}
 
         document.addEventListener("DOMContentLoaded", function() {
             @if (session('success'))
