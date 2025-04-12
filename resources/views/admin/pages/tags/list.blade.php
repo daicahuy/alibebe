@@ -170,12 +170,12 @@
 
                                                     <td>
                                                         <ul id="actions">
-                                                            <li>
+                                                            {{-- <li>
                                                                 <a href="{{ route('admin.tags.showProducts', ['tag' => $tag->id] ) }}"
                                                                     class="btn-detail">
                                                                     <i class="ri-eye-line"></i>
                                                                 </a>
-                                                            </li>
+                                                            </li> --}}
                                                             <li>
                                                                 <a href="{{ route('admin.tags.edit', $tag->id) }}"
                                                                     class="btn-edit">
