@@ -47,7 +47,7 @@ class AuthAdminController extends Controller
             }
             if ($user->status == UserStatusType::ACTIVE) {
                 if ($user->isAdmin() || $user->isEmployee()) {
-                    return redirect()->route($user->isAdmin() ? 'admin.index' : 'admin.indexNhanVien')
+                    return redirect()->route($user->isAdmin() ? 'admin.index' : 'admin.index-employee')
                         ->with('success', 'Đăng nhập thành công!');
                 } else {
                     Auth::logout(); // Đăng xuất ngay nếu không phải Admin/Nhân viên

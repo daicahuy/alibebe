@@ -1174,7 +1174,7 @@ class DashboardRepository extends BaseRepository
 
                 break;
         }
-        if ($start_date && $IdEmployee == 0) {
+        if ($start_date) {
        
             $countOrder = Order::whereHas('orderStatuses', function ($query) use ($employee) {
                 $query->where('modified_by', $employee);
