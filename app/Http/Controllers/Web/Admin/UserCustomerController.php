@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\UserRoleType;
 use App\Enums\UserStatusType;
 use App\Events\UserLocked;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\LockUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Jobs\SendUserLockedEmail;
+use App\Mail\UserLockedMail;
+use App\Mail\UserRoleChangedMail;
 use App\Models\User;
 use App\Repositories\OrderRepository;
 use App\Repositories\ReviewRepository;
@@ -14,6 +18,7 @@ use App\Repositories\WishlistRepository;
 use App\Services\Web\Admin\UserCustomerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class UserCustomerController extends Controller
 {
@@ -113,51 +118,63 @@ class UserCustomerController extends Controller
     }
 
 
-public function lockUser(User $user)
-{
-    // Lấy thông tin người dùng
-    $lock = $this->userService->ShowUserCustomer($user->id, ['*']);
-
-    // Kiểm tra trạng thái hiện tại của người dùng
-    if ($lock->status == UserStatusType::ACTIVE) {
-        // Cập nhật trạng thái thành "LOCK"
-        $this->userService->UpdateUserCustomer($user->id, ['status' => UserStatusType::LOCK]);
-// Thêm log để kiểm tra
-Log::info('Locking user with ID: ' . $user->id);
-        // Phát sự kiện UserLocked
-        // broadcast(new UserLocked($user->id));
-        event(new UserLocked($user->id));
-        Log::info('UserLocked event broadcasted for user ID: ' . $user->id);
-        return redirect()->back()->with('success', 'Đã khóa thành công!');
-    } elseif ($lock->status == UserStatusType::LOCK) {
-        // Cập nhật trạng thái thành "ACTIVE"
-        $this->userService->UpdateUserCustomer($user->id, ['status' => UserStatusType::ACTIVE]);
-
-        return redirect()->back()->with('success', 'Đã mở khóa thành công!');
-    } else {
-        return redirect()->back()->with('error', 'Thất bại, xin kiểm tra lại.');
+    public function lockUser(Request $request, User $user)
+    {
+        $lock = $this->userService->ShowUserCustomer($user->id, ['*']);
+        $reason = $request->input('reason_lock');
+    
+        if ($lock->status == UserStatusType::ACTIVE) {
+            $this->userService->UpdateUserCustomer($user->id, [
+                'status' => UserStatusType::LOCK,
+                'reason_lock' => $reason,
+            ]);
+    
+            // Dispatch Job để gửi email (Job sẽ được xử lý bởi Queue Worker sau)
+            SendUserLockedEmail::dispatch($user->id, $reason);
+    
+            // Trả về response thành công NGAY LẬP TỨC
+            return response()->json(['success' => true, 'message' => 'Đã khóa thành công!']);
+    
+        } elseif ($lock->status == UserStatusType::LOCK) {
+            $this->userService->UpdateUserCustomer($user->id, [
+                'status' => UserStatusType::ACTIVE,
+                'reason_lock' => null,
+            ]);
+    
+            // Trả về response thành công NGAY LẬP TỨC
+            return response()->json(['success' => true, 'message' => 'Đã mở khóa thành công!']);
+    
+        } else {
+            return response()->json(['success' => false, 'message' => 'Thất bại, xin kiểm tra lại.']);
+        }
     }
-}
-
-public function lockMultipleUsers(LockUserRequest $request)
+    public function lockMultipleUsers(LockUserRequest $request)
 {
-    // Lấy danh sách user_ids từ request
+    // Lấy danh sách user_ids và lý do từ request
     $validated = $request->validated();
     $userIds = $validated['user_ids'];
+    $reason = $request->input('reason_lock'); // Lý do khóa
 
-    // Cập nhật trạng thái của tất cả người dùng thành "LOCK"
-    $this->userService->UpdateUserCustomer($userIds, ['status' => UserStatusType::LOCK]);
+    // Cập nhật trạng thái của tất cả người dùng thành "LOCK" và lưu lý do khóa
+    $this->userService->UpdateUserCustomer($userIds, [
+        'status' => UserStatusType::LOCK,
+        'reason_lock' => $reason,
+    ]);
 
-    // Phát sự kiện UserLocked cho từng người dùng
+    // Dispatch job để gửi email cho từng người dùng
     foreach ($userIds as $userId) {
-        event(new UserLocked($userId));
+        // Dispatch event UserLocked
+        event(new UserLocked($userId, $reason));
+
+        // Dispatch job để gửi email
+        dispatch(new SendUserLockedEmail($userId, $reason));
+        Log::info('Job dispatched to send email to user ID: ' . $userId . ' with reason: ' . $reason);
     }
 
     return response()->json([
         'message' => 'Đã khóa thành công!'
     ]);
 }
-
     public function unLockMultipleUsers(LockUserRequest $request)
     {
         $validated = $request->validated();
@@ -183,4 +200,29 @@ public function lockMultipleUsers(LockUserRequest $request)
             'message' => $result ? 'Cập nhật trạng thái thành công' : 'Không thể cập nhật trạng thái'
         ]);
     }
+
+//     public function decentralization(User $user)
+// {
+//      // Kiểm tra người dùng hiện tại có quyền quản trị viên (role = 2) hay không
+//      if (auth()->user()->role !== UserRoleType::ADMIN) {
+//         return redirect()->back()->with('error', 'Bạn không có quyền thực hiện hành động này.');
+//     }
+//     if ($user->role == UserRoleType::CUSTOMER) {
+//         // Cập nhật quyền thành nhân viên
+//         $this->userService->UpdateUserCustomer($user->id, ['role' => UserRoleType::EMPLOYEE]);
+
+//         // Gửi email thông báo
+//         Mail::to($user->email)->send(new UserRoleChangedMail($user, 'Nhân viên'));
+
+//         return redirect()->back()->with('success', 'Cấp quyền nhân viên thành công');
+//     } elseif ($user->role == UserRoleType::EMPLOYEE) {
+//         // Cập nhật quyền thành khách hàng
+//         $this->userService->UpdateUserCustomer($user->id, ['role' => UserRoleType::CUSTOMER]);
+
+//         // Gửi email thông báo
+//         Mail::to($user->email)->send(new UserRoleChangedMail($user, 'Khách hàng'));
+
+//         return redirect()->back()->with('success', 'Hủy quyền nhân viên thành công');
+//     }
+// }
 }

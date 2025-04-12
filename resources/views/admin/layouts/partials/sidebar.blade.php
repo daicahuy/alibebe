@@ -23,22 +23,15 @@
                     {{-- Admin --}}
                     @if (Auth::user()->isAdmin())
                         <li class="sidebar-list">
-                            <a class="debar-link link-nav sidebar-link sidebar-title">
+                            <a  href="{{ route('admin.index') }}" class="debar-link link-nav sidebar-link sidebar-title">
                                 <span>
                                     <div class="d-flex align-items-center">
                                         <i class="ri-home-line"></i>
                                         <div class="sidebar-main-link">{{ __('message.dashboard') }}</div>
                                     </div>
                                 </span>
-                                <div class="according-menu">
-                                    @if (Request::is('admin/index*') || Request::is('admin/detail-index*'))
-                                        <i class="ri-arrow-down-s-line"></i>
-                                    @else
-                                        <i class="ri-arrow-right-s-line"></i>
-                                    @endif
-                                </div>
                             </a>
-                            <ul class="sidebar-submenu" @style([
+                            {{-- <ul class="sidebar-submenu" @style([
                                 'display: block;' => Request::is('admin/index*') || Request::is('admin/detail-index*'),
                             ])>
                                 <li>
@@ -53,44 +46,33 @@
                                         <div>Thống kê chi tiết</div>
                                     </a>
                                 </li>
-                            </ul>
+                            </ul> --}}
                         </li>
                     @endif
+                    @if (Auth::user()->isAdmin())
+                    <li class="sidebar-list">
+                        <a  href="{{ route('admin.detail-index') }}" class="debar-link link-nav sidebar-link sidebar-title">
+                            <span>
+                                <div class="d-flex align-items-center">
+                                    <i class="ri-home-line"></i>
+                                    <div class="sidebar-main-link">Thống kê chi tiết</div>
+                                </div>
+                            </span>
+                        </a>
+                    </li>
+                @endif
 
                     {{-- Employee --}}
                     @if (Auth::user()->isEmployee())
                         <li class="sidebar-list">
-                            <a class="debar-link link-nav sidebar-link sidebar-title">
+                            <a href="{{ route('admin.index-employee') }}" class="debar-link link-nav sidebar-link sidebar-title">
                                 <span>
                                     <div class="d-flex align-items-center">
                                         <i class="ri-home-line"></i>
                                         <div class="sidebar-main-link">{{ __('message.dashboard') }}</div>
                                     </div>
                                 </span>
-                                <div class="according-menu">
-                                    @if (Request::is('admin/index-employee*') || Request::is('admin/detail-index-employee*'))
-                                        <i class="ri-arrow-down-s-line"></i>
-                                    @else
-                                        <i class="ri-arrow-right-s-line"></i>
-                                    @endif
-                                </div>
                             </a>
-                            <ul class="sidebar-submenu" @style([
-                                'display: block;' => Request::is('admin/index-employee*') || Request::is('admin/detail-index-employee*'),
-                            ])>
-                                <li>
-                                    <a href="{{ route('admin.index-employee') }}"
-                                        class="{{ Request::is('admin/index-employee*') ? 'active' : '' }}">
-                                        <div>Thống kê</div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('admin.detail-index-employee') }}"
-                                        class="{{ Request::is('admin/detail-index-employee*') ? 'active' : '' }}">
-                                        <div>Thống kê chi tiết</div>
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
                     @endif
 

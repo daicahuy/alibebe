@@ -228,7 +228,7 @@
                 <div class="col-xxl-9 col-xl-8">
                     <div class="title title-flex">
                         <div>
-                            <h2>Các sản phẩm bán chạy nhất hôm nay.</h2>
+                            <h2>Sản phẩm mới nhất</h2>
                             <p></p>
                         </div>
 
@@ -287,14 +287,13 @@
                                                     </a>
 
                                                     <h5 class="price">
-                                                        <span
-                                                            class="theme-color">{{ number_format($topSell->display_price) }}đ</span>
-                                                        {{-- Kiểm tra is_sale thay vì sale_price --}}
-                                                        @if ($topSell->is_sale == 1)
-                                                            <del>{{ number_format($topSell->original_price) }}đ</del>
+                                                        @if ($topSell->display_price < $topSell->original_price && $topSell->original_price > 0)
+                                                            <span class="theme-color">{{ number_format($topSell->display_price) }}đ</span>
+                                                            <del style="color: gray;">{{ number_format($topSell->original_price) }}đ</del>
+                                                        @else
+                                                            <span class="theme-color">{{ number_format($topSell->display_price) }}đ</span>
                                                         @endif
-                                                    </h5>
-
+                                                    </h5> 
 
                                                     <div class="product-rating mt-sm-2 mt-1">
                                                         <ul class="rating">
@@ -310,7 +309,6 @@
                                                     </div>
                                                     <div class="d-flex justify-content-between mt-sm-2 mt-1">
                                                         <h6 class="unit">Lượt xem: {{ $topSell->views }}</h6>
-                                                        <h6 class="unit">Đã Bán Hôm Nay: {{ $topSell->total_sold }}</h6>
                                                     </div>
                                                     <div class="add-to-cart-box">
                                                         <a href="javascript:void(0)" data-bs-toggle="modal"
@@ -368,15 +366,14 @@
                     </div>
 
                     <div class="title d-block">
-                        <h2>Sản phẩm dành cho bạn.</h2>
-                        <p></p>
+                        <h2>Sản phẩm truy cập nhiều nhất</h2>
                     </div>
 
                     <div class="section-b-space">
                         <div class="product-border  overflow-hidden">
                             <div>
                                 <div class="row gx-3 gy-4">
-                                    @foreach ($aiSuggestedProducts as $aiSuggest)
+                                    @foreach ($getProductByView as $aiSuggest)
                                         <div class="col-lg-3 col-md-4 col-sm-6 ">
                                             <div class="product-box border rounded shadow-sm p-3">
                                                 <div class="product-image">
@@ -471,8 +468,7 @@
                         </div>
                     </div>
                     <div class="title d-block">
-                        <h2>Sản phẩm Nổi bật.</h2>
-                        <p></p>
+                        <h2>Sản phẩm bán chạy nhất của chúng tôi</h2>
                     </div>
                     <div class="section-b-space">
                         <div class="product-border  overflow-hidden">
@@ -570,49 +566,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="title d-block">
-                        <div>
-                            <h2>Sản phẩm bán chạy nhất của chúng tôi</h2>
-                        </div>
-                    </div>
-                    <div class="best-selling-slider product-wrapper wow fadeInUp">
-                        @foreach ($bestSellingProducts->chunk(4) as $chunk)
-                            <div>
-                                <ul class="product-list">
-                                    @foreach ($chunk as $product)
-                                        <li>
-                                            <div class="offer-product">
-                                                <a href="{{ route('products', ['product' => $product->slug]) }}"
-                                                    class="offer-image">
-                                                    <img src="{{ Storage::url($product->thumbnail) }}" class="blur-up lazyload"
-                                                        alt="{{ $product->name }}">
-                                                </a>
-
-                                                <div class="offer-detail">
-                                                    <div>
-                                                        <a href="{{ route('products', ['product' => $product->slug]) }}"
-                                                            class="text-title">
-                                                            <h6 class="name">{{ $product->name }}</h6>
-                                                        </a>
-                                                        <span>{{ $product->total_sold }} đã bán</span>
-                                                        <h5 class="price">
-                                                            <span
-                                                                class="theme-color">{{ number_format($product->display_price) }}đ</span>
-                                                            {{-- Kiểm tra is_sale thay vì sale_price --}}
-                                                            @if ($product->is_sale == 1)
-                                                                <del>{{ number_format($product->original_price) }}đ</del>
-                                                            @endif
-                                                        </h5>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endforeach
-                    </div>
-
+                   
                     <div class="section-t-space">
                         <div class="banner-contain hover-effect">
                             <img src="{{ asset('theme/client/assets/images/product/vendor.png') }}"

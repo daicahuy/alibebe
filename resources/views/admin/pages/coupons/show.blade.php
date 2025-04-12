@@ -104,7 +104,7 @@
                                 <div class="col-sm-6">
                                     <label for="usage_limit">{{ __('form.coupon.usage_limit') }}</label>
                                     <input type="text" id="usage_limit" class="form-control"
-                                        value="{{ $coupon->usage_limit > 0 ? $coupon->usage_limit : 'Không Giới Hạn' }}"
+                                        value="{{ $coupon->usage_limit > 0 ? $coupon->usage_limit : 'Chưa Đặt Giới Hạn' }}"
                                         readonly>
                                 </div>
                                 <div class="col-sm-6">

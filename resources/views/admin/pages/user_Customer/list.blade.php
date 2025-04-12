@@ -29,7 +29,7 @@
                             </div>
 
                         </div>
-                       
+
                         <!-- HEADER TABLE -->
                         <div class="show-box">
                             <div class="selection-box"><label>{{ __('message.show') }} :</label>
@@ -97,6 +97,7 @@
                                             </th>
 
                                             <th>{{ __('form.user.phone_number') }}</th>
+                                            <th>Email</th>
                                             <th>{{ __('form.user.role') }}</th>
                                             <th class="cursor-pointer"> {{ __('form.user.created_at') }}
                                                 <div class="filter-arrow">
@@ -130,6 +131,7 @@
                                                 </td>
                                                 <td class="cursor-pointer">{{ $item->fullname }}</td>
                                                 <td class="cursor-pointer">{{ $item->phone_number }}</td>
+                                                <td class="cursor-pointer">{{ $item->email }}</td>
                                                 <td class="cursor-pointer">
                                                     @if ($item->role == 0)
                                                         <span>{{ __('form.user_customer') }}</span>
@@ -167,17 +169,25 @@
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <form id="lockUserForm-{{ $item->id }}"
-                                                                action="{{ route('admin.users.customer.lockUser', $item->id) }}"
-                                                                method="POST">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <button type="button" class="btn-lock" id="btn-lock-all"
-                                                                    onclick="confirmLockUser('{{ $item->id }}')">
-                                                                    <i class="ri-lock-line"></i>
-                                                                </button>
-                                                            </form>
+                                                            <button type="button" class="btn-lock" data-bs-toggle="modal"
+                                                                data-bs-target="#lockUserModal"
+                                                                data-user-id="{{ $item->id }}">
+                                                                <i class="ri-lock-line"></i>
+                                                            </button>
                                                         </li>
+                                                        {{-- @if (Auth::user()->role == 2)
+                                                            <li>
+                                                                <form action="{{ route('admin.users.customer.decentralization', $item->id) }}" method="post">
+                                                                    @csrf
+                                                                    @method('PUT')
+                                                                    <button type="button" class="btn-lock" onclick="confirmDecentralization({{ $item->id }})">
+                                                                        <i class="ri-arrow-up-circle-fill"
+                                                                            style="color: #0da487"></i>
+                                                                    </button>
+                                                                </form>
+                                                           
+                                                        </li>
+                                                        @endif --}}
                                                     </ul>
                                                 </td>
                                             </tr>
@@ -202,6 +212,30 @@
             </div>
         </div>
     </div>
+    <!-- Modal nhập lý do khóa -->
+    <div class="modal fade" id="lockUserModal" tabindex="-1" aria-labelledby="lockUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="lockUserForm" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="lockUserModalLabel">Bạn có chắc muốn khóa người này !</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <textarea name="reason_lock" id="reason_lock" class="form-control" placeholder="Nhập lý do khóa..." ></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-danger">Khóa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 
@@ -215,21 +249,192 @@
 
 @push('js')
     <script>
-        function confirmLockUser(userId) {
+
+// function confirmDecentralization(userId) {
+//     Swal.fire({
+//         title: 'Xác nhận',
+//         text: 'Bạn có chắc muốn nâng quyền cho người dùng này không?',
+//         icon: 'warning',
+//         showCancelButton: true,
+//         confirmButtonColor: '#3085d6',
+//         cancelButtonColor: '#d33',
+//         confirmButtonText: 'Xác nhận',
+//         cancelButtonText: 'Hủy'
+//     }).then((result) => {
+//         if (result.isConfirmed) {
+//             // Gửi form nếu người dùng xác nhận
+//             document.getElementById('decentralizationForm-' + userId).submit();
+//         }
+//     });
+// }
+
+        document.addEventListener('DOMContentLoaded', function() {
+    // Khi modal được hiển thị
+    const lockUserModal = document.getElementById('lockUserModal');
+    lockUserModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget; // Nút kích hoạt modal
+        const userId = button.getAttribute('data-user-id'); // Lấy user ID từ data attribute
+
+        // Cập nhật action của form trong modal
+        const form = document.getElementById('lockUserForm');
+        form.action = `/admin/users/customer/lockUser/${userId}`;
+    });
+
+    // Xử lý gửi form bằng AJAX
+    const lockUserForm = document.getElementById('lockUserForm');
+    lockUserForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const userId = this.action.split('/').pop(); // Lấy userId từ action của form
+        const reason = document.getElementById('reason_lock').value.trim();
+        const url = `/admin/users/customer/lockUser/${userId}`;
+        const method = 'POST'; // Hoặc 'PUT' tùy thuộc vào route bạn định nghĩa
+
+        if (!reason) {
             Swal.fire({
-                title: "{{ __('message.confirm_lock_user') }}",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Xác nhận",
-                cancelButtonText: "{{ __('message.cancel') }}"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('lockUserForm-' + userId).submit();
+                icon: 'warning',
+                title: 'Thông báo!',
+                text: 'Vui lòng nhập lý do khóa trước khi thực hiện!',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ reason_lock: reason })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: data.message,
+                    timer: 2000, // Thời gian hiển thị (milliseconds)
+                    showConfirmButton: false // Ẩn nút OK
+                }).then((result) => {
+                    if (result.isConfirmed || result.isDismissed) {
+                        // Đóng modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('lockUserModal'));
+                        modal.hide();
+                        // Tải lại trang sau khi đóng modal
+                        window.location.reload();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: data.message,
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: error.message || 'Đã xảy ra lỗi khi gửi yêu cầu.',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
+});
+
+
+function confirmLockUser(userId) {
+    const reasonInput = document.getElementById('reason_lock_' + userId);
+    const reason = reasonInput ? reasonInput.value.trim() : '';
+
+    if (!reason) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Thông báo!',
+            text: 'Vui lòng nhập lý do khóa trước khi thực hiện!',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: "Bạn có chắc chắn?",
+        text: "Bạn có muốn khóa người dùng này không?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Xác nhận",
+        cancelButtonText: "Hủy"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = `/admin/users/customer/lockUser/${userId}`;
+            const method = 'POST';
+            const reasonModal = document.getElementById('reason_lock');
+            const reasonValue = reasonModal ? reasonModal.value.trim() : reason;
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ reason_lock: reasonValue })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
                 }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: data.message,
+                        timer: 2000, // Thời gian hiển thị (milliseconds)
+                        showConfirmButton: false // Ẩn nút OK
+                    }).then((result) => {
+                        if (result.isConfirmed || result.isDismissed) {
+                            // Đóng modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('lockUserModal'));
+                            modal.hide();
+                            // Tải lại trang sau khi đóng modal
+                            window.location.reload();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: data.message,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: error.message || 'Đã xảy ra lỗi khi gửi yêu cầu.',
+                    confirmButtonText: 'OK'
+                });
             });
         }
+    });
+}
 
         document.addEventListener("DOMContentLoaded", function() {
             @if (session('success'))
@@ -319,70 +524,79 @@
 
             // Xử lý khi nhấn nút khóa tất cả
             $('#btn-lock-all').on('click', function(e) {
-                e.preventDefault();
+    e.preventDefault();
 
-                let selectedUsers = [];
-                $('.checkbox-input:checked').each(function() {
-                    let userId = $(this).data('id'); // Lấy ID từ `data-id`
-                    if (userId) {
-                        selectedUsers.push(userId);
-                    }
-                });
+    let selectedUsers = [];
+    $('.checkbox-input:checked').each(function() {
+        let userId = $(this).data('id'); // Lấy ID từ `data-id`
+        if (userId) {
+            selectedUsers.push(userId);
+        }
+    });
 
-                if (selectedUsers.length === 0) {
+    if (selectedUsers.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Thông báo',
+            text: 'Vui lòng chọn ít nhất một người dùng để khóa!',
+            timer: 2000,
+            showConfirmButton: false
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: 'Nhập lý do khóa',
+        input: 'textarea',
+        inputPlaceholder: 'Nhập lý do khóa...',
+        inputAttributes: {
+            'aria-label': 'Nhập lý do khóa'
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Vui lòng nhập lý do khóa!';
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const reason = result.value;
+
+            $.ajax({
+                url: "{{ route('admin.users.customer.lockMultipleUsers') }}", // Đảm bảo route này đúng
+                type: "POST", // Phương thức POST
+                data: {
+                    user_ids: selectedUsers,
+                    reason_lock: reason,
+                    _token: "{{ csrf_token() }}" // CSRF token
+                },
+                success: function(response) {
                     Swal.fire({
-                        icon: 'warning',
-                        title: 'Thông báo',
-                        text: 'Vui lòng chọn ít nhất một người dùng để khóa!',
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: response.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseJSON); // Debug lỗi từ server
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: 'Có lỗi xảy ra, vui lòng thử lại!',
                         timer: 2000,
                         showConfirmButton: false
                     });
-                    return;
                 }
-
-                Swal.fire({
-                    title: 'Bạn có chắc chắn?',
-                    text: 'Bạn có muốn khóa những người dùng đã chọn không?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Xác nhận',
-                    cancelButtonText: 'Hủy'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: "{{ route('admin.users.customer.lockMultipleUsers') }}",
-                            type: "POST",
-                            data: {
-                                user_ids: selectedUsers,
-                                _token: "{{ csrf_token() }}"
-                            },
-                            success: function(response) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Thành công!',
-                                    text: response.message,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            },
-                            error: function(xhr) {
-                                console.log(xhr.responseJSON); // Debug lỗi từ server
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Lỗi!',
-                                    text: 'Có lỗi xảy ra, vui lòng thử lại!',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                });
-                            }
-                        });
-                    }
-                });
             });
+        }
+    });
+});
 
             // Tự động submit form khi chọn số lượng hiển thị
             document.getElementById('limit-select').addEventListener('change', function() {

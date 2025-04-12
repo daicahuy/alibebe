@@ -464,7 +464,9 @@ Route::prefix('/admin')
 
                         Route::get('/lock', 'lock')->name('lock');
 
-                        Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
+                        Route::post('/lockUser/{user}', 'lockUser')->name('lockUser');
+                        
+                        // Route::put('/decentralization/{user}', 'decentralization')->name('decentralization');
 
                         Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
 
