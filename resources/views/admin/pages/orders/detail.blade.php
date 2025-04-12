@@ -432,25 +432,8 @@
                             </li>
                                 `
                                     break;
+
                                 case 4:
-                                    htmlStatusTimeLine = `
-                                    
-                            <li class="ng-star-inserted active">
-                                <div class="panel-content">
-                                    <div class="icon"><img alt="image" class="img-fluid"
-                                            src="/theme/admin/assets/svg/delivered.svg" width="100px">
-                                    </div>
-                                    <div>
-                                        <div class="status">Đã giao hàng</div>
-                                        <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
-                                    
-                                        </div>
-                                </div>
-                            </li>
-                                `
-                                    break;
-                                case 5:
                                     htmlStatusTimeLine = `
                                     <li class="ng-star-inserted active">
                                 <div class="panel-content">
@@ -467,7 +450,7 @@
                             </li>
                                 `
                                     break;
-                                case 7:
+                                case 6:
                                     htmlStatusTimeLine = `
                                     <li class="ng-star-inserted cancelled-box active">
                                 <div class="panel-content">
@@ -484,7 +467,7 @@
                             </li>
                                 `
                                     break;
-                                case 6:
+                                case 5:
                                     htmlStatusTimeLine = `
                                    
                             <li class="ng-star-inserted active">
@@ -650,7 +633,7 @@
                             {
                                 id: 5,
                                 name: "Hoàn thành",
-                                next: [5, 6]
+                                next: [5]
                             },
                             {
                                 id: 6,
@@ -695,11 +678,11 @@
 
 
 
-                        if (data.listItemOrder[0].order.order_statuses[0].id == 7) {
+                        if (data.listItemOrder[0].order.order_statuses[0].id == 6) {
                             $(".span-failed").addClass("active");
                             $(".span-completed").removeClass("active");
                             $(".orderStatus").removeClass("active");
-                        } else if (data.listItemOrder[0].order.order_statuses[0].id == 6) {
+                        } else if (data.listItemOrder[0].order.order_statuses[0].id == 5) {
                             $(".span-failed").removeClass("active");
                             $(".span-completed").addClass("active");
                             $(".orderStatus").removeClass("active");
