@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\User;
+use App\Models\UserOrderCancel;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,6 +29,7 @@ class UnlockUsersJob implements ShouldQueue
         try {
             $user = User::find($this->userId);
             $user->update(['order_blocked_until' => null]);
+            UserOrderCancel::where('user_id', $this->userId)->delete();
             Log::info("User {$user->id} unlocked.");
         } catch (\Exception $e) {
             Log::error("Error unlocking user {$user->id}: " . $e->getMessage());
