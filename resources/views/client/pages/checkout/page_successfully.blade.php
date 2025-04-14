@@ -19,7 +19,7 @@
             <p class="mt-4 font-normal text-lg leading-8 text-gray-500 mb-11 text-center">Đặt hàng thành công</p>
 
             <div class="container d-flex flex-row text-center mb-4" style="margin-top: 50px;justify-content: center;">
-                <a style="background-color: #6F42C1; color: #fff;" class="btn custom-btn-1 mx-2">Giỏ hàng</a>
+                <a href="/cart" style="background-color: #6F42C1; color: #fff;" class="btn custom-btn-1 mx-2">Giỏ hàng</a>
                 <a href="/list-order" style="background-color: #007BFF; color: #fff;" class="btn custom-btn-2 mx-2">Đơn
                     hàng</a>
             </div>
