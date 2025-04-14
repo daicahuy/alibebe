@@ -44,8 +44,7 @@ class User extends Authenticatable
         'is_change_password',
         'bank_name',
         'user_bank_name',
-        'bank_account',
-        'reason_lock'
+        'bank_account'
     ];
 
 
@@ -96,18 +95,18 @@ class User extends Authenticatable
         static::updated(function ($user) {
             if ($user->isDirty('loyalty_points')) {
                 $repository = app()->make(UserRepository::class);
-                
+
                 // Lấy điểm cũ và mới
                 $oldPoints = $user->getOriginal('loyalty_points');
                 $newPoints = $user->loyalty_points;
-                
+
                 // Tính toán group
                 $oldGroup = $repository->getUserGroupId($oldPoints);
                 $newGroup = $repository->getUserGroupId($newPoints);
-    
+
                 if ($oldGroup !== $newGroup) {
                     $coupons = Coupon::where('user_group', $newGroup)->get();
-                    
+
                     foreach ($coupons as $coupon) {
                         $coupon->users()->syncWithoutDetaching([
                             $user->id => ['amount' => 1]

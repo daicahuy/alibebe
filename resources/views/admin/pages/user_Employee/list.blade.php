@@ -120,6 +120,7 @@
                                                     <div><i class="ri-arrow-up-s-fill"></i></div>
                                                 </div>
                                             </th>
+                                            <th>Số hủy đơn</th>
                                             <th>{{ __('form.user.status') }}</th>
                                             <th>{{ __('form.action') }}</th>
                                         </tr>
@@ -159,6 +160,8 @@
 
                                                 </td>
                                                 <td class="cursor-pointer">{{ $item->created_at }}</td>
+                                                <td class="cursor-pointer">{{ $item->time_block_order??0 }}</td>
+
                                                 <td class="cursor-pointer">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch switch-sm">
