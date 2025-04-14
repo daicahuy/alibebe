@@ -42,8 +42,15 @@
                         </div>
                     @else
                         <!-- Tin nhắn của admin -->
+                        @php
+                            // Truy vấn để lấy thông tin của admin/employee
+                            $sender = App\Models\User::find($message->sender_id);
+                            $senderName = $sender ? $sender->fullname : 'Admin #' . $message->sender_id;
+                        @endphp
                         <div class="d-flex mb-2 justify-content-end">
                             <div class="bg-primary text-white border rounded p-2 shadow-sm position-relative w-75">
+                                <!-- Hiển thị tên người gửi thay vì chỉ ID -->
+                                <small class="d-block text-white-50 mb-1" style="font-size: 10px;">{{ $senderName }}</small>
                                 <p class="mb-1 small">{{ $message->message }}</p>
                                 <small class="text-white-50 position-absolute end-0 bottom-0 me-2 mb-1"
                                     style="font-size: 10px;">
@@ -51,7 +58,7 @@
                                 </small>
                             </div>
                             <!-- Avatar của admin -->
-                            <img src="{{ $chatSession->employee && $chatSession->employee->avatar ? Storage::url($chatSession->employee->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($chatSession->employee->fullname ?? 'admin'))) . '?d=mp' }}"
+                            <img src="{{ $sender && $sender->avatar ? Storage::url($sender->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim('admin'.$message->sender_id))) . '?d=mp' }}"
                                 alt="Admin" class="rounded-circle ms-2 border border-light"
                                 style="width: 40px; height: 40px;">
                         </div>
@@ -128,10 +135,11 @@
 
         // Subscribe kênh chat
         const channel = pusher.subscribe('private-chat.{{ $chatSession->id }}');
-
+        
+        // Cache để lưu tên người dùng
+        const userCache = {};
         // Bind sự kiện nhận tin nhắn mới
-        channel.bind('message.sent', function(data) {
-
+        channel.bind('message.sent', async function(data) {
             const currentUserId = {{ auth()->id() }}; // Lấy ID của admin hiện tại
 
             // Nếu tin nhắn do chính admin gửi, bỏ qua không hiển thị lại
@@ -152,30 +160,33 @@
                 {{ $chatSession->customer_id }}) {
                 console.log('Tin nhắn của khách hàng được nhận.');
                 messageHtml = `
-            <div class="d-flex mb-2">
-                <img src="{{ $chatSession->customer->avatar ? Storage::url($chatSession->customer->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($chatSession->customer->fullname))) . '?d=mp' }}"
-                    alt="Customer" class="rounded-circle me-2 img-fluid" style="width: 40px; height: 40px;">
-                <div class="bg-white border rounded p-2 shadow-sm position-relative w-75">
-                    <p class="mb-1 small">${data.message}</p>
-                    <small class="text-muted position-absolute end-0 bottom-0 me-2 mb-1" style="font-size: 10px;">
-                        ${time}
-                    </small>
-                </div>
-            </div>
-        `;
+                    <div class="d-flex mb-2">
+                        <img src="{{ $chatSession->customer->avatar ? Storage::url($chatSession->customer->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($chatSession->customer->fullname))) . '?d=mp' }}"
+                            alt="Customer" class="rounded-circle me-2 img-fluid" style="width: 40px; height: 40px;">
+                        <div class="bg-white border rounded p-2 shadow-sm position-relative w-75">
+                            <p class="mb-1 small">${data.message}</p>
+                            <small class="text-muted position-absolute end-0 bottom-0 me-2 mb-1" style="font-size: 10px;">
+                                ${time}
+                            </small>
+                        </div>
+                    </div>
+                `;
             } else {
+                // Lấy thông tin người gửi (Admin)
+                const senderId = data.sender ? data.sender.id : (data.sender_id || 'Unknown');
                 messageHtml = `
-            <div class="d-flex mb-2 justify-content-end">
-                <div class="bg-primary text-white border rounded p-2 shadow-sm position-relative w-75">
-                    <p class="mb-1 small">${data.message}</p>
-                    <small class="text-white-50 position-absolute end-0 bottom-0 me-2 mb-1" style="font-size: 10px;">
-                        ${time}
-                    </small>
-                </div>
-                <img src="{{ $chatSession->employee && $chatSession->employee->avatar ? Storage::url($chatSession->employee->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($chatSession->employee->fullname ?? 'admin'))) . '?d=mp' }}"
-                    alt="Admin" class="rounded-circle ms-2 border border-light" style="width: 40px; height: 40px;">
-            </div>
-        `;
+                    <div class="d-flex mb-2 justify-content-end">
+                        <div class="bg-primary text-white border rounded p-2 shadow-sm position-relative w-75">
+                            <small class="d-block text-white-50 mb-1" style="font-size: 10px;">${senderName}</small>
+                            <p class="mb-1 small">${data.message}</p>
+                            <small class="text-white-50 position-absolute end-0 bottom-0 me-2 mb-1" style="font-size: 10px;">
+                                ${time}
+                            </small>
+                        </div>
+                        <img src="https://www.gravatar.com/avatar/${md5('admin'+senderId)}?d=mp"
+                            alt="Admin" class="rounded-circle ms-2 border border-light" style="width: 40px; height: 40px;">
+                    </div>
+                `;
             }
 
             // Append tin nhắn mới vào container chat
@@ -192,5 +203,10 @@
             container.scrollTop(container[0].scrollHeight);
         }
         scrollToBottom();
+        
+        // Hàm md5 đơn giản cho Gravatar URL
+        function md5(string) {
+            return string.split('').reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0).toString(16);
+        }
     </script>
 @endpush
