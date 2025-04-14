@@ -95,7 +95,7 @@ Route::prefix('/categories')
     ->group(function () {
 
         Route::patch('/{category}/active', 'toggleActive')->name('toggleActive'); // Cập nhật trạng thái active
-
+    
     });
 
 Route::prefix('/attributes')

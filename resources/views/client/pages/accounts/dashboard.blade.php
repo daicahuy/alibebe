@@ -67,9 +67,11 @@
             </span>
         </div>
 
+        @dd($data);
+
         <!-- Thông tin người dùng -->
         <div class="dashboard-user-name">
-            <h6 class="text-content">Xin Chào, <b class="text-title">Vicki E. Pope</b></h6>
+            <h6 class="text-content">Xin Chào, <b class="text-title"></b></h6>
             <p class="text-content">Bạn sẽ thấy toàn bộ thông tin của bạn ở đây !!!</p>
         </div>
 
