@@ -110,7 +110,7 @@ class ReviewRepository extends BaseRepository
     {
         return Order::where('user_id', $userId)
             ->whereHas('orderStatuses', function ($query) {
-                $query->where('id', 6); // Kiểm tra order_status_id = 6 (Hoàn thành)
+                $query->where('id', 5); // Kiểm tra order_status_id = 6 (Hoàn thành)
             })
             ->whereHas('orderItems', function ($query) use ($productId) {
                 $query->where('product_id', $productId);
