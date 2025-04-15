@@ -692,7 +692,11 @@
                 {
                     id: 5,
                     name: "Hoàn thành",
-                    next: [6, 7]
+<<<<<<<<< Temporary merge branch 1
+                    next: [5]
+=========
+                    next: [5, 6]
+>>>>>>>>> Temporary merge branch 2
                 },
                 {
                     id: 6,
@@ -878,11 +882,12 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                                                                                                                            <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                                                                                                                            <div class="status-pending">
-                                                                                                                                                                                            <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                                                                                                                            </div>
-                                                                                                                                                                                            </div>
+<<<<<<<<< Temporary merge branch 1
+                                                    <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                    <div class="status-pending">
+                                                    <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                    </div>
+                                                    </div>
 
 
                                                                                                                                                                                             ` : `
@@ -890,9 +895,26 @@
                                                                                                                                                                                             `}
                                         <li>
                                             ${order.is_refund_cancel != null ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `:""}
+                                        <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
+                                            <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
+                                        `:""}
+=========
+                                                                                                                                                                                                                            <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                                                                                                                                                                                            <div class="status-pending">
+                                                                                                                                                                                                                            <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                            </div>
+
+
+                                                                                                                                                                                                                            ` : `
+
+                                                                                                                                                                                                                            `}
+                                        <li>
+                                            ${order.is_refund_cancel != null ? `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `:""}
+>>>>>>>>> Temporary merge branch 2
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
                                                 <i class="ri-eye-line"></i>

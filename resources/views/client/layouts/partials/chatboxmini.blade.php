@@ -194,6 +194,7 @@
                         user_id: loggedInUserId
                     },
                     success: (response) => {
+                        console.log(response);
                         window.currentChatSessionId = response.session.id;
 
                         // Đăng ký kênh realtime cho phiên chat hiện tại
@@ -250,7 +251,7 @@
                         }
 
                         if (response.status) {
-                            displayChatMessages(response.messages);
+                            displayChatMessages(response.messages , response.employee);
                         } else {
                             showError('Lỗi tải tin nhắn: ' + response.message);
                         }
@@ -295,6 +296,8 @@
                                 '<i class="fas fa-check-circle text-success"></i>'
                             );
                             $(`#${tempId} .message-status`).text('Đã gửi');
+
+                            $('.chat-messages').addClass('hide');
                         } else {
                             $(`#${tempId} .fa-spinner`).replaceWith(
                                 '<i class="fas fa-exclamation-circle text-danger"></i>'
@@ -314,7 +317,8 @@
             }
 
             // Hiển thị tin nhắn
-            function displayChatMessages(messages) {
+            function displayChatMessages(messages , employee) {
+                console.log(employee)
                 const container = $('#chatMessages');
                 container.empty();
 
@@ -344,7 +348,9 @@
                     } else {
                         messageHtml = `
                             <div class="admin-message">
-                                <div class="admin-initial">A</div>
+                                <div class="admin-initial" data-bs-toggle="tooltip" data-bs-placement="top" title="${employee.fullname}">
+                                    ${employee.fullname.charAt(0)}
+                                </div>
                                 <div class="admin-text">
                                     ${msg.message}
                                     <span class="message-time">${time}</span>
