@@ -56,6 +56,18 @@ class OrderCancelService
                 'message' => 'Tài khoản của bạn đã bị khóa.',
                 'should_logout' => true,
             ], 403);
+        } elseif ($cancels >= 5 && $user->time_block_order === 3) {
+            $user->update([
+                'status' => 0,
+                'time_block_order' => 4,
+            ]);
+
+            Auth::logout();
+
+            return response()->json([
+                'message' => 'Tài khoản của bạn đã bị khóa.',
+                'should_logout' => true,
+            ], 403);
         }
 
         return null; // Luôn return giá trị ở cuối hàm
