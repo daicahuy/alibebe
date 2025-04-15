@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\User;
 use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class OrderRepository extends BaseRepository
 {
@@ -156,8 +157,12 @@ class OrderRepository extends BaseRepository
 
         // Tổng số đơn hàng đang chờ (Giả sử order_status_id = 1 là "đang chờ")
         $pendingOrders = $user->orders->filter(function ($order) {
-            return $order->orderStatuses->where('order_status_id', 1);
-        })->count();
+            $latestStatus = $order->orderStatuses->sortByDesc(function ($status) {
+                return $status->pivot->created_at;
+            })->first();
+        
+            return $latestStatus && $latestStatus->id == 1;
+        })->count();       
 
         return [
             'total_orders' => $totalOrders,
