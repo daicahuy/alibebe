@@ -199,13 +199,9 @@ class OrderController extends Controller
                     }
                 }
 
-
-
-            }
-
-            $admins = User::where('role', 2)
-                ->orWhere('role', 1)
-                ->get();
+                 $admins = User::where('role', 2)
+                        ->orWhere('role', 1)
+                        ->get();
 
             $message = "Đơn Hàng {$order->code} đã bị hủy !";
 
