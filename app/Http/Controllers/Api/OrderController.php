@@ -178,7 +178,11 @@ class OrderController extends Controller
             DB::beginTransaction();
 
             $orderArray = $order->toArray();
-            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 7) {
+            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6) {
+
+
+
+
 
                 foreach ($orderArray['order_items'] as $key => $value) {
                     if ($value['product_variant_id']) {
@@ -195,11 +199,13 @@ class OrderController extends Controller
                     }
                 }
 
+
+
             }
 
-                 $admins = User::where('role', 2)
-                        ->orWhere('role', 1)
-                        ->get();
+            $admins = User::where('role', 2)
+                ->orWhere('role', 1)
+                ->get();
 
             $message = "Đơn Hàng {$order->code} đã bị hủy !";
 
@@ -214,6 +220,13 @@ class OrderController extends Controller
             }
 
             event(new OrderCustomer($order, $message));
+            $user = User::find($user_id);
+            // return response()->json(["user" => $user]);
+            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6 && $user->role == 0) {
+                UserOrderCancel::create([
+                    'user_id' => $user_id,
+                ]);
+            }
 
             DB::commit();
 

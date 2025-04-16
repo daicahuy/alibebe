@@ -104,8 +104,8 @@
                                                     <div><i class="ri-arrow-up-s-fill"></i></div>
                                                 </div>
                                             </th>
-                                            <th>Số hủy đơn</th>
-                                            <th>{{ __('form.user.status') }}</th>
+                                            <th>Số lần vi phạm</th>
+                                            {{-- <th>{{ __('form.user.status') }}</th> --}}
                                             <th>{{ __('form.action') }}</th>
                                         </tr>
                                     </thead>
@@ -145,7 +145,7 @@
                                                 </td>
                                                 <td class="cursor-pointer">{{ $item->created_at }}</td>
                                                 <td class="cursor-pointer">{{ $item->time_block_order??0 }}</td>
-                                                <td class="cursor-pointer">
+                                                {{-- <td class="cursor-pointer">
                                                     <div class="form-check form-switch ps-0">
                                                         <label class="switch switch-sm">
                                                             <input type="checkbox" class="status-toggle"
@@ -154,7 +154,7 @@
                                                             <span class="switch-state"></span>
                                                         </label>
                                                     </div>
-                                                </td>
+                                                </td> --}}
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
@@ -251,23 +251,7 @@
 @push('js')
     <script>
 
-// function confirmDecentralization(userId) {
-//     Swal.fire({
-//         title: 'Xác nhận',
-//         text: 'Bạn có chắc muốn nâng quyền cho người dùng này không?',
-//         icon: 'warning',
-//         showCancelButton: true,
-//         confirmButtonColor: '#3085d6',
-//         cancelButtonColor: '#d33',
-//         confirmButtonText: 'Xác nhận',
-//         cancelButtonText: 'Hủy'
-//     }).then((result) => {
-//         if (result.isConfirmed) {
-//             // Gửi form nếu người dùng xác nhận
-//             document.getElementById('decentralizationForm-' + userId).submit();
-//         }
-//     });
-// }
+
 
         document.addEventListener('DOMContentLoaded', function() {
     // Khi modal được hiển thị
@@ -635,55 +619,55 @@ function confirmLockUser(userId) {
                 window.location.href = url.toString();
             });
         });
-        $(document).ready(function() {
-            $(".status-toggle").each(function() {
-                $(this).data("prev-state", $(this).prop("checked")); // Lưu trạng thái ban đầu
-            });
+        // $(document).ready(function() {
+        //     $(".status-toggle").each(function() {
+        //         $(this).data("prev-state", $(this).prop("checked")); // Lưu trạng thái ban đầu
+        //     });
 
-            $(".status-toggle").change(function() {
-                let $this = $(this);
-                let userId = $this.data("id");
-                let newStatus = $this.prop("checked") ? 1 : 0;
-                let prevState = $this.data("prev-state"); // Lấy trạng thái ban đầu
+        //     $(".status-toggle").change(function() {
+        //         let $this = $(this);
+        //         let userId = $this.data("id");
+        //         let newStatus = $this.prop("checked") ? 1 : 0;
+        //         let prevState = $this.data("prev-state"); // Lấy trạng thái ban đầu
 
-                $.ajax({
-                    url: "{{ route('admin.users.customer.update-status') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        id: userId,
-                        status: newStatus
-                    },
-                    success: function(response) {
-                        if (!response.success) {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Lỗi!",
-                                text: "Không thể cập nhật trạng thái!",
-                                timer: 2000
-                            });
-                            $this.prop("checked", prevState); // Khôi phục trạng thái cũ nếu lỗi
-                        } else {
-                            Swal.fire({
-                                icon: "success",
-                                title: "Thành công!",
-                                text: "Trạng thái đã được cập nhật!",
-                                timer: 2000
-                            });
-                            $this.data("prev-state", newStatus); // Cập nhật trạng thái mới
-                        }
-                    },
-                    error: function() {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Lỗi kết nối!",
-                            text: "Có lỗi khi cập nhật trạng thái!",
-                            timer: 2000
-                        });
-                        $this.prop("checked", prevState); // Khôi phục trạng thái cũ nếu lỗi
-                    }
-                });
-            });
-        });
+        //         $.ajax({
+        //             url: "{{ route('admin.users.customer.update-status') }}",
+        //             type: "POST",
+        //             data: {
+        //                 _token: "{{ csrf_token() }}",
+        //                 id: userId,
+        //                 status: newStatus
+        //             },
+        //             success: function(response) {
+        //                 if (!response.success) {
+        //                     Swal.fire({
+        //                         icon: "error",
+        //                         title: "Lỗi!",
+        //                         text: "Không thể cập nhật trạng thái!",
+        //                         timer: 2000
+        //                     });
+        //                     $this.prop("checked", prevState); // Khôi phục trạng thái cũ nếu lỗi
+        //                 } else {
+        //                     Swal.fire({
+        //                         icon: "success",
+        //                         title: "Thành công!",
+        //                         text: "Trạng thái đã được cập nhật!",
+        //                         timer: 2000
+        //                     });
+        //                     $this.data("prev-state", newStatus); // Cập nhật trạng thái mới
+        //                 }
+        //             },
+        //             error: function() {
+        //                 Swal.fire({
+        //                     icon: "error",
+        //                     title: "Lỗi kết nối!",
+        //                     text: "Có lỗi khi cập nhật trạng thái!",
+        //                     timer: 2000
+        //                 });
+        //                 $this.prop("checked", prevState); // Khôi phục trạng thái cũ nếu lỗi
+        //             }
+        //         });
+        //     });
+        // });
     </script>
 @endpush

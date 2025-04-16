@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Models\UserOrderCancel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+
 class OrderCancelService
 {
     public function checkAndApplyPenalty(int $userId): JsonResponse|null
@@ -43,7 +44,6 @@ class OrderCancelService
                 'time_block_order' => 2,
             ]);
             dispatch(new UnlockUsersJob($user->id))->delay(now()->addDays(5));
-
         } elseif ($cancels >= 5 && $user->time_block_order === 2) {
             $user->update([
                 'status' => 0,
@@ -71,5 +71,9 @@ class OrderCancelService
         }
 
         return null; // Luôn return giá trị ở cuối hàm
+    }
+    public function delete(int $userId): void
+    {
+        UserOrderCancel::where('user_id', $userId)->delete();
     }
 }

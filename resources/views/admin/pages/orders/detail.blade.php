@@ -633,11 +633,7 @@
                             {
                                 id: 5,
                                 name: "Hoàn thành",
-<<<<<<<<< Temporary merge branch 1
                                 next: [5]
-=========
-                                next: [5, 6]
->>>>>>>>> Temporary merge branch 2
                             },
                             {
                                 id: 6,
