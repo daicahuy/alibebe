@@ -406,10 +406,12 @@ class AuthCustomerApiController extends Controller
             if ($validator->fails()) {
                 return ['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errors' => $validator->errors()->toArray()];
             }
+
             $user = User::where('email', $request->input('otp_email'))->first();
 
 
             $user->password = Hash::make($request->input('password'));
+            $user->is_change_password = 1;
             $user->save();
             return response()->json(['status' => Response::HTTP_OK, 'message' => "success"], 200);
 

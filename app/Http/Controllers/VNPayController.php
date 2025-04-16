@@ -17,6 +17,7 @@ use App\Models\OrderOrderStatus;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\User;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -42,7 +43,10 @@ class VNPayController extends Controller
             if (!$userCheckVerify->email_verified_at) {
                 return redirect('/cart-checkout')->with('error', "Xác minh tài khoản trước khi mua hàng!");
             }
+            if ($userCheckVerify->order_blocked_until) {
+                return response()->json(["status" => "error", "message" => "Khóa đặt hàng đến " . Carbon::parse($userCheckVerify->order_blocked_until)->format('H:i:s d/m/Y')]);
 
+            }
             if (!$dataOrderCustomer['fullname']) {
                 return response()->json(["status" => "error", "message" => "Vui lòng nhập địa chỉ người nhận"]);
             }
@@ -230,7 +234,10 @@ class VNPayController extends Controller
                     if (!$userCheckVerify->email_verified_at) {
                         return redirect('/cart-checkout')->with('error', "Xác minh tài khoản trước khi mua hàng!");
                     }
+                    if ($userCheckVerify->order_blocked_until) {
+                        return response()->json(["status" => "error", "message" => "Khóa đặt hàng đến " . Carbon::parse($userCheckVerify->order_blocked_until)->format('H:i:s d/m/Y')]);
 
+                    }
 
                     if ($couponCode) {
                         $coupon = Coupon::where('code', $couponCode)->lockForUpdate()->first();

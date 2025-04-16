@@ -14,7 +14,10 @@ use App\Models\Order;
 use App\Models\OrderOrderStatus;
 use App\Models\ProductStock;
 use App\Models\User;
+use App\Models\UserOrderCancel;
 use App\Services\Api\Admin\OrderService;
+use App\Services\OrderCancelService;
+use Auth;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
@@ -177,6 +180,10 @@ class OrderController extends Controller
             $orderArray = $order->toArray();
             if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6) {
 
+
+
+
+
                 foreach ($orderArray['order_items'] as $key => $value) {
                     if ($value['product_variant_id']) {
                         $itemStock = ProductStock::where('product_variant_id', $value['product_variant_id'])->first();
@@ -192,9 +199,13 @@ class OrderController extends Controller
                     }
                 }
 
-                 $admins = User::where('role', 2)
-                        ->orWhere('role', 1)
-                        ->get();
+
+
+            }
+
+            $admins = User::where('role', 2)
+                ->orWhere('role', 1)
+                ->get();
 
             $message = "Đơn Hàng {$order->code} đã bị hủy !";
 
@@ -209,6 +220,13 @@ class OrderController extends Controller
             }
 
             event(new OrderCustomer($order, $message));
+            $user = User::find($user_id);
+            // return response()->json(["user" => $user]);
+            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6 && $user->role == 0) {
+                UserOrderCancel::create([
+                    'user_id' => $user_id,
+                ]);
+            }
 
             }
 
@@ -216,26 +234,60 @@ class OrderController extends Controller
             DB::commit();
 
 
-
-
             if ($note) {
                 $this->orderService->changeNoteStatusOrder($idOrder, $note);
 
             } else {
-                $this->orderService->changeStatusOrder($idOrder, $idStatus, $user_id);
-                if (is_array($idOrder)) {
-                    foreach ($idOrder as $key => $value) {
-                        # code...
-                        event(new OrderStatusUpdated($value, $idStatus, $order, $user_id));
+                if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6 && $user->role == 0) {
+
+                    $this->orderService->changeStatusOrder($idOrder, $idStatus, null);
+                    if (is_array($idOrder)) {
+                        foreach ($idOrder as $key => $value) {
+                            # code...
+                            event(new OrderStatusUpdated($value, $idStatus, $order, null));
+                            event(new OrderPendingCountUpdated());
+                        }
+                    } else {
+                        event(new OrderStatusUpdated($idOrder, $idStatus, $order, null));
                         event(new OrderPendingCountUpdated());
+
+
                     }
+
+
                 } else {
-                    event(new OrderStatusUpdated($idOrder, $idStatus, $order, $user_id));
-                    event(new OrderPendingCountUpdated());
+                    $this->orderService->changeStatusOrder($idOrder, $idStatus, $user_id);
+                    if (is_array($idOrder)) {
+                        foreach ($idOrder as $key => $value) {
+                            # code...
+                            event(new OrderStatusUpdated($value, $idStatus, $order, $user_id));
+                            event(new OrderPendingCountUpdated());
+                        }
+                    } else {
+                        event(new OrderStatusUpdated($idOrder, $idStatus, $order, $user_id));
+                        event(new OrderPendingCountUpdated());
 
 
+                    }
                 }
             }
+
+
+            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6 && $user->role == 0) {
+                $orderCancelService = new OrderCancelService();
+                $response = $orderCancelService->checkAndApplyPenalty($user_id);
+
+
+
+                if ($response instanceof \Illuminate\Http\JsonResponse) {
+                    return response()->json([
+                        'message' => 'Tài khoản đã bị khóa',
+                        'status' => Response::HTTP_OK,
+                        'should_logout' => true
+                    ]);
+                }
+            }
+
 
 
 
