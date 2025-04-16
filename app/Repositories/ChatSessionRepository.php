@@ -215,6 +215,12 @@ class ChatSessionRepository extends BaseRepository
             ->where(function ($query) use ($searchTerm) {
                 $query->where('u.fullname', 'LIKE', "%{$searchTerm}%");
             })
+            ->whereNotIn('u.id', function ($subquery) {
+                $subquery->select('cs.customer_id')
+                    ->from('chat_sessions as cs')
+                    ->where('cs.status', 0)
+                    ->whereNotNull('cs.closed_date');
+            })
             ->limit($limit)
             ->get();
 

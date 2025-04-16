@@ -63,7 +63,7 @@
 
                                         <tr>
                                             <td>{{ __('form.user.phone_number') }} :</td>
-                                            <td>{{ $address->user->phone_number }}</td>
+                                            <td>{{ $address->phone_number }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
