@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\UnlockOrderJob;
 use App\Enums\NotificationType;
 use App\Events\OrderCustomer;
+use App\Events\SystemNotification;
 use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderOrderStatus;
@@ -277,6 +278,25 @@ class OrderController extends Controller
 
 
                 if ($response instanceof \Illuminate\Http\JsonResponse) {
+                        $admins = User::where('role', 2)
+                    ->orWhere('role', 1)
+                    ->get();
+
+                    $userCheckLocked = User::find($user_id);
+
+                    $message = "Người dùng {$userCheckLocked->fullname} đã bị khóa Vì Spam hủy đơn hàng!";
+
+                    foreach ($admins as $admin) {
+                        Notification::create([
+                            'user_id' => $admin->id,
+                            'message' => $message,
+                            'read' => false,
+                            'type' => NotificationType::System,
+                            'target_user_id' => $userCheckLocked->id
+                        ]);
+                    }
+
+                    event(new SystemNotification($userCheckLocked, $message));
                     return response()->json([
                         'message' => 'Tài khoản đã bị khóa',
                         'status' => Response::HTTP_OK,

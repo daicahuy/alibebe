@@ -374,15 +374,18 @@ class ChatService
     public function getClientSession($userId)
     {
         try {
-            $session = $this->chatSessionRepository->findActiveChatSession($userId);
+            $session = $this->chatSessionRepository->findActiveChatSessionS($userId);
 
             if (!$session) {
-                return [
-                    'status' => false,
-                    'message' => 'Phiên chat đã bị khóa , hãy liên hệ hotline để biết chi tiết'
-                ];
-                // $newSession = $this->startChat($userId);
-                // $session = $this->chatSessionRepository->getChatSession($newSession['session_id'], $userId);
+                $newSession = $this->startChat($userId);
+                $session = $this->chatSessionRepository->getChatSession($newSession['session_id'], $userId);
+            } else {
+                if ($session->status === 0 && $session->closed_date) {
+                    return [
+                        'status' => false,
+                        'message' => 'Phiên chat đã bị khóa , hãy liên hệ hotline để biết chi tiết'
+                    ];
+                }
             }
 
             return [
