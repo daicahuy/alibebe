@@ -222,7 +222,7 @@
                             // Xử lý lỗi
                             if (response.errorsLogin) {
                                 Toastify({
-                                    text: "Tài khoản đã bị khóa!",
+                                    text: `${response.errorsLogin}`,
                                     duration: 2000,
                                     newWindow: true,
                                     close: true,
