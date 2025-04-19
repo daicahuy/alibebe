@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -20,26 +21,30 @@ class DashboardExport implements WithStyles,FromCollection, WithMapping, WithHea
     }
     protected $dashboardRepository;
     protected $start_date;
-    protected $end_date;
     protected $IdEmployee;
+    
+    protected $userName;
 
-    public function __construct(DashboardRepository $dashboardRepository, $start_date, $end_date, $IdEmployee)
+
+    public function __construct(DashboardRepository $dashboardRepository, $start_date, $IdEmployee)
     {
         $this->dashboardRepository = $dashboardRepository;
         $this->start_date = $start_date;
-        $this->end_date = $end_date;
         $this->IdEmployee = $IdEmployee;
+        
+        $user = User::find($this->IdEmployee);
+        $this->userName = $user ? $user->fullname : 'TỔNG';
     }
 
     // Phương thức collection sẽ lấy dữ liệu bạn cần xuất
     public function collection(): \Illuminate\Support\Collection
     {
         // Lấy dữ liệu cho biểu đồ doanh thu và đơn hàng
-        $revenueData = $this->dashboardRepository->getRevenueAndOrdersByHour($this->start_date, $this->end_date, $this->IdEmployee);
+        $revenueData = $this->dashboardRepository->getRevenueAndOrdersByHour($this->start_date,  $this->IdEmployee);
 
         // Lấy dữ liệu cho biểu đồ trạng thái đơn hàng
-        $orderStatusData = $this->dashboardRepository->getOrderStatusByHour($this->start_date, $this->end_date, $this->IdEmployee);
-        $sumRevenueData = $this->dashboardRepository->revenue($this->start_date, $this->end_date, $this->IdEmployee);
+        $orderStatusData = $this->dashboardRepository->getOrderStatusByHour($this->start_date,  $this->IdEmployee);
+        $sumRevenueData = $this->dashboardRepository->revenue($this->start_date, $this->IdEmployee);
         // dd($sumRevenueData);
         $collection = collect();
      
@@ -88,7 +93,7 @@ class DashboardExport implements WithStyles,FromCollection, WithMapping, WithHea
         ]);
 
         // Biểu đồ 2: Trạng thái đơn hàng (Thời gian, Trạng thái, Số đơn hàng)
-        if ($this->start_date == $this->end_date) {
+        if ($this->start_date == 0 || $this->start_date == null) {
             foreach ($orderStatusData['labels'] as $label) {
                 // Chuyển đổi "0:00", "2:00", ... thành số nguyên 0, 2, 4, ...
                 $hour = intval(explode(':', $label)[0]); // Lấy số giờ từ chuỗi "0:00" => 0
@@ -202,12 +207,10 @@ class DashboardExport implements WithStyles,FromCollection, WithMapping, WithHea
     // Phương thức headings để tạo tiêu đề cột cho Excel
     public function headings(): array
     {
+        // dd($this->start_date);
         return [
-            'DOANH THU (VND)',
-            '',
-            '',            // Cột thời gian
-            'THỐNG KÊ DOANH THU & SỐ LƯỢNG ĐƠN HÀNG',      // Cột tổng tiền (cho Biểu đồ 1)
-            '',    // Cột số lượng đơn hàng (cho Biểu đồ 1)
+            ['BÁO CÁO CỦA: ' . $this->userName],
+            ['DOANH THU (VND)', '', '', 'THỐNG KÊ DOANH THU & SỐ LƯỢNG ĐƠN HÀNG', ''],
         ];
     }
 }

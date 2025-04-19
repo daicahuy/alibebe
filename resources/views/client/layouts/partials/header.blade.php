@@ -300,7 +300,7 @@
                                                             @php
                                                                 // Kiểm tra nếu có productVariant thì lấy ảnh từ productVariant, nếu không thì lấy ảnh từ product
                                                                 $thumbnail =
-                                                                    $cartItem->productVariant->product->thumbnail ??
+                                                                    $cartItem->productVariant->thumbnail ??
                                                                     $cartItem->product->thumbnail;
                                                             @endphp
 
@@ -879,7 +879,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Tài khoản bị khóa',
-                        text: 'Tài khoản của bạn đã bị khóa bởi quản trị viên. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.',
+                        text:  `Lý do: ${data.reason}`,
                         confirmButtonText: 'OK'
                     }).then(() => {
                         // Gọi API đăng xuất
@@ -917,6 +917,75 @@
                 });
 
             }
+        });
+
+        let userId = {{ auth()->user()->id ?? '' }};
+        let csrfToken = $('meta[name="csrf-token"]').attr('content');
+        let countdownTime = 60; // thời gian đếm ngược 60 giây
+        let countdownInterval;
+
+        // Hàm khởi tạo đếm ngược, lưu thời gian kết thúc vào localStorage
+        function startCountdown(seconds) {
+            let endTime = Date.now() + seconds * 1000;
+            localStorage.setItem('verifyEndTime_' + userId, endTime);
+
+            countdownInterval = setInterval(() => {
+                let remaining = Math.floor((endTime - Date.now()) / 1000);
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    $('#verifyButton').prop('disabled', false).text('Gửi mã xác minh');
+                    $('#timer').text('');
+                    localStorage.removeItem('verifyEndTime_' + userId);
+                } else {
+                    $('#verifyButton').prop('disabled', true).text('Vui lòng chờ...');
+                    $('#timer').text(`Gửi lại sau ${remaining} giây`);
+                }
+            }, 1000);
+        }
+
+        // Hàm kiểm tra nếu trước đó có đếm ngược đang chạy (đã lưu vào localStorage)
+        function checkCountdown() {
+            let savedEndTime = localStorage.getItem('verifyEndTime_' + userId);
+            if (savedEndTime && Date.now() < savedEndTime) {
+                let remaining = Math.floor((savedEndTime - Date.now()) / 1000);
+                startCountdown(remaining);
+            }
+        }
+
+        $(document).ready(function () {
+            // Nếu đã có thời gian đang đếm ngược (reload lại trang) thì tiếp tục đếm
+            checkCountdown();
+
+            // Xử lý sự kiện click của nút gửi mã xác minh
+            $('#verifyButton').click(function () {
+                $.ajax({
+                    url: '{{ route('api.auth.verification.verify', ['id' => ':userId']) }}'
+                            .replace(':userId', userId),
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Gửi Mã Thành công!',
+                                text: 'Vui lòng kiểm tra email của bạn!',
+                                timer: 3000,
+                                showConfirmButton: false
+                            });
+                            startCountdown(countdownTime);
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Thất bại!',
+                            text: 'Không thể gửi mã xác minh!',
+                        });
+                    }
+                });
+            });
         });
     </script>
 @endpush

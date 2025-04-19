@@ -13,7 +13,7 @@
         <div class="header-logo-wrapper p-0">
             <div checked="checked" class="toggle-sidebar">
                 <i class="ri-apps-line status_toggle middle sidebar-toggle"></i>
-                <a href="{{ Auth::user()->isAdmin() ? route('admin.index') : route('admin.indexNhanVien') }}">
+                <a href="{{ Auth::user()->isAdmin() ? route('admin.index') : route('admin.detail-index-employee') }}">
                     <img alt="header-logo" class="img-fluid"
                         src="{{ asset('theme/admin/assets/images/logo/1.png') }}">
                 </a>
@@ -99,7 +99,8 @@
                             </span>
 
                             <p class="mb-0 font-roboto">
-                                {{ $user->isAdmin() ? 'Admin' : 'Nhân Viên' }} <i class="middle ri-arrow-down-s-line"></i>
+                                {{ $user->isAdmin() ? 'Admin' : 'Nhân Viên' }} <i
+                                    class="middle ri-arrow-down-s-line"></i>
                             </p>
                         </div>
                     </div>
@@ -150,7 +151,8 @@
             authEndpoint: '/broadcasting/auth',
             auth: {
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content')
                 }
             }
         });
@@ -181,7 +183,7 @@
 
             // Nếu số lượng thông báo vượt quá MAX_NOTIFICATION thì xóa tin cũ nhất
             let items = $notificationList.find('li.notification-item');
-            if(items.length > MAX_NOTIFICATION) {
+            if (items.length > MAX_NOTIFICATION) {
                 $(items[items.length - 1]).remove();
             }
 
@@ -224,7 +226,7 @@
             return `
             <li class="notification-item ${readClass}" data-id="${data.id}">
                 <p>
-                    <i class="${icon} me-2 txt-primary"></i>
+               *     <i class="${icon} me-2 txt-primary"></i>
                     ${content}
                 </p>
             </li>
@@ -370,47 +372,78 @@
             });
         }
 
-        // Load danh sách thông báo cho offcanvas (hiển thị đầy đủ)
-        function loadNotificationsOffcanvas() {
+        let currentPage = 1;
+        const perPage = 5;
+        let isLoading = false;
+
+        function loadNotificationsOffcanvas(reset = false) {
+            if (isLoading) return;
+            isLoading = true;
+
+            if (reset) {
+                currentPage = 1;
+                $('#notification-offcanvas-list').html('');
+            }
+
             $.ajax({
                 url: '/api/notifications',
                 method: 'GET',
                 data: {
-                    user_id: window.currentUserId
+                    user_id: window.currentUserId,
+                    page: currentPage,
+                    per_page: perPage
                 },
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    var notifications = response.notifications && response.notifications.data ?
-                        response.notifications.data :
-                        (Array.isArray(response) ? response : []);
+                    const notifications = response.notifications.data || [];
 
-                    var $offcanvasList = $('#notification-offcanvas-list');
-
-                    if (notifications.length === 0) {
-                        $offcanvasList.html('<p>Không có thông báo nào!</p>');
+                    if (notifications.length === 0 && currentPage === 1) {
+                        $('#notification-offcanvas-list').html('<p>Không có thông báo nào!</p>');
                     } else {
-                        $offcanvasList.empty();
-                        for (var i = 0; i < notifications.length; i++) {
-                            // Xác định kiểu thông báo dựa trên dữ liệu
-                            var type = notifications[i].type == 0 ? 'coupon' : 'order';
-                            var offcanvasHTML = renderNotificationOffcanvasItem(notifications[i], type);
-                            $offcanvasList.append(offcanvasHTML);
+                        for (let i = 0; i < notifications.length; i++) {
+                            const type = notifications[i].type == 0 ? 'coupon' : 'order';
+                            const itemHTML = renderNotificationOffcanvasItem(notifications[i],
+                            type);
+                            $('#notification-offcanvas-list').append(itemHTML);
                         }
 
-                        // Gắn sự kiện xóa cho các nút xóa
-                        $offcanvasList.find('.delete-notifi').on('click', function() {
-                            var id = $(this).data('id');
+                        // Hiển thị nút "Xem thêm"
+                        if (response.notifications.current_page < response.notifications
+                            .last_page) {
+                            if (!$('#load-more-notifi').length) {
+                                $('#notification-offcanvas-list').append(`
+                            <div class="text-center mt-3">
+                                <button class="btn btn-outline-primary" id="load-more-notifi">Xem thêm</button>
+                            </div>
+                        `);
+                            }
+                        } else {
+                            $('#load-more-notifi').remove(); // Không còn trang nào
+                        }
+
+                        // Gắn lại sự kiện xóa
+                        $('.delete-notifi').on('click', function() {
+                            const id = $(this).data('id');
                             deleteNotification(id);
                         });
                     }
+
+                    isLoading = false;
                 },
                 error: function(err) {
-                    console.error('Error loading offcanvas notifications:', err);
+                    console.error('Error loading notifications:', err);
+                    isLoading = false;
                 }
             });
         }
+
+        // Bắt sự kiện "Xem thêm"
+        $(document).on('click', '#load-more-notifi', function() {
+            currentPage++;
+            loadNotificationsOffcanvas();
+        });
 
         // Xóa thông báo
         function deleteNotification(id) {
@@ -479,7 +512,8 @@
         $('#open-notification-offcanvas').on('click', function(e) {
             e.preventDefault();
             loadNotificationsOffcanvas();
-            var myOffcanvas = new bootstrap.Offcanvas(document.getElementById('notificationOffcanvas'), {
+            var myOffcanvas = new bootstrap.Offcanvas(document.getElementById(
+            'notificationOffcanvas'), {
                 backdrop: false // Tắt backdrop
             });
             myOffcanvas.show();

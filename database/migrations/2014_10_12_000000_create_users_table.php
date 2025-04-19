@@ -33,10 +33,9 @@ return new class extends Migration {
             $table->string('bank_name', 255)->nullable();
             $table->string('user_bank_name', 255)->nullable();
             $table->string('bank_account', 255)->nullable();
+            $table->string('reason_lock', 255)->nullable();
             $table->timestamp('order_blocked_until')->nullable();
             $table->integer('time_block_order')->nullable();
-
-
             $table->timestamps();
         });
     }
