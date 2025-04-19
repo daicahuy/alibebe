@@ -45,8 +45,8 @@ class User extends Authenticatable
         'bank_name',
         'user_bank_name',
         'bank_account',
-        'order_blocked_until',
         'reason_lock',
+        'order_blocked_until',
         'time_block_order'
     ];
 

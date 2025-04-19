@@ -146,12 +146,6 @@
                 </div>
             </div>
         </section>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <a href="{{route('admin.detail-index-employee')}}"><button type="submit" class="btn btn-primary">Lọc chi tiết</button></a>
-            </div>
-        </div>
-            
             
         </div>
         <section>

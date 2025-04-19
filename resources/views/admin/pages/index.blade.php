@@ -173,10 +173,8 @@
                 </div>
             </div>
         </section>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <a href="{{route('admin.detail-index')}}"><button type="submit" class="btn btn-primary">Lọc chi tiết</button></a>
-            </div>
+        <div class="d-flex justify-content-end align-items-center mb-3">
+        
             <div>
                <form action="{{ route('admin.export') }}" method="GET">
                 <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">

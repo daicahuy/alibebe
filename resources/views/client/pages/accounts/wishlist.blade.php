@@ -23,14 +23,14 @@
                             <div class="product-box-3 h-100 wow fadeInUp" data-wow-delay="0.65s">
                                 @php
                                     $product = $item->product;
-
+                                    
+                                    // Lọc biến thể có is_active = 1
+                                    $activeVariants = $product->productVariants->where('is_active', 1);
+                                    
                                     $isSale = $product->is_sale == 1 && $product->sale_price > 0;
-
-                                    if (!$isSale && $product->productVariants->isNotEmpty()) {
-                                        $isSale = $product->productVariants
-                                            ->where('is_active', 1)
-                                            ->where('sale_price', '>', 0)
-                                            ->isNotEmpty();
+                                    
+                                    if (!$isSale && $activeVariants->isNotEmpty()) {
+                                        $isSale = $activeVariants->where('sale_price', '>', 0)->isNotEmpty();
                                     }
                                 @endphp
 
@@ -339,15 +339,18 @@
                         productVariantsData = {};
                         $('#productVariants').empty();
 
-                        if (response.productVariants && response.productVariants.length > 0) {
-                            let allAttributes = {};
-                            let firstVariant = response.productVariants[0];
+                        // Lọc biến thể có is_active = 1
+                        const activeVariants = response.productVariants ? 
+                            response.productVariants.filter(variant => variant.is_active === 1) : [];
 
-                            response.productVariants.forEach(variant => {
+                        if (activeVariants && activeVariants.length > 0) {
+                            let allAttributes = {};
+                            let firstVariant = activeVariants[0];
+
+                            activeVariants.forEach(variant => {
                                 let variantId = variant.id;
                                 let stock = variant.product_stock?.stock ?? 0;
-                                let variantPrice = variant.display_price ?? variant
-                                    .price;
+                                let variantPrice = variant.display_price ?? variant.price;
                                 let variantPriceDisplay = variant.display_price ?
                                     `
                                         <span class="theme-color">${formatPrice(variant.display_price)}</span>
@@ -371,16 +374,14 @@
 
                                 variant.attribute_values.forEach(attr => {
                                     if (!allAttributes[attr.attributes_name]) {
-                                        allAttributes[attr
-                                            .attributes_name] = [];
+                                        allAttributes[attr.attributes_name] = [];
                                     }
                                     if (!allAttributes[attr.attributes_name]
                                         .some(v => v.id === attr.id)) {
                                         allAttributes[attr.attributes_name]
                                             .push({
                                                 id: attr.id,
-                                                attribute_value: attr
-                                                    .attribute_value
+                                                attribute_value: attr.attribute_value
                                             });
                                     }
                                 });
