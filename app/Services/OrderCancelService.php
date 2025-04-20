@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Models\UserOrderCancel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+
 class OrderCancelService
 {
     public function checkAndApplyPenalty(int $userId): JsonResponse|null
@@ -34,7 +35,7 @@ class OrderCancelService
         if ($cancels === 5 && $user->time_block_order === null) {
             $user->update([
                 'order_blocked_until' => Carbon::now()->addDays(3),
-                'time_block_order' => 1,
+                'C' => 1,
             ]);
             dispatch(new UnlockUsersJob($user->id))->delay(now()->addDays(3));
         } elseif ($cancels === 5 && $user->time_block_order === 1) {
@@ -43,7 +44,6 @@ class OrderCancelService
                 'time_block_order' => 2,
             ]);
             dispatch(new UnlockUsersJob($user->id))->delay(now()->addDays(5));
-
         } elseif ($cancels >= 5 && $user->time_block_order === 2) {
             $user->update([
                 'status' => 0,
@@ -56,8 +56,24 @@ class OrderCancelService
                 'message' => 'Tài khoản của bạn đã bị khóa.',
                 'should_logout' => true,
             ], 403);
+        } elseif ($cancels >= 5 && $user->time_block_order === 3) {
+            $user->update([
+                'status' => 0,
+                'time_block_order' => 4,
+            ]);
+
+            Auth::logout();
+
+            return response()->json([
+                'message' => 'Tài khoản của bạn đã bị khóa.',
+                'should_logout' => true,
+            ], 403);
         }
 
         return null; // Luôn return giá trị ở cuối hàm
+    }
+    public function delete(int $userId): void
+    {
+        UserOrderCancel::where('user_id', $userId)->delete();
     }
 }

@@ -465,6 +465,8 @@ Route::prefix('/admin')
                         Route::get('/lock', 'lock')->name('lock');
 
                         Route::post('/lockUser/{user}', 'lockUser')->name('lockUser');
+
+                        Route::put('/lockUserSpam/{user}', 'lockUserSpam')->name('lockUserSpam');
                         
                         // Route::put('/decentralization/{user}', 'decentralization')->name('decentralization');
 
@@ -498,6 +500,8 @@ Route::prefix('/admin')
                         Route::get('/lock', 'lock')->name('lock');
 
                         Route::put('/lockUser/{user}', 'lockUser')->name('lockUser');
+
+                        Route::put('/lockUserSpam/{user}', 'lockUserSpam')->name('lockUserSpam');
 
                         Route::post('lock-multiple', 'lockMultipleUsers')->name('lockMultipleUsers');
 

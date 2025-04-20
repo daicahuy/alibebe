@@ -11,6 +11,7 @@ use App\Http\Requests\User\UpdateUserRequest;
 use App\Jobs\SendUserLockedEmail;
 use App\Mail\UserLockedMail;
 use App\Models\User;
+use App\Services\OrderCancelService;
 use App\Services\Web\Admin\UserEmployeeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -20,9 +21,13 @@ class UserEmployeeController extends Controller
 {
     protected UserEmployeeService $userService;
 
-    public function __construct(UserEmployeeService $userService)
+    protected OrderCancelService $OrderCancelService;
+
+    public function __construct(UserEmployeeService $userService, OrderCancelService $OrderCancelService)
     {
         $this->userService = $userService;
+
+        $this->OrderCancelService = $OrderCancelService;
     }
 
     public function index(Request $request)
@@ -200,18 +205,31 @@ public function lockMultipleUsers(LockUserRequest $request)
         ]);
     }
 
-    public function updateStatus(Request $request)
+    public function lockUserSpam( User $user)
     {
-        $userId = $request->id;
-        $status = $request->status;
-
-        $data = ['status' => $status];
-
-        $result = $this->userService->UpdateUserEmployee($userId, $data);
-
-        return response()->json([
-            'success' => $result ? true : false,
-            'message' => $result ? 'Cập nhật trạng thái thành công' : 'Không thể cập nhật trạng thái'
+        $this->userService->UpdateUserEmployee($user->id, [
+            'status' => UserStatusType::ACTIVE,
+            'order_blocked_until' => null,
         ]);
+        $this->OrderCancelService->delete($user->id);
+
+
+        // Trả về response thành công NGAY LẬP TỨC
+        return response()->json(['success' => true, 'message' => 'Đã mở khóa thành công!']);
     }
+
+    // public function updateStatus(Request $request)
+    // {
+    //     $userId = $request->id;
+    //     $status = $request->status;
+
+    //     $data = ['status' => $status];
+
+    //     $result = $this->userService->UpdateUserEmployee($userId, $data);
+
+    //     return response()->json([
+    //         'success' => $result ? true : false,
+    //         'message' => $result ? 'Cập nhật trạng thái thành công' : 'Không thể cập nhật trạng thái'
+    //     ]);
+    // }
 }

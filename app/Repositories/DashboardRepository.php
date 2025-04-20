@@ -85,7 +85,7 @@ class DashboardRepository extends BaseRepository
     }
     public function countOrderDelivery($start_date = null, $IdEmployee = '')
     {
-        $statusIds = [3, 4, 5, 6, 8];
+        $statusIds = [3, 4, 5];
         switch ($start_date) {
             case 0: // Hôm nay
                 $start = now()->startOfDay();
@@ -181,7 +181,6 @@ class DashboardRepository extends BaseRepository
     }
     public function countOrderReturns($start_date = null, $IdEmployee = '')
     {
-        $statusIds = [8];
         switch ($start_date) {
             case 0: // Hôm nay
                 $start = now()->startOfDay();
@@ -212,17 +211,25 @@ class DashboardRepository extends BaseRepository
         }
         // dd($IdEmployee);
         if ($IdEmployee == 0) {
-            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
-                $query->whereIn('order_status_id', $statusIds);
-            })->whereBetween('created_at', [$start, $end])->count();
+            $countOrderReturns = Order::where('is_refund', 1)
+            ->whereHas('refund', function ($query) use ($start, $end) {
+                $query->whereBetween('created_at', [$start, $end]);
+            })
+            ->count();
         } else if ($IdEmployee != 0) {
-            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($IdEmployee, $statusIds) {
-                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $IdEmployee);
-            })->whereBetween('created_at', [$start, $end])->count();
+            $countOrderReturns = Order::where('is_refund', 1)
+            ->whereHas('orderStatuses', function ($query) use ($IdEmployee) {
+                $query->where('modified_by', $IdEmployee);
+            })
+            ->whereHas('refund', function ($query) use ($start, $end) {
+                $query->whereBetween('created_at', [$start, $end]);
+            })
+            ->count();
         } else {
-            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
-                $query->whereIn('order_status_id', $statusIds);
-            })->whereDate('created_at', now()->toDateString())->count();
+            $countOrderReturns = Order::where('is_refund', 1) 
+            ->whereHas('refund', function ($query) {
+                $query->whereDate('created_at', now()->toDateString());
+            })->count();
         }
         // dd($countOrderReturns);
         return $countOrderReturns;
@@ -656,6 +663,7 @@ class DashboardRepository extends BaseRepository
         $diffInDays = $start->diffInDays($end);
         $diffInMonths = $start->diffInMonths($end);
         if ($IdEmployee == 0) {
+        
             $diffInDays = $start->diffInDays($end);
         $diffInMonths = $start->diffInMonths($end);
             if ($diffInDays == 0) {
@@ -684,6 +692,16 @@ class DashboardRepository extends BaseRepository
                 ->groupBy(DB::raw($groupBy), 'order_status_id')
                 ->orderBy(DB::raw($groupBy))
                 ->get();
+        
+                $refund = DB::table('refunds')
+                ->join('orders', 'orders.id', '=', 'refunds.order_id')
+                ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+                ->whereBetween('refunds.created_at', [$start, $end])
+                ->selectRaw("$selectFormat, COUNT(refunds.id) as total_refunds")
+                ->groupBy(DB::raw($groupBy))
+                ->orderBy(DB::raw($groupBy))
+                ->get();
+
         } else if ($IdEmployee != 0) {
             if ($diffInDays == 0) {
                 $groupBy = 'FLOOR(HOUR(orders.created_at) / 2) * 2';
@@ -713,6 +731,15 @@ class DashboardRepository extends BaseRepository
                 ->groupBy(DB::raw($groupBy), 'order_status_id')
                 ->orderBy(DB::raw($groupBy))
                 ->get();
+            $refund = DB::table('refunds')
+                ->join('orders', 'orders.id', '=', 'refunds.order_id')
+                ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+                ->where('order_order_status.modified_by', $IdEmployee)
+                ->whereBetween('refunds.created_at', [$start, $end])
+                ->selectRaw("$selectFormat, COUNT(refunds.id) as total_refunds")
+                ->groupBy(DB::raw($groupBy))
+                ->orderBy(DB::raw($groupBy))
+                ->get();
         } else {
 
             $interval = '2 hours';
@@ -722,6 +749,14 @@ class DashboardRepository extends BaseRepository
                 ->whereDate('orders.created_at', now()->toDateString())
                 ->selectRaw('FLOOR(HOUR(orders.created_at) / 2) * 2 as time_label, order_statuses.id as order_status_id, COUNT(orders.id) as total_orders')
                 ->groupBy('time_label', 'order_status_id')
+                ->orderBy('time_label')
+                ->get();
+            $refund = DB::table('refunds')
+            ->join('orders', 'orders.id', '=', 'refunds.order_id')
+            ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+                ->whereDate('refunds.created_at', now()->toDateString())
+                ->selectRaw('FLOOR(HOUR(refunds.created_at) / 2) * 2 as time_label, COUNT(refunds.id) as total_refunds')
+                ->groupBy('time_label')
                 ->orderBy('time_label')
                 ->get();
         }
@@ -750,13 +785,24 @@ class DashboardRepository extends BaseRepository
             foreach ($orderStatuses as $statusId => $statusName) {
                 $ordersByStatus[$statusName][$key] = 0;
             }
+            // Thêm trạng thái "Hoàn hàng"
+            $ordersByStatus['Hoàn hàng'][$key] = 0;
         }
-
+        
         foreach ($data as $order) {
             $key = ($diffInDays == 0) ? (int) $order->time_label : $order->time_label;
             if (isset($orderStatuses[$order->order_status_id])) {
                 $ordersByStatus[$orderStatuses[$order->order_status_id]][$key] = $order->total_orders;
             }
+        }
+        
+        foreach ($refund as $r) {
+            // Kiểm tra và gán hoàn hàng vào đúng key
+            $key = ($diffInDays == 0) ? (int) $r->time_label : $r->time_label;
+            if (!isset($ordersByStatus['Hoàn hàng'][$key])) {
+                $ordersByStatus['Hoàn hàng'][$key] = 0;
+            }
+            $ordersByStatus['Hoàn hàng'][$key] += $r->total_refunds;  // Cộng dồn số hoàn hàng
         }
 
         return [
@@ -879,7 +925,7 @@ class DashboardRepository extends BaseRepository
 
                 break;
         }
-        $statusIds = [3, 4, 5, 6,8];
+        $statusIds = [3, 4, 5];
         if ($start_date ) {
           
             $countOrderDelivery = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
@@ -950,7 +996,6 @@ class DashboardRepository extends BaseRepository
     }
     public function countOrderReturnsEmployee($start_date = null)
     {
-        $statusIds = [8];
         $employee = Auth::id();
         switch ($start_date) {
             case 0: // Hôm nay
@@ -982,18 +1027,20 @@ class DashboardRepository extends BaseRepository
         }
         if ($start_date ) {
            
-            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
-                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
-            })->whereBetween('created_at', [$start, $end])->count();
-        } else if ($start_date ) {
-          
-            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
-                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
-            })->whereBetween('created_at', [$start, $end])->count();
-        } else {
-            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($employee,$statusIds) {
-                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $employee);
-            })->whereDate('created_at', now()->toDateString())->count();
+            $countOrderReturns = Order::where('is_refund', 1)
+            ->whereHas('orderStatuses', function ($query) use ($employee) {
+                $query->where('modified_by', $employee);
+            }) 
+            ->whereHas('refund', function ($query) use ($start, $end) {
+                $query->whereBetween('created_at', [$start, $end]);
+            })->count();
+        }  else {
+            $countOrderReturns = Order::where('is_refund', 1)
+            ->whereHas('orderStatuses', function ($query) use ($employee) {
+                $query->where('modified_by', $employee);
+            })  ->whereHas('refund', function ($query) use ($start, $end) {
+                $query->whereBetween('created_at', [$start, $end]);
+            })->count();
         }
         // dd($countOrderReturns);
         return $countOrderReturns;
@@ -1174,7 +1221,7 @@ class DashboardRepository extends BaseRepository
 
                 break;
         }
-        if ($start_date && $IdEmployee == 0) {
+        if ($start_date) {
        
             $countOrder = Order::whereHas('orderStatuses', function ($query) use ($employee) {
                 $query->where('modified_by', $employee);
@@ -1411,6 +1458,15 @@ class DashboardRepository extends BaseRepository
                 ->groupBy(DB::raw($groupBy), 'order_status_id')
                 ->orderBy(DB::raw($groupBy))
                 ->get();
+            $refund = DB::table('refunds')
+                ->join('orders', 'refunds.order_id', '=', 'orders.id')
+                ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+                ->where('order_order_status.modified_by', $employee)
+                ->whereBetween('refunds.created_at', [$start, $end])
+                ->selectRaw("$selectFormat, COUNT(refunds.id) as total_refunds")
+                ->groupBy(DB::raw($groupBy))
+                ->orderBy(DB::raw($groupBy))
+                ->get();
         } else {
             $start = now()->startOfDay();
             $end = now()->endOfDay();
@@ -1426,6 +1482,16 @@ class DashboardRepository extends BaseRepository
                 ->groupBy('time_label', 'order_status_id')
                 ->orderBy('time_label')
                 ->get();
+            $refund = DB::table('refunds')
+                ->join('orders', 'refunds.order_id', '=', 'orders.id')
+                ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+                ->where('order_order_status.modified_by', $employee)
+                ->whereDate('refunds.created_at', now()->toDateString())
+                ->selectRaw('FLOOR(HOUR(refunds.created_at) / 2) * 2 as time_label, COUNT(refunds.id) as total_refunds')
+                ->groupBy('time_label')
+                ->orderBy('time_label')
+                ->get();
+            
         }
 
         $period = new CarbonPeriod($start, $interval, $end);
@@ -1452,13 +1518,17 @@ class DashboardRepository extends BaseRepository
             foreach ($orderStatuses as $statusId => $statusName) {
                 $ordersByStatus[$statusName][$key] = 0;
             }
+            $ordersByStatus['Hoàn hàng'][$key] = 0;
         }
-
         foreach ($data as $order) {
             $key = ($diffInDays == 0) ? (int) $order->time_label : $order->time_label;
             if (isset($orderStatuses[$order->order_status_id])) {
                 $ordersByStatus[$orderStatuses[$order->order_status_id]][$key] = $order->total_orders;
             }
+        }
+        foreach ($refund as $r) {
+            $key = ($diffInDays == 0) ? (int) $r->time_label : $r->time_label;
+            $ordersByStatus['Hoàn hàng'][$key] = $r->total_refunds;
         }
 
         return [

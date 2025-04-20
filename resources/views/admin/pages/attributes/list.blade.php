@@ -72,10 +72,24 @@
 
                                 </form>
                             </div>
-                            <a href="{{ route('admin.attributes.hidden') }}"
-                                class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2">
-                                Ẩn
-                            </a>
+                            <div class="position-relative d-inline-block">
+                                <a href="{{ route('admin.attributes.hidden') }}"
+                                   class="align-items-center btn btn-outline-danger btn-sm d-flex ms-2">
+                                    Ẩn
+                                </a>
+                                @if($hiddenCount > 0)
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ $hiddenCount }}
+                                    </span>
+                                @endif
+                                @if($hiddenCount == 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    0
+                                </span>
+                            @endif
+                            </div>
+                            
+                            
                             <div class="datepicker-wrap">
 
                             </div>

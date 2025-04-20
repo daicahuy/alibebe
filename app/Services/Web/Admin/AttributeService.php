@@ -17,6 +17,17 @@ class AttributeService
     {
         $this->attributeRepository = $attributeRepository;
     }
+    public function hiddenCount()
+    {
+        try {
+            return $this->attributeRepository->hiddenCount();
+        } catch (\Throwable $th) {
+            Log::error(
+                __CLASS__ . "@" . __FUNCTION__,
+                ['error' => $th->getMessage()]
+            );
+        }
+    }
 
     public function getAllAttributeService(Request $request, $filter = null,$_keyword = null)
     {

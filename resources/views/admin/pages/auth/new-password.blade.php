@@ -4,6 +4,7 @@
     <section class="log-in-section section-b-space">
         <div class="container w-100">
             <div class="row">
+                <div class="d-flex">
                 <div class="col-xl-5 col-lg-6 me-auto">
                     <div class="log-in-box">
                         <div class="log-in-title">
@@ -43,6 +44,9 @@
                             </form>
                         </div>
                     </div>
+                </div>
+                <div class="image-contain">
+                    <img src="http://127.0.0.1:8000/theme/client/assets/images/inner-page/log-in.png" class="img-fluid" alt="">
                 </div>
             </div>
         </div>

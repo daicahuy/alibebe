@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Repositories\OrderRepository;
 use App\Repositories\ReviewRepository;
 use App\Repositories\WishlistRepository;
+use App\Services\OrderCancelService;
 use App\Services\Web\Admin\UserCustomerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -26,15 +27,16 @@ class UserCustomerController extends Controller
     protected OrderRepository $orderRepo;
     protected WishlistRepository $wishlistRepo;
     protected ReviewRepository $reviewRepo;
+    protected OrderCancelService $OrderCancelService;
 
 
-    public function __construct(UserCustomerService $userService, OrderRepository $orderRepo, WishlistRepository $wishlistRepo, ReviewRepository $reviewRepo)
+    public function __construct(UserCustomerService $userService, OrderRepository $orderRepo, WishlistRepository $wishlistRepo, ReviewRepository $reviewRepo, OrderCancelService $OrderCancelService)
     {
         $this->userService = $userService;
         $this->orderRepo = $orderRepo;
         $this->wishlistRepo = $wishlistRepo;
         $this->reviewRepo = $reviewRepo;
-
+        $this->OrderCancelService = $OrderCancelService;
     }
     public function detail(Request $request, User $user)
     {
@@ -54,7 +56,7 @@ class UserCustomerController extends Controller
         $data = $this->userService->detail($user->id, $startDate, $endDate, $filterStatus);
 
 
-        dd($data);
+        // dd($data);
 
         return view('admin.pages.user_customer.detail', compact(
             'data'
@@ -122,59 +124,57 @@ class UserCustomerController extends Controller
     {
         $lock = $this->userService->ShowUserCustomer($user->id, ['*']);
         $reason = $request->input('reason_lock');
-    
+
         if ($lock->status == UserStatusType::ACTIVE) {
             $this->userService->UpdateUserCustomer($user->id, [
                 'status' => UserStatusType::LOCK,
                 'reason_lock' => $reason,
             ]);
-    
+
             // Dispatch Job để gửi email (Job sẽ được xử lý bởi Queue Worker sau)
             SendUserLockedEmail::dispatch($user->id, $reason);
-    
+
             // Trả về response thành công NGAY LẬP TỨC
             return response()->json(['success' => true, 'message' => 'Đã khóa thành công!']);
-    
         } elseif ($lock->status == UserStatusType::LOCK) {
             $this->userService->UpdateUserCustomer($user->id, [
                 'status' => UserStatusType::ACTIVE,
                 'reason_lock' => null,
             ]);
-    
+
             // Trả về response thành công NGAY LẬP TỨC
             return response()->json(['success' => true, 'message' => 'Đã mở khóa thành công!']);
-    
         } else {
             return response()->json(['success' => false, 'message' => 'Thất bại, xin kiểm tra lại.']);
         }
     }
     public function lockMultipleUsers(LockUserRequest $request)
-{
-    // Lấy danh sách user_ids và lý do từ request
-    $validated = $request->validated();
-    $userIds = $validated['user_ids'];
-    $reason = $request->input('reason_lock'); // Lý do khóa
+    {
+        // Lấy danh sách user_ids và lý do từ request
+        $validated = $request->validated();
+        $userIds = $validated['user_ids'];
+        $reason = $request->input('reason_lock'); // Lý do khóa
 
-    // Cập nhật trạng thái của tất cả người dùng thành "LOCK" và lưu lý do khóa
-    $this->userService->UpdateUserCustomer($userIds, [
-        'status' => UserStatusType::LOCK,
-        'reason_lock' => $reason,
-    ]);
+        // Cập nhật trạng thái của tất cả người dùng thành "LOCK" và lưu lý do khóa
+        $this->userService->UpdateUserCustomer($userIds, [
+            'status' => UserStatusType::LOCK,
+            'reason_lock' => $reason,
+        ]);
 
-    // Dispatch job để gửi email cho từng người dùng
-    foreach ($userIds as $userId) {
-        // Dispatch event UserLocked
-        event(new UserLocked($userId, $reason));
+        // Dispatch job để gửi email cho từng người dùng
+        foreach ($userIds as $userId) {
+            // Dispatch event UserLocked
+            event(new UserLocked($userId, $reason));
 
-        // Dispatch job để gửi email
-        dispatch(new SendUserLockedEmail($userId, $reason));
-        Log::info('Job dispatched to send email to user ID: ' . $userId . ' with reason: ' . $reason);
+            // Dispatch job để gửi email
+            dispatch(new SendUserLockedEmail($userId, $reason));
+            Log::info('Job dispatched to send email to user ID: ' . $userId . ' with reason: ' . $reason);
+        }
+
+        return response()->json([
+            'message' => 'Đã khóa thành công!'
+        ]);
     }
-
-    return response()->json([
-        'message' => 'Đã khóa thành công!'
-    ]);
-}
     public function unLockMultipleUsers(LockUserRequest $request)
     {
         $validated = $request->validated();
@@ -186,43 +186,56 @@ class UserCustomerController extends Controller
         ]);
     }
 
-    public function updateStatus(Request $request)
+    public function lockUserSpam( User $user)
     {
-        $userId = $request->id;
-        $status = $request->status;
-
-        $data = ['status' => $status];
-
-        $result = $this->userService->UpdateUserCustomer($userId, $data);
-
-        return response()->json([
-            'success' => $result ? true : false,
-            'message' => $result ? 'Cập nhật trạng thái thành công' : 'Không thể cập nhật trạng thái'
+        $this->userService->UpdateUserCustomer($user->id, [
+            'status' => UserStatusType::ACTIVE,
+            'order_blocked_until' => null,
         ]);
+        $this->OrderCancelService->delete($user->id);
+
+
+        // Trả về response thành công NGAY LẬP TỨC
+        return response()->json(['success' => true, 'message' => 'Đã mở khóa thành công!']);
     }
 
-//     public function decentralization(User $user)
-// {
-//      // Kiểm tra người dùng hiện tại có quyền quản trị viên (role = 2) hay không
-//      if (auth()->user()->role !== UserRoleType::ADMIN) {
-//         return redirect()->back()->with('error', 'Bạn không có quyền thực hiện hành động này.');
-//     }
-//     if ($user->role == UserRoleType::CUSTOMER) {
-//         // Cập nhật quyền thành nhân viên
-//         $this->userService->UpdateUserCustomer($user->id, ['role' => UserRoleType::EMPLOYEE]);
+    // public function updateStatus(Request $request)
+    // {
+    //     $userId = $request->id;
+    //     $status = $request->status;
 
-//         // Gửi email thông báo
-//         Mail::to($user->email)->send(new UserRoleChangedMail($user, 'Nhân viên'));
+    //     $data = ['status' => $status];
 
-//         return redirect()->back()->with('success', 'Cấp quyền nhân viên thành công');
-//     } elseif ($user->role == UserRoleType::EMPLOYEE) {
-//         // Cập nhật quyền thành khách hàng
-//         $this->userService->UpdateUserCustomer($user->id, ['role' => UserRoleType::CUSTOMER]);
+    //     $result = $this->userService->UpdateUserCustomer($userId, $data);
 
-//         // Gửi email thông báo
-//         Mail::to($user->email)->send(new UserRoleChangedMail($user, 'Khách hàng'));
+    //     return response()->json([
+    //         'success' => $result ? true : false,
+    //         'message' => $result ? 'Cập nhật trạng thái thành công' : 'Không thể cập nhật trạng thái'
+    //     ]);
+    // }
 
-//         return redirect()->back()->with('success', 'Hủy quyền nhân viên thành công');
-//     }
-// }
+    //     public function decentralization(User $user)
+    // {
+    //      // Kiểm tra người dùng hiện tại có quyền quản trị viên (role = 2) hay không
+    //      if (auth()->user()->role !== UserRoleType::ADMIN) {
+    //         return redirect()->back()->with('error', 'Bạn không có quyền thực hiện hành động này.');
+    //     }
+    //     if ($user->role == UserRoleType::CUSTOMER) {
+    //         // Cập nhật quyền thành nhân viên
+    //         $this->userService->UpdateUserCustomer($user->id, ['role' => UserRoleType::EMPLOYEE]);
+
+    //         // Gửi email thông báo
+    //         Mail::to($user->email)->send(new UserRoleChangedMail($user, 'Nhân viên'));
+
+    //         return redirect()->back()->with('success', 'Cấp quyền nhân viên thành công');
+    //     } elseif ($user->role == UserRoleType::EMPLOYEE) {
+    //         // Cập nhật quyền thành khách hàng
+    //         $this->userService->UpdateUserCustomer($user->id, ['role' => UserRoleType::CUSTOMER]);
+
+    //         // Gửi email thông báo
+    //         Mail::to($user->email)->send(new UserRoleChangedMail($user, 'Khách hàng'));
+
+    //         return redirect()->back()->with('success', 'Hủy quyền nhân viên thành công');
+    //     }
+    // }
 }
