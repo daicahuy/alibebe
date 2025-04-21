@@ -45,6 +45,12 @@ class ProductVariant extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+       // 
+       public function stockMovementDetails()
+       {
+           return $this->hasMany(StockMovementDetail::class, 'product_id');
+       }
+
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);

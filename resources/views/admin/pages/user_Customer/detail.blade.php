@@ -1305,6 +1305,7 @@
                                             </div>
                                         </div>
 
+                                        {{-- doanh số chỉ phán anh việc bán ra không cần kiểm tra các điều kiện khác --}}
                                         <div class="col-md-6">
                                             <div class="card mb-3">
                                                 <div class="card-header">Doanh Số</div>

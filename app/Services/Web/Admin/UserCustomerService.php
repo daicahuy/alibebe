@@ -110,7 +110,7 @@ class UserCustomerService
         $cancelledRevenue = $order['revenueCancelDetail']; // doanh thu hủy
         $processingRevenue = $order['revenueProcessingDetail']; // doanh thu đang xử lý 
         $refundRevenue = $order['revenueRefundDetail']; // doanh thu hoàn hàng 
-        $totalRevenue = $this->orderRepo->getTotalRevenue($userId, $startDate, $endDate) + $refundRevenue; //tổng doanh thu
+        $totalRevenue = $this->orderRepo->getTotalRevenue($userId, $startDate, $endDate); //tổng doanh thu
 
 
         // dd($totalRevenue);
@@ -118,14 +118,14 @@ class UserCustomerService
         $percentCountSuccess = 0;
         $percentPriceSuccess = 0;
         if ($allOrders > 0) {
-             $percentCountSuccess = round(($orderSuccess / $allOrders) * 100, 2);
-                $percentCountCancel = round($order['countCancelDetail'] / $allOrders * 100, 2);
-                $percentCountProcessing = round($order['countProcessingDetail'] / $allOrders * 100, 2);
-                $percentCountRefund = round($order['countRefundDetail'] / $allOrders * 100, 2);
+            $percentCountSuccess = round(($orderSuccess / $allOrders) * 100, 2);
+            $percentCountCancel = round($order['countCancelDetail'] / $allOrders * 100, 2);
+            $percentCountProcessing = round($order['countProcessingDetail'] / $allOrders * 100, 2);
+            $percentCountRefund = round($order['countRefundDetail'] / $allOrders * 100, 2);
 
-                $percentPriceSuccess = round($successFullRevenue / $totalRevenue * 100, 2);
+            $percentPriceSuccess = round($successFullRevenue / $totalRevenue * 100, 2);
             // if ($totalRevenue > 0) {
-               
+
             // }
 
         }
