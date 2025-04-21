@@ -39,7 +39,7 @@ class Notification extends Model
     {
         return $this->belongsTo(Coupon::class);
     }
-    
+
     // Scopes hữu ích
     public function scopeUnread($query)
     {
@@ -49,5 +49,10 @@ class Notification extends Model
     public function scopeOfType($query, $type)
     {
         return $query->where('type', $type);
+    }
+
+    public function targetUser()
+    {
+        return $this->belongsTo(User::class, 'target_user_id');
     }
 }

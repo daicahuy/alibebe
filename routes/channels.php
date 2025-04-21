@@ -51,3 +51,8 @@ Broadcast::channel('coupon-notification', function ($user) {
     return $user->role == UserRoleType::ADMIN
         || $user->role == UserRoleType::EMPLOYEE;
 });
+
+Broadcast::channel('system-notification', function ($user) {
+    return $user->role == UserRoleType::ADMIN
+        || $user->role == UserRoleType::EMPLOYEE;
+});
