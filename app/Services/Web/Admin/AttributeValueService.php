@@ -18,7 +18,17 @@ class AttributeValueService
     {
         $this->attributeValueRepository = $attributeValueRepository;
     }
-    
+    public function hiddenCount()
+    {
+        try {
+            return $this->attributeValueRepository->hiddenCount();
+        } catch (\Throwable $th) {
+            Log::error(
+                __CLASS__ . "@" . __FUNCTION__,
+                ['error' => $th->getMessage()]
+            );
+        }
+    }
     public function getAllAttributeValue(Request $request, $attribute, $keyword = null){
         $perpage = $request->input('perpage', 15);
         $sortColumn = $request->input('sortColumn');

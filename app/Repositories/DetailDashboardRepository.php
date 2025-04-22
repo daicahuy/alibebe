@@ -56,7 +56,7 @@ class DetailDashboardRepository extends BaseRepository
     }
     public function countOrderDelivery($start_date = null, $end_date = null,$IdEmployee = '')
     {
-        $statusIds = [3, 4, 5, 6,8];
+        $statusIds = [3, 4, 5];
         if ($start_date && $end_date && $IdEmployee == 0) {
             $start = Carbon::parse($start_date)->startOfDay();
             $end = Carbon::parse($end_date)->endOfDay();
@@ -103,24 +103,31 @@ class DetailDashboardRepository extends BaseRepository
     }
     public function countOrderReturns($start_date = null, $end_date = null, $IdEmployee = '')
     {
-        $statusIds = [8];
       
         if ($start_date && $end_date && $IdEmployee == 0) {
             $start = Carbon::parse($start_date)->startOfDay();
             $end = Carbon::parse($end_date)->endOfDay();
-            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
-                $query->whereIn('order_status_id', $statusIds);
-            })->whereBetween('created_at', [$start, $end])->count();
+            $countOrderReturns = Order::where('is_refund', 1)
+            ->whereHas('refund', function ($query) use ($start, $end) {
+                $query->whereBetween('created_at', [$start, $end]);
+            })
+            ->count();
         } else if ($start_date && $end_date && $IdEmployee != 0) {
             $start = Carbon::parse($start_date)->startOfDay();
             $end = Carbon::parse($end_date)->endOfDay();
-            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($IdEmployee, $statusIds) {
-                $query->whereIn('order_status_id', $statusIds)->where('modified_by', $IdEmployee);
-            })->whereBetween('created_at', [$start, $end])->count();
+            $countOrderReturns = Order::where('is_refund', 1)
+            ->whereHas('refund', function ($query) use ($start, $end) {
+                $query->whereBetween('created_at', [$start, $end]);
+            })
+            ->whereHas('orderStatuses', function ($query) use ($IdEmployee) {
+                $query->where('modified_by', $IdEmployee);
+            })->count();
         } else {
-            $countOrderReturns = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
-                $query->whereIn('order_status_id', $statusIds);
-            })->whereDate('created_at', now()->toDateString())->count();
+            $countOrderReturns = Order::where('is_refund', 1)
+            ->whereHas('refund', function ($query) {
+                $query->whereDate('created_at', now()->toDateString());
+            })
+            ->count();
         }
         // dd($countOrderReturns);
         return $countOrderReturns;
@@ -451,6 +458,14 @@ class DetailDashboardRepository extends BaseRepository
             ->groupBy(DB::raw($groupBy), 'order_status_id')
             ->orderBy(DB::raw($groupBy))
             ->get();
+            $refund = DB::table('refunds')
+            ->join('orders', 'orders.id', '=', 'refunds.order_id')
+            ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+            ->whereBetween('refunds.created_at', [$start, $end])
+            ->selectRaw("$selectFormat, COUNT(refunds.id) as total_refunds")
+            ->groupBy(DB::raw($groupBy))
+            ->orderBy(DB::raw($groupBy))
+            ->get();
     }else if ($start_date && $end_date && $IdEmployee != 0) {
         $start = Carbon::parse($start_date)->startOfDay();
         $end = Carbon::parse($end_date)->endOfDay();
@@ -485,6 +500,15 @@ class DetailDashboardRepository extends BaseRepository
             ->groupBy(DB::raw($groupBy), 'order_status_id')
             ->orderBy(DB::raw($groupBy))
             ->get();
+            $refund = DB::table('refunds')
+            ->join('orders', 'orders.id', '=', 'refunds.order_id')
+            ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+            ->where('order_order_status.modified_by', $IdEmployee)
+            ->whereBetween('refunds.created_at', [$start, $end])
+            ->selectRaw("$selectFormat, COUNT(refunds.id) as total_refunds")
+            ->groupBy(DB::raw($groupBy))
+            ->orderBy(DB::raw($groupBy))
+            ->get();
     } else {
         $start = now()->startOfDay();
         $end = now()->endOfDay();
@@ -497,6 +521,14 @@ class DetailDashboardRepository extends BaseRepository
             ->groupBy('time_label', 'order_status_id')
             ->orderBy('time_label')
             ->get();
+            $refund = DB::table('refunds')
+            ->join('orders', 'orders.id', '=', 'refunds.order_id')
+            ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+                ->whereDate('refunds.created_at', now()->toDateString())
+                ->selectRaw('FLOOR(HOUR(refunds.created_at) / 2) * 2 as time_label, COUNT(refunds.id) as total_refunds')
+                ->groupBy('time_label')
+                ->orderBy('time_label')
+                ->get();
     }
 
     $period = new CarbonPeriod($start, $interval, $end);
@@ -523,13 +555,24 @@ class DetailDashboardRepository extends BaseRepository
         foreach ($orderStatuses as $statusId => $statusName) {
             $ordersByStatus[$statusName][$key] = 0;
         }
+        // Thêm trạng thái "Hoàn hàng"
+        $ordersByStatus['Hoàn hàng'][$key] = 0;
     }
-
+    
     foreach ($data as $order) {
         $key = ($diffInDays == 0) ? (int) $order->time_label : $order->time_label;
         if (isset($orderStatuses[$order->order_status_id])) {
             $ordersByStatus[$orderStatuses[$order->order_status_id]][$key] = $order->total_orders;
         }
+    }
+    
+    foreach ($refund as $r) {
+        // Kiểm tra và gán hoàn hàng vào đúng key
+        $key = ($diffInDays == 0) ? (int) $r->time_label : $r->time_label;
+        if (!isset($ordersByStatus['Hoàn hàng'][$key])) {
+            $ordersByStatus['Hoàn hàng'][$key] = 0;
+        }
+        $ordersByStatus['Hoàn hàng'][$key] += $r->total_refunds;  // Cộng dồn số hoàn hàng
     }
 
     return [

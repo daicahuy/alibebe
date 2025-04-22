@@ -20,6 +20,7 @@ use App\Models\OrderOrderStatus;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\User;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -43,6 +44,11 @@ class OrderCustomerControllerApi extends Controller
 
             if (!$userCheckVerify->email_verified_at) {
                 return response()->json(["status" => "error", "message" => "Xác minh trước khi mua hàng!"]);
+            }
+
+            if ($userCheckVerify->order_blocked_until) {
+                return response()->json(["status" => "error", "message" => "Khóa đặt hàng đến " . Carbon::parse($userCheckVerify->order_blocked_until)->format('H:i:s d/m/Y')]);
+
             }
 
             if (!$dataOrderCustomer['fullname']) {

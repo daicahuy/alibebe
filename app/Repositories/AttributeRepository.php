@@ -13,6 +13,11 @@ class AttributeRepository extends BaseRepository
     {
         return Attribute::class;
     }
+    public function hiddenCount()
+    {
+        $attributes = Attribute::where('is_active', 0)->count();
+        return $attributes;
+    }
 
     public function getAllAttributeRepository($perpage = 15, $filter = null, $keyword = null, $sortColumn = null, $sortDirection = 'desc')
     {

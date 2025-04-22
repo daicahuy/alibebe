@@ -6,8 +6,7 @@
                 <img alt="logo" class="img-fluid for-white"
                     src="{{ asset('theme/admin/assets/images/logo/full-white.png') }}">
             </a>
-            <img alt="logo" class="img-fluid logo-sm"
-                src="{{ asset('theme/admin/assets/images/logo/logo.png') }}">
+            <img alt="logo" class="img-fluid logo-sm" src="{{ asset('theme/admin/assets/images/logo/logo.png') }}">
             <div class="back-btn"><i class="fa fa-angle-left"></i></div>
             <div class="toggle-sidebar">
                 <i class="ri-apps-line status_toggle middle sidebar-toggle"></i>
@@ -21,90 +20,63 @@
             <div id="sidebar-menu">
                 <ul id="simple-bar" class="sidebar-links">
                     <li class="back-btn"></li>
+                    {{-- Admin --}}
                     @if (Auth::user()->isAdmin())
                         <li class="sidebar-list">
-                            <a href="{{ route('admin.index') }}"
-                                class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin') ? 'active' : '' }}">
+                            <a  href="{{ route('admin.index') }}" class="debar-link link-nav sidebar-link sidebar-title">
                                 <span>
                                     <div class="d-flex align-items-center">
                                         <i class="ri-home-line"></i>
                                         <div class="sidebar-main-link">{{ __('message.dashboard') }}</div>
                                     </div>
                                 </span>
-                                <div class="according-menu">
-                                    @if (Request::is('admin/detail-index*')
-                                    )
-                                        <i class="ri-arrow-down-s-line"></i>
-                                    @else
-                                        <i class="ri-arrow-right-s-line"></i>
-                                    @endif
-                                </div>
                             </a>
-                            <ul class="sidebar-submenu" @style([
-                                'display: block;' => Request::is('admin/index*')
+                            {{-- <ul class="sidebar-submenu" @style([
+                                'display: block;' => Request::is('admin/index*') || Request::is('admin/detail-index*'),
                             ])>
-                             <li>
-                                <a href="{{ route('admin.index') }}"
-                                    class="{{ Request::is('admin/index*') ? 'active' : '' }}">
-                                    <div>Thống kê</div>
-                                    {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
-                                </a>
-                                <ul class="sidebar-submenu"></ul>
-                            </li>
+                                <li>
+                                    <a href="{{ route('admin.index') }}"
+                                        class="{{ Request::is('admin/index*') ? 'active' : '' }}">
+                                        <div>Thống kê</div>
+                                    </a>
+                                </li>
                                 <li>
                                     <a href="{{ route('admin.detail-index') }}"
                                         class="{{ Request::is('admin/detail-index*') ? 'active' : '' }}">
                                         <div>Thống kê chi tiết</div>
-                                        {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
                                     </a>
-                                    <ul class="sidebar-submenu"></ul>
                                 </li>
-                             
-                            </ul>
+                            </ul> --}}
                         </li>
                     @endif
+                    @if (Auth::user()->isAdmin())
+                    <li class="sidebar-list">
+                        <a  href="{{ route('admin.detail-index') }}" class="debar-link link-nav sidebar-link sidebar-title">
+                            <span>
+                                <div class="d-flex align-items-center">
+                                    <i class="ri-home-line"></i>
+                                    <div class="sidebar-main-link">Thống kê chi tiết</div>
+                                </div>
+                            </span>
+                        </a>
+                    </li>
+                @endif
+
+                    {{-- Employee --}}
                     @if (Auth::user()->isEmployee())
                         <li class="sidebar-list">
-                            <a href="{{ route('admin.index-employee') }}"
-                                class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin/index-employee') ? 'active' : '' }}">
+                            <a href="{{ route('admin.index-employee') }}" class="debar-link link-nav sidebar-link sidebar-title">
                                 <span>
                                     <div class="d-flex align-items-center">
                                         <i class="ri-home-line"></i>
                                         <div class="sidebar-main-link">{{ __('message.dashboard') }}</div>
                                     </div>
                                 </span>
-                                <div class="according-menu">
-                                    @if (Request::is('admin/detail-index-employee*')
-                                    )
-                                        <i class="ri-arrow-down-s-line"></i>
-                                    @else
-                                        <i class="ri-arrow-right-s-line"></i>
-                                    @endif
-                                </div>
                             </a>
-                            <ul class="sidebar-submenu" @style([
-                                'display: block;' => Request::is('admin/index-employee*')
-                            ])>
-                             <li>
-                                <a href="{{ route('admin.index-employee') }}"
-                                    class="{{ Request::is('admin/index-employee*') ? 'active' : '' }}">
-                                    <div>Thống kê</div>
-                                    {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
-                                </a>
-                                <ul class="sidebar-submenu"></ul>
-                            </li>
-                                <li>
-                                    <a href="{{ route('admin.detail-index-employee') }}"
-                                        class="{{ Request::is('admin/detail-index-employee*') ? 'active' : '' }}">
-                                        <div>Thống kê chi tiết</div>
-                                        {{-- <span class="badge bg-warning ml-3 text-dark"> 2 </span> --}}
-                                    </a>
-                                    <ul class="sidebar-submenu"></ul>
-                                </li>
-                             
-                            </ul>
                         </li>
                     @endif
+
+
                     @if (Auth::user()->isAdmin())
                         <li class="sidebar-list">
                             <a href="{{ route('admin.categories.index') }}"
@@ -128,11 +100,10 @@
                                     </div>
                                 </span>
                                 <div class="according-menu">
-                                    @if (Request::is('admin/products*')
-                                        || Request::is('admin/attribute*')
-                                        || Request::is('admin/brands*')
-                                        || Request::is('admin/tags*')
-                                    )
+                                    @if (Request::is('admin/products*') ||
+                                            Request::is('admin/attribute*') ||
+                                            Request::is('admin/brands*') ||
+                                            Request::is('admin/tags*'))
                                         <i class="ri-arrow-down-s-line"></i>
                                     @else
                                         <i class="ri-arrow-right-s-line"></i>
@@ -140,10 +111,7 @@
                                 </div>
                             </a>
                             <ul class="sidebar-submenu" @style([
-                                'display: block;' => Request::is('admin/products*')
-                                || Request::is('admin/attribute*')
-                                || Request::is('admin/brands*')
-                                || Request::is('admin/tags*')
+                                'display: block;' => Request::is('admin/products*') || Request::is('admin/attribute*') || Request::is('admin/brands*') || Request::is('admin/tags*'),
                             ])>
                                 <li>
                                     <a href="{{ route('admin.products.index') }}"
@@ -186,8 +154,7 @@
                                     </div>
                                 </span>
                                 <div class="according-menu">
-                                    @if (Request::is('admin/inventory*')
-                                    )
+                                    @if (Request::is('admin/inventory*'))
                                         <i class="ri-arrow-down-s-line"></i>
                                     @else
                                         <i class="ri-arrow-right-s-line"></i>
@@ -195,7 +162,7 @@
                                 </div>
                             </a>
                             <ul class="sidebar-submenu" @style([
-                                'display: block;' => Request::is('admin/inventory*')
+                                'display: block;' => Request::is('admin/inventory*'),
                             ])>
                                 <li>
                                     <a href="{{ route('admin.inventory.index') }}"

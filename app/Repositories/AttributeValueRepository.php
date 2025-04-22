@@ -13,7 +13,11 @@ class AttributeValueRepository extends BaseRepository
     {
         return AttributeValue::class;
     }
-
+    public function hiddenCount()
+    {
+        $attributes = AttributeValue::where('is_active', 0)->count();
+        return $attributes;
+    }
     public function getAllAttributeValueFindById($attribute, $perpage = 15, $keyword = null, $sortColumn = null, $sortDirection = 'desc')
     {
         $attributeShow = Attribute::find($attribute);
