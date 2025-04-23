@@ -23,10 +23,11 @@ class AttributeValueController extends Controller
         $keyword = $request->input('_keyword');
 
         $data = $this->attributeValueService->getAllAttributeValue($request,$attribute,$keyword);
+        $hiddenCount = $this->attributeValueService->hiddenCount();
         // dd($data);
         $attribute = $data['attribute'];
         $attributeValues = $data['attributeValues'];
-        return view('admin.pages.attribute_values.list',compact('attributeValues', 'attribute', 'sortColumn', 'sortDirection'));
+        return view('admin.pages.attribute_values.list',compact('attributeValues', 'attribute','hiddenCount', 'sortColumn', 'sortDirection'));
     }
 
     public function hidden(Request $request,$attribute,$sortColumn = null, $sortDirection = 'desc')

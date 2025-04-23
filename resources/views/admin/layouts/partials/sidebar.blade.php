@@ -2,12 +2,11 @@
     <div>
         <!-- START LOGO -->
         <div class="logo-wrapper logo-wrapper-center">
-            <a href="{{ Auth::user()->isAdmin() ? route('admin.index') : route('admin.indexNhanVien') }}">
+            <a href="{{ Auth::user()->isAdmin() ? route('admin.index') : route('admin.detail-index-employee') }}">
                 <img alt="logo" class="img-fluid for-white"
                     src="{{ asset('theme/admin/assets/images/logo/full-white.png') }}">
             </a>
-            <img alt="logo" class="img-fluid logo-sm"
-                src="{{ asset('theme/admin/assets/images/logo/logo.png') }}">
+            <img alt="logo" class="img-fluid logo-sm" src="{{ asset('theme/admin/assets/images/logo/logo.png') }}">
             <div class="back-btn"><i class="fa fa-angle-left"></i></div>
             <div class="toggle-sidebar">
                 <i class="ri-apps-line status_toggle middle sidebar-toggle"></i>
@@ -21,10 +20,10 @@
             <div id="sidebar-menu">
                 <ul id="simple-bar" class="sidebar-links">
                     <li class="back-btn"></li>
+                    {{-- Admin --}}
                     @if (Auth::user()->isAdmin())
                         <li class="sidebar-list">
-                            <a href="{{ route('admin.index') }}"
-                                class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin') ? 'active' : '' }}">
+                            <a  href="{{ route('admin.index') }}" class="debar-link link-nav sidebar-link sidebar-title">
                                 <span>
                                     <div class="d-flex align-items-center">
                                         <i class="ri-home-line"></i>
@@ -34,10 +33,11 @@
                             </a>
                         </li>
                     @endif
+
+                    {{-- Employee --}}
                     @if (Auth::user()->isEmployee())
                         <li class="sidebar-list">
-                            <a href="{{ route('admin.indexNhanVien') }}"
-                                class="debar-link link-nav sidebar-link sidebar-title {{ Request::is('admin') ? 'active' : '' }}">
+                            <a href="{{ route('admin.index-employee') }}" class="debar-link link-nav sidebar-link sidebar-title">
                                 <span>
                                     <div class="d-flex align-items-center">
                                         <i class="ri-home-line"></i>
@@ -47,6 +47,8 @@
                             </a>
                         </li>
                     @endif
+
+
                     @if (Auth::user()->isAdmin())
                         <li class="sidebar-list">
                             <a href="{{ route('admin.categories.index') }}"
@@ -70,11 +72,10 @@
                                     </div>
                                 </span>
                                 <div class="according-menu">
-                                    @if (Request::is('admin/products*')
-                                        || Request::is('admin/attribute*')
-                                        || Request::is('admin/brands*')
-                                        || Request::is('admin/tags*')
-                                    )
+                                    @if (Request::is('admin/products*') ||
+                                            Request::is('admin/attribute*') ||
+                                            Request::is('admin/brands*') ||
+                                            Request::is('admin/tags*'))
                                         <i class="ri-arrow-down-s-line"></i>
                                     @else
                                         <i class="ri-arrow-right-s-line"></i>
@@ -82,10 +83,7 @@
                                 </div>
                             </a>
                             <ul class="sidebar-submenu" @style([
-                                'display: block;' => Request::is('admin/products*')
-                                || Request::is('admin/attribute*')
-                                || Request::is('admin/brands*')
-                                || Request::is('admin/tags*')
+                                'display: block;' => Request::is('admin/products*') || Request::is('admin/attribute*') || Request::is('admin/brands*') || Request::is('admin/tags*'),
                             ])>
                                 <li>
                                     <a href="{{ route('admin.products.index') }}"
@@ -128,8 +126,7 @@
                                     </div>
                                 </span>
                                 <div class="according-menu">
-                                    @if (Request::is('admin/inventory*')
-                                    )
+                                    @if (Request::is('admin/inventory*'))
                                         <i class="ri-arrow-down-s-line"></i>
                                     @else
                                         <i class="ri-arrow-right-s-line"></i>
@@ -137,7 +134,7 @@
                                 </div>
                             </a>
                             <ul class="sidebar-submenu" @style([
-                                'display: block;' => Request::is('admin/inventory*')
+                                'display: block;' => Request::is('admin/inventory*'),
                             ])>
                                 <li>
                                     <a href="{{ route('admin.inventory.index') }}"
@@ -281,6 +278,18 @@
                                         <div class="sidebar-main-link">{{ __('form.messages') }}</div>
                                     </div>
                                     <span class="badge bg-warning ml-2">{{ $unreadMessagesCount }}</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (Auth::user()->isAdmin())
+                        <li class="sidebar-list">
+                            <a  href="{{ route('admin.detail-index') }}" class="debar-link link-nav sidebar-link sidebar-title">
+                                <span>
+                                    <div class="d-flex align-items-center">
+                                        <i class="ri-pie-chart-line"></i>
+                                        <div class="sidebar-main-link">Thống kê</div>
+                                    </div>
                                 </span>
                             </a>
                         </li>

@@ -155,13 +155,13 @@
                                         {{ __('form.auth.login_with_google') }}
                                     </a>
                                 </li>
-                                <li>
+                                {{-- <li>
                                     <a href="{{ route('api.auth.facebookLogin') }}" class="btn google-button w-100">
                                         <img src="{{ asset('theme/client/assets/images/inner-page/facebook.png') }}"
                                             class="blur-up lazyload" alt="">
                                         {{ __('form.auth.login_with_facebook') }}
                                     </a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </div>
 
@@ -222,7 +222,7 @@
                             // Xử lý lỗi
                             if (response.errorsLogin) {
                                 Toastify({
-                                    text: "Tài khoản đã bị khóa!",
+                                    text: `${response.errorsLogin}`,
                                     duration: 2000,
                                     newWindow: true,
                                     close: true,

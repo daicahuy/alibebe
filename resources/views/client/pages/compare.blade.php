@@ -267,7 +267,8 @@
                                                 data-bs-target="#view" data-id={{ $product['id'] }}
                                                 class="btn btn-animation btn-sm w-100">Add To Cart</button> --}}
                                             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#view"
-                                                data-id={{ $product['id'] }} class="btn btn-animation btn-sm w-100">
+                                                data-id={{ $product['id'] }} data-slug="{{ $product['slug'] }}"
+                                                class="btn btn-animation btn-sm w-100">
                                                 Add To Cart
                                             </a>
                                         </td>
@@ -399,7 +400,7 @@
                                     </form>
                                     <button
                                         class="btn theme-bg-color view-button icon text-white fw-bold btn-md detail-product-button">
-                                        View More Details
+                                        Xem chi tiết sản phẩm
                                     </button>
                                     {{-- <a href="{{ route('products', $listProductCate) }}" class="btn theme-bg-color view-button icon text-white fw-bold btn-md">Chi tiết sản phẩm</a> --}}
                                 </div>
@@ -583,7 +584,10 @@
 
             $('a[data-bs-target="#view"]').click(function() {
                 const productId = $(this).data('id');
+                const productSlug = $(this).data('slug');
+
                 $('#view').data('product-id', productId);
+                $('#view').data('product-slug', productSlug);
                 $('#cartProductId').val(productId);
 
                 $.ajax({
@@ -751,6 +755,23 @@
                     },
                     error: () => alert('Không tìm thấy sản phẩm')
                 });
+            });
+
+            // view detial product
+            $('.detail-product-button').click(function() {
+                const productSlug = $('#view').data('product-slug');
+
+                if (productSlug) {
+                    const productDetailUrl = "{{ route('products', ['product' => ':slug']) }}".replace(
+                        ':slug', productSlug);
+                    location.href = productDetailUrl;
+                } else {
+                    console.error(
+                        "Không tìm thấy productSlug để chuyển hướng đến trang chi tiết sản phẩm.");
+                    alert(
+                        "Lỗi: Không thể chuyển đến trang chi tiết sản phẩm. Không tìm thấy Slug sản phẩm."
+                    );
+                }
             });
 
             // Hàm cập nhật giá và thumbnail

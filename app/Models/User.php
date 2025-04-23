@@ -20,10 +20,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    const STATUS_INACTIVE = 'inactive';
-    const STATUS_ACTIVE = 'active';
-    const STATUS_LOCK = 'lock';
-
     /**
      * The attributes that are mass assignable.
      *
@@ -48,7 +44,10 @@ class User extends Authenticatable
         'is_change_password',
         'bank_name',
         'user_bank_name',
-        'bank_account'
+        'bank_account',
+        'reason_lock',
+        'order_blocked_until',
+        'time_block_order'
     ];
 
 
@@ -99,18 +98,18 @@ class User extends Authenticatable
         static::updated(function ($user) {
             if ($user->isDirty('loyalty_points')) {
                 $repository = app()->make(UserRepository::class);
-                
+
                 // Lấy điểm cũ và mới
                 $oldPoints = $user->getOriginal('loyalty_points');
                 $newPoints = $user->loyalty_points;
-                
+
                 // Tính toán group
                 $oldGroup = $repository->getUserGroupId($oldPoints);
                 $newGroup = $repository->getUserGroupId($newPoints);
-    
+
                 if ($oldGroup !== $newGroup) {
                     $coupons = Coupon::where('user_group', $newGroup)->get();
-                    
+
                     foreach ($coupons as $coupon) {
                         $coupon->users()->syncWithoutDetaching([
                             $user->id => ['amount' => 1]
@@ -154,11 +153,6 @@ class User extends Authenticatable
     public function isActive()
     {
         return $this->status === UserStatusType::ACTIVE;
-    }
-
-    public function isInactive()
-    {
-        return $this->status === UserStatusType::INACTIVE;
     }
 
     public function isLock()

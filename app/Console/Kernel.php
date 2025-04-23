@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('app:delete-old-trashed-items')->everyFifteenSeconds();
         $schedule->command('coupons:check-expired-coupons')->everyFifteenSeconds();
+        $schedule->command('product:update-expired-sale')->everyFifteenSeconds();
     }
 
     /**

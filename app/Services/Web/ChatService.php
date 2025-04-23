@@ -43,6 +43,15 @@ class ChatService
         try {
             $chatSession = $this->chatSessionRepository->getChatSession($chatSessionId);
 
+            if ($chatSession && Auth::user()->role == UserRoleType::EMPLOYEE) {
+                if ($chatSession->employee_id !== null && $chatSession->employee_id !== Auth::user()->id) {
+                    return [
+                        'status' => false,
+                        'message' => 'Phiên chat này đã được gán cho nhân viên khác!'
+                    ];
+                }
+            }
+
             if ($chatSession) {
                 $this->messageRepository->markAllSessionMessagesAsRead($chatSessionId, Auth()->id());
             }
@@ -365,11 +374,18 @@ class ChatService
     public function getClientSession($userId)
     {
         try {
-            $session = $this->chatSessionRepository->findActiveChatSession($userId);
+            $session = $this->chatSessionRepository->findActiveChatSessionS($userId);
 
             if (!$session) {
                 $newSession = $this->startChat($userId);
                 $session = $this->chatSessionRepository->getChatSession($newSession['session_id'], $userId);
+            } else {
+                if ($session->status === 0 && $session->closed_date) {
+                    return [
+                        'status' => false,
+                        'message' => 'Phiên chat đã bị khóa , hãy liên hệ hotline để biết chi tiết'
+                    ];
+                }
             }
 
             return [
@@ -390,13 +406,15 @@ class ChatService
         try {
             $session = $this->chatSessionRepository->findActiveChatSession($userId);
 
-            if (!$session) {
-                $newSession = $this->startChat($userId);
-                $sessionId = $newSession['session_id'];
-            } else {
-                $sessionId = $session->id;
+            // Nếu không tìm thấy phiên hoặc phiên đã bị đóng (status = 0) hoặc có closed_date, không cho gửi
+            if (!$session || $session->status == 0 || !empty($session->closed_date)) {
+                return [
+                    'status' => false,
+                    'message' => 'Phiên chat đã bị đóng hoặc không tồn tại. Không thể gửi tin nhắn.'
+                ];
             }
 
+            $sessionId = $session->id;
 
             $message = $this->messageRepository->create([
                 'chat_session_id' => $sessionId,

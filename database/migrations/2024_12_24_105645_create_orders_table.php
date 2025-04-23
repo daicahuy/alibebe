@@ -32,6 +32,7 @@ return new class extends Migration {
             $table->string('coupon_description')->nullable();
             $table->string('coupon_discount_type', 20)->nullable();
             $table->decimal('coupon_discount_value', 10, 2)->nullable();
+            $table->decimal('max_discount_value', 11, 2)->nullable();
             $table->boolean('is_refund_cancel')->default(null)->nullable();
             $table->boolean('check_refund_cancel')->default(null)->nullable();
             $table->string('img_send_refund_money', 255)->nullable();

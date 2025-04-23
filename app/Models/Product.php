@@ -130,6 +130,13 @@ class Product extends Model
     {
         return $this->hasMany(StockMovement::class);
     }
+
+    // 
+    public function stockMovementDetails()
+    {
+        return $this->hasMany(StockMovementDetail::class, 'product_id');
+    }
+    
     public function scopeTrending($query)
     {
         return $query
@@ -141,7 +148,7 @@ class Product extends Model
                 'products.thumbnail',
                 'products.views',
                 'products.slug',
-    
+
                 // ✅ Tính display_price
                 DB::raw('(CASE
                     WHEN products.type = 1 THEN (
@@ -172,10 +179,10 @@ class Product extends Model
                 'products.thumbnail',
                 'products.views'
             )
-            ->orderByDesc('products.updated_at') 
+            ->orderByDesc('products.updated_at')
             ->limit(10);
     }
-    
+
 
 
     public function getTotalStockQuantityAttribute()

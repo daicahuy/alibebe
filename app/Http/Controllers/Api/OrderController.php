@@ -9,12 +9,16 @@ use App\Http\Controllers\Controller;
 use App\Jobs\UnlockOrderJob;
 use App\Enums\NotificationType;
 use App\Events\OrderCustomer;
+use App\Events\SystemNotification;
 use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderOrderStatus;
 use App\Models\ProductStock;
 use App\Models\User;
+use App\Models\UserOrderCancel;
 use App\Services\Api\Admin\OrderService;
+use App\Services\OrderCancelService;
+use Auth;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
@@ -175,7 +179,11 @@ class OrderController extends Controller
             DB::beginTransaction();
 
             $orderArray = $order->toArray();
-            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 7) {
+            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6) {
+
+
+
+
 
                 foreach ($orderArray['order_items'] as $key => $value) {
                     if ($value['product_variant_id']) {
@@ -191,6 +199,8 @@ class OrderController extends Controller
                         $itemStock->save();
                     }
                 }
+
+
 
             }
 
@@ -211,30 +221,90 @@ class OrderController extends Controller
             }
 
             event(new OrderCustomer($order, $message));
+            $user = User::find($user_id);
+            // return response()->json(["user" => $user]);
+            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6 && $user->role == 0) {
+                UserOrderCancel::create([
+                    'user_id' => $user_id,
+                ]);
+            }
 
             DB::commit();
-
-
 
 
             if ($note) {
                 $this->orderService->changeNoteStatusOrder($idOrder, $note);
 
             } else {
-                $this->orderService->changeStatusOrder($idOrder, $idStatus, $user_id);
-                if (is_array($idOrder)) {
-                    foreach ($idOrder as $key => $value) {
-                        # code...
-                        event(new OrderStatusUpdated($value, $idStatus, $order, $user_id));
+                if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6 && $user->role == 0) {
+
+                    $this->orderService->changeStatusOrder($idOrder, $idStatus, null);
+                    if (is_array($idOrder)) {
+                        foreach ($idOrder as $key => $value) {
+                            # code...
+                            event(new OrderStatusUpdated($value, $idStatus, $order, null));
+                            event(new OrderPendingCountUpdated());
+                        }
+                    } else {
+                        event(new OrderStatusUpdated($idOrder, $idStatus, $order, null));
                         event(new OrderPendingCountUpdated());
+
+
                     }
+
+
                 } else {
-                    event(new OrderStatusUpdated($idOrder, $idStatus, $order, $user_id));
-                    event(new OrderPendingCountUpdated());
+                    $this->orderService->changeStatusOrder($idOrder, $idStatus, $user_id);
+                    if (is_array($idOrder)) {
+                        foreach ($idOrder as $key => $value) {
+                            # code...
+                            event(new OrderStatusUpdated($value, $idStatus, $order, $user_id));
+                            event(new OrderPendingCountUpdated());
+                        }
+                    } else {
+                        event(new OrderStatusUpdated($idOrder, $idStatus, $order, $user_id));
+                        event(new OrderPendingCountUpdated());
 
 
+                    }
                 }
             }
+
+
+            if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6 && $user->role == 0) {
+                $orderCancelService = new OrderCancelService();
+                $response = $orderCancelService->checkAndApplyPenalty($user_id);
+
+
+
+                if ($response instanceof \Illuminate\Http\JsonResponse) {
+                        $admins = User::where('role', 2)
+                    ->orWhere('role', 1)
+                    ->get();
+
+                    $userCheckLocked = User::find($user_id);
+
+                    $message = "Người dùng {$userCheckLocked->fullname} đã bị khóa Vì Spam hủy đơn hàng!";
+
+                    foreach ($admins as $admin) {
+                        Notification::create([
+                            'user_id' => $admin->id,
+                            'message' => $message,
+                            'read' => false,
+                            'type' => NotificationType::System,
+                            'target_user_id' => $userCheckLocked->id
+                        ]);
+                    }
+
+                    event(new SystemNotification($userCheckLocked, $message));
+                    return response()->json([
+                        'message' => 'Tài khoản đã bị khóa',
+                        'status' => Response::HTTP_OK,
+                        'should_logout' => true
+                    ]);
+                }
+            }
+
 
 
 
@@ -304,9 +374,6 @@ class OrderController extends Controller
             $this->orderService->updateConfirmCustomer($data["note"], $data["employee_evidence"], $idOrder);
             event(new OrderStatusUpdated($idOrder, 4, $order, ""));
             event(new OrderPendingCountUpdated());
-
-
-
 
             return response()->json(["data" => $data, "status" => Response::HTTP_OK]);
 

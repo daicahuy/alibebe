@@ -518,6 +518,7 @@
                 coupon_code: "",
                 coupon_discount_type: "",
                 coupon_discount_value: "",
+                max_discount_value: "",
                 total_amount_discounted: totalPrice,
             }
 
@@ -1158,8 +1159,7 @@
                     },
                     dataType: "json",
                     success: function(response) {
-                        // console.log(response);
-                        // return;
+
                         if (response.status === 200) {
                             $('#formDiscountCode .error-message').remove();
                             $('#formDiscountCode input.is-invalid').removeClass('is-invalid');
@@ -1186,6 +1186,8 @@
                                 .discount_type;
                             dataSaveOrder.coupon_id = response.dataDiscount.coupon_id;
                             dataSaveOrder.coupon_code = response.dataDiscount.code;
+                            dataSaveOrder.max_discount_value = response.dataDiscount
+                                .max_discount_value;
 
 
                         } else {
@@ -1395,6 +1397,7 @@
                 dataSaveOrder.coupon_discount_type = "";
                 dataSaveOrder.coupon_id = "";
                 dataSaveOrder.coupon_code = "";
+                dataSaveOrder.max_discount_value = "";
 
 
             })

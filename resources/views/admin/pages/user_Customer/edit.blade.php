@@ -33,7 +33,7 @@
                                             @if ($EditUser->status == 1)
                                                 <a class="link"
                                                     href="{{ route('admin.users.customer.index') }}">{{ __('form.users') }}</a>
-                                                <span class="fs-6 fw-light">></span> {{ __('message.detail') }}
+                                                <span class="fs-6 fw-light">></span> {{ __('message.edit') }}
                                             @else
                                                 <a class="link"
                                                     href="{{ route('admin.users.customer.index') }}">{{ __('form.users') }}</a><span

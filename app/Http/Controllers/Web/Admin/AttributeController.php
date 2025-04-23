@@ -16,6 +16,7 @@ class AttributeController extends Controller
     {
         $this->attributeService = $attributeService;
     }
+
     public function index(Request $request,$sortColumn = null, $sortDirection = 'desc')
     {
         $filter = $request->input('filter', null);
@@ -23,8 +24,10 @@ class AttributeController extends Controller
         // $sortColumn = $request->input('sortColumn');
         // $sortDirection = $request->input('sortDirection', 'desc');
         $data = $this->attributeService->getAllAttributeService($request,$filter,$keyword);
+        $hiddenCount = $this->attributeService->hiddenCount();
+
         // dd($attibutes);
-        return view('admin.pages.attributes.list',compact('data', 'sortColumn', 'sortDirection'));
+        return view('admin.pages.attributes.list',compact('data', 'sortColumn', 'sortDirection','hiddenCount'));
     }
 
 

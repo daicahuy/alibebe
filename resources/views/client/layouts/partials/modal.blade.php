@@ -198,3 +198,4 @@
 <!-- Deal Box Modal End -->
 
 @yield('modal')
+@yield('modal2')

@@ -185,6 +185,14 @@ class ChatSessionRepository extends BaseRepository
             ->first();
     }
 
+    public function findActiveChatSessionS($customerId)
+    {
+        return $this->model
+            ->where('customer_id', $customerId)
+            // ->where('status', ChatSessionStatusType::OPEN)  // Phiên đang mở
+            ->first();
+    }
+
     // Kiểm tra xem có tồn tại phiên trò chuyện giữa khách hàng và nhân viên hay không
     public function checkExistChatSession($customerId, $employeeId)
     {
@@ -214,6 +222,12 @@ class ChatSessionRepository extends BaseRepository
             ->where('u.role', UserRoleType::CUSTOMER)  // Chỉ tìm kiếm người dùng là khách hàng
             ->where(function ($query) use ($searchTerm) {
                 $query->where('u.fullname', 'LIKE', "%{$searchTerm}%");
+            })
+            ->whereNotIn('u.id', function ($subquery) {
+                $subquery->select('cs.customer_id')
+                    ->from('chat_sessions as cs')
+                    ->where('cs.status', 0)
+                    ->whereNotNull('cs.closed_date');
             })
             ->limit($limit)
             ->get();

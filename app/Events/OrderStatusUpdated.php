@@ -20,11 +20,11 @@ class OrderStatusUpdated implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct($orderId, $status, $order, $user_id)
+    public function __construct($orderId, $status, $order, $user_id = "")
     {
         $this->orderId = $orderId;
         $this->status = $status;
-        $this->status = $order;
+        $this->order = $order;
         $this->user_id = $user_id;
     }
 

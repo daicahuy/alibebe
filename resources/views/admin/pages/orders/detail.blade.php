@@ -432,25 +432,8 @@
                             </li>
                                 `
                                     break;
+
                                 case 4:
-                                    htmlStatusTimeLine = `
-                                    
-                            <li class="ng-star-inserted active">
-                                <div class="panel-content">
-                                    <div class="icon"><img alt="image" class="img-fluid"
-                                            src="/theme/admin/assets/svg/delivered.svg" width="100px">
-                                    </div>
-                                    <div>
-                                        <div class="status">Đã giao hàng</div>
-                                        <span style="font-size: 10px">${convertDate(item.created_at)}</span>
-                                        <p style="font-size: 12px">${item.user?item.user.fullname:""}</p>
-                                    
-                                        </div>
-                                </div>
-                            </li>
-                                `
-                                    break;
-                                case 5:
                                     htmlStatusTimeLine = `
                                     <li class="ng-star-inserted active">
                                 <div class="panel-content">
@@ -467,7 +450,7 @@
                             </li>
                                 `
                                     break;
-                                case 7:
+                                case 6:
                                     htmlStatusTimeLine = `
                                     <li class="ng-star-inserted cancelled-box active">
                                 <div class="panel-content">
@@ -484,7 +467,7 @@
                             </li>
                                 `
                                     break;
-                                case 6:
+                                case 5:
                                     htmlStatusTimeLine = `
                                    
                             <li class="ng-star-inserted active">
@@ -637,23 +620,23 @@
                                 name: "Đang giao hàng",
                                 next: [3, 4, 5]
                             },
+                            // {
+                            //     id: 4,
+                            //     name: "Đã giao hàng",
+                            //     next: [4, 6, 7]
+                            // },
                             {
                                 id: 4,
-                                name: "Đã giao hàng",
-                                next: [4, 6, 7]
+                                name: "Giao hàng thất bại",
+                                next: [4, 6]
                             },
                             {
                                 id: 5,
-                                name: "Giao hàng thất bại",
-                                next: [5, 7]
+                                name: "Hoàn thành",
+                                next: [5]
                             },
                             {
                                 id: 6,
-                                name: "Hoàn thành",
-                                next: [6, 7]
-                            },
-                            {
-                                id: 7,
                                 name: "Đã hủy",
                                 next: []
                             }
@@ -695,11 +678,11 @@
 
 
 
-                        if (data.listItemOrder[0].order.order_statuses[0].id == 7) {
+                        if (data.listItemOrder[0].order.order_statuses[0].id == 6) {
                             $(".span-failed").addClass("active");
                             $(".span-completed").removeClass("active");
                             $(".orderStatus").removeClass("active");
-                        } else if (data.listItemOrder[0].order.order_statuses[0].id == 6) {
+                        } else if (data.listItemOrder[0].order.order_statuses[0].id == 5) {
                             $(".span-failed").removeClass("active");
                             $(".span-completed").addClass("active");
                             $(".orderStatus").removeClass("active");
@@ -720,19 +703,19 @@
                                 return;
                             }
 
-                            if (selectedValue === 4) { // Nếu chọn "Đã giao hàng" (id 4)
+                            // if (selectedValue === 4) { // Nếu chọn "Đã giao hàng" (id 4)
 
-                                $("#modalUpload .hiddenIDOrderUpload").val(orderId);
-                                $('#modalUpload').on('hidden.bs.modal', function() {
-                                    if (!imageUploaded) {
-                                        // Nếu ảnh chưa được upload, đặt lại trạng thái về "Đang giao hàng"
-                                        $('.orderStatus').val(3);
-                                        updateSelectStatus();
-                                    }
-                                });
-                                $('#modalUpload').modal('show');
-                                return;
-                            }
+                            //     $("#modalUpload .hiddenIDOrderUpload").val(orderId);
+                            //     $('#modalUpload').on('hidden.bs.modal', function() {
+                            //         if (!imageUploaded) {
+                            //             // Nếu ảnh chưa được upload, đặt lại trạng thái về "Đang giao hàng"
+                            //             $('.orderStatus').val(3);
+                            //             updateSelectStatus();
+                            //         }
+                            //     });
+                            //     $('#modalUpload').modal('show');
+                            //     return;
+                            // }
 
                             $.ajax({
                                 url: '{{ route('api.orders.changeStatusOrder') }}',

@@ -39,6 +39,7 @@
                 display: flex;
                 align-items: flex-start;
                 margin-bottom: 8px;
+                position: relative; /* Thêm position relative */
             }
 
             .admin-initial {
@@ -53,6 +54,7 @@
                 font-size: 12px;
                 margin-right: 8px;
                 flex-shrink: 0;
+                cursor: pointer; /* Thêm cursor pointer */
             }
 
             .admin-text {
@@ -113,11 +115,43 @@
                 background-color: #0b9277;
                 color: white;
             }
-            
+
             /* Badge trên nút mở chat */
             #openChat .badge {
                 font-size: 10px;
                 line-height: 16px;
+            }
+
+            .admin-initial.admin-1 {
+                background-color: #007bff;
+            }
+
+            .admin-initial.admin-2 {
+                background-color: #6f42c1;
+            }
+
+            .admin-initial.admin-3 {
+                background-color: #e83e8c;
+            }
+
+            .admin-initial.admin-4 {
+                background-color: #fd7e14;
+            }
+
+            .admin-initial.admin-5 {
+                background-color: #20c997;
+            }
+            
+            /* Thêm CSS để sửa vấn đề tooltip */
+            .tooltip {
+                z-index: 100000 !important; /* Tăng z-index cho tooltip */
+            }
+            
+            /* Đảm bảo tooltip hiển thị phía trên các phần tử khác */
+            .tooltip-inner {
+                max-width: 200px;
+                padding: 4px 8px;
+                font-size: 12px;
             }
         </style>
     @endif
@@ -144,6 +178,22 @@
 
         $(document).ready(function() {
             const loggedInUserId = {{ auth()->id() ? auth()->id() : 0 }};
+            // Object để lưu thông tin của các nhân viên đã gửi tin nhắn
+            const adminSenders = {};
+            // Bảng màu cho admin (để mỗi admin có một màu riêng dựa trên ID)
+            const adminColors = [
+                '#007bff', '#6f42c1', '#e83e8c', '#fd7e14', '#20c997',
+                '#28a745', '#17a2b8', '#dc3545', '#6c757d', '#343a40'
+            ];
+
+            // Cấu hình tooltip bootstrap
+            const tooltipConfig = {
+                placement: 'top',
+                trigger: 'hover',
+                container: 'body', // Đặt container là body để tránh bị giới hạn trong phần tử cha
+                boundary: 'viewport', // Đảm bảo tooltip không vượt quá viewport
+                html: true
+            };
 
             // Kiểm tra trạng thái chat widget khi load trang
             if (localStorage.getItem('chatOpen') === 'true') {
@@ -181,6 +231,15 @@
                 $('#messageInput').val('');
             });
 
+            // Khởi tạo tooltips cho tất cả phần tử hiện tại và tương lai
+            function initializeTooltips() {
+                // Xóa tất cả tooltips hiện tại
+                $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+                
+                // Khởi tạo lại với cấu hình mới
+                $('[data-bs-toggle="tooltip"]').tooltip(tooltipConfig);
+            }
+
             // Hàm lấy tin nhắn và đăng ký realtime
             function getChatSession() {
                 $('#chatMessages').html(
@@ -194,6 +253,7 @@
                         user_id: loggedInUserId
                     },
                     success: (response) => {
+                        console.log(response);
                         window.currentChatSessionId = response.session.id;
 
                         // Đăng ký kênh realtime cho phiên chat hiện tại
@@ -201,17 +261,24 @@
                         let channel = pusher.channel(channelName);
                         if (!channel) {
                             channel = pusher.subscribe(channelName);
-                            
+
                             channel.bind('message.sent', function(data) {
                                 // Nếu tin nhắn gửi bởi chính người dùng, không xử lý
                                 if (data.sender.id === loggedInUserId) return;
 
                                 // Nếu chat widget đang mở, hiển thị tin nhắn vào khung chat
                                 if (!$('#chatWidget').hasClass('d-none')) {
-                                    const time = new Date(data.created_at).toLocaleTimeString('vi-VN', {
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    });
+                                    const time = new Date(data.created_at).toLocaleTimeString(
+                                        'vi-VN', {
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        });
+
+                                    // Lưu thông tin nhân viên (nếu có)
+                                    if (data.sender && data.sender.id && data.sender.fullname) {
+                                        adminSenders[data.sender.id] = data.sender.fullname;
+                                    }
+
                                     let messageHtml = '';
                                     if (data.sender.id == loggedInUserId) {
                                         messageHtml = `
@@ -223,9 +290,24 @@
                                             </div>
                                         `;
                                     } else {
+                                        // Xác định tên nhân viên
+                                        const senderName = data.sender.fullname || adminSenders[
+                                            data.sender.id] || "Nhân viên";
+                                        const senderInitial = senderName.charAt(0)
+                                    .toUpperCase();
+
+                                        // Chọn màu cho admin dựa trên ID
+                                        const colorIndex = data.sender.id % adminColors.length;
+                                        const adminColor = adminColors[colorIndex];
+
                                         messageHtml = `
                                             <div class="admin-message">
-                                                <div class="admin-initial">A</div>
+                                                <div class="admin-initial admin-${data.sender.id}" 
+                                                    data-bs-toggle="tooltip" 
+                                                    title="${senderName}"
+                                                    style="background-color: ${adminColor}">
+                                                    ${senderInitial}
+                                                </div>
                                                 <div class="admin-text">
                                                     ${data.message}
                                                     <span class="message-time">${time}</span>
@@ -235,22 +317,33 @@
                                     }
                                     $('#chatMessages').append(messageHtml);
                                     $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
+
+                                    // Khởi tạo lại tooltips
+                                    initializeTooltips();
                                 } else {
                                     // Nếu chat widget đang đóng, cập nhật badge trên nút mở chat
                                     // Ở đây giả sử tin nhắn mới đến từ admin (role != loggedInUserId)
                                     let badge = $('#openChat').find('.badge');
-                                    if(badge.length > 0) {
+                                    if (badge.length > 0) {
                                         let count = parseInt(badge.text());
                                         badge.text(count + 1);
                                     } else {
-                                        $('#openChat').append(`<span class="badge bg-danger position-absolute top-0 start-100 translate-middle">1</span>`);
+                                        $('#openChat').append(
+                                            `<span class="badge bg-danger position-absolute top-0 start-100 translate-middle">1</span>`
+                                        );
                                     }
                                 }
                             });
                         }
 
                         if (response.status) {
-                            displayChatMessages(response.messages);
+                            // Nếu có thông tin về nhân viên đang trò chuyện, lưu lại
+                            if (response.employee && response.employee.id && response.employee
+                                .fullname) {
+                                adminSenders[response.employee.id] = response.employee.fullname;
+                            }
+
+                            displayChatMessages(response.messages, response.employee);
                         } else {
                             showError('Lỗi tải tin nhắn: ' + response.message);
                         }
@@ -295,6 +388,8 @@
                                 '<i class="fas fa-check-circle text-success"></i>'
                             );
                             $(`#${tempId} .message-status`).text('Đã gửi');
+
+                            $('.chat-messages').addClass('hide');
                         } else {
                             $(`#${tempId} .fa-spinner`).replaceWith(
                                 '<i class="fas fa-exclamation-circle text-danger"></i>'
@@ -314,25 +409,74 @@
             }
 
             // Hiển thị tin nhắn
-            function displayChatMessages(messages) {
+            function displayChatMessages(messages, employee) {
+                console.log("Employee info:", employee);
                 const container = $('#chatMessages');
                 container.empty();
 
+                // Kiểm tra nếu không có tin nhắn nào thì hiển thị thông báo trống
                 if (!messages || !messages.length) {
                     container.html('<div class="text-center text-muted py-3">Chưa có tin nhắn nào</div>');
                     return;
                 }
 
+                // Nếu có thông tin employee, thêm vào adminSenders
+                if (employee && employee.id && employee.fullname) {
+                    adminSenders[employee.id] = employee.fullname;
+                }
+
+                // Duyệt qua tất cả tin nhắn để thu thập thông tin về các admin đã gửi tin nhắn
                 messages.forEach(msg => {
+                    // Chỉ xử lý tin nhắn từ admin (không phải từ người dùng hiện tại)
+                    if (msg.sender_id !== loggedInUserId) {
+                        // Nếu chưa có thông tin về admin này trong adminSenders
+                        if (!adminSenders[msg.sender_id]) {
+                            // Lấy tên từ thuộc tính sender_name nếu có
+                            if (msg.sender_name) {
+                                adminSenders[msg.sender_id] = msg.sender_name;
+                            }
+                            // Nếu không có sender_name, sử dụng "Admin ID: [sender_id]" làm tên mặc định
+                            else {
+                                adminSenders[msg.sender_id] = `Admin ID: ${msg.sender_id}`;
+                            }
+                        }
+                    }
+                });
+
+                // Tạo mảng để theo dõi ID của nhà cung cấp tin nhắn hiện tại
+                let currentSenderId = null;
+                let lastMessageTime = null;
+
+                // Duyệt qua từng tin nhắn để hiển thị chúng trong khung chat
+                messages.forEach((msg, index) => {
+                    // Kiểm tra xem tin nhắn này có phải do người dùng hiện tại gửi không
                     const isUserMessage = msg.sender_id == loggedInUserId;
-                    const time = new Date(msg.created_at).toLocaleTimeString('vi-VN', {
+                    // Định dạng thời gian theo giờ:phút
+                    const messageDate = new Date(msg.created_at);
+                    const time = messageDate.toLocaleTimeString('vi-VN', {
                         hour: '2-digit',
                         minute: '2-digit'
                     });
 
+                    // Kiểm tra xem tin nhắn này có phải là tin nhắn đầu tiên hoặc nếu người gửi đã thay đổi
+                    const isNewSender = currentSenderId !== msg.sender_id;
+
+                    // Kiểm tra xem thời gian giữa tin nhắn này và tin nhắn trước có cách nhau quá lâu không
+                    let isTimeDifferenceSignificant = false;
+                    if (lastMessageTime) {
+                        const timeDiff = messageDate - lastMessageTime;
+                        isTimeDifferenceSignificant = timeDiff > 5 * 60 * 1000; // 5 phút
+                    }
+
+                    // Cập nhật sender ID và thời gian tin nhắn hiện tại cho lần lặp tiếp theo
+                    currentSenderId = msg.sender_id;
+                    lastMessageTime = messageDate;
+
                     let messageHtml = '';
 
+                    // Tạo HTML cho tin nhắn dựa trên việc ai là người gửi
                     if (isUserMessage) {
+                        // Định dạng tin nhắn từ người dùng hiện tại (bên phải màn hình)
                         messageHtml = `
                             <div class="user-message">
                                 <div class="user-text">
@@ -342,9 +486,23 @@
                             </div>
                         `;
                     } else {
+                        // Đối với tin nhắn từ admin, lấy tên từ adminSenders
+                        // Nếu không có trong adminSenders, sử dụng "Nhân viên" làm giá trị mặc định
+                        const senderName = adminSenders[msg.sender_id] || "Nhân viên";
+                        const senderInitial = senderName.charAt(0).toUpperCase();
+
+                        // Chọn màu cho admin dựa trên ID
+                        const colorIndex = msg.sender_id % adminColors.length;
+                        const adminColor = adminColors[colorIndex];
+
                         messageHtml = `
                             <div class="admin-message">
-                                <div class="admin-initial">A</div>
+                                <div class="admin-initial admin-${msg.sender_id}" 
+                                    data-bs-toggle="tooltip" 
+                                    title="${senderName}"
+                                    style="background-color: ${adminColor};">
+                                    ${senderInitial}
+                                </div>
                                 <div class="admin-text">
                                     ${msg.message}
                                     <span class="message-time">${time}</span>
@@ -352,13 +510,16 @@
                             </div>
                         `;
                     }
-
                     container.append(messageHtml);
                 });
 
+                // Cuộn xuống tin nhắn cuối cùng
                 $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
-            }
 
+                // Khởi tạo tooltips với cấu hình cải tiến
+                initializeTooltips();
+            }
+            
             // Xử lý lỗi chung
             function handleAjaxError(xhr, selector) {
                 let errorMsg = 'Lỗi kết nối máy chủ';

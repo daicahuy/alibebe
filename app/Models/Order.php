@@ -26,6 +26,7 @@ class Order extends Model
         'coupon_description',
         'coupon_discount_type',
         'coupon_discount_value',
+        'max_discount_value',
         'is_refund_cancel',
         'check_refund_cancel',
         'img_send_refund_money',
@@ -66,4 +67,8 @@ class Order extends Model
     {
         return $this->belongsToMany(HistoryOrderStatus::class);
     }
+    public function refund()
+{
+    return $this->hasOne(Refund::class);
+}
 }

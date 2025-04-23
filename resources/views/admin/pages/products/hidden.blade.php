@@ -180,11 +180,11 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <a href="{{ route('admin.products.show', $hidden->slug) }}"
+                                                            <a href="{{ route('admin.products.show', $hidden) }}"
                                                                 class="btn-detail"><i class="ri-eye-line"></i></a>
                                                         </li>
                                                         <li>
-                                                            <a href="{{ route('admin.products.edit', $hidden->slug) }}"
+                                                            <a href="{{ route('admin.products.edit', $hidden) }}"
                                                                 class="btn-edit"><i class="ri-pencil-line"></i></a>
                                                         </li>
                                                         <li>

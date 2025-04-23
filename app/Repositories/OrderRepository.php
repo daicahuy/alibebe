@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\User;
 use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class OrderRepository extends BaseRepository
 {
@@ -156,8 +157,12 @@ class OrderRepository extends BaseRepository
 
         // Tổng số đơn hàng đang chờ (Giả sử order_status_id = 1 là "đang chờ")
         $pendingOrders = $user->orders->filter(function ($order) {
-            return $order->orderStatuses->where('order_status_id', 1);
-        })->count();
+            $latestStatus = $order->orderStatuses->sortByDesc(function ($status) {
+                return $status->pivot->created_at;
+            })->first();
+        
+            return $latestStatus && $latestStatus->id == 1;
+        })->count();       
 
         return [
             'total_orders' => $totalOrders,
@@ -276,7 +281,7 @@ class OrderRepository extends BaseRepository
             $q->where('is_refund', 1);
         })->count();
         return [
-            'allCount' => $allCount + $refundCount,
+            'allCount' => $allCount,
             'successCount' => $successCount,
             'cancelCount' => $cancelCount,
             'refundCount' => $refundCount
@@ -298,7 +303,7 @@ class OrderRepository extends BaseRepository
             $endDate
         )->sum('total_amount');
     }
-    // lấy tổng doanh thu các đơn đã thanh toán thành công
+    // lấy tổng doanh SỐ (bán được bao nhiêu), bao gồm tổng đơn bán được trong hoảng thời gian cụ thể (doanh thu = thu dc bnhieu)
     public function getTotalRevenue($userId, $startDate, $endDate)
     {
         return $this->filterDate(
@@ -327,7 +332,7 @@ class OrderRepository extends BaseRepository
 
 
         return [
-            'countAllDetail' => $allCount + $refundCount,
+            'countAllDetail' => $allCount,
             'countSuccessDetail' => $successCount,
             'countProcessingDetail' => $processingCount,
             'countCancelDetail' => $cancelCount,
@@ -406,9 +411,9 @@ class OrderRepository extends BaseRepository
                     $q->where('order_order_status.modified_by', $employeeId);
                 })->orWhere(function ($q) use ($employeeId) {
                     $q->where('is_refund', 1)
-                      ->whereHas('orderStatuses', function ($q2) use ($employeeId) {
-                          $q2->where('order_order_status.modified_by', $employeeId);
-                      });
+                        ->whereHas('orderStatuses', function ($q2) use ($employeeId) {
+                            $q2->where('order_order_status.modified_by', $employeeId);
+                        });
                 });
             }),
             $startDate,

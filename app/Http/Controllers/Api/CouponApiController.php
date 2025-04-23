@@ -22,7 +22,13 @@ class CouponApiController extends Controller
 
             if ($code) {
                 $listCouponsByUser = CouponUser::query()->where("user_id", $idUser)->where("amount", ">", 0)->whereHas('coupon', function ($query) use ($code) {
-                    $query->where("code", "LIKE", '%' . $code . '%');
+                    $query->where("code", "LIKE", '%' . $code . '%')->where('usage_limit', ">", 0);
+                    $query->where(function ($q) {
+                        $q->where('is_expired', 1)
+                            ->where('start_date', '<=', now())
+                            ->where('end_date', '>=', now())
+                            ->orWhere('is_expired', 0);
+                    });
                 })->with([
                             'coupon' => function ($query) use ($code) {
                                 $query->with("restriction");
@@ -37,7 +43,15 @@ class CouponApiController extends Controller
             } else {
                 $listCouponsByUser = CouponUser::query()
                     ->where("user_id", $idUser)
-                    ->where("amount", ">", 0)
+                    ->where("amount", ">", 0)->whereHas('coupon', function ($query) use ($code) {
+                        $query->where('usage_limit', ">", 0);
+                        $query->where(function ($q) {
+                            $q->where('is_expired', 1)
+                                ->where('start_date', '<=', now())
+                                ->where('end_date', '>=', now())
+                                ->orWhere('is_expired', 0);
+                        });
+                    })
                     ->with([
                         'coupon' => function ($query) {
                             $query->with("restriction");
@@ -105,7 +119,7 @@ class CouponApiController extends Controller
                 if (!$coupon) {
                     $validator->errors()->add('discountCode', 'Mã giảm giá không tồn tại!');
                 } else if ($coupon->is_expired == 1 && (now()->lt($coupon->start_date) || now()->gt($coupon->end_date))) {
-                    $validator->errors()->add('discountCode', 'Mã giảm giá hết hạn!' . now());
+                    $validator->errors()->add('discountCode', 'Mã giảm giá hết hạn!');
                 } else if ($coupon->usage_limit !== null && $coupon->usage_count >= $coupon->usage_limit) {
                     $validator->errors()->add('discountCode', 'Mã giảm giá hết lượt sử dụng!');
                 } else if ($couponRestrictions && $couponRestrictions->min_order_value !== null && $data["total_amount"] < $couponRestrictions->min_order_value) {

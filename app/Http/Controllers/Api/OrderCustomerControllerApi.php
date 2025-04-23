@@ -20,6 +20,7 @@ use App\Models\OrderOrderStatus;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\User;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -43,6 +44,11 @@ class OrderCustomerControllerApi extends Controller
 
             if (!$userCheckVerify->email_verified_at) {
                 return response()->json(["status" => "error", "message" => "Xác minh trước khi mua hàng!"]);
+            }
+
+            if ($userCheckVerify->order_blocked_until) {
+                return response()->json(["status" => "error", "message" => "Khóa đặt hàng đến " . Carbon::parse($userCheckVerify->order_blocked_until)->format('H:i:s d/m/Y')]);
+
             }
 
             if (!$dataOrderCustomer['fullname']) {
@@ -112,6 +118,7 @@ class OrderCustomerControllerApi extends Controller
                 'coupon_discount_value' => $dataOrderCustomer["coupon_discount_value"],
                 'coupon_discount_type' => $dataOrderCustomer["coupon_discount_type"],
                 'coupon_code' => $dataOrderCustomer["coupon_code"],
+                'max_discount_value' => $dataOrderCustomer["max_discount_value"],
             ]);
 
             foreach ($ordersItem as $item) {
@@ -213,22 +220,22 @@ class OrderCustomerControllerApi extends Controller
             ]);
 
             $admins = User::where('role', 2)
-            ->orWhere('role', 1)
-            ->get();
+                ->orWhere('role', 1)
+                ->get();
 
             $message = "Đơn Hàng {$order->code} Mới Được Đặt !";
 
-            foreach($admins as $admin) {
+            foreach ($admins as $admin) {
                 Notification::create([
-                    'user_id'   => $admin->id,
-                    'message'   => $message,
-                    'read'      => false,
-                    'type'      => NotificationType::Order,
+                    'user_id' => $admin->id,
+                    'message' => $message,
+                    'read' => false,
+                    'type' => NotificationType::Order,
                     'order_id' => $order->id
                 ]);
             }
 
-            event(new OrderCustomer($order,$message));
+            event(new OrderCustomer($order, $message));
             event(new OrderCreateUpdate($order));
             event(new OrderPendingCountUpdated());
 

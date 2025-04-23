@@ -355,9 +355,15 @@
                                 {{ __('form.order_status.shipping') }} <span class="count"></span>
                             </button>
                         </div>
-                        <div class="col">
+                        {{-- <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::DELIVERED }}" type="submit">
                                 {{ __('form.order_status.delivered') }} <span class="count"></span>
+                            </button>
+                        </div> --}}
+                        <div class="col">
+                            <button class="tab btn-order" data-status = "{{ OrderStatusType::FAILED_DELIVERY }}"
+                                type="submit">
+                                {{ __('form.order_status.failed_delivery') }} <span class="count"></span>
                             </button>
                         </div>
                         <div class="col">
@@ -368,12 +374,6 @@
                         <div class="col">
                             <button class="tab btn-order" data-status = "{{ OrderStatusType::COMPLETED }}" type="submit">
                                 {{ __('form.order_status.completed') }} <span class="count"></span>
-                            </button>
-                        </div>
-                        <div class="col">
-                            <button class="tab btn-order" data-status = "{{ OrderStatusType::FAILED_DELIVERY }}"
-                                type="submit">
-                                {{ __('form.order_status.failed_delivery') }} <span class="count"></span>
                             </button>
                         </div>
 
@@ -677,25 +677,25 @@
                     id: 3,
                     name: "Đang giao hàng",
                     next: [3, 4, 5],
-                    unnextList: [5]
+                    unnextList: [4, 5]
                 },
+                // {
+                //     id: 4,
+                //     name: "Đã giao hàng",
+                //     next: [4, 6, 7]
+                // },
                 {
                     id: 4,
-                    name: "Đã giao hàng",
-                    next: [4, 6, 7]
+                    name: "Giao hàng thất bại",
+                    next: [4, 6]
                 },
                 {
                     id: 5,
-                    name: "Giao hàng thất bại",
-                    next: [5, 7]
+                    name: "Hoàn thành",
+                    next: [5]
                 },
                 {
                     id: 6,
-                    name: "Hoàn thành",
-                    next: [6, 7]
-                },
-                {
-                    id: 7,
                     name: "Đã hủy",
                     next: []
                 }
@@ -821,7 +821,7 @@
                             }
                         });
                         let selectHtml =
-                            `<select class="font-serif form-select form-select-sm orderStatus" ${dataUser.role == 2 ? "disabled":""} ${order.locked_status == 1 ? "disabled":""} data-order-id="${order.id}" id="${selectId}">`;
+                            `<select class="font-serif form-select form-select-sm orderStatus"  ${order.locked_status == 1 ? "disabled":""} data-order-id="${order.id}" id="${selectId}">`;
                         orderStatuses.forEach(status => {
                             const currentStatus = orderStatuses.find(s => s.id === currentStatusId);
                             const disabled = !currentStatus.next.includes(status.id) && status
@@ -865,9 +865,9 @@
                                 <td class="px-4 py-2 text-xs">
 
                                     
-                                    ${currentStatusId === 6 ?
+                                    ${currentStatusId === 5 ?
                     `<div class="span-completed"><div class="status-completed"><span>Hoàn thành</span></div></div>` :
-                    (currentStatusId === 7 ?
+                    (currentStatusId === 6 ?
                         `<div class="span-failed"><div class="status-failed"><span>Đã hủy</span></div></div>` :
                         selectHtml
                     )
@@ -878,21 +878,21 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                                                                                                                                                            <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                                                                                                                                                            <div class="status-pending">
-                                                                                                                                                                                            <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                                                                                                                                                            </div>
-                                                                                                                                                                                            </div>
+                                                    <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                    <div class="status-pending">
+                                                    <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                    </div>
+                                                    </div>
 
 
-                                                                                                                                                                                            ` : `
+                                                    ` : `
 
-                                                                                                                                                                                            `}
+                                                    `}
                                         <li>
                                             ${order.is_refund_cancel != null ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `:""}
+                                        <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
+                                            <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
+                                        `:""}
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
                                                 <i class="ri-eye-line"></i>
@@ -1130,7 +1130,7 @@
                     $('.btn-download-all').removeClass('active');
 
                     let selectHtmlStatus = `
-                    <select class="font-serif form-select form-select-sm orderStatus" ${dataUser.role == 2 ? "disabled":""} style="width: unset" id="select_status_list">
+                    <select class="font-serif form-select form-select-sm orderStatus"  style="width: unset" id="select_status_list">
                 `;
 
                     orderStatuses.forEach(status => {
@@ -1151,13 +1151,13 @@
                         $('#select_status_list option').each(function() {
                             const status = parseInt($(this).val(), 10);
 
-                            if (currentStatus == 3) {
-                                $(this).prop('disabled', !currentStatusObj.unnextList.includes(status));
+                            // if (currentStatus == 3) {
+                            //     $(this).prop('disabled', !currentStatusObj.unnextList.includes(status));
 
-                            } else {
-                                $(this).prop('disabled', !currentStatusObj.next.includes(status));
+                            // } else {
 
-                            }
+                            // }
+                            $(this).prop('disabled', !currentStatusObj.next.includes(status));
                         });
                     }
 
@@ -1575,16 +1575,16 @@
                 const selectedValue = parseInt($(this).val());
                 const idOrder = $(this).closest('tr').data('id');
 
-                if (selectedValue === 4) {
+                // if (selectedValue === 4) {
 
-                    $("#modalUpload .hiddenIDOrderUpload").val(idOrder);
+                //     $("#modalUpload .hiddenIDOrderUpload").val(idOrder);
 
-                    $('#modalUpload').modal(
-                        'show');
-                    $(this).val($(this).data(
-                        'previous-value'));
-                    return;
-                }
+                //     $('#modalUpload').modal(
+                //         'show');
+                //     $(this).val($(this).data(
+                //         'previous-value'));
+                //     return;
+                // }
 
 
                 $.ajax({

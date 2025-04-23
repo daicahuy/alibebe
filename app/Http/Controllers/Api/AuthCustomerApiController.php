@@ -118,7 +118,7 @@ class AuthCustomerApiController extends Controller
             if (Auth::attempt($credentials, $remember)) {
                 $user = Auth::user();
                 if ($user->status == 0) {
-                    return response()->json(['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errorsLogin' => 'Tài khoản đã bị khóa.']);
+                    return response()->json(['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errorsLogin' => 'Tài khoản đã bị khóa vì ' . $user->reason_lock]);
                 }
                 $token = $user->createToken('token')->plainTextToken;
                 return response()->json(['status' => Response::HTTP_OK, 'user' => $user, 'token' => $token], 200);
@@ -149,8 +149,7 @@ class AuthCustomerApiController extends Controller
 
         if ($user) {
             if ($user->status == 0) {
-                return redirect()->intended('/login')->with('error', "Tài khoản đã bị khóa");
-
+                return redirect()->intended('/login')->with('error', "Tài khoản đã bị khóa vì " . $user->reason_lock);
             }
             Auth::login($user);
             return redirect()->intended('/');
@@ -198,7 +197,7 @@ class AuthCustomerApiController extends Controller
         }
         if ($user) {
             if ($user->status == 0) {
-                return response()->json(['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errorsLogin' => 'Tài khoản đã bị khóa.']);
+                return response()->json(['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errorsLogin' => 'Tài khoản đã bị khóa vì ' . $user->reason_lock]);
             }
             Auth::login($user);
             return redirect()->intended('/');
@@ -407,10 +406,12 @@ class AuthCustomerApiController extends Controller
             if ($validator->fails()) {
                 return ['status' => Response::HTTP_INTERNAL_SERVER_ERROR, 'errors' => $validator->errors()->toArray()];
             }
+
             $user = User::where('email', $request->input('otp_email'))->first();
 
 
             $user->password = Hash::make($request->input('password'));
+            $user->is_change_password = 1;
             $user->save();
             return response()->json(['status' => Response::HTTP_OK, 'message' => "success"], 200);
 
