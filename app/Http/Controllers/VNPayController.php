@@ -398,8 +398,6 @@ class VNPayController extends Controller
 
                     $user = User::where('id', $dataOrderCustomer["user_id"])->first();
 
-                    $user->loyalty_points = $user->loyalty_points + 10;
-                    $user->save();
 
                     $admins = User::where('role', 2)
                         ->orWhere('role', 1)

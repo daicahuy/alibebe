@@ -6,6 +6,7 @@ use App\Events\OrderLockStatus;
 use App\Events\OrderPendingCountUpdated;
 use App\Events\OrderStatusUpdated;
 use App\Http\Controllers\Controller;
+use App\Jobs\AddPointsToUser;
 use App\Jobs\UnlockOrderJob;
 use App\Enums\NotificationType;
 use App\Events\OrderCustomer;
@@ -179,11 +180,6 @@ class OrderController extends Controller
 
             $orderArray = $order->toArray();
             if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6) {
-
-
-
-
-
                 foreach ($orderArray['order_items'] as $key => $value) {
                     if ($value['product_variant_id']) {
                         $itemStock = ProductStock::where('product_variant_id', $value['product_variant_id'])->first();
@@ -259,12 +255,18 @@ class OrderController extends Controller
                             # code...
                             event(new OrderStatusUpdated($value, $idStatus, $order, $user_id));
                             event(new OrderPendingCountUpdated());
+
+                            if ($idStatus == 5) {
+                                dispatch(new AddPointsToUser($value))->delay(now()->addDays(7));
+                            }
                         }
                     } else {
                         event(new OrderStatusUpdated($idOrder, $idStatus, $order, $user_id));
                         event(new OrderPendingCountUpdated());
 
-
+                        if ($idStatus == 5) {
+                            dispatch(new AddPointsToUser($idOrder))->delay(now()->addDays(7));
+                        }
                     }
                 }
             }
