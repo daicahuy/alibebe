@@ -185,6 +185,14 @@ class ChatSessionRepository extends BaseRepository
             ->first();
     }
 
+    public function findActiveChatSessionS($customerId)
+    {
+        return $this->model
+            ->where('customer_id', $customerId)
+            // ->where('status', ChatSessionStatusType::OPEN)  // Phiên đang mở
+            ->first();
+    }
+
     // Kiểm tra xem có tồn tại phiên trò chuyện giữa khách hàng và nhân viên hay không
     public function checkExistChatSession($customerId, $employeeId)
     {

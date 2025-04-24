@@ -35,7 +35,7 @@ class OrderCancelService
         if ($cancels === 5 && $user->time_block_order === null) {
             $user->update([
                 'order_blocked_until' => Carbon::now()->addDays(3),
-                'C' => 1,
+                'time_block_order' => 1,
             ]);
             dispatch(new UnlockUsersJob($user->id))->delay(now()->addDays(3));
         } elseif ($cancels === 5 && $user->time_block_order === 1) {
@@ -48,6 +48,7 @@ class OrderCancelService
             $user->update([
                 'status' => 0,
                 'time_block_order' => 3,
+                'reason_lock' => "Hủy đơn hàng nhiều lần"
             ]);
 
             Auth::logout();
@@ -56,10 +57,12 @@ class OrderCancelService
                 'message' => 'Tài khoản của bạn đã bị khóa.',
                 'should_logout' => true,
             ], 403);
-        } elseif ($cancels >= 5 && $user->time_block_order === 3) {
+        } elseif ($cancels >= 5 && $user->time_block_order >= 3) {
             $user->update([
                 'status' => 0,
-                'time_block_order' => 4,
+                'time_block_order' => $user->time_block_order + 1,
+                'reason_lock' => "Hủy đơn hàng nhiều lần"
+
             ]);
 
             Auth::logout();
