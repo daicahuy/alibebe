@@ -248,6 +248,8 @@
 @push('js')
     <script>
         $(document).ready(function() {
+            const dataUser = <?php echo json_encode($user); ?>;
+
             let currentPage = 1;
             let itemsPerPage = 5;
 
@@ -349,12 +351,12 @@
 
                     $('#button-box-footer').append(`<app-button><button class="btn btn-md  fw-bold"
                                                 style="background-color: red; color: #fff;" disabled
-                                                id="withdrawal_rejected_btn" type="submit" fdprocessedid="hbnu3">
+                                                id="withdrawal_rejected_btn"  fdprocessedid="hbnu3">
                                                 <div> Từ chối </div>
                                             </button></app-button>
                                         <app-button>
                                             <button class="btn btn-md btn-theme fw-bold" id="withdrawal_approved_btn"
-                                                type="submit" fdprocessedid="qq0uf9">
+                                                 fdprocessedid="qq0uf9">
                                                 <div> Đông ý </div>
                                             </button></app-button>`)
                 }
@@ -583,8 +585,8 @@
                         approvedButton.prop('disabled', false);
                     }
                 });
-                $("#withdrawal_rejected_btn").on("click", function(event) {
-
+                $("#withdrawal_rejected_btn").off("click").on("click", function(event) {
+                    event.preventDefault();
                     if (!confirm("Bạn có chắn chắn thao tác này không?")) {
                         return;
                     }
@@ -596,7 +598,8 @@
                         type: 'POST',
                         data: {
                             adminReason: adminReason,
-                            idRefund: idRefund
+                            idRefund: idRefund,
+                            user_handle: dataUser.id
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -626,10 +629,10 @@
 
                 })
 
-                $("#withdrawal_approved_btn").on("click", function(event) {
+                $("#withdrawal_approved_btn").off("click").on("click", function(event) {
 
                     console.log("!23")
-
+                    event.preventDefault();
                     if (!confirm("Bạn có chắn chắn thao tác này không?")) {
                         return;
                     }
@@ -639,7 +642,8 @@
                         url: '{{ route('api.refund_orders.changeStatus') }}',
                         type: 'POST',
                         data: {
-                            idRefund: idRefund
+                            idRefund: idRefund,
+                            user_handle: dataUser.id
                         },
                         success: function(response) {
                             if (response.status == 200) {
@@ -990,6 +994,8 @@
                         search,
                         page: currentPage,
                         limit: itemsPerPage,
+                        user_id: dataUser.id,
+                        user_role: dataUser.role
                     },
                     success: function(response) {
                         renderTable(response.refundOrders, response.totalPages);

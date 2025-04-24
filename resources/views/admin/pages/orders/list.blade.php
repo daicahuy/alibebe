@@ -878,21 +878,21 @@
                                     <ul id="actions">
                                         ${order.order_statuses[0].pivot.employee_evidence != null 
                                             && order.order_statuses[0].pivot.customer_confirmation==0 ? `
-                                                    <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
-                                                    <div class="status-pending">
-                                                    <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
-                                                    </div>
-                                                    </div>
+                                                        <div _ngcontent-ng-c1063460097="" class="ng-star-inserted">
+                                                        <div class="status-pending">
+                                                        <span style="font-size: 11px; cursor: pointer;" data-configOrder="${order.id}">Xung đột</span>
+                                                        </div>
+                                                        </div>
 
 
-                                                    ` : `
+                                                        ` : `
 
-                                                    `}
+                                                        `}
                                         <li>
                                             ${order.is_refund_cancel != null ? `
-                                        <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
-                                            <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
-                                        `:""}
+                                            <div style="width: 30px;height: 30px;cursor: pointer;" class="show_modal_refund_bank" data-idorder="${order.id}">
+                                                <i style="color:#0da487" class="ri-exchange-dollar-line"></i></div>
+                                            `:""}
                                             <a href="orders/${order.id}"
                                                 class="btn-detail">
                                                 <i class="ri-eye-line"></i>
@@ -909,7 +909,8 @@
 
                     });
 
-                    $('.status-pending span').on("click", function() {
+                    $('.status-pending span').on("click", function(event) {
+                        event.preventDefault();
                         const orderId = $(this).data(
                             'configorder');
                         callApiGetOrderOrderStatus(orderId);
