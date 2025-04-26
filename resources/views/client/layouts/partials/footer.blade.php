@@ -177,7 +177,7 @@
                                 <div class="footer-number">
                                     <i data-feather="phone"></i>
                                     <div class="contact-number">
-                                        <h6 class="text-content">Đường dây nóng 24/7::</h6>
+                                        <h6 class="text-content">Giao hàng 24/7</h6>
                                         <h5>+84 888 666 8888</h5>
                                     </div>
                                 </div>
