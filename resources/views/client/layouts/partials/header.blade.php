@@ -16,8 +16,10 @@
                             <div>
                                 <div class="timer-notification">
                                     <h6>
-                                        <strong class="me-1">Chào mừng đến với Alibebe!</strong>Gói ưu đãi/quà tặng mới
-                                        mỗi ngày vào các ngày cuối tuần.<strong class="ms-1">Mã phiếu giảm giá mới: Fast024
+                                        <strong class="me-1">Chào mừng đến với Alibebe!</strong>Gói ưu đãi/quà tặng
+                                        mới
+                                        mỗi ngày vào các ngày cuối tuần.<strong class="ms-1">Mã phiếu giảm giá mới:
+                                            Fast024
                                         </strong>
                                     </h6>
                                 </div>
@@ -89,8 +91,7 @@
                                     <span class="input-group-text">
                                         <i data-feather="search" class="font-light"></i>
                                     </span>
-                                    <input type="text" class="form-control search-type"
-                                        placeholder="Search here..">
+                                    <input type="text" class="form-control search-type" placeholder="Search here..">
                                     <span class="input-group-text close-search">
                                         <i data-feather="x" class="font-light"></i>
                                     </span>
@@ -112,8 +113,8 @@
                                             <i data-feather="phone-call"></i>
                                         </div>
                                         <div class="delivery-detail">
-                                            <h6>24/7 Delivery</h6>
-                                            <h5>+91 888 104 2340</h5>
+                                            <h6>Giao hàng 24/7</h6>
+                                            <h5>+84 888 666 8888</h5>
                                         </div>
                                     </a>
                                 </li>
@@ -571,16 +572,18 @@
                                 </div>
                                 <div class="offcanvas-body">
                                     <ul class="navbar-nav">
-                                    
+
                                         <li class="nav-item dropdown">
                                             <a class="nav-link dropdown-toggle" href="javascript:void(0)"
                                                 data-bs-toggle="dropdown">Hướng Dẫn</a>
                                             <ul class="dropdown-menu">
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('muaHang')}}"> Hướng Dẫn Mua Hàng</a>
+                                                    <a class="dropdown-item" href="{{ route('muaHang') }}"> Hướng Dẫn
+                                                        Mua Hàng</a>
                                                 </li>
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('hoanHang')}}"> Hướng Dẫn Hoàn Hàng</a>
+                                                    <a class="dropdown-item" href="{{ route('hoanHang') }}"> Hướng
+                                                        Dẫn Hoàn Hàng</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -588,13 +591,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="header-nav-right">
-                        <button class="btn deal-button" data-bs-toggle="modal" data-bs-target="#deal-box">
-                            <i data-feather="zap"></i>
-                            <span>Deal Today</span>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -633,13 +629,13 @@
                 let isSale = parseInt(row.find(".is_sale").val());
                 let stock = parseInt(row.find(".stock").val());
 
-                 if (isSale == 1) {
-                        finalPrice = salePrice > 0 ? salePrice : originalPrice;
-                        oldPrice = salePrice > 0 ? originalPrice : null;
-                    } else {
-                        finalPrice = originalPrice > 0 ? originalPrice : 0;
-                        oldPrice = null;
-                    }
+                if (isSale == 1) {
+                    finalPrice = salePrice > 0 ? salePrice : originalPrice;
+                    oldPrice = salePrice > 0 ? originalPrice : null;
+                } else {
+                    finalPrice = originalPrice > 0 ? originalPrice : 0;
+                    oldPrice = null;
+                }
 
                 let finalPriceVariant = salePriceVariant > 0 ? salePriceVariant : priceVariant;
                 let oldPriceVariant = salePriceVariant > 0 ? priceVariant : null;
@@ -827,15 +823,40 @@
                     })
                     .then(data => {
                         if (data && data.length > 0) {
-                            data.forEach(suggestion => {
+                            data.forEach(product => {
                                 const listItem = document.createElement('li');
-                                listItem.textContent = suggestion;
-                                listItem.addEventListener('click', function() {
-                                    searchInput.value = suggestion;
+                                listItem.classList.add('suggestion-item');
+
+                                // Tạo thẻ ảnh
+                                const image = document.createElement('img');
+                                image.src =
+                                `/storage/${product.thumbnail}`; // Đảm bảo đường dẫn đúng
+                                image.alt = product.name;
+                                image.style.width = '30px';
+                                image.style.height = '30px';
+                                image.style.marginRight = '5px';
+                                image.style.verticalAlign = 'middle';
+
+                                // Tạo liên kết
+                                const link = document.createElement('a');
+                                link.href = `/products/${product.slug}`;
+                                link.textContent = product.name;
+                                link.style.textDecoration = 'none';
+                                link.style.color = '#333';
+
+                                // Thêm ảnh và liên kết vào danh sách
+                                listItem.appendChild(image);
+                                listItem.appendChild(link);
+
+                                listItem.addEventListener('click', function(event) {
+                                    event.preventDefault();
+                                    searchInput.value = product
+                                    .name; // Gán tên sản phẩm vào ô tìm kiếm
                                     suggestionsList.style.display = 'none';
                                     searchForm
-                                        .submit(); // Tự động submit form khi chọn gợi ý
+                                .submit(); // Tự động submit form khi chọn gợi ý
                                 });
+
                                 suggestionsList.appendChild(listItem);
                             });
                             suggestionsList.style.display = 'block';
@@ -856,7 +877,6 @@
                 }
             });
         });
-
         $(document).ready(function() {
             const userId = $('meta[name="user-id"]').attr('content'); // Lấy user ID từ meta tag
             const csrfToken = $('meta[name="csrf-token"]').attr('content'); // Lấy CSRF token từ meta tag
@@ -879,7 +899,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Tài khoản bị khóa',
-                        text:  `Lý do: ${data.reason}`,
+                        text: `Lý do: ${data.reason}`,
                         confirmButtonText: 'OK'
                     }).then(() => {
                         // Gọi API đăng xuất
@@ -887,7 +907,7 @@
                                 method: 'GET',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'X-CSRF-Token':csrfToken
+                                    'X-CSRF-Token': csrfToken
                                 }
                             })
                             .then(response => {
@@ -952,20 +972,20 @@
             }
         }
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             // Nếu đã có thời gian đang đếm ngược (reload lại trang) thì tiếp tục đếm
             checkCountdown();
 
             // Xử lý sự kiện click của nút gửi mã xác minh
-            $('#verifyButton').click(function () {
+            $('#verifyButton').click(function() {
                 $.ajax({
                     url: '{{ route('api.auth.verification.verify', ['id' => ':userId']) }}'
-                            .replace(':userId', userId),
+                        .replace(':userId', userId),
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    success: function (data) {
+                    success: function(data) {
                         if (data.status) {
                             Swal.fire({
                                 icon: 'success',
@@ -977,7 +997,7 @@
                             startCountdown(countdownTime);
                         }
                     },
-                    error: function () {
+                    error: function() {
                         Swal.fire({
                             icon: 'error',
                             title: 'Thất bại!',

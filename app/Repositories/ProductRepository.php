@@ -800,7 +800,8 @@ END');
             $product->reviews()->delete();
             $product->wishlists()->delete();
             $product->productGallery()->delete();
-            $product->productMovement()->delete();
+            // $product->productMovement()->delete();
+            $product->stockMovementDetails()->delete();
             $product->tags()->detach();
             $product->productAccessories()->detach();
 
@@ -809,7 +810,8 @@ END');
                     $variant->attributeValues()->detach();
                     $variant->productStock()->delete();
                     $variant->cartItems()->delete();
-                    $variant->productMovement()->delete();
+                    // $variant->productMovement()->delete();
+                    $variant->stockMovementDetails()->delete();
                     if ($variant->thumbnail && Storage::exists($variant->thumbnail)) {
                         Storage::delete($variant->thumbnail);
                     }
@@ -915,7 +917,8 @@ END');
                 $product->reviews()->delete();
                 $product->wishlists()->delete();
                 $product->productGallery()->delete();
-                $product->productMovement()->delete();
+                // $product->productMovement()->delete();
+                $product->stockMovementDetails()->delete();
                 $product->tags()->detach();
                 $product->productAccessories()->detach();
 
@@ -924,7 +927,8 @@ END');
                         $variant->attributeValues()->detach();
                         $variant->productStock()->delete();
                         $variant->cartItems()->delete();
-                        $variant->productMovement()->delete();
+                        // $variant->productMovement()->delete();
+                        $variant->stockMovementDetails()->delete();
 
                         if ($variant->thumbnail && Storage::exists($variant->thumbnail)) {
                             Storage::delete($variant->thumbnail);

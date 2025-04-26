@@ -77,7 +77,7 @@
                                         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
                                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#collapseOne">
-                                                <span>Categories</span>
+                                                <span>Danh Mục</span>
                                             </button>
                                         </h2>
                                         <div id="collapseOne" class="accordion-collapse collapse show">
@@ -120,7 +120,7 @@
                                         <h2 class="accordion-header" id="panelsStayOpen-headingThree">
                                             <button class="accordion-button collapsed" type="button"
                                                 data-bs-toggle="collapse" data-bs-target="#collapseThree">
-                                                <span>Price</span>
+                                                <span>Giá</span>
                                             </button>
                                         </h2>
                                         <div id="collapseThree" class="accordion-collapse collapse show">
@@ -181,7 +181,7 @@
                                         <h2 class="accordion-header" id="panelsStayOpen-headingSix">
                                             <button class="accordion-button collapsed" type="button"
                                                 data-bs-toggle="collapse" data-bs-target="#collapseSix">
-                                                <span>Rating</span>
+                                                <span>Đánh giá</span>
                                             </button>
                                         </h2>
                                         <div id="collapseSix" class="accordion-collapse collapse show">
