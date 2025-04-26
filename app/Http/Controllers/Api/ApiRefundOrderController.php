@@ -505,6 +505,7 @@ class ApiRefundOrderController extends Controller
                 }
             }
 
+            Refund::where('id', $request->input('idOrder'))->update(["bank_account_status" => "verified", "bank_account" => $request->input('bank_account'), "bank_name" => $request->input('bank_name'), "user_bank_name" => $request->input('user_bank_name')]);
 
             if (!empty($changes)) {
 
@@ -518,7 +519,6 @@ class ApiRefundOrderController extends Controller
             }
 
 
-            Refund::where('id', $request->input('idOrder'))->update(["bank_account_status" => "verified", "bank_account" => $request->input('bank_account'), "bank_name" => $request->input('bank_name'), "user_bank_name" => $request->input('user_bank_name')]);
 
 
             event(new RefundOrderUpdateStatus($request->input('idOrder'), 'receiving'));
