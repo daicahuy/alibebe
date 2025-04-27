@@ -1234,19 +1234,24 @@
                                                 class="form-control">
                                         </div>
 
-                                        <!-- End Date -->
-                                        <div class="flex-grow-1">
+                                         <!-- End Date -->
+                                         <div class="flex-grow-1">
                                             <label for="endDate" class="form-label fw-bold mb-0">Ngày kết
                                                 thúc</label>
-                                            <input type="date" id="endDate" name="endDate"
+                                                <input type="date" id="endDate" name="endDate"
                                                 value="{{ request('endDate', now()->toDateString()) }}"
-                                                class="form-control">
+                                                class="form-control @error('endDate') is-invalid @enderror"> {{-- Thêm class is-invalid khi có lỗi --}}
+                                            @error('endDate') {{-- Kiểm tra nếu có lỗi cho trường endDate --}}
+                                                <div class="invalid-feedback">
+                                                    {{ $message }} {{-- Hiển thị thông báo lỗi --}}
+                                                </div>
+                                            @enderror
                                         </div>
 
                                         <!-- Filter & Reset Buttons -->
                                         <div class="d-flex gap-2">
                                             <button type="submit" class="btn btn-theme">Lọc</button>
-                                            <a href="{{ route('admin.users.employee.detail', $data['user']->id) }}"
+                                            <a href="{{ route('admin.users.customer.detail', $data['user']->id) }}"
                                                 class="btn btn-secondary">Reset</a>
                                         </div>
                                     </form>

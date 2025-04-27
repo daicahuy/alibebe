@@ -198,6 +198,20 @@ class UserCustomerService
         // danh sách đơn hàng 
 
         $listUserOrders = $this->orderRepo->getUserOrder($userId, $filterStatus);
+        // Xử lý danh sách đơn hàng để hiển thị trạng thái đúng
+        $listUserOrders->getCollection()->transform(function ($order) {
+            // Kiểm tra nếu đơn hàng đã hoàn tiền
+            if ($order->is_refund) {
+                $order->display_status = 'Hoàn hàng'; // Thêm thuộc tính mới để hiển thị
+            } else {
+                // Nếu không phải hoàn tiền, lấy trạng thái cuối cùng từ orderStatuses
+                // Cần đảm bảo bạn đã eager load orderStatuses
+                $latestStatus = $order->orderStatuses->sortByDesc('pivot.created_at')->first();
+                $order->display_status = $latestStatus ? $latestStatus->name : 'Chưa có trạng thái'; // Lấy tên trạng thái hoặc mặc định
+            }
+            return $order;
+        });
+
         $countUserOrders = $this->orderRepo->countUserOrderById($userId);
         // dd($orderStatuses);
         // wish list

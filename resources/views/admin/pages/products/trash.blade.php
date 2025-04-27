@@ -122,6 +122,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @if ($listTrashs->isEmpty())
+                                            <tr>
+                                                <td colspan="11" class="text-center text-muted">Không có sản phẩm thỏa mãn
+                                                    điều kiện.</td>
+                                            </tr>
+                                        @endif
                                         @foreach ($listTrashs as $trash)
                                             <tr>
                                                 <td class="sm-width">
@@ -183,7 +189,8 @@
                                                 <td>
                                                     <ul id="actions">
                                                         <li>
-                                                            <form action="{{ route('admin.products.restore', $trash->id) }}"
+                                                            <form
+                                                                action="{{ route('admin.products.restore', $trash->id) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('PUT')
@@ -194,7 +201,8 @@
                                                         </li>
 
                                                         <li>
-                                                            <form action="{{ route('admin.products.destroy', $trash->id) }}"
+                                                            <form
+                                                                action="{{ route('admin.products.destroy', $trash->id) }}"
                                                                 method="POST">
                                                                 @csrf
                                                                 @method('DELETE')

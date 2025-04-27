@@ -228,6 +228,9 @@ class OrderRepository extends BaseRepository
             if ($filterStatus == 'refunded') {
                 $listOrders->where('is_refund', true);
             } else {
+                if ($filterStatus == 'Hoàn thành') {
+                    $listOrders->where('is_refund', 0);
+                }
                 $listOrders->whereHas('orderStatuses', function ($q) use ($filterStatus) {
                     $q->where('name', $filterStatus);
                 });
@@ -271,9 +274,11 @@ class OrderRepository extends BaseRepository
     public function countOrderByUserId($userId)
     {
         $allCount = $this->model->where('user_id', $userId)->count();
-        $successCount = $this->model->where('user_id', $userId)->whereHas('orderStatuses', function ($q) {
-            $q->where('name', 'Hoàn thành');
-        })->count();
+        $successCount = $this->model->where('user_id', $userId)
+            ->where('is_refund', 0)
+            ->whereHas('orderStatuses', function ($q) {
+                $q->where('name', 'Hoàn thành');
+            })->count();
         $cancelCount = $this->model->where('user_id', $userId)->whereHas('orderStatuses', function ($q) {
             $q->where('name', 'Đã hủy');
         })->count();
@@ -294,11 +299,19 @@ class OrderRepository extends BaseRepository
     // Hàm lấy doanh thu theo status và date
     public function getRevenueByDateAndStatus($userId, $status, $startDate, $endDate)
     {
+        $query = $this->model->where('user_id', $userId);
+
+        // Thêm điều kiện is_refund = 0 chỉ khi trạng thái là 'Hoàn thành'
+        if ($status === 'Hoàn thành') {
+            $query->where('is_refund', 0);
+        }
+
+        $query->whereHas('orderStatuses', function ($q) use ($status) {
+            $q->where('name', $status);
+        });
+
         return $this->filterDate(
-            $this->model->where('user_id', $userId)
-                ->whereHas('orderStatuses', function ($q) use ($status) {
-                    $q->where('name', $status);
-                }),
+            $query,
             $startDate,
             $endDate
         )->sum('total_amount');
@@ -352,11 +365,19 @@ class OrderRepository extends BaseRepository
     // B2: hàm chung đếm đơn hàng theo trạng thái truyền vào, điều kiện lọc theo date
     public function countOrdersByDateAndStatus($userId, $status, $startDate, $endDate)
     {
+        $query = $this->model->where('user_id', $userId);
+
+        // Thêm điều kiện is_refund = 0 chỉ khi trạng thái là 'Hoàn thành'
+        if ($status === 'Hoàn thành') {
+            $query->where('is_refund', 0);
+        }
+
+        $query->whereHas('orderStatuses', function ($q) use ($status) {
+            $q->where('name', $status);
+        });
+
         return $this->filterDate(
-            $this->model->where('user_id', $userId)
-                ->whereHas('orderStatuses', function ($q) use ($status) {
-                    $q->where('name', $status);
-                }),
+            $query,
             $startDate,
             $endDate
         )->count();
@@ -548,4 +569,5 @@ class OrderRepository extends BaseRepository
         ];
     }
 
+    
 }
