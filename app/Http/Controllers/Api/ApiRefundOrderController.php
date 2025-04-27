@@ -480,7 +480,47 @@ class ApiRefundOrderController extends Controller
                 ]);
             }
 
+
+            $refund = Refund::find($request->input('idOrder'));
+
+            $changes = [];
+            if ($refund) {
+                if ($refund->bank_account != $request->input('bank_account')) {
+                    $changes['bank_account'] = [
+                        'old' => $refund->bank_account,
+                        'new' => $request->input('bank_account'),
+                    ];
+                }
+                if ($refund->user_bank_name != $request->input('user_bank_name')) {
+                    $changes['user_bank_name'] = [
+                        'old' => $refund->user_bank_name,
+                        'new' => $request->input('user_bank_name'),
+                    ];
+                }
+                if ($refund->bank_name != $request->input('bank_name')) {
+                    $changes['bank_name'] = [
+                        'old' => $refund->bank_name,
+                        'new' => $request->input('bank_name'),
+                    ];
+                }
+            }
+
             Refund::where('id', $request->input('idOrder'))->update(["bank_account_status" => "verified", "bank_account" => $request->input('bank_account'), "bank_name" => $request->input('bank_name'), "user_bank_name" => $request->input('user_bank_name')]);
+
+            if (!empty($changes)) {
+
+                //Thông báo đến admin khi người dùng thay đổi thông tin chuyển khoản  
+
+
+
+
+
+
+            }
+
+
+
+
             event(new RefundOrderUpdateStatus($request->input('idOrder'), 'receiving'));
 
             return response()->json(["status" => Response::HTTP_OK, "data" => $request->all()]);
