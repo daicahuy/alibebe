@@ -42,7 +42,7 @@ class ApiRefundOrderController extends Controller
                         }
                     ])
                 ->orderBy('created_at', 'desc');
-            if ($user_role !== 2) {
+            if ($user_role == 1) {
                 $queryListRefundOrder->where(function ($q) use ($user_id) {
                     $q->where('user_handle', $user_id)
                         ->orWhereIn('status', ['pending', 'cancel']);
@@ -87,7 +87,7 @@ class ApiRefundOrderController extends Controller
     {
         try {
 
-            $dataOrderRefund = Refund::query()->where('id', $id)->with('order', 'user')->with([
+            $dataOrderRefund = Refund::query()->where('id', $id)->with('order', 'user', 'handleUser')->with([
 
                 'refundItems' => function ($query) {
                     $query->with("product");

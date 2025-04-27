@@ -135,6 +135,10 @@
                                     <table class="table all-package theme-table no-footer">
                                         <tbody><!---->
                                             <tr>
+                                                <td class="text-start fw-semibold">Nhân viên đang xử lý</td>
+                                                <td class="text-start" id="user_handle"></td>
+                                            </tr><!---->
+                                            <tr>
                                                 <td class="text-start fw-semibold">Lý do </td>
                                                 <td class="text-start" id="reason"></td>
                                             </tr><!---->
@@ -296,7 +300,7 @@
                 channel.bind('event-change-status-refund', function(data) {
                     callApiGetDataOrderRefund()
                 });
-
+                console.log("dataOrderRefund", dataOrderRefund)
                 $('#button-box-footer').empty();
                 $("#modalConfirm #admin_reason_div").empty();
                 $("#modalConfirm #admin_reason_div").append(`<div class="form-floating">
@@ -323,6 +327,9 @@
                         .show();
                 }
                 $("#modalConfirm #reason").text(dataOrderRefund.reason ? dataOrderRefund.reason : "")
+                $("#modalConfirm #user_handle").text(dataOrderRefund.handle_user.fullname ? dataOrderRefund
+                    .handle_user
+                    .fullname : "")
                 $("#modalConfirm #idOrderRefund").val(dataOrderRefund.id)
                 $("#modalConfirm #total_amount").text(`${formatCurrency(dataOrderRefund.total_amount)}đ`)
                 $("#modalConfirm #phone_number").text(dataOrderRefund.phone_number ? dataOrderRefund
