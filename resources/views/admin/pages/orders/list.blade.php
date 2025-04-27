@@ -194,7 +194,7 @@
             /* Đặt ở đỉnh trang */
             background: white;
             /* Màu nền cho bảng */
-            z-index: 10;
+            /* z-index: 10; */
             /* Đảm bảo header nằm trên nội dung khác */
         }
 
