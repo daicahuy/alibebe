@@ -45,9 +45,9 @@ class DashboardService
         return $this->dashboardRepository->getOrderStatusByHour($start_date, $IdEmployee);
     }
     
-    public function topProduct()
+    public function topProduct($start_date = null)
     {
-        return $this->dashboardRepository->topProduct();
+        return $this->dashboardRepository->topProduct($start_date);
     }
     
     public function topUser()
@@ -159,9 +159,9 @@ class DashboardService
     {
         return $this->dashboardRepository->getOrderStatusByHourEmployee($start_date);
     }
-    public function topProductEmployee()
+    public function topProductEmployee($start_date = null)
     {
-        return $this->dashboardRepository->topProduct();
+        return $this->dashboardRepository->topProductEmployee($start_date);
     }
 
 }

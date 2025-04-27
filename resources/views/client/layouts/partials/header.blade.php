@@ -614,7 +614,7 @@
                 let productId = row.data("product-id") || null;
                 let productVariantId = row.data("product-variant-id") || null;
                 let productName = row.find("h5").text().trim();
-                let nameVariant = row.find(".selected-variation").text().trim() || null;
+                let nameVariant = row.find(".selected-variation").text().replace(/\s+/g, ' ').trim() || null;
                 let imageUrl = row.find(".drop-image img").attr("src") || "";
 
                 if (imageUrl.startsWith("http")) {

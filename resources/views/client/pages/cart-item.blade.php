@@ -473,6 +473,12 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+        window.location.reload();
+    }
+});
+
         $(document).ready(function() {
             // Hiển thị thông báo nếu có session success hoặc error
             @if (session('success'))
@@ -621,7 +627,7 @@
                     let productId = row.data("product-id") || null;
                     let productVariantId = row.data("product-variant-id") || null;
                     let productName = row.find(".name_product").text().trim();
-                    let nameVariant = row.find(".selected-variation").text().trim() || null;
+                    let nameVariant = row.find(".selected-variation").text().replace(/\s+/g, ' ').trim() || null;
                     let imageUrl = row.find(".product-image img").attr("src") || "";
 
                     // Loại bỏ URL đầy đủ, chỉ giữ phần đường dẫn sau "/storage/"
@@ -720,7 +726,7 @@
                         let productId = row.data("product-id") || null;
                         let productVariantId = row.data("product-variant-id") || null;
                         let productName = row.find(".name_product").text().trim();
-                        let nameVariant = row.find(".selected-variation").text().trim() || null;
+                        let nameVariant = row.find(".selected-variation").text().replace(/\s+/g, ' ').trim() || null;
                         let imageUrl = row.find(".product-image img").attr("src") || "";
 
                         // Loại bỏ URL đầy đủ, chỉ giữ phần đường dẫn sau "/storage/"
@@ -789,7 +795,7 @@
                     let productId = row.data("product-id") || null;
                     let productVariantId = row.data("product-variant-id") || null;
                     let productName = row.find(".name_product").text().trim();
-                    let nameVariant = row.find(".selected-variation").text().trim() || null;
+                    let nameVariant = row.find(".selected-variation").text().replace(/\s+/g, ' ').trim() || null;
                     let imageUrl = row.find(".product-image img").attr("src") || "";
 
                     // Loại bỏ URL đầy đủ, chỉ giữ phần đường dẫn sau "/storage/"
@@ -948,7 +954,7 @@
                     let productId = row.data("product-id") || null;
                     let productVariantId = row.data("product-variant-id") || null;
                     let productName = row.find(".name_product").text().trim();
-                    let nameVariant = row.find(".selected-variation").text().trim() || null;
+                    let nameVariant = row.find(".selected-variation").text() .replace(/\s+/g, ' ').trim() || null;
                     let imageUrl = row.find(".product-image img").attr("src") || "";
 
                     // Loại bỏ URL đầy đủ, chỉ giữ phần đường dẫn sau "/storage/"
@@ -1010,7 +1016,7 @@
 
                 console.log("Dữ liệu gửi lên:", selectedProducts);
                 console.log("Tổng tiền:", totalSum);
-                
+                // updateTotalPrice();
 
                 $.ajax({
                     url: "{{ route('cart.saveSession') }}",

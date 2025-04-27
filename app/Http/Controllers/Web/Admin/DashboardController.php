@@ -46,7 +46,7 @@ class DashboardController extends Controller
         $countOrder = $this->dashboardService->countOrder($start_date, $IdEmployee);
         $chartData = $this->dashboardService->getRevenueAndOrdersByHour($start_date, $IdEmployee);
         $order_status = $this->dashboardService->getOrderStatusByHour($start_date, $IdEmployee);
-        $topProduct = $this->dashboardService->topProduct();
+        $topProduct = $this->dashboardService->topProduct($start_date);
         $topUser = $this->dashboardService->topUser();
         $employee = $this->dashboardService->employee();
         $countOrderPending = $this->dashboardService->countOrderPending();
@@ -129,7 +129,7 @@ class DashboardController extends Controller
         $countOrder = $this->dashboardService->countOrderEmployee($start_date);
         $chartData = $this->dashboardService->getRevenueAndOrdersByHourEmployee($start_date);
         $order_status = $this->dashboardService->getOrderStatusByHourEmployee($start_date);
-        $topProduct = $this->dashboardService->topProduct();
+        $topProduct = $this->dashboardService->topProductEmployee($start_date);
         $topUser = $this->dashboardService->topUser();
         // Kiểm tra nếu hàm trả về RedirectResponse thì return luôn
         if ($chartData instanceof \Illuminate\Http\RedirectResponse) {
