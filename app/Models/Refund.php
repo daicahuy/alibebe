@@ -43,5 +43,8 @@ class Refund extends Model
         return $this->belongsTo(Order::class);
     }
 
-
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'refund_id');
+    }
 }

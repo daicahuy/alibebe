@@ -6,6 +6,7 @@ use App\Enums\NotificationType;
 use App\Events\BankInfoChanged;
 use App\Events\BankInfoChangedForAll;
 use App\Events\OrderCustomer;
+use App\Events\OrderRefundCustomer;
 use App\Events\OrderRefundPendingCountUpdated;
 use App\Events\RefundOrderCreate;
 use App\Events\RefundOrderUpdateStatus;
@@ -316,20 +317,21 @@ class ApiRefundOrderController extends Controller
 
             $message = "Khách hàng yêu cầu hoàn đơn {$order->code} (tổng {$orderRefund->total_amount}đ).";
 
+            \Log::info($orderRefund->id);
+
             $admins = User::whereIn('role', [1,2])->get();
             foreach ($admins as $admin) {
                 Notification::create([
                     'user_id'   => $admin->id,
                     'message'   => $message,
                     'read'      => false,
-                    'type'      => NotificationType::Order,
-                    'order_id'  => $order->id,
-                    // 'refund_id' => $orderRefund->id,
+                    'type'      => NotificationType::Refund,
+                    // 'order_id'  => $order->id,
+                    'refund_id' => $orderRefund->id,
                 ]);
             }
 
-
-            event(new RefundOrderCreate($orderRefund));
+            event(new OrderRefundCustomer($orderRefund , $message));
             event(new RefundOrderCreate($orderRefund));
             event(new OrderRefundPendingCountUpdated());
 
@@ -564,7 +566,7 @@ class ApiRefundOrderController extends Controller
                         'user_id'   => $refund->user_handle,
                         'message'   => $message,
                         'read'      => false,
-                        'type'      => NotificationType::Refund,
+                        'type'      => NotificationType::Bank,
                         'order_id'  => $refund->order_id,
                         'refund_id' => $refund->id,
                     ]);

@@ -7,6 +7,10 @@
     .notification-read {
         background-color: #ffffff;
     }
+
+    #notificationOffcanvas {
+        width: 500px !important;
+    }
 </style>
 <div class="page-header">
     <div class="header-wrapper m-0">
@@ -160,7 +164,7 @@
         const systemChannel = pusher.subscribe('system-notification.' + window.currentUserId);
         const bankInfoChannel = pusher.subscribe('admin-notifications-bank');
         const userBankInfoChannel = pusher.subscribe('private-user.' + window.currentUserId);
-        const orderRefundChannel = pusher.subscribe('order-refund-create-update');
+        const orderRefundChannel = pusher.subscribe('give-order-refund');
 
         // Channel bindings
         couponChannel.bind('event-coupon', data => handleNotification(data, 'coupon'));
@@ -168,31 +172,7 @@
         systemChannel.bind('event-system', data => handleNotification(data, 'system'));
         bankInfoChannel.bind('bank.info.changed.all', data => handleNotification(data, 'bank'));
         userBankInfoChannel.bind('bank.info.changed', data => handleNotification(data, 'bank'));
-
-        // Debug the order refund data before handling
-        orderRefundChannel.bind('event-create-order-refund', data => {
-            console.log("Order refund notification received:", data);
-
-            // Ensure data has the required properties before handling
-            if (!data) {
-                console.error("Empty order refund data received");
-                return;
-            }
-
-            // Add default message if missing
-            if (!data.message) {
-                data.message = "Có đơn hoàn tiền mới";
-            }
-
-            // Ensure order object exists
-            if (!data.order) {
-                data.order = {
-                    code: "N/A"
-                };
-            }
-
-            handleNotification(data, 'order');
-        });
+        orderRefundChannel.bind('give-order-customer', data => handleNotification(data, 'refund'));
 
         function handleNotification(data, type) {
             try {
@@ -263,6 +243,11 @@
                     icon = 'ri-bank-line';
                     const orderCode = (data.order && data.order.code) ? data.order.code : 'N/A';
                     content += ` <small class="text-muted">(Thông tin ngân hàng - ${orderCode})</small>`;
+                } else if (type === 'refund') {
+                    icon = 'ri-refund-2-line';
+                    if (data.refund && data.refund.id) {
+                        content += ` <small class="text-muted">(Đơn hoàn tiền: ${data.refund.id})</small>`;
+                    }
                 }
             } catch (error) {
                 console.error("Error in renderNotificationItem:", error);
@@ -277,15 +262,14 @@
                 $('#notification-offcanvas-list').prepend(renderNotificationOffcanvasItem(data, type));
             } catch (error) {
                 console.error("Error in prependOffcanvasItem:", error, data);
-                // Add fallback simple notification if rendering fails
                 $('#notification-offcanvas-list').prepend(`
-                <div class="notification-item mb-2 p-2 border rounded notification-unread" data-id="${data.id || 'new'}">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1"><p class="mb-1">${data.message || 'Có thông báo mới'}</p></div>
-                        <button class="btn btn-sm btn-danger delete-notifi" data-id="${data.id || 'new'}">Xóa</button>
-                    </div>
+            <div class="notification-item mb-2 p-2 border rounded notification-unread" data-id="${data.id || 'new'}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1"><p class="mb-1">${data.message || 'Có thông báo mới'}</p></div>
+                    <button class="btn btn-sm btn-danger delete-notifi" data-id="${data.id || 'new'}">Xóa</button>
                 </div>
-            `);
+            </div>
+        `);
             }
         }
 
@@ -335,34 +319,23 @@
                         `</div>`;
                 } else if (type === 'bank') {
                     let changeDetails = '';
-                    if (d.changes) {
-                        changeDetails = `<div class="row">`;
-                        if (d.changes.bank_account) {
-                            changeDetails += `<div class="col-12"><small class="text-muted">Số tài khoản:</small>
-                        <p class="mb-1"><span class="text-danger">${d.changes.bank_account.old || ''}</span> → 
-                        <span class="text-success">${d.changes.bank_account.new || ''}</span></p></div>`;
-                        }
-                        if (d.changes.user_bank_name) {
-                            changeDetails += `<div class="col-12"><small class="text-muted">Tên người nhận:</small>
-                        <p class="mb-1"><span class="text-danger">${d.changes.user_bank_name.old || ''}</span> → 
-                        <span class="text-success">${d.changes.user_bank_name.new || ''}</span></p></div>`;
-                        }
-                        if (d.changes.bank_name) {
-                            changeDetails += `<div class="col-12"><small class="text-muted">Tên ngân hàng:</small>
-                        <p class="mb-1"><span class="text-danger">${d.changes.bank_name.old || ''}</span> → 
-                        <span class="text-success">${d.changes.bank_name.new || ''}</span></p></div>`;
-                        }
-                        changeDetails += `</div>`;
-                    }
-
                     const orderCode = d.order_code || (d.order ? d.order.code : 'N/A');
                     details = `<div class="bank-details mt-2">` +
                         `<div class="row">` +
                         `<div class="col-12"><small class="text-muted">Mã đơn:</small><p class="mb-1 fw-bold">${orderCode}</p></div>` +
                         `</div>` +
                         changeDetails +
-                        `<div class="mt-2"><a href="/admin/orderRefund" class="btn btn-sm btn-primary">Xem chi tiết</a></div>` +
                         `</div>`;
+                } else if (type === 'refund' && d.refund) {
+                    const r = d.refund;
+                    details = `<div class="refund-details mt-2">` +
+                        `<div class="row">` +
+                        `<div class="col-6"><small class="text-muted">Mã đơn:</small><p class="mb-1 fw-bold">${r.order.code || 'N/A'}</p></div>` +
+                        `<div class="col-6"><small class="text-muted">Số tiền hoàn:</small><p class="mb-1">${formatCurrency(r.total_amount)}</p></div>` +
+                        `<div class="col-6"><small class="text-muted">Người yêu cầu:</small><p class="mb-1 fw-bold">${r.user.fullname || 'N/A'}</p></div>` +
+                        `<div class="col-6"><small class="text-muted">SĐT:</small><p class="mb-1">${r.phone_number || 'N/A'}</p></div>` +
+                        `<div class="col-12"><small class="text-muted">Lý do:</small><p class="mb-1">${r.reason || 'Không có lý do'}</p></div>` +
+                        `</div></div>`;
                 }
             } catch (error) {
                 console.error("Error generating notification details:", error);
@@ -412,6 +385,7 @@
             if (notification.type === 1) return 'order';
             if (notification.type === 2) return 'system';
             if (notification.type === 3) return 'bank';
+            if (notification.type === 4) return 'refund';
             return 'system'; // fallback
         }
 
@@ -450,12 +424,12 @@
                     $('#offcanvas-pagination').remove();
                     if (r.notifications.last_page > 1) {
                         $('#notification-offcanvas-list').append(`
-                        <div id="offcanvas-pagination" class="d-flex justify-content-between align-items-center px-2 my-2">
-                            <button id="off-prev" class="btn btn-sm btn-link" ${offPage<=1?'disabled':''}>Prev</button>
-                            <span>Trang ${offPage}/${r.notifications.last_page}</span>
-                            <button id="off-next" class="btn btn-sm btn-link" ${offPage>=r.notifications.last_page?'disabled':''}>Next</button>
-                        </div>
-                    `);
+                    <div id="offcanvas-pagination" class="d-flex justify-content-between align-items-center px-2 my-2">
+                        <button id="off-prev" class="btn btn-sm btn-link" ${offPage<=1?'disabled':''}>Prev</button>
+                        <span>Trang ${offPage}/${r.notifications.last_page}</span>
+                        <button id="off-next" class="btn btn-sm btn-link" ${offPage>=r.notifications.last_page?'disabled':''}>Next</button>
+                    </div>
+                `);
                     }
                     $('.delete-notifi').off('click').on('click', function() {
                         deleteNotification($(this).data('id'));

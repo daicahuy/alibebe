@@ -56,3 +56,8 @@ Broadcast::channel('system-notification', function ($user) {
     return $user->role == UserRoleType::ADMIN
         || $user->role == UserRoleType::EMPLOYEE;
 });
+
+Broadcast::channel('give-order-refund', function ($user) {
+    return $user->role == UserRoleType::ADMIN
+        || $user->role == UserRoleType::EMPLOYEE;
+});
