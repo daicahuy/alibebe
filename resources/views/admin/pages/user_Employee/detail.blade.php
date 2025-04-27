@@ -1274,10 +1274,12 @@
                                                     {{-- @dd($data) --}}
                                                     <small class="text-muted">Chi Tiết Trạng Thái</small>
                                                     <div class="d-flex justify-content-between mt-1">
-                                                        <span class="badge bg-success badge-custom">Thành Công:
-                                                            {{ $data['order']['countSuccessDetail'] }}</span>
                                                         <span class="badge bg-warning badge-custom">Đang Xử Lý:
                                                             {{ $data['order']['countProcessingDetail'] }}</span>
+                                                        <span class="badge bg-info badge-custom">Đang Giao Hàng:
+                                                            {{ $data['order']['countProcessingDetail'] }}</span>
+                                                        <span class="badge bg-success badge-custom">Thành Công:
+                                                            {{ $data['order']['countSuccessDetail'] }}</span>
                                                         <span class="badge bg-danger badge-custom">Hủy:
                                                             {{ $data['order']['countCancelDetail'] }}</span>
                                                         <span class="badge bg-dark badge-custom">Hoàn hàng:
@@ -1325,7 +1327,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                  
+
                                 </div>
 
                                 <div class="row">

@@ -1291,10 +1291,12 @@
                                                         {{-- @dd($data) --}}
                                                         <small class="text-muted">Chi Tiết Trạng Thái</small>
                                                         <div class="d-flex justify-content-between mt-1">
-                                                            <span class="badge bg-success badge-custom">Thành Công:
-                                                                {{ $data['order']['countSuccessDetail'] }}</span>
                                                             <span class="badge bg-warning badge-custom">Đang Xử Lý:
                                                                 {{ $data['order']['countProcessingDetail'] }}</span>
+                                                            <span class="badge bg-info badge-custom">Đang Giao Hàng:
+                                                                {{ $data['order']['countShipDetail'] }}</span>
+                                                            <span class="badge bg-success badge-custom">Thành Công:
+                                                                {{ $data['order']['countSuccessDetail'] }}</span>
                                                             <span class="badge bg-danger badge-custom">Hủy:
                                                                 {{ $data['order']['countCancelDetail'] }}</span>
                                                             <span class="badge bg-dark badge-custom">Hoàn hàng:
@@ -1645,7 +1647,7 @@
                         <div class="card-body">
                             <div class="section-heading">
                                 <h5 class="card-title mb-0">Ratings &amp; reviews <span
-                                        class="text-body-tertiary fw-normal">({{$data['countReviews']}})</span></h5>
+                                        class="text-body-tertiary fw-normal">({{ $data['countReviews'] }})</span></h5>
 
                             </div>
 

@@ -102,25 +102,28 @@ class UserCustomerService
         $orderSuccess = $order['countSuccessDetail']; // số lg đơn thành công
         $orderCance = $order['countCancelDetail'];
         $orderProcessing = $order['countProcessingDetail'];
+        $orderShip = $order['countShipDetail'];
         $orderRefund = $order['countRefundDetail'];
         $allOrders = $order['countAllDetail'];// tổng số đơn
 
         //2. Doanh số
-        $successFullRevenue = $order['revenueSuccessDetail']; // doanh thu đơn thành công
-        $cancelledRevenue = $order['revenueCancelDetail']; // doanh thu hủy
-        $processingRevenue = $order['revenueProcessingDetail']; // doanh thu đang xử lý 
-        $refundRevenue = $order['revenueRefundDetail']; // doanh thu hoàn hàng 
-        $totalRevenue = $this->orderRepo->getTotalRevenue($userId, $startDate, $endDate); //tổng doanh thu
+        $successFullRevenue = $order['revenueSuccessDetail']; // doanh số đơn thành công
+        $cancelledRevenue = $order['revenueCancelDetail']; // doanh số hủy
+        $processingRevenue = $order['revenueProcessingDetail']; // doanh số đang xử lý 
+        $shipRevenue = $order['revenueShipDetail']; // doanh số đang giao
+        $refundRevenue = $order['revenueRefundDetail']; // doanh số hoàn hàng 
+        $totalRevenue = $this->orderRepo->getTotalRevenue($userId, $startDate, $endDate); //tổng doanh số
 
 
-        // dd($totalRevenue);
-        // tính phần trăm doanh thu và số lượng đơn thành công
-        $percentCountSuccess = 0;
-        $percentPriceSuccess = 0;
+        // dd($allOrders);
+        // tính phần trăm doanh số và số lượng đơn thành công
+        $percentCountSuccess = 0; // phần trăm theo số lượng
+        $percentPriceSuccess = 0;// phần trăm theo doanh số
         if ($allOrders > 0) {
             $percentCountSuccess = round(($orderSuccess / $allOrders) * 100, 2);
             $percentCountCancel = round($order['countCancelDetail'] / $allOrders * 100, 2);
             $percentCountProcessing = round($order['countProcessingDetail'] / $allOrders * 100, 2);
+            $percentCountShip = round($order['countShipDetail'] / $allOrders * 100, 2);
             $percentCountRefund = round($order['countRefundDetail'] / $allOrders * 100, 2);
 
             $percentPriceSuccess = round($successFullRevenue / $totalRevenue * 100, 2);
@@ -132,6 +135,20 @@ class UserCustomerService
 
         //3. Chi Tiết Đơn Hàng
         $orderDetails = [
+            [
+                'type' => 'Đang xử lý',
+                'quantity' => $orderProcessing,
+                'revenue' => $processingRevenue,
+                'percentCount' => $percentCountProcessing ?? 0,
+                'badge_class' => 'bg-warning',
+            ],
+            [
+                'type' => 'Đang giao hàng',
+                'quantity' => $orderShip,
+                'revenue' => $shipRevenue,
+                'percentCount' => $percentCountShip ?? 0,
+                'badge_class' => 'bg-info',
+            ],
             [
                 'type' => 'Đã hoàn thành',
                 'quantity' => $orderSuccess,
@@ -147,19 +164,13 @@ class UserCustomerService
                 'badge_class' => 'bg-danger',
             ],
             [
-                'type' => 'Đang xử lý',
-                'quantity' => $orderProcessing,
-                'revenue' => $processingRevenue,
-                'percentCount' => $percentCountProcessing ?? 0,
-                'badge_class' => 'bg-warning',
-            ],
-            [
                 'type' => 'Hoàn hàng',
                 'quantity' => $orderRefund,
                 'revenue' => $refundRevenue,
                 'percentCount' => $percentCountRefund ?? 0,
                 'badge_class' => 'bg-dark',
             ],
+
         ];
 
         // 4. Phương thức thanh toán

@@ -160,9 +160,9 @@ class OrderRepository extends BaseRepository
             $latestStatus = $order->orderStatuses->sortByDesc(function ($status) {
                 return $status->pivot->created_at;
             })->first();
-        
+
             return $latestStatus && $latestStatus->id == 1;
-        })->count();       
+        })->count();
 
         return [
             'total_orders' => $totalOrders,
@@ -321,12 +321,14 @@ class OrderRepository extends BaseRepository
         $allCount = $this->filterDate($this->model->where('user_id', $userId), $startDate, $endDate)->count();
         $successCount = $this->countOrdersByDateAndStatus($userId, 'Hoàn thành', $startDate, $endDate);
         $processingCount = $this->countOrdersByDateAndStatus($userId, 'Đang xử lý', $startDate, $endDate);
+        $shipCount = $this->countOrdersByDateAndStatus($userId, 'Đang giao hàng', $startDate, $endDate);
         $cancelCount = $this->countOrdersByDateAndStatus($userId, 'Đã hủy', $startDate, $endDate);
         $refundCount = $this->filterDate($this->model->where('user_id', $userId)->where('is_refund', 1), $startDate, $endDate)->count();
 
         // tiền
         $successRevenue = $this->getRevenueByDateAndStatus($userId, 'Hoàn thành', $startDate, $endDate);
         $processingRevenue = $this->getRevenueByDateAndStatus($userId, 'Đang xử lý', $startDate, $endDate);
+        $shipRevenue = $this->getRevenueByDateAndStatus($userId, 'Đang giao hàng', $startDate, $endDate);
         $cancelRevenue = $this->getRevenueByDateAndStatus($userId, 'Đã hủy', $startDate, $endDate);
         $refundRevenue = $this->filterDate($this->model->where('user_id', $userId)->where('is_refund', 1), $startDate, $endDate)->sum('total_amount');
 
@@ -337,11 +339,13 @@ class OrderRepository extends BaseRepository
             'countProcessingDetail' => $processingCount,
             'countCancelDetail' => $cancelCount,
             'countRefundDetail' => $refundCount,
+            'countShipDetail' => $shipCount,
 
             'revenueSuccessDetail' => $successRevenue,
             'revenueProcessingDetail' => $processingRevenue,
             'revenueCancelDetail' => $cancelRevenue,
             'revenueRefundDetail' => $refundRevenue,
+            'revenueShipDetail' => $shipRevenue,
         ];
     }
 
@@ -372,6 +376,8 @@ class OrderRepository extends BaseRepository
         }
         return $query;
     }
+
+
 
 
 
@@ -423,6 +429,7 @@ class OrderRepository extends BaseRepository
         $successCount = $this->countOrdersByDateAndStatusForEmployee($employeeId, 'Hoàn thành', $startDate, $endDate);
         $processingCount = $this->countOrdersByDateAndStatusForEmployee($employeeId, 'Đang xử lý', $startDate, $endDate);
         $cancelCount = $this->countOrdersByDateAndStatusForEmployee($employeeId, 'Đã hủy', $startDate, $endDate);
+        $shipCount = $this->countOrdersByDateAndStatusForEmployee($employeeId, 'Đang giao hàng', $startDate, $endDate);
         $refundCount = $this->filterDate(
             $this->model->where('is_refund', 1)
                 ->whereHas('orderStatuses', function ($q) use ($employeeId) {
@@ -436,6 +443,7 @@ class OrderRepository extends BaseRepository
         $successRevenue = $this->getRevenueByDateAndStatusForEmployee($employeeId, 'Hoàn thành', $startDate, $endDate);
         $processingRevenue = $this->getRevenueByDateAndStatusForEmployee($employeeId, 'Đang xử lý', $startDate, $endDate);
         $cancelRevenue = $this->getRevenueByDateAndStatusForEmployee($employeeId, 'Đã hủy', $startDate, $endDate);
+        $shipRevenue = $this->getRevenueByDateAndStatusForEmployee($employeeId, 'Đang giao hàng', $startDate, $endDate);
         $refundRevenue = $this->filterDate(
             $this->model->where('is_refund', 1)
                 ->whereHas('orderStatuses', function ($q) use ($employeeId) {
@@ -453,11 +461,13 @@ class OrderRepository extends BaseRepository
             'countProcessingDetail' => $processingCount,
             'countCancelDetail' => $cancelCount,
             'countRefundDetail' => $refundCount,
+            'countShipDetail' => $shipCount,
 
             'revenueSuccessDetail' => $successRevenue,
             'revenueProcessingDetail' => $processingRevenue,
             'revenueCancelDetail' => $cancelRevenue,
             'revenueRefundDetail' => $refundRevenue,
+            'revenueShipDetail' => $shipRevenue,
         ];
     }
 
