@@ -30,6 +30,8 @@ class ApiRefundOrderController extends Controller
             $filters = $request->all();
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
+            $user_role = $request->input('user_role');
+            $user_id = $request->input('user_id');
 
 
             $queryListRefundOrder = Refund::query()
@@ -40,7 +42,12 @@ class ApiRefundOrderController extends Controller
                         }
                     ])
                 ->orderBy('created_at', 'desc');
-
+            if ($user_role !== 2) {
+                $queryListRefundOrder->where(function ($q) use ($user_id) {
+                    $q->where('user_handle', $user_id)
+                        ->orWhereIn('status', ['pending', 'cancel']);
+                });
+            }
 
             foreach ($filters as $key => $value) {
                 if ($key == 'search' && isset($value)) {
@@ -103,11 +110,12 @@ class ApiRefundOrderController extends Controller
         try {
             $adminReason = $request->input('adminReason');
             $idRefund = $request->input('idRefund');
+            $user_handle = $request->input('user_handle');
 
             if ($adminReason) {
                 Refund::query()
                     ->where('id', $idRefund)
-                    ->update(['admin_reason' => $adminReason, 'status' => 'rejected']);
+                    ->update(['admin_reason' => $adminReason, 'status' => 'rejected', 'user_handle' => $user_handle]);
                 event(new RefundOrderUpdateStatus($idRefund, 'rejected'));
                 event(new OrderRefundPendingCountUpdated());
                 return response()->json([
@@ -118,7 +126,7 @@ class ApiRefundOrderController extends Controller
             } else {
                 Refund::query()
                     ->where('id', $idRefund)
-                    ->update(['status' => 'receiving']);
+                    ->update(['status' => 'receiving', 'user_handle' => $user_handle]);
                 event(new RefundOrderUpdateStatus($idRefund, 'receiving'));
                 event(new OrderRefundPendingCountUpdated());
 
@@ -448,7 +456,7 @@ class ApiRefundOrderController extends Controller
                 'bank_account' => 'required|string|max:255|regex:/^\d+$/',
                 'user_bank_name' => 'required|string|max:100',
                 'bank_name' => 'required|string|max:255',
-                ''
+
             ];
 
             // Định nghĩa các thông báo lỗi

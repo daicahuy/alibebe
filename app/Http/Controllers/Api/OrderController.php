@@ -199,28 +199,27 @@ class OrderController extends Controller
                         $itemStock->save();
                     }
                 }
-
-
-
-            }
-
-            $admins = User::where('role', 2)
+                $admins = User::where('role', 2)
                 ->orWhere('role', 1)
                 ->get();
 
-            $message = "Đơn Hàng {$order->code} đã bị hủy !";
+                $message = "Đơn Hàng {$order->code} đã bị hủy !";
 
-            foreach ($admins as $admin) {
-                Notification::create([
-                    'user_id' => $admin->id,
-                    'message' => $message,
-                    'read' => false,
-                    'type' => NotificationType::Order,
-                    'order_id' => $order->id
-                ]);
+                foreach ($admins as $admin) {
+                    Notification::create([
+                        'user_id' => $admin->id,
+                        'message' => $message,
+                        'read' => false,
+                        'type' => NotificationType::Order,
+                        'order_id' => $order->id
+                    ]);
+                }
+
+                event(new OrderCustomer($order, $message));
+
+
             }
 
-            event(new OrderCustomer($order, $message));
             $user = User::find($user_id);
             // return response()->json(["user" => $user]);
             if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6 && $user->role == 0) {
