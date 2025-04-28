@@ -783,40 +783,39 @@
                 }
 
                 orders.forEach(order => {
-                        let statusClass;
+                    let statusClass;
 
-                        Pusher.logToConsole = true;
+                    Pusher.logToConsole = true;
 
-                        var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
-                            cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
-                        });
+                    var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                        cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+                    });
 
-                        var channel = pusher.subscribe('order-refund-status.' + order.id);
-                        channel.bind('event-change-status-refund', function(data) {
-                            handleStatusChangeRefund(data.orderId)
-                        });
+                    var channel = pusher.subscribe('order-refund-status.' + order.id);
+                    channel.bind('event-change-status-refund', function(data) {
+                        handleStatusChangeRefund(data.orderId)
+                    });
 
-                        switch (order.status) {
-                            case 'completed':
-                                statusClass = 'bg-success'; // Xanh
-                                break;
-                            case 'rejected':
-                                statusClass = 'bg-danger'; // Đỏ
-                                break;
-                            case 'failed':
-                                statusClass = 'bg-danger'; // Đỏ
-                                break;
-                            case 'pending':
-                                statusClass = 'bg-warning'; // Vàng
-                                break;
-                            case 'cancel':
-                                statusClass = 'bg-danger'; // Vàng
-                                break;
-                            default:
-                                statusClass = 'bg-secondary'; // Màu khác nếu cần
-                        }
-                        let orderHTML =
-                            `
+                    switch (order.status) {
+                        case 'completed':
+                            statusClass = 'bg-success'; // Xanh
+                            break;
+                        case 'rejected':
+                            statusClass = 'bg-danger'; // Đỏ
+                            break;
+                        case 'failed':
+                            statusClass = 'bg-danger'; // Đỏ
+                            break;
+                        case 'pending':
+                            statusClass = 'bg-warning'; // Vàng
+                            break;
+                        case 'cancel':
+                            statusClass = 'bg-danger'; // Vàng
+                            break;
+                        default:
+                            statusClass = 'bg-secondary'; // Màu khác nếu cần
+                    }
+                    let orderHTML = `
             <div class="order-card">
                     
                     <div class="d-flex justify-content-between align-items-center p-2">
@@ -825,184 +824,103 @@
                     <div class="d-flex align-items-center">
                         <div class="d-flex" style="align-items:center">
 ${order.status == "receiving" && order.bank_account_status == "sent" ? `
-    <<<<<<< HEAD
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <h5 class="show-error confirm_bank" style="cursor: pointer; color: red" data-idorder="${order.id}">Xác nhận tài khoản ngân hàng</h5>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `:""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <h5 class="show-error confirm_bank" style="cursor: pointer; color: red" data-idorder="${order.id}">Xác nhận tài khoản ngân hàng</h5>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                `:""}
 
                             ${order.status == "pending" ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <h5 class="cancel-order-refund" data-idorder="${order.id}" style="cursor: pointer;" >Hủy đơn hàng hoàn</h5>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ` :""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <h5 class="cancel-order-refund" data-idorder="${order.id}" style="cursor: pointer;" >Hủy đơn hàng hoàn</h5>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ` :""}
                             ${order.status == "failed" ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <h5 class="show-fail" style="cursor: pointer;" data-failreason="${order.fail_reason}" data-imgfailorcompleted="${order.img_fail_or_completed}">Xem lý do thất bại</h5>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ` :""}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <h5 class="show-fail" style="cursor: pointer;" data-failreason="${order.fail_reason}" data-imgfailorcompleted="${order.img_fail_or_completed}">Xem lý do thất bại</h5>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ` :""}
                             ${order.status == "completed" ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <h5 class="show-complate" style="cursor: pointer;" data-idorder="${order.id}" data-imgfailorcompleted="${order.img_fail_or_completed}" data-checkmoney="${order.is_send_money}">Xem minh chứng</h5>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ` :""}
-=======
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <h5 class="show-error confirm_bank" style="cursor: pointer; color: red" data-idorder="${order.id}">Xác nhận tài khoản ngân hàng</h5>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `:
-                            ""
-                    }
-
-                    $ {
-                        order.status == "pending" ?
-                            `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <h5 class="cancel-order-refund" data-idorder="${order.id}" style="cursor: pointer;" >Hủy đơn hàng hoàn</h5>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ` :
-                            ""
-                    }
-                    $ {
-                        order.status == "failed" ?
-                            `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <h5 class="show-fail" style="cursor: pointer;" data-failreason="${order.fail_reason}" data-imgfailorcompleted="${order.img_fail_or_completed}">Xem lý do thất bại</h5>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ` :
-                            ""
-                    }
-                    $ {
-                        order.status == "completed" ?
-                            `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <h5 class="show-complate" style="cursor: pointer;" data-idorder="${order.id}" data-imgfailorcompleted="${order.img_fail_or_completed}" data-checkmoney="${order.is_send_money}">Xem minh chứng</h5>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ` :
-                            ""
-                    } >>>
-                    >>> > ac53fb53a7e9f17b7b03216ce369c0d33b8af896 <
-                    span class = "badge bg-warning complete ms-2 btn-show-reason"
-                    id = ""
-                    data - reason = "${order.reason}"
-                    data - reasonimg = "${order.reason_image}"
-                    data - adminreason = "${order.admin_reason}"
-                    style = "font-size: 1.2em;cursor: pointer;background-color: rgb(7 255 16) !important;" >
-                    Lý do
-                        <
-                        /span> <
-                        /div> <
-                        span class = "badge ${statusClass} ms-2"
-                    style = "font-size: 1.2em; " >
-                    $ {
-                        getStatusInVietnamese(order.status)
-                    } <
-                    /span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <h5 class="show-complate" style="cursor: pointer;" data-idorder="${order.id}" data-imgfailorcompleted="${order.img_fail_or_completed}" data-checkmoney="${order.is_send_money}">Xem minh chứng</h5>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ` :""}
+                            <span class="badge bg-warning complete ms-2 btn-show-reason"  id="" data-reason="${order.reason}" data-reasonimg="${order.reason_image}" data-adminreason="${order.admin_reason}"  style="font-size: 1.2em;cursor: pointer;background-color: rgb(7 255 16) !important;">
+                                Lý do
+                            </span>
+                        </div>
+                        <span class="badge ${statusClass} ms-2" style="font-size: 1.2em; ">
+                            ${getStatusInVietnamese(order.status)}
+                        </span>
 
 
 
-                    <
-                    /div> <
-                    /div>
+                    </div>
+                </div>
                     `
 
                     orderHTML += order.refund_items.map(item => {
                         const imageUrl =
-                            `
-                    {{ Storage::url('${item.product.thumbnail}') }}`;
+                            `{{ Storage::url('${item.product.thumbnail}') }}`;
                         return `
-
-                    <
-                    div class = "d-flex flex-row"
-                    style = "justify-content: space-between; align-items: center; border-top: 1px solid #ccc" >
-                    <
-                    div class = "order-body d-flex" >
-                    <
-                    img src = "${imageUrl}"
-                    alt = "Product"
-                    class = "me-3"
-                    style = "width: 100px; height: 100px; object-fit: cover;" >
-                    <
-                    div class = "d-flex flex-row"
-                    style = "justify-content: space-between" >
-                    <
-                    div >
-                    <
-                    a href = "/products/${item.product.slug}"
-                    class = "mb-1" > $ {
-                        item.name
-                    } < /a> <
-                    p class = "text-muted mb-1"
-                    style = "font-size: 14px;" >
-                    $ {
-                        item.variant_id ?
-                            `Phân loại hàng: ${item.name_variant}` :
-                            ""
-                    } <
-                    /p> <
-                    p class = "text-muted mb-1"
-                    style = "font-size: 14px;" >
-                    x$ {
-                        item.variant_id ?
-                            item.quantity_variant :
-                            item.quantity
-                    } <
-                    /p> <
-                    div style = "margin-right: 15px" >
-                    <
-                    span class = "price-new ms-2" >
-                    $ {
-                        item.variant_id ?
-                            formatCurrency(item.price_variant) :
-                            formatCurrency(item.price)
-                    }₫ <
-                    /span> <
-                    /div> <
-                    /div> <
-                    /div> <
-                    /div> <
-                    div class = "d-flex flex-row"
-                    style = "margin-right: 15px" >
-                    <
-                    span > Thành tiền: < /span> <
-                    p class = "price-new" > $ {
-                        item.variant_id ?
-                            `${formatCurrency(parseFloat(item.price_variant)*parseInt(item.quantity_variant))}` :
-                            `${formatCurrency(parseFloat(item.price)*parseInt(item.quantity))}`
-                    }₫ < /p> <
-                    /div> <
-                    /div>    
-
-                    `
+                        
+                        <div class="d-flex flex-row"
+                    style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
+                    <div class="order-body d-flex">
+                        <img src="${imageUrl}" alt="Product" class="me-3"
+                            style="width: 100px; height: 100px; object-fit: cover;">
+                        <div class="d-flex flex-row" style="justify-content: space-between">
+                            <div>
+                                <a href="/products/${item.product.slug}" class="mb-1">${item.name}</a>
+                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                    ${
+                                        item.variant_id
+                                            ? `Phân loại hàng: ${item.name_variant}`
+                                            : ""
+                                    }
+                                </p>
+                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                    x${
+                                        item.variant_id
+                                            ? item.quantity_variant
+                                            : item.quantity
+                                    }
+                                </p>
+                                <div style="margin-right: 15px">
+                                         <span class="price-new ms-2">
+                                    ${
+                                        item.variant_id
+                                            ? formatCurrency(item.price_variant)
+                                            : formatCurrency(item.price)
+                                    }₫
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row" style="margin-right: 15px">
+                        <span>Thành tiền:</span>
+                        <p class="price-new">${item.variant_id?`${formatCurrency(parseFloat(item.price_variant)*parseInt(item.quantity_variant))}`:`${formatCurrency(parseFloat(item.price)*parseInt(item.quantity))}`}₫</p>
+                    </div>
+                </div>    
+                        
+                        `
 
                     })
 
                     orderHTML += `
-
-                    <
-                    div class = "order-footer" >
-                    <
-                    div class = "" >
-                    <
-                    p style = "margin: 0" > Tên khách hàng: $ {
-                        order.user.fullname
-                    } < /p> <
-                    p style = "margin: 0" > STK: $ {
-                        order.bank_account
-                    } < /p> <
-                    p style = "margin: 0" > Tên người nhận: $ {
-                        order.user_bank_name
-                    } < /p> <
-                    p style = "margin: 0" > Ngân hàng: $ {
-                        order.bank_name
-                    } < /p> <
-                    /div> <
-                    div >
-                    <
-                    div >
-                    <
-                    div >
-                    <
-                    span > Tổng tiền: < /span> <
-                    span class = "price-new" > $ {
-                        formatCurrency(order.total_amount)
-                    }
-                    đ < /span> <
-                    /div> <
-                    /div> <
-                    /div> <
-                    /div> <
-                    /div>
+                    
+                    <div class="order-footer">
+                    <div class="">
+                        <p style="margin: 0">Tên khách hàng: ${order.user.fullname}</p>
+                        <p style="margin: 0">STK: ${order.bank_account}</p>
+                        <p style="margin: 0">Tên người nhận: ${order.user_bank_name}</p>
+                        <p style="margin: 0">Ngân hàng: ${order.bank_name}</p>
+                    </div>
+                    <div>
+                        <div>
+                            <div>
+                                <span>Tổng tiền: </span>
+                                <span class="price-new">${formatCurrency(order.total_amount)}đ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
                     `
                     listCard.innerHTML += orderHTML;
 
@@ -1012,1570 +930,1461 @@ ${order.status == "receiving" && order.bank_account_status == "sent" ? `
                     const idOrder = $(this).data("idorder");
 
                     await $.ajax({
-                        url: `
-                    http: //127.0.0.1:8000/api/refund-orders/${idOrder}`,
-                type: 'GET',
+                        url: `http://127.0.0.1:8000/api/refund-orders/${idOrder}`,
+                        type: 'GET',
 
-                success: function(response) {
+                        success: function(response) {
 
-                    if (response.status == 200) {
-                        const dataOrderRefund = response.dataOrderRefund
+                            if (response.status == 200) {
+                                const dataOrderRefund = response.dataOrderRefund
 
-                        $("#modalConfirmBank #bank_account").val(dataOrderRefund
-                            .bank_account)
-                        $("#modalConfirmBank #idOrder").val(idOrder)
-                        $("#modalConfirmBank #bank_name").val(dataOrderRefund
-                            .bank_name)
-                        $("#modalConfirmBank #user_bank_name").val(dataOrderRefund
-                            .user_bank_name)
+                                $("#modalConfirmBank #bank_account").val(dataOrderRefund
+                                    .bank_account)
+                                $("#modalConfirmBank #idOrder").val(idOrder)
+                                $("#modalConfirmBank #bank_name").val(dataOrderRefund
+                                    .bank_name)
+                                $("#modalConfirmBank #user_bank_name").val(dataOrderRefund
+                                    .user_bank_name)
 
-                    }
-                },
-                error: function(error) {
-                    console.error("Lỗi cập nhật trạng thái đơn hàng:",
-                        error);
-                }
-            });
-
-        $("#modalConfirmBank").modal("show");
-
-        $('#modalConfirmBank').on('shown.bs.modal', function() {
-            $('#modalConfirmBank #bank_account, #modalConfirmBank #bank_name, #modalConfirmBank #user_bank_name')
-                .prop('disabled', true);
-            $('#modalConfirmBank #btn_edit_bank').off('click').on('click',
-                function() {
-                    // Toggle disabled state for inputs
-                    $('#modalConfirmBank #bank_account,#modalConfirmBank #bank_name,#modalConfirmBank #user_bank_name')
-                        .each(function() {
-                            $(this).prop('disabled', !$(this).prop(
-                                'disabled'));
-                        });
-                });
-        });
-
-        const input = $('#modalConfirmBank #bank_name');
-        const suggestionsList = $('#modalConfirmBank #suggestions');
-        input.on('input', function() {
-            const query = $(this).val().toLowerCase();
-            suggestionsList.empty(); //
-            suggestionsList.hide();
-
-            if (query) {
-                const filteredBanks = bankNames.filter(bank => bank.toLowerCase()
-                    .includes(query));
-
-
-                filteredBanks.forEach(bank => {
-                    suggestionsList.append($('<div>').text(bank).click(
-                        function() {
-                            input.val(
-                                bank
-                            );
-                            suggestionsList.empty()
-                                .hide();
-                        }));
-                });
-
-                if (filteredBanks.length > 0) {
-                    suggestionsList.show();
-                }
-            }
-        });
-
-        input.on('blur', function() {
-            const enteredBankName = $(this).val().toLowerCase();
-            if (enteredBankName !== "" && !bankNames.some(bank => bank.toLowerCase()
-                    .includes(enteredBankName))) {
-                alert(
-                    'Tên ngân hàng không hợp lệ. Vui lòng chọn từ danh sách gợi ý.'
-                );
-                $(this).val('');
-            }
-        });
-
-        $(document).on('click', function(event) {
-            if (!$(event.target).closest('#modalConfirmBank #bank_name').length) {
-                suggestionsList.hide(); // Ẩn danh sách gợi ý
-            }
-        });
-    })
-    $('#modalConfirmBank #btn_confim_bank').off('click').on('click', function() {
-        const bank_account = $('#modalConfirmBank #bank_account').val();
-        const bank_name = $('#modalConfirmBank #bank_name').val();
-        const user_bank_name = $('#modalConfirmBank #user_bank_name').val();
-        const idOrder = $('#modalConfirmBank #idOrder').val();
-
-        $.ajax({
-            url: '{{ route('api.refund_orders.confirmBank') }}',
-            type: 'POST',
-            data: {
-                bank_account: bank_account,
-                bank_name: bank_name,
-                user_bank_name: user_bank_name,
-                idOrder: idOrder
-            },
-            success: function(response) {
-                if (response.status == 200) {
-                    Toastify({
-                        text: "Thao tác thành công",
-                        duration: 2000,
-                        newWindow: true,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        stopOnFocus: true,
-                        style: {
-                            background: "linear-gradient(to right, #00b09b, #96c93d)",
-                        },
-                    }).showToast();
-                    fetchOrdersRefund()
-                    $('#modalConfirmBank  .error-message').remove();
-                    $('#modalConfirmBank  .is-invalid').removeClass('is-invalid');
-
-                    $("#modalConfirmBank").modal("hide");
-                } else {
-                    $('.error-message').remove();
-                    $('.is-invalid').removeClass('is-invalid');
-                    if (response.errors) {
-                        $.each(response.errors, function(field, messages) {
-                            let input = $(
-                                `#modalConfirmBank #${field}`);
-                            if (input.length > 0) {
-                                let errorDiv = $(
-                                    '<div class="invalid-feedback error-message d-block">'
-                                );
-                                $.each(messages, function(index,
-                                    message) {
-                                    errorDiv.append('<span>' +
-                                        message +
-                                        '</span><br>');
-                                });
-                                input.addClass('is-invalid');
-                                input.after(errorDiv);
                             }
-                        });
-                    } else {
-                        alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
-                        console.error('Lỗi không xác định:', response);
-                    }
-                }
-            },
-            error: function(error) {
-                console.error("Lỗi cập nhật trạng thái đơn hàng:",
-                    error);
-            }
-        });
-
-    })
-
-    $("#modalConfirmBank #btn-cancel-modal-Show").on("click", function(event) {
-        event.preventDefault();
-        $('#modalConfirmBank .error-message').remove();
-        $('#modalConfirmBank .is-invalid').removeClass('is-invalid');
-        $("#modalConfirmBank").modal("hide");
-    });
-
-
-    $(".btn-show-reason").on('click', function() {
-        $("#div-reason-admin").empty();
-        const reason = $(this).data("reason");
-        const reasonimg = $(this).data("reasonimg");
-        const adminreason = $(this).data("adminreason");
-        const imageUrl =
-            `{{ Storage::url('${reasonimg}') }}`;
-
-        // Kiểm tra xem đường dẫn có phải là video không
-        const isVideo = imageUrl.match(/\.(mp4|mov|avi|wmv|mkv)$/i);
-
-        if (isVideo) {
-            //
-            $("#reasonModal #img-reason").hide();
-            const videoElement = $("#reasonModal #reason-video").get(0);
-            videoElement.src = imageUrl;
-            videoElement.load();
-            $("#reasonModal #reason-video").show();
-        } else {
-
-            $("#reasonModal #reason-video").hide();
-            $("#reasonModal #img-reason").attr("src", imageUrl).show();
-        }
-
-        $("#reasonModal #reason").val(reason);
-        if (adminreason) {
-            $("#div-reason-admin").append(`
-                                        <h4 class="mt-3">Lý do từ chối:</h4>
-                                        <textarea id="admin-reason" class="form-control" disabled>${adminreason}</textarea>
-                                `)
-        }
-
-
-
-
-        $("#reasonModal").modal('show');
-    })
-
-    $("#reasonModal .btn-close").on('click', function() {
-        const videoElement = $('#reasonModal #reason-video').get(0);
-        if (videoElement) {
-            videoElement.pause();
-            videoElement.currentTime = 0;
-        }
-    })
-
-    $(".cancel-order-refund").on('click', function() {
-        const idOrder = $(this).data("idorder");
-        if (!confirm('Bạn có chắc chắn hủy hoàn hàng không?')) {
-            return;
-        }
-
-        $.ajax({
-            url: '{{ route('api.refund_orders.changeStatusCancelOrder') }}',
-            type: 'POST',
-            data: {
-                idOrder: idOrder
-            },
-
-            success: function(response) {
-                if (response.status == 200) {
-                    Toastify({
-                        text: "Thao tác thành công",
-                        duration: 2000,
-                        newWindow: true,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        stopOnFocus: true,
-                        style: {
-                            background: "linear-gradient(to right, #00b09b, #96c93d)",
                         },
-                    }).showToast();
-                    fetchOrdersRefund();
-
-                }
-            },
-            error: function(error) {
-                console.error("Lỗi cập nhật trạng thái đơn hàng:",
-                    error);
-            }
-        });
-
-    })
-
-    $(".show-complate, .show-fail").on('click', function() {
-
-        const img_fail_or_completed = $(this).data("imgfailorcompleted")
-        const fail_reason = $(this).data("failreason")
-        const idOrder = $(this).data("idorder")
-        const checkmoney = $(this).data("checkmoney")
-        let checkmoneyText = "";
-        if (checkmoney == null) {
-            checkmoneyText = "Đã chuyển tiền";
-        } else if (checkmoney == 0) {
-            checkmoneyText = "Chưa nhận tiền";
-        } else if (checkmoney == 1) {
-            checkmoneyText = "Đã nhận tiền";
-        } else {
-            checkmoneyText = ""; // Xử lý trường hợp khác
-        }
-        $("#modalShowFailOrComplate #body-show").empty()
-
-        if (fail_reason) {
-            const imageUrl =
-                `{{ Storage::url('${img_fail_or_completed}') }}`;
-            $("#modalShowFailOrComplate #body-show").append(`
-                            <div class="form-floating mb-3">
-                        <textarea class="form-control" placeholder="Nhập lý do thất bại" name="fail_reason" id="fail_reason" disable style="height: 100px">${fail_reason}</textarea>
-                        <label for="fail_reason">Lý do thất bại</label>
-                    </div>
-                        <div class="mb-3">
-                            <div id="" class="mt-3">
-                                <img src="${imageUrl}" alt="Preview Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
-                            </div>
-                        </div>
-                            `)
-        } else {
-            const imageUrl =
-                `{{ Storage::url('${img_fail_or_completed}') }}`;
-            $("#modalShowFailOrComplate #body-show").append(`
-                        <div class="mb-3">
-                            <h3 style="color:red">${checkmoneyText}</h3>
-                            <div id="" class="mt-3">
-                                <img src="${imageUrl}" alt="Preview Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
-                            </div>
-
-                            ${
-                                checkmoney == null ? `
-                                
-                                <div style="display: flex;justify-content: center;">
-                                <app-button><button class="btn btn-md  fw-bold"
-                                                        style="background-color: red; color: #fff;" data-idOrder="${idOrder}"
-                                                        id="not_received_btn" type="submit" fdprocessedid="hbnu3">
-                                                        <div> Chưa nhận</div>
-                                                    </button></app-button>
-                                                <app-button class="ml-2">
-                                                    <button class="btn btn-md btn-theme fw-bold" style="margin-left: 24px" data-idOrder="${idOrder}" id="received_btn"
-                                                        type="submit" fdprocessedid="qq0uf9">
-                                                        <div> Đã nhận </div>
-                                                    </button></app-button>
-                                    </div>
-                                ` : ""
-                            }
-
-                        </div>
-                            `)
-        }
-
-        $("#modalShowFailOrComplate").modal('show');
-        $("#modalShowFailOrComplate #received_btn").on('click', function() {
-            const idOrder = $(this).data("idorder")
-            if (!confirm('Bạn có chắc chắn thao tác này không?')) {
-                return;
-            }
-            $.ajax({
-                url: '{{ route('api.refund_orders.userCheckReceivedBank') }}',
-                type: 'POST',
-                data: {
-                    idOrder: idOrder,
-                    statusCheckReceived: 1
-                },
-                success: function(response) {
-                    if (response.status == 200) {
-                        Toastify({
-                            text: "Thao tác thành công",
-                            duration: 2000,
-                            newWindow: true,
-                            close: true,
-                            gravity: "top",
-                            position: "right",
-                            stopOnFocus: true,
-                            style: {
-                                background: "linear-gradient(to right, #00b09b, #96c93d)",
-                            },
-                        }).showToast();
-                        fetchOrdersRefund()
-                        $("#modalShowFailOrComplate").modal('hide');
-                    }
-                },
-                error: function(error) {
-                    console.error("Lỗi cập nhật trạng thái đơn hàng:",
-                        error);
-                }
-            });
-
-        })
-
-        $("#modalShowFailOrComplate #not_received_btn").on('click', function() {
-            const idOrder = $(this).data("idorder")
-            if (!confirm('Bạn có chắc chắn thao tác này không?')) {
-                return;
-            }
-            $.ajax({
-                url: '{{ route('api.refund_orders.userCheckReceivedBank') }}',
-                type: 'POST',
-                data: {
-                    idOrder: idOrder,
-                    statusCheckReceived: 0
-                },
-                success: function(response) {
-                    if (response.status == 200) {
-                        Toastify({
-                            text: "Thao tác thành công",
-                            duration: 2000,
-                            newWindow: true,
-                            close: true,
-                            gravity: "top",
-                            position: "right",
-                            stopOnFocus: true,
-                            style: {
-                                background: "linear-gradient(to right, #00b09b, #96c93d)",
-                            },
-                        }).showToast();
-
-                        fetchOrdersRefund()
-                        $("#modalShowFailOrComplate").modal('hide');
-                    }
-                },
-                error: function(error) {
-                    console.error("Lỗi cập nhật trạng thái đơn hàng:",
-                        error);
-                }
-            });
-
-        })
-    })
-
-
-
-    $("#modalShowFailOrComplate #btn-cancel-modal-Show").on("click", function(event) {
-        event.preventDefault(); // Ngăn hành động mặc định
-        $("#modalShowFailOrComplate").modal("hide"); // Chỉ đóng imageModal
-    });
-
-
-    }
-
-    function fetchOrdersRefund(search = null) {
-
-        $("#loading-icon").show();
-        // Gọi API
-        $.ajax({
-            url: '{{ route('api.refund_orders.getOrdersRefundByUser') }}',
-            method: "POST",
-            data: {
-                search: search,
-                user_id: dataUser.id,
-                page: currentPage,
-                limit: itemsPerPage,
-            },
-            success: function(response) {
-
-
-
-                rederOrderRefunds(response.refundOrders, response.totalPages);
-
-
-
-                if (response
-                    .totalPages
-                ) { // giả sử response có thuộc tính totalRecords chứa tổng số bản ghi
-                    $('#pagination').twbsPagination({
-                        totalPages: response.totalPages,
-                        visiblePages: 3,
-                        startPage: currentPage, // Duy trì trang hiện tại
-                        onPageClick: function(event, page) {
-                            currentPage = page;
-                            fetchOrdersRefund();
+                        error: function(error) {
+                            console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                error);
                         }
                     });
+
+                    $("#modalConfirmBank").modal("show");
+
+                    $('#modalConfirmBank').on('shown.bs.modal', function() {
+                        $('#modalConfirmBank #bank_account, #modalConfirmBank #bank_name, #modalConfirmBank #user_bank_name')
+                            .prop('disabled', true);
+                        $('#modalConfirmBank #btn_edit_bank').off('click').on('click',
+                            function() {
+                                // Toggle disabled state for inputs
+                                $('#modalConfirmBank #bank_account,#modalConfirmBank #bank_name,#modalConfirmBank #user_bank_name')
+                                    .each(function() {
+                                        $(this).prop('disabled', !$(this).prop(
+                                            'disabled'));
+                                    });
+                            });
+                    });
+
+                    const input = $('#modalConfirmBank #bank_name');
+                    const suggestionsList = $('#modalConfirmBank #suggestions');
+                    input.on('input', function() {
+                        const query = $(this).val().toLowerCase();
+                        suggestionsList.empty(); //
+                        suggestionsList.hide();
+
+                        if (query) {
+                            const filteredBanks = bankNames.filter(bank => bank.toLowerCase()
+                                .includes(query));
+
+
+                            filteredBanks.forEach(bank => {
+                                suggestionsList.append($('<div>').text(bank).click(
+                                    function() {
+                                        input.val(
+                                            bank
+                                        );
+                                        suggestionsList.empty()
+                                            .hide();
+                                    }));
+                            });
+
+                            if (filteredBanks.length > 0) {
+                                suggestionsList.show();
+                            }
+                        }
+                    });
+
+                    input.on('blur', function() {
+                        const enteredBankName = $(this).val().toLowerCase();
+                        if (enteredBankName !== "" && !bankNames.some(bank => bank.toLowerCase()
+                                .includes(enteredBankName))) {
+                            alert(
+                                'Tên ngân hàng không hợp lệ. Vui lòng chọn từ danh sách gợi ý.'
+                            );
+                            $(this).val('');
+                        }
+                    });
+
+                    $(document).on('click', function(event) {
+                        if (!$(event.target).closest('#modalConfirmBank #bank_name').length) {
+                            suggestionsList.hide(); // Ẩn danh sách gợi ý
+                        }
+                    });
+                })
+                $('#modalConfirmBank #btn_confim_bank').off('click').on('click', function() {
+                    const bank_account = $('#modalConfirmBank #bank_account').val();
+                    const bank_name = $('#modalConfirmBank #bank_name').val();
+                    const user_bank_name = $('#modalConfirmBank #user_bank_name').val();
+                    const idOrder = $('#modalConfirmBank #idOrder').val();
+
+                    $.ajax({
+                        url: '{{ route('api.refund_orders.confirmBank') }}',
+                        type: 'POST',
+                        data: {
+                            bank_account: bank_account,
+                            bank_name: bank_name,
+                            user_bank_name: user_bank_name,
+                            idOrder: idOrder
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                Toastify({
+                                    text: "Thao tác thành công",
+                                    duration: 2000,
+                                    newWindow: true,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    stopOnFocus: true,
+                                    style: {
+                                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                    },
+                                }).showToast();
+                                fetchOrdersRefund()
+                                $('#modalConfirmBank  .error-message').remove();
+                                $('#modalConfirmBank  .is-invalid').removeClass('is-invalid');
+
+                                $("#modalConfirmBank").modal("hide");
+                            } else {
+                                $('.error-message').remove();
+                                $('.is-invalid').removeClass('is-invalid');
+                                if (response.errors) {
+                                    $.each(response.errors, function(field, messages) {
+                                        let input = $(
+                                            `#modalConfirmBank #${field}`);
+                                        if (input.length > 0) {
+                                            let errorDiv = $(
+                                                '<div class="invalid-feedback error-message d-block">'
+                                            );
+                                            $.each(messages, function(index,
+                                                message) {
+                                                errorDiv.append('<span>' +
+                                                    message +
+                                                    '</span><br>');
+                                            });
+                                            input.addClass('is-invalid');
+                                            input.after(errorDiv);
+                                        }
+                                    });
+                                } else {
+                                    alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
+                                    console.error('Lỗi không xác định:', response);
+                                }
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                error);
+                        }
+                    });
+
+                })
+
+                $("#modalConfirmBank #btn-cancel-modal-Show").on("click", function(event) {
+                    event.preventDefault();
+                    $('#modalConfirmBank .error-message').remove();
+                    $('#modalConfirmBank .is-invalid').removeClass('is-invalid');
+                    $("#modalConfirmBank").modal("hide");
+                });
+
+
+                $(".btn-show-reason").on('click', function() {
+                    $("#div-reason-admin").empty();
+                    const reason = $(this).data("reason");
+                    const reasonimg = $(this).data("reasonimg");
+                    const adminreason = $(this).data("adminreason");
+                    const imageUrl =
+                        `{{ Storage::url('${reasonimg}') }}`;
+
+                    // Kiểm tra xem đường dẫn có phải là video không
+                    const isVideo = imageUrl.match(/\.(mp4|mov|avi|wmv|mkv)$/i);
+
+                    if (isVideo) {
+                        //
+                        $("#reasonModal #img-reason").hide();
+                        const videoElement = $("#reasonModal #reason-video").get(0);
+                        videoElement.src = imageUrl;
+                        videoElement.load();
+                        $("#reasonModal #reason-video").show();
+                    } else {
+
+                        $("#reasonModal #reason-video").hide();
+                        $("#reasonModal #img-reason").attr("src", imageUrl).show();
+                    }
+
+                    $("#reasonModal #reason").val(reason);
+                    if (adminreason) {
+                        $("#div-reason-admin").append(`
+                                    <h4 class="mt-3">Lý do từ chối:</h4>
+                                    <textarea id="admin-reason" class="form-control" disabled>${adminreason}</textarea>
+                            `)
+                    }
+
+
+
+
+                    $("#reasonModal").modal('show');
+                })
+
+                $("#reasonModal .btn-close").on('click', function() {
+                    const videoElement = $('#reasonModal #reason-video').get(0);
+                    if (videoElement) {
+                        videoElement.pause();
+                        videoElement.currentTime = 0;
+                    }
+                })
+
+                $(".cancel-order-refund").on('click', function() {
+                    const idOrder = $(this).data("idorder");
+                    if (!confirm('Bạn có chắc chắn hủy hoàn hàng không?')) {
+                        return;
+                    }
+
+                    $.ajax({
+                        url: '{{ route('api.refund_orders.changeStatusCancelOrder') }}',
+                        type: 'POST',
+                        data: {
+                            idOrder: idOrder
+                        },
+
+                        success: function(response) {
+                            if (response.status == 200) {
+                                Toastify({
+                                    text: "Thao tác thành công",
+                                    duration: 2000,
+                                    newWindow: true,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    stopOnFocus: true,
+                                    style: {
+                                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                    },
+                                }).showToast();
+                                fetchOrdersRefund();
+
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                error);
+                        }
+                    });
+
+                })
+
+                $(".show-complate, .show-fail").on('click', function() {
+
+                    const img_fail_or_completed = $(this).data("imgfailorcompleted")
+                    const fail_reason = $(this).data("failreason")
+                    const idOrder = $(this).data("idorder")
+                    const checkmoney = $(this).data("checkmoney")
+                    let checkmoneyText = "";
+                    if (checkmoney == null) {
+                        checkmoneyText = "Đã chuyển tiền";
+                    } else if (checkmoney == 0) {
+                        checkmoneyText = "Chưa nhận tiền";
+                    } else if (checkmoney == 1) {
+                        checkmoneyText = "Đã nhận tiền";
+                    } else {
+                        checkmoneyText = ""; // Xử lý trường hợp khác
+                    }
+                    $("#modalShowFailOrComplate #body-show").empty()
+
+                    if (fail_reason) {
+                        const imageUrl =
+                            `{{ Storage::url('${img_fail_or_completed}') }}`;
+                        $("#modalShowFailOrComplate #body-show").append(`
+                        <div class="form-floating mb-3">
+                    <textarea class="form-control" placeholder="Nhập lý do thất bại" name="fail_reason" id="fail_reason" disable style="height: 100px">${fail_reason}</textarea>
+                    <label for="fail_reason">Lý do thất bại</label>
+                </div>
+                    <div class="mb-3">
+                        <div id="" class="mt-3">
+                            <img src="${imageUrl}" alt="Preview Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
+                        </div>
+                    </div>
+                        `)
+                    } else {
+                        const imageUrl =
+                            `{{ Storage::url('${img_fail_or_completed}') }}`;
+                        $("#modalShowFailOrComplate #body-show").append(`
+                    <div class="mb-3">
+                        <h3 style="color:red">${checkmoneyText}</h3>
+                        <div id="" class="mt-3">
+                            <img src="${imageUrl}" alt="Preview Image" class="img-thumbnail" style="max-width: 100%; height: auto;">
+                        </div>
+
+                        ${
+                            checkmoney == null ? `
+                                        
+                                        <div style="display: flex;justify-content: center;">
+                                        <app-button><button class="btn btn-md  fw-bold"
+                                                                style="background-color: red; color: #fff;" data-idOrder="${idOrder}"
+                                                                id="not_received_btn" type="submit" fdprocessedid="hbnu3">
+                                                                <div> Chưa nhận</div>
+                                                            </button></app-button>
+                                                        <app-button class="ml-2">
+                                                            <button class="btn btn-md btn-theme fw-bold" style="margin-left: 24px" data-idOrder="${idOrder}" id="received_btn"
+                                                                type="submit" fdprocessedid="qq0uf9">
+                                                                <div> Đã nhận </div>
+                                                            </button></app-button>
+                                            </div>
+                                        ` : ""
+                        }
+
+                    </div>
+                        `)
+                    }
+
+                    $("#modalShowFailOrComplate").modal('show');
+                    $("#modalShowFailOrComplate #received_btn").on('click', function() {
+                        const idOrder = $(this).data("idorder")
+                        if (!confirm('Bạn có chắc chắn thao tác này không?')) {
+                            return;
+                        }
+                        $.ajax({
+                            url: '{{ route('api.refund_orders.userCheckReceivedBank') }}',
+                            type: 'POST',
+                            data: {
+                                idOrder: idOrder,
+                                statusCheckReceived: 1
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toastify({
+                                        text: "Thao tác thành công",
+                                        duration: 2000,
+                                        newWindow: true,
+                                        close: true,
+                                        gravity: "top",
+                                        position: "right",
+                                        stopOnFocus: true,
+                                        style: {
+                                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                        },
+                                    }).showToast();
+                                    fetchOrdersRefund()
+                                    $("#modalShowFailOrComplate").modal('hide');
+                                }
+                            },
+                            error: function(error) {
+                                console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                    error);
+                            }
+                        });
+
+                    })
+
+                    $("#modalShowFailOrComplate #not_received_btn").on('click', function() {
+                        const idOrder = $(this).data("idorder")
+                        if (!confirm('Bạn có chắc chắn thao tác này không?')) {
+                            return;
+                        }
+                        $.ajax({
+                            url: '{{ route('api.refund_orders.userCheckReceivedBank') }}',
+                            type: 'POST',
+                            data: {
+                                idOrder: idOrder,
+                                statusCheckReceived: 0
+                            },
+                            success: function(response) {
+                                if (response.status == 200) {
+                                    Toastify({
+                                        text: "Thao tác thành công",
+                                        duration: 2000,
+                                        newWindow: true,
+                                        close: true,
+                                        gravity: "top",
+                                        position: "right",
+                                        stopOnFocus: true,
+                                        style: {
+                                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                        },
+                                    }).showToast();
+
+                                    fetchOrdersRefund()
+                                    $("#modalShowFailOrComplate").modal('hide');
+                                }
+                            },
+                            error: function(error) {
+                                console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                    error);
+                            }
+                        });
+
+                    })
+                })
+
+
+
+                $("#modalShowFailOrComplate #btn-cancel-modal-Show").on("click", function(event) {
+                    event.preventDefault(); // Ngăn hành động mặc định
+                    $("#modalShowFailOrComplate").modal("hide"); // Chỉ đóng imageModal
+                });
+
+
+            }
+
+            function fetchOrdersRefund(search = null) {
+
+                $("#loading-icon").show();
+                // Gọi API
+                $.ajax({
+                    url: '{{ route('api.refund_orders.getOrdersRefundByUser') }}',
+                    method: "POST",
+                    data: {
+                        search: search,
+                        user_id: dataUser.id,
+                        page: currentPage,
+                        limit: itemsPerPage,
+                    },
+                    success: function(response) {
+
+
+
+                        rederOrderRefunds(response.refundOrders, response.totalPages);
+
+
+
+                        if (response
+                            .totalPages
+                        ) { // giả sử response có thuộc tính totalRecords chứa tổng số bản ghi
+                            $('#pagination').twbsPagination({
+                                totalPages: response.totalPages,
+                                visiblePages: 3,
+                                startPage: currentPage, // Duy trì trang hiện tại
+                                onPageClick: function(event, page) {
+                                    currentPage = page;
+                                    fetchOrdersRefund();
+                                }
+                            });
+                        }
+
+
+
+
+                    },
+                    error: function() {
+                        alert("Error fetching data from API");
+                    },
+                    complete: function() {
+                        $("#loading-icon")
+                            .hide(); // Ẩn icon loading khi API hoàn tất (thành công hoặc thất bại)
+                    }
+                });
+            }
+
+            function debounce(func, delay) {
+                let timeout;
+                return function(...args) {
+                    const context = this;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), delay);
                 }
-
-
-
-
-            },
-            error: function() {
-                alert("Error fetching data from API");
-            },
-            complete: function() {
-                $("#loading-icon")
-                    .hide(); // Ẩn icon loading khi API hoàn tất (thành công hoặc thất bại)
             }
-        });
-    }
 
-    function debounce(func, delay) {
-        let timeout;
-        return function(...args) {
-            const context = this;
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(context, args), delay);
-        }
-    }
-
-    const debouncedGetOrderList = debounce(function() {
-        const search = $("#inputSearchOrder").val();
-        if (activeTab == 8) {
-            fetchOrdersRefund(search);
-        } else {
-
-            fetchOrders(search);
-        }
-    }, 400); // Delay 300ms
-
-    $("#inputSearchOrder").on('input', debouncedGetOrderList)
-
-
-    $(".tab").click(function() {
-        $(".tab .nav-link").removeClass("active");
-        $(this).find(".nav-link").addClass("active");
-
-        activeTab = $(this).data("status");
-
-        currentPage = 1;
-        $('#pagination').twbsPagination('destroy');
-        if (activeTab == 8) {
-            fetchOrdersRefund();
-        } else {
-            fetchOrders();
-        }
-    });
-    let changedOrderIds = [];
-    let debounceTimer;
-
-    function handleStatusChange(orderId) {
-
-        if (!changedOrderIds.includes(orderId)) {
-            changedOrderIds.push(orderId);
-        }
-
-
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-
-            fetchOrders();
-            changedOrderIds = [];
-        }, 2000);
-    }
-
-
-    async function callApiGetItemInOrder(orderId) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: `http://127.0.0.1:8000/api/orders/${orderId}`,
-                method: "get",
-                success: function(response) {
-                    // Giải quyết promise với danh sách item order
-                    resolve(response.listItemOrder);
-                },
-                error: function() {
-                    alert("Error fetching data from API");
-                    // Từ chối promise nếu có lỗi
-                    reject("Error fetching data from API");
-                },
-            });
-        });
-    }
-
-    let dataRefundProducts = {
-        products: [],
-        order_id: '',
-        user_id: dataUser.id,
-        total_amount: ''
-
-
-    };
-
-    async function fillOrderDetail(orderId) {
-        const orderById = await callApiGetItemInOrder(orderId);
-        $('#showDetailOrder #order-id').text(`ID: ${orderById[0].order.code}`);
-        $('#showDetailOrder #order-status').text(orderById[0].order.order_statuses[0].name);
-
-        $('#showDetailOrder #listItemOrder').empty();
-        let amountAllItems = 0;
-        orderById.forEach(dataProduct => {
-
-            if (!dataProduct.product_variant_id) {
-                console.log("dataProduct.name_variant", dataProduct.name_variant)
-                console.log("amountAllItems", amountAllItems)
-                amountAllItems += parseFloat(dataProduct.price) * parseInt(dataProduct
-                    .quantity);
-            } else {
-                amountAllItems += parseFloat(dataProduct.price_variant) * parseInt(dataProduct
-                    .quantity_variant);
-                console.log("dataProduct.name_variant2", dataProduct.name_variant)
-            }
-        })
-
-
-        $("#showDetailOrder #fullname p").text(orderById[0].order.fullname)
-        $("#showDetailOrder #phone_number p").text(orderById[0].order.phone_number)
-        $("#showDetailOrder #address p").text(orderById[0].order.address)
-        $("#showDetailOrder #payment p").text(orderById[0].order.payment.name)
-        $("#showDetailOrder #is_paid p").text(orderById[0].order.is_paid == 0 ? "Chưa thanh toán" :
-            "Đã thanh toán")
-        if (!orderById[0].order.note) {
-
-            $("#showDetailOrder #note").hide();
-        } else {
-            $("#showDetailOrder #note").show();
-
-            $("#showDetailOrder #is_paid p").text(orderById[0].order.is_paid == 0 ? "Chưa thanh toán" :
-                "Đã thanh toán")
-
-        }
-        const totalList = $("#data_discount ul");
-        totalList.find("li:nth-child(1) span").text(
-            `${formatCurrency(amountAllItems)}(VND)`
-        );
-
-        if (orderById[0].order.coupon_code) {
-            $("#data_discount ul").show();
-            if (orderById[0].order.coupon_discount_type == CouponDiscountType_PERCENT) {
-                totalList.find("li:nth-child(4) p").text(
-                    `${orderById[0].order.coupon_code}:  -${parseFloat(orderById[0].order.coupon_discount_value)}%(Tối đa: ${formatCurrency(orderById[0].order.max_discount_value)}(VND))`
-                );
-                if (parseFloat(amountAllItems * orderById[0].order.coupon_discount_value) /
-                    100 > parseFloat(orderById[0].order.coupon.restriction.max_discount_value)) {
-                    totalList.find("li:nth-child(5) span").text(
-                        `-${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(orderById[0].order.coupon.restriction.max_discount_value)):0}(VND)`
-                    );
-                    $('#showDetailOrder #amount_refund').text(
-                        `${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems) - parseFloat(orderById[0].order.coupon.restriction.max_discount_value)):formatCurrency(parseFloat(amountAllItems))}(VND)`
-                    );
-
+            const debouncedGetOrderList = debounce(function() {
+                const search = $("#inputSearchOrder").val();
+                if (activeTab == 8) {
+                    fetchOrdersRefund(search);
                 } else {
-                    totalList.find("li:nth-child(5) span").text(
-                        `-${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems*orderById[0].order.coupon_discount_value)/100):0}(VND)`
-                    );
-                    $('#showDetailOrder #amount_refund').text(
-                        `${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems) - parseFloat(amountAllItems*orderById[0].order.coupon_discount_value)/100):formatCurrency(parseFloat(amountAllItems))}(VND)`
-                    );
 
+                    fetchOrders(search);
+                }
+            }, 400); // Delay 300ms
+
+            $("#inputSearchOrder").on('input', debouncedGetOrderList)
+
+
+            $(".tab").click(function() {
+                $(".tab .nav-link").removeClass("active");
+                $(this).find(".nav-link").addClass("active");
+
+                activeTab = $(this).data("status");
+
+                currentPage = 1;
+                $('#pagination').twbsPagination('destroy');
+                if (activeTab == 8) {
+                    fetchOrdersRefund();
+                } else {
+                    fetchOrders();
+                }
+            });
+            let changedOrderIds = [];
+            let debounceTimer;
+
+            function handleStatusChange(orderId) {
+
+                if (!changedOrderIds.includes(orderId)) {
+                    changedOrderIds.push(orderId);
                 }
 
-            } else if (orderById[0].order.coupon_discount_type ==
-                CouponDiscountType_FIX_AMOUNT) {
-                totalList.find("li:nth-child(4) p").text(
-                    ` ${orderById[0].order.coupon_code}: -${formatCurrency(orderById[0].order.coupon_discount_value)}(VND) `
-                );
-                totalList.find("li:nth-child(5) span").text(
-                    `-${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(orderById[0].order.coupon_discount_value)):0}(VND)`
-                );
-                $('#showDetailOrder #amount_refund').text(
-                    `${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems) - parseFloat(orderById[0].order.coupon_discount_value)):formatCurrency(parseFloat(amountAllItems))}(VND)`
-                );
 
-            } else {
-                $('#showDetailOrder #amount_refund').text(
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+
+                    fetchOrders();
+                    changedOrderIds = [];
+                }, 2000);
+            }
+
+
+            async function callApiGetItemInOrder(orderId) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: `http://127.0.0.1:8000/api/orders/${orderId}`,
+                        method: "get",
+                        success: function(response) {
+                            // Giải quyết promise với danh sách item order
+                            resolve(response.listItemOrder);
+                        },
+                        error: function() {
+                            alert("Error fetching data from API");
+                            // Từ chối promise nếu có lỗi
+                            reject("Error fetching data from API");
+                        },
+                    });
+                });
+            }
+
+            let dataRefundProducts = {
+                products: [],
+                order_id: '',
+                user_id: dataUser.id,
+                total_amount: ''
+
+
+            };
+
+            async function fillOrderDetail(orderId) {
+                const orderById = await callApiGetItemInOrder(orderId);
+                $('#showDetailOrder #order-id').text(`ID: ${orderById[0].order.code}`);
+                $('#showDetailOrder #order-status').text(orderById[0].order.order_statuses[0].name);
+
+                $('#showDetailOrder #listItemOrder').empty();
+                let amountAllItems = 0;
+                orderById.forEach(dataProduct => {
+
+                    if (!dataProduct.product_variant_id) {
+                        console.log("dataProduct.name_variant", dataProduct.name_variant)
+                        console.log("amountAllItems", amountAllItems)
+                        amountAllItems += parseFloat(dataProduct.price) * parseInt(dataProduct
+                            .quantity);
+                    } else {
+                        amountAllItems += parseFloat(dataProduct.price_variant) * parseInt(dataProduct
+                            .quantity_variant);
+                        console.log("dataProduct.name_variant2", dataProduct.name_variant)
+                    }
+                })
+
+
+                $("#showDetailOrder #fullname p").text(orderById[0].order.fullname)
+                $("#showDetailOrder #phone_number p").text(orderById[0].order.phone_number)
+                $("#showDetailOrder #address p").text(orderById[0].order.address)
+                $("#showDetailOrder #payment p").text(orderById[0].order.payment.name)
+                $("#showDetailOrder #is_paid p").text(orderById[0].order.is_paid == 0 ? "Chưa thanh toán" :
+                    "Đã thanh toán")
+                if (!orderById[0].order.note) {
+
+                    $("#showDetailOrder #note").hide();
+                } else {
+                    $("#showDetailOrder #note").show();
+
+                    $("#showDetailOrder #is_paid p").text(orderById[0].order.is_paid == 0 ? "Chưa thanh toán" :
+                        "Đã thanh toán")
+
+                }
+                const totalList = $("#data_discount ul");
+                totalList.find("li:nth-child(1) span").text(
                     `${formatCurrency(amountAllItems)}(VND)`
                 );
-            }
+
+                if (orderById[0].order.coupon_code) {
+                    $("#data_discount ul").show();
+                    if (orderById[0].order.coupon_discount_type == CouponDiscountType_PERCENT) {
+                        totalList.find("li:nth-child(4) p").text(
+                            `${orderById[0].order.coupon_code}:  -${parseFloat(orderById[0].order.coupon_discount_value)}%(Tối đa: ${formatCurrency(orderById[0].order.max_discount_value)}(VND))`
+                        );
+                        if (parseFloat(amountAllItems * orderById[0].order.coupon_discount_value) /
+                            100 > parseFloat(orderById[0].order.coupon.restriction.max_discount_value)) {
+                            totalList.find("li:nth-child(5) span").text(
+                                `-${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(orderById[0].order.coupon.restriction.max_discount_value)):0}(VND)`
+                            );
+                            $('#showDetailOrder #amount_refund').text(
+                                `${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems) - parseFloat(orderById[0].order.coupon.restriction.max_discount_value)):formatCurrency(parseFloat(amountAllItems))}(VND)`
+                            );
+
+                        } else {
+                            totalList.find("li:nth-child(5) span").text(
+                                `-${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems*orderById[0].order.coupon_discount_value)/100):0}(VND)`
+                            );
+                            $('#showDetailOrder #amount_refund').text(
+                                `${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems) - parseFloat(amountAllItems*orderById[0].order.coupon_discount_value)/100):formatCurrency(parseFloat(amountAllItems))}(VND)`
+                            );
+
+                        }
+
+                    } else if (orderById[0].order.coupon_discount_type ==
+                        CouponDiscountType_FIX_AMOUNT) {
+                        totalList.find("li:nth-child(4) p").text(
+                            ` ${orderById[0].order.coupon_code}: -${formatCurrency(orderById[0].order.coupon_discount_value)}(VND) `
+                        );
+                        totalList.find("li:nth-child(5) span").text(
+                            `-${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(orderById[0].order.coupon_discount_value)):0}(VND)`
+                        );
+                        $('#showDetailOrder #amount_refund').text(
+                            `${orderById[0].order.coupon_discount_value?formatCurrency(parseFloat(amountAllItems) - parseFloat(orderById[0].order.coupon_discount_value)):formatCurrency(parseFloat(amountAllItems))}(VND)`
+                        );
+
+                    } else {
+                        $('#showDetailOrder #amount_refund').text(
+                            `${formatCurrency(amountAllItems)}(VND)`
+                        );
+                    }
 
 
-        } else {
-            $("#data_discount ul").hide();
-            $('#showDetailOrder #amount_refund').text(
-                `${formatCurrency(amountAllItems)}(VND)`
-            );
-        }
+                } else {
+                    $("#data_discount ul").hide();
+                    $('#showDetailOrder #amount_refund').text(
+                        `${formatCurrency(amountAllItems)}(VND)`
+                    );
+                }
 
-        orderById.forEach((order) => {
+                orderById.forEach((order) => {
 
-            const imageUrl = `{{ Storage::url('${order.product.thumbnail}') }}`;
-            parseInt(order.quantity); // Số lượng tối đa
-            $('#showDetailOrder #listItemOrder').append(
-                `
-        <div class="d-flex flex-row order-body-div"
-                    style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
-                    <div class="order-body d-flex">
-                        <img src="${imageUrl}" alt="Product"
-                            class="me-3" style="width: 100px; height: 100px; object-fit: cover;">
-                        <div class="d-flex flex-row" style="justify-content: space-between">
+                    const imageUrl = `{{ Storage::url('${order.product.thumbnail}') }}`;
+                    parseInt(order.quantity); // Số lượng tối đa
+                    $('#showDetailOrder #listItemOrder').append(
+                        `
+    <div class="d-flex flex-row order-body-div"
+                style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
+                <div class="order-body d-flex">
+                    <img src="${imageUrl}" alt="Product"
+                        class="me-3" style="width: 100px; height: 100px; object-fit: cover;">
+                    <div class="d-flex flex-row" style="justify-content: space-between">
+                        <div>
+                            <p class="mb-1">${order.name}</p>
+                            <p class="text-muted mb-1" style="font-size: 14px;">
+                                ${order.name_variant}
+                            </p>
                             <div>
-                                <p class="mb-1">${order.name}</p>
-                                <p class="text-muted mb-1" style="font-size: 14px;">
-                                    ${order.name_variant}
-                                </p>
-                                <div>
-                                    <span>x${order.product_variant_id?order.quantity_variant:order.quantity}</span>
-                                </div>
-                                <div style="margin-right: 15px">
-                                    <span class="price-new">
-                                        ${order.product_variant_id?`${formatCurrency(order.price_variant)}`:`${formatCurrency(order.price)}`}₫
-                                    </span>
-                                </div>
+                                <span>x${order.product_variant_id?order.quantity_variant:order.quantity}</span>
+                            </div>
+                            <div style="margin-right: 15px">
+                                <span class="price-new">
+                                    ${order.product_variant_id?`${formatCurrency(order.price_variant)}`:`${formatCurrency(order.price)}`}₫
+                                </span>
                             </div>
                         </div>
                     </div>
-                    <div class="d-flex flex-row" style="margin-right: 15px">
-                        <span>Thành tiền:</span>
-                        <p class="price-new total-price-item">${order.product_variant_id?`${formatCurrency(parseFloat(order.price_variant)*parseInt(order.quantity_variant))}`:`${formatCurrency(parseFloat(order.price)*parseInt(order.quantity))}`}₫</p>
-                    </div>
                 </div>
-        
-        `
-            )
-        })
-    }
+                <div class="d-flex flex-row" style="margin-right: 15px">
+                    <span>Thành tiền:</span>
+                    <p class="price-new total-price-item">${order.product_variant_id?`${formatCurrency(parseFloat(order.price_variant)*parseInt(order.quantity_variant))}`:`${formatCurrency(parseFloat(order.price)*parseInt(order.quantity))}`}₫</p>
+                </div>
+            </div>
+    
+    `
+                    )
+                })
+            }
 
 
-    async function getItemProductByOrder(orderId) {
+            async function getItemProductByOrder(orderId) {
 
-        const orderById = await callApiGetItemInOrder(orderId);
-        $('#returnOrderModal #reason_image_show').attr('src', ""),
-            $('#returnOrderModal #order-id').text(`ID: ${orderById[0].order.code}`);
-        $('#returnOrderModal #order-status').text(orderById[0].order.order_statuses[0].name);
-        $('#returnOrderModal #user_name').text(`Khách hàng: ${orderById[0].order.fullname}`);
+                const orderById = await callApiGetItemInOrder(orderId);
+                $('#returnOrderModal #reason_image_show').attr('src', ""),
+                    $('#returnOrderModal #order-id').text(`ID: ${orderById[0].order.code}`);
+                $('#returnOrderModal #order-status').text(orderById[0].order.order_statuses[0].name);
+                $('#returnOrderModal #user_name').text(`Khách hàng: ${orderById[0].order.fullname}`);
 
-        $('#returnOrderModal #listItemOrder').empty();
-
-
-        function updateAmountRefund() {
-            let total = 0;
+                $('#returnOrderModal #listItemOrder').empty();
 
 
-            $('#returnOrderModal .item-checkbox:checked').each(function() {
-                const productId = $(this).data('productid');
-                const productVariantId = $(this).data('productvariantid');
-                const inputElement = $(this).closest('.order-body').find('.quantity-input');
-                const quantity = parseInt(inputElement.val()); // Lấy giá trị số lượng
-                const pricePerUnit = parseFloat($(this).data('price')); // Giá trên mỗi đơn vị
-                const price = pricePerUnit * quantity; // Tính giá tổng
+                function updateAmountRefund() {
+                    let total = 0;
 
-                const productExists = dataRefundProducts.products.some(product => product
-                    .productId === productId);
 
-                if (!productExists) {
-                    dataRefundProducts.products.push({
-                        productId: productId,
-                        productVariantId: productVariantId,
-                        count: quantity,
-                        price: price
-                    });
-                } else {
-                    // Nếu sản phẩm đã tồn tại, cập nhật số lượng
-                    dataRefundProducts.products = dataRefundProducts.products.map(product => {
-                        if (product.productId === productId) {
-                            product.count = quantity;
+                    $('#returnOrderModal .item-checkbox:checked').each(function() {
+                        const productId = $(this).data('productid');
+                        const productVariantId = $(this).data('productvariantid');
+                        const inputElement = $(this).closest('.order-body').find('.quantity-input');
+                        const quantity = parseInt(inputElement.val()); // Lấy giá trị số lượng
+                        const pricePerUnit = parseFloat($(this).data('price')); // Giá trên mỗi đơn vị
+                        const price = pricePerUnit * quantity; // Tính giá tổng
+
+                        const productExists = dataRefundProducts.products.some(product => product
+                            .productId === productId);
+
+                        if (!productExists) {
+                            dataRefundProducts.products.push({
+                                productId: productId,
+                                productVariantId: productVariantId,
+                                count: quantity,
+                                price: price
+                            });
+                        } else {
+                            // Nếu sản phẩm đã tồn tại, cập nhật số lượng
+                            dataRefundProducts.products = dataRefundProducts.products.map(product => {
+                                if (product.productId === productId) {
+                                    product.count = quantity;
+                                }
+                                return product;
+                            });
                         }
-                        return product;
+
+                        total += price;
+
                     });
+                    dataRefundProducts.total_amount = total;
+
+                    $("#returnOrderModal #amount_refund").text(`${formatCurrency(total)}₫`);
+
+                    $('#returnOrderModal .item-checkbox:not(:checked)').each(function() {
+                        const productId = $(this).data('productid');
+
+                        dataRefundProducts.products = dataRefundProducts.products.filter(product =>
+                            product.productId !== productId);
+                    });
+
                 }
 
-                total += price;
 
-            });
-            dataRefundProducts.total_amount = total;
+                orderById.forEach((order) => {
 
-            $("#returnOrderModal #amount_refund").text(`${formatCurrency(total)}₫`);
-
-            $('#returnOrderModal .item-checkbox:not(:checked)').each(function() {
-                const productId = $(this).data('productid');
-
-                dataRefundProducts.products = dataRefundProducts.products.filter(product =>
-                    product.productId !== productId);
-            });
-
-        }
-
-
-        orderById.forEach((order) => {
-
-            const imageUrl = `{{ Storage::url('${order.product.thumbnail}') }}`;
-            const maxQuantity = order.product_variant_id ? parseInt(order.quantity_variant) :
-                parseInt(order.quantity); // Số lượng tối đa
-            $('#listItemOrder').append(
-                `
-                            <div class="d-flex flex-row order-body-div"
-                                        style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
-                                        <div class="order-body d-flex">
-                                            <input type="checkbox" class="item-checkbox" data-productid="${order.product_id}" data-productvariantid="${order.product_variant_id}" data-price="${order.product_variant_id ? parseFloat(order.price_variant) : parseFloat(order.price)}">
-                                            <img src="${imageUrl}" alt="Product"
-                                                class="me-3" style="width: 100px; height: 100px; object-fit: cover;">
-                                            <div class="d-flex flex-row" style="justify-content: space-between">
+                    const imageUrl = `{{ Storage::url('${order.product.thumbnail}') }}`;
+                    const maxQuantity = order.product_variant_id ? parseInt(order.quantity_variant) :
+                        parseInt(order.quantity); // Số lượng tối đa
+                    $('#listItemOrder').append(
+                        `
+                        <div class="d-flex flex-row order-body-div"
+                                    style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
+                                    <div class="order-body d-flex">
+                                        <input type="checkbox" class="item-checkbox" data-productid="${order.product_id}" data-productvariantid="${order.product_variant_id}" data-price="${order.product_variant_id ? parseFloat(order.price_variant) : parseFloat(order.price)}">
+                                        <img src="${imageUrl}" alt="Product"
+                                            class="me-3" style="width: 100px; height: 100px; object-fit: cover;">
+                                        <div class="d-flex flex-row" style="justify-content: space-between">
+                                            <div>
+                                                <p class="mb-1">${order.name}</p>
+                                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                                    ${order.name_variant}
+                                                </p>
                                                 <div>
-                                                    <p class="mb-1">${order.name}</p>
-                                                    <p class="text-muted mb-1" style="font-size: 14px;">
-                                                        ${order.name_variant}
-                                                    </p>
-                                                    <div>
-                            <input type="number" class="quantity-input" min="1" max="${maxQuantity}" value="${maxQuantity}"
-                                style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px;">
-                        </div>
-                                                    <div style="margin-right: 15px">
-                                                        <span class="price-old"></span>
-                                                        <span class="price-new ms-2">
-                                                            ${order.product_variant_id?`${formatCurrency(order.price_variant)}`:`${formatCurrency(order.price)}`}₫
-                                                        </span>
-                                                    </div>
+                        <input type="number" class="quantity-input" min="1" max="${maxQuantity}" value="${maxQuantity}"
+                            style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                                                <div style="margin-right: 15px">
+                                                    <span class="price-old"></span>
+                                                    <span class="price-new ms-2">
+                                                        ${order.product_variant_id?`${formatCurrency(order.price_variant)}`:`${formatCurrency(order.price)}`}₫
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="d-flex flex-row" style="margin-right: 15px">
-                                            <span>Thành tiền:</span>
-                                            <p class="price-new total-price-item">${order.product_variant_id?`${formatCurrency(parseFloat(order.price_variant)*parseInt(order.quantity_variant))}`:`${formatCurrency(parseFloat(order.price)*parseInt(order.quantity))}`}₫</p>
-                                        </div>
                                     </div>
-                            
-                            `
-            )
-        })
+                                    <div class="d-flex flex-row" style="margin-right: 15px">
+                                        <span>Thành tiền:</span>
+                                        <p class="price-new total-price-item">${order.product_variant_id?`${formatCurrency(parseFloat(order.price_variant)*parseInt(order.quantity_variant))}`:`${formatCurrency(parseFloat(order.price)*parseInt(order.quantity))}`}₫</p>
+                                    </div>
+                                </div>
+                        
+                        `
+                    )
+                })
 
-        $("#returnOrderModal #amount_refund").text(`${formatCurrency(0)}đ`)
+                $("#returnOrderModal #amount_refund").text(`${formatCurrency(0)}đ`)
 
-        $('#returnOrderModal').on('keydown', '.quantity-input', function(e) {
-            const allowedKeys = [8, 9, 37, 38, 39, 40,
-                46
-            ]; // Backspace, Tab, Arrow keys, Delete
-            const maxQuantity = parseInt($(this).attr('max'));
-            const minQuantity = parseInt($(this).attr('min')) || 1;
+                $('#returnOrderModal').on('keydown', '.quantity-input', function(e) {
+                    const allowedKeys = [8, 9, 37, 38, 39, 40,
+                        46
+                    ]; // Backspace, Tab, Arrow keys, Delete
+                    const maxQuantity = parseInt($(this).attr('max'));
+                    const minQuantity = parseInt($(this).attr('min')) || 1;
 
-            // Ngăn ký tự không phải số hoặc vượt giới hạn
-            if (
-                (e.keyCode < 48 || e.keyCode > 57) && // Phím số (0-9)
-                (e.keyCode < 96 || e.keyCode > 105) && // Phím số trên numpad
-                !allowedKeys.includes(e.keyCode) // Các phím hợp lệ
-            ) {
-                e.preventDefault();
-            }
-
-
-        });
+                    // Ngăn ký tự không phải số hoặc vượt giới hạn
+                    if (
+                        (e.keyCode < 48 || e.keyCode > 57) && // Phím số (0-9)
+                        (e.keyCode < 96 || e.keyCode > 105) && // Phím số trên numpad
+                        !allowedKeys.includes(e.keyCode) // Các phím hợp lệ
+                    ) {
+                        e.preventDefault();
+                    }
 
 
-        $('#returnOrderModal').on('change', '.item-checkbox, .quantity-input', function() {
-            const checkbox = $(this).closest('.order-body').find('.item-checkbox');
-            const inputElement = $(this).closest('.order-body').find('.quantity-input');
-            const maxQuantity = parseInt(inputElement.attr('max'));
-            let quantity = parseInt(inputElement.val());
-            const productId = checkbox.data('productid');
-            const productVariantId = checkbox.data('productvariantid');
-            const pricePerUnit = parseFloat(checkbox.data('price'));
-            let totalPrice = pricePerUnit * quantity;
-            if (quantity > maxQuantity) {
-                inputElement.val(maxQuantity); // Nếu vượt quá, đặt về giá trị tối đa
-                quantity = maxQuantity
-                totalPrice = pricePerUnit * maxQuantity; // Cập nhật lại totalPrice
-                console.log("totalPrice", totalPrice)
-            } else if (quantity < 1 || isNaN(quantity)) {
-                inputElement.val(1); // Nếu nhỏ hơn 1, đặt về giá trị tối thiểu
-                quantity = 1
-                totalPrice = pricePerUnit * 1; // Cập nhật lại totalPrice
-            }
-
-            $(this).closest('.order-body-div').find('.total-price-item').text(
-                `${formatCurrency(totalPrice)}₫`);
-
-            if (checkbox.is(':checked')) {
-                // Nếu checkbox đã được chọn, cập nhật thông tin trong dataRefundProducts
-                const productExists = dataRefundProducts.products.some(product => product
-                    .productId === productId);
-
-                if (!productExists) {
-                    // Nếu sản phẩm chưa tồn tại, thêm vào danh sách
-                    dataRefundProducts.products.push({
-                        productId: productId,
-                        productVariantId: productVariantId,
-                        count: quantity,
-                        price: totalPrice
-                    });
-                } else {
-                    // Nếu sản phẩm đã tồn tại, cập nhật số lượng và giá tiền
-                    dataRefundProducts.products = dataRefundProducts.products.map(product => {
-                        if (product.productId === productId) {
-                            product.count = quantity; // Cập nhật số lượng
-                            product.price = totalPrice; // Cập nhật giá tiền
-                        }
-                        return product;
-                    });
-                }
-            } else {
-                // Nếu checkbox bị bỏ chọn, xóa sản phẩm khỏi danh sách
-                dataRefundProducts.products = dataRefundProducts.products.filter(product =>
-                    product.productId !== productId);
-            }
-
-            // Cập nhật tổng tiền hoàn trả
-            updateAmountRefund();
-        });
-
-        const input = $('#returnOrderModal #bank_name');
-        const suggestionsList = $('#returnOrderModal #suggestions');
-
-        input.on('input', function() {
-            const query = $(this).val().toLowerCase();
-            suggestionsList.empty(); // Xóa các gợi ý cũ
-            suggestionsList.hide(); // Ẩn danh sách gợi ý
-
-            if (query) {
-                const filteredBanks = bankNames.filter(bank => bank.toLowerCase().includes(
-                    query));
-
-                // Hiển thị gợi ý
-                filteredBanks.forEach(bank => {
-                    suggestionsList.append($('<div>').text(bank).click(function() {
-                        input.val(bank); // Điền tên ngân hàng vào ô input
-                        suggestionsList.empty().hide(); // Xóa gợi ý
-                    }));
                 });
 
-                if (filteredBanks.length > 0) {
-                    suggestionsList.show(); // Hiển thị danh sách gợi ý
+
+                $('#returnOrderModal').on('change', '.item-checkbox, .quantity-input', function() {
+                    const checkbox = $(this).closest('.order-body').find('.item-checkbox');
+                    const inputElement = $(this).closest('.order-body').find('.quantity-input');
+                    const maxQuantity = parseInt(inputElement.attr('max'));
+                    let quantity = parseInt(inputElement.val());
+                    const productId = checkbox.data('productid');
+                    const productVariantId = checkbox.data('productvariantid');
+                    const pricePerUnit = parseFloat(checkbox.data('price'));
+                    let totalPrice = pricePerUnit * quantity;
+                    if (quantity > maxQuantity) {
+                        inputElement.val(maxQuantity); // Nếu vượt quá, đặt về giá trị tối đa
+                        quantity = maxQuantity
+                        totalPrice = pricePerUnit * maxQuantity; // Cập nhật lại totalPrice
+                        console.log("totalPrice", totalPrice)
+                    } else if (quantity < 1 || isNaN(quantity)) {
+                        inputElement.val(1); // Nếu nhỏ hơn 1, đặt về giá trị tối thiểu
+                        quantity = 1
+                        totalPrice = pricePerUnit * 1; // Cập nhật lại totalPrice
+                    }
+
+                    $(this).closest('.order-body-div').find('.total-price-item').text(
+                        `${formatCurrency(totalPrice)}₫`);
+
+                    if (checkbox.is(':checked')) {
+                        // Nếu checkbox đã được chọn, cập nhật thông tin trong dataRefundProducts
+                        const productExists = dataRefundProducts.products.some(product => product
+                            .productId === productId);
+
+                        if (!productExists) {
+                            // Nếu sản phẩm chưa tồn tại, thêm vào danh sách
+                            dataRefundProducts.products.push({
+                                productId: productId,
+                                productVariantId: productVariantId,
+                                count: quantity,
+                                price: totalPrice
+                            });
+                        } else {
+                            // Nếu sản phẩm đã tồn tại, cập nhật số lượng và giá tiền
+                            dataRefundProducts.products = dataRefundProducts.products.map(product => {
+                                if (product.productId === productId) {
+                                    product.count = quantity; // Cập nhật số lượng
+                                    product.price = totalPrice; // Cập nhật giá tiền
+                                }
+                                return product;
+                            });
+                        }
+                    } else {
+                        // Nếu checkbox bị bỏ chọn, xóa sản phẩm khỏi danh sách
+                        dataRefundProducts.products = dataRefundProducts.products.filter(product =>
+                            product.productId !== productId);
+                    }
+
+                    // Cập nhật tổng tiền hoàn trả
+                    updateAmountRefund();
+                });
+
+                const input = $('#returnOrderModal #bank_name');
+                const suggestionsList = $('#returnOrderModal #suggestions');
+
+                input.on('input', function() {
+                    const query = $(this).val().toLowerCase();
+                    suggestionsList.empty(); // Xóa các gợi ý cũ
+                    suggestionsList.hide(); // Ẩn danh sách gợi ý
+
+                    if (query) {
+                        const filteredBanks = bankNames.filter(bank => bank.toLowerCase().includes(
+                            query));
+
+                        // Hiển thị gợi ý
+                        filteredBanks.forEach(bank => {
+                            suggestionsList.append($('<div>').text(bank).click(function() {
+                                input.val(bank); // Điền tên ngân hàng vào ô input
+                                suggestionsList.empty().hide(); // Xóa gợi ý
+                            }));
+                        });
+
+                        if (filteredBanks.length > 0) {
+                            suggestionsList.show(); // Hiển thị danh sách gợi ý
+                        }
+                    }
+                });
+
+                input.on('blur', function() {
+                    const enteredBankName = $(this).val().toLowerCase();
+                    if (enteredBankName !== "" && !bankNames.some(bank => bank.toLowerCase().includes(
+                            enteredBankName))) {
+                        alert('Tên ngân hàng không hợp lệ. Vui lòng chọn từ danh sách gợi ý.');
+                        $(this).val('');
+                    }
+                });
+
+                $(document).on('click', function(event) {
+                    if (!$(event.target).closest('#returnOrderModal #bank_name').length) {
+                        suggestionsList.hide(); // Ẩn danh sách gợi ý
+                    }
+                });
+            }
+
+
+            function renderTable(orders, totalPages) {
+                const listCard = document.getElementById("listCard");
+                listCard.innerHTML = "";
+
+                if (orders.length === 0) {
+                    listCard.innerHTML = `
+            <div class="d-flex justify-center items-center" style="justify-content: center;">
+                <h4>Không có đơn hàng</h4>
+            </div>
+        `;
+                    return;
                 }
-            }
-        });
 
-        input.on('blur', function() {
-            const enteredBankName = $(this).val().toLowerCase();
-            if (enteredBankName !== "" && !bankNames.some(bank => bank.toLowerCase().includes(
-                    enteredBankName))) {
-                alert('Tên ngân hàng không hợp lệ. Vui lòng chọn từ danh sách gợi ý.');
-                $(this).val('');
-            }
-        });
-
-        $(document).on('click', function(event) {
-            if (!$(event.target).closest('#returnOrderModal #bank_name').length) {
-                suggestionsList.hide(); // Ẩn danh sách gợi ý
-            }
-        });
-    }
+                // Duyệt qua các đơn hàng và tạo HTML
+                orders.forEach(order => {
 
 
-    function renderTable(orders, totalPages) {
-        const listCard = document.getElementById("listCard");
-        listCard.innerHTML = "";
+                    let discountValueOrder = 0;
+                    let amountAllItems = 0;
 
-        if (orders.length === 0) {
-            listCard.innerHTML = `
-                <div class="d-flex justify-center items-center" style="justify-content: center;">
-                    <h4>Không có đơn hàng</h4>
+                    Pusher.logToConsole = true;
+
+                    var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                        cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+
+
+                    });
+
+                    var channel = pusher.subscribe('order-status.' + order.id);
+                    channel.bind('event-change-status', function(data) {
+                        handleStatusChange(data.orderId)
+                    });
+
+
+
+                    let orderHTML = `
+            <div class="order-card">
+
+                <div class="d-flex justify-content-between align-items-center p-2">
+    <h4 class="ml-3 d-block">ID: ${order.code}</h4>
+
+    <div class="d-flex align-items-center">
+        <div class="d-flex" style="align-items:center">
+             
+            
+            ${order.is_refund == 1? "<p  class='' style='color:red; margin:unset'>Đã tạo đơn hàng hoàn</p>" : ""}
+            ${order.is_refund_cancel == 0? "<p  class='' style='color:red; margin:unset'>Đang chờ hoàn tiền</p>" : ""}
+            ${order.is_refund_cancel == 1? "<p  class='' style='color:red; margin:unset'>Đã hoàn tiền</p>" : ""}
+            ${order.is_refund_cancel == 1&&order.check_refund_cancel==0? "<p  class='' style='color:red; margin:unset'>(Chưa nhận tiền)</p>" : ""}
+            ${order.is_refund_cancel == 1&&order.check_refund_cancel==1? "<p  class='' style='color:red; margin:unset'>(Đã nhận tiền)</p>" : ""}
+            ${order.img_send_refund_money ? `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <span class="badge bg-warning complete ms-2 btn-show-img-money" id="" data-orderid="${order.id}" data-img="${order.img_send_refund_money}" style="font-size: 1.2em;cursor: pointer;background-color: rgb(7 255 16) !important;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Ảnh chuyển khoản
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `:""}
+            </div>
+
+           
+        <span class="badge bg-success complete ms-2"  style='font-size: 1.2em; ${order.order_statuses[0].id == 6?'background-color: red !important; color: #fff':''}'>
+            ${order.order_statuses[0].name}
+        </span>
+        
+        ${order.order_statuses[0].id == 5 ? "<span class='order-status ms-2'>Đơn hàng đã được giao thành công</span>" : ""}
+        ${order.order_statuses[0].id == 6 ? "<span class='order-status ms-2' style='color: red'>Đơn hàng đã được hủy</span>" : ""}
+        <span class='ms-2 order-detail' style="cursor: pointer;"  data-orderid="${order.id}" >Chi tiết đơn hàng</span>
+    </div>
+</div>
+
+        `;
+
+
+                    const updatedAt = new Date(order.order_statuses[0].pivot.updated_at);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - updatedAt);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    const showReviewButton = (order.order_statuses[0].id === 5 && diffDays <= 7);
+
+                    const showRefundButton = (order.order_statuses[0].id === 5 && order.is_refund == 0 &&
+                        diffDays <= 7);
+
+                    orderHTML += order.order_items.map(item => {
+
+                        const oldPriceDisplay = item.old_price_variant ? item.old_price_variant :
+                            item.old_price ?
+                            item.old_price : "";
+                        const formattedOldPrice = oldPriceDisplay ? `${oldPriceDisplay}₫` : "";
+
+                        if (!item.product_variant_id) {
+                            amountAllItems += parseFloat(item.price) * parseInt(item.quantity);
+                        } else {
+                            amountAllItems += parseFloat(item.price_variant) * parseInt(item
+                                .quantity_variant);
+                        }
+
+                        const imageUrl =
+                            `{{ Storage::url('${item.product.thumbnail}') }}`; // Đường dẫn ảnh
+                        // const imageUrl = `/storage/${item.product.thumbnail}`; // Đường dẫn ảnh
+                        return `
+                <div class="d-flex flex-row" style="justify-content: space-between; align-items: center; border-top: 1px solid #ccc">
+                    <div class="order-body d-flex">
+                        <img src="${imageUrl}" alt="Product" class="me-3"
+                            style="width: 100px; height: 100px; object-fit: cover;">
+                        <div class="d-flex flex-row" style="justify-content: space-between">
+                            <div>
+                                <a href="/products/${item.product.slug}" class="mb-1">${item.name}</a>
+                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                    ${
+                                        item.product_variant_id
+                                            ? `Phân loại hàng: ${item.name_variant}`
+                                            : ""
+                                    }
+                                </p>
+                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                    x${
+                                        item.product_variant_id
+                                            ? item.quantity_variant
+                                            : item.quantity
+                                    }
+                                </p>
+                                <div style="margin-right: 15px">
+                        <span class="price-old">${formattedOldPrice}</span>
+                        <span class="price-new ms-2">
+                            ${
+                                item.product_variant_id
+                                    ? formatCurrency(item.price_variant)
+                                    : formatCurrency(item.price)
+                            }₫
+                        </span>
+                    </div>
+                            </div>
+                        </div>
+                    </div>
+                   <div class="d-flex" style="margin-right: 15px;flex-direction: column;">
+    ${showReviewButton ? `
+                                                                            <a data-bs-toggle="modal"
+                                                                                data-bs-target="#writereview"
+                                                                                href="#"
+                                                                                class="text"
+                                                                                style="align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;"
+                                                                                data-order-id="${item.order_id}"
+                                                                            data-product-id="${item.product.id || item.product_variant_id}"
+                                                                            data-product-name="${item.product.name}"
+                                                                            data-product-image="{{ Storage::url('${item.product.thumbnail}') }} ">Đánh giá</a>
+                                                                        `:""}
+    <div class="d-flex flex-row " style="align-items: center;justify-content: center;justify-items: center;">
+        <span>Thành tiền: </span> <p class="price-new" style="margin-bottom: unset">${item.product_variant_id ? formatCurrency(parseFloat(item.quantity_variant) * parseFloat(item.price_variant)) : formatCurrency(parseFloat(item.quantity) * parseFloat(item.price))}₫</p>
+    </div>
+</div>
                 </div>
             `;
-            return;
-        }
+                    }).join(""); // Kết hợp tất cả các sản phẩm thành một chuỗi
 
-        // Duyệt qua các đơn hàng và tạo HTML
-        orders.forEach(order => {
+                    if (order.coupon_discount_type == CouponDiscountType_PERCENT) {
+                        if (amountAllItems * order.coupon_discount_value / 100 >
+                            order.coupon.restriction.max_discount_value) {
+                            discountValueOrder = order.coupon.restriction.max_discount_value
+
+                        } else {
+                            discountValueOrder = amountAllItems * order.coupon_discount_value / 100
+                        }
+                    } else if (order.coupon_discount_type == CouponDiscountType_FIX_AMOUNT) {
+                        discountValueOrder = order.coupon_discount_value
+
+                    }
 
 
-                let discountValueOrder = 0;
-                let amountAllItems = 0;
+                    // Thêm phần footer của đơn hàng
+                    orderHTML += `
+            <div class="order-footer">
+                <div class="d-flex flex-row">
+${showRefundButton ? `<button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund="${order.id}" style="background-color: red; color: #fff;">
+                                                                                Hoàn hàng
+                                                                                </button>
+                                                                                <ul class="count_time_${order.id}" style="align-items: center;justify-content: center;display: flex;">
+                                                                                
+                                                                                </ul>
+                                                                                `:""}
 
-                Pusher.logToConsole = true;
+${order.order_statuses[0].id == 6 && order.is_refund_cancel ==1 &&order.check_refund_cancel !=1 ?`
+                                                                                                                                                                                                                                    
+                                                                            <button class="btn me-2 btn-not-get btn-received-money"  data-idorder="${order.id}" style="background-color: green; color: #fff;">
+                                                                            Đã nhận tiền
+                                                                            </button>
+                                                                            <button class="btn btn-reorder btn-not-received-money me-2"  data-idorder="${order.id}" >Chưa nhận tiền</button>
 
-                var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
-                    cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+                                                                            `:""}
+${order.order_statuses[0].id === 1? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}" data-ispaid="${order.is_paid}">Hủy hàng</button>` : ""}
+</div>
+<div>
+<div>${order.coupon_discount_type ? `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                        <span>Giảm giá: </span>
+                                                                                        <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
+                                                                                        </div>
+
+
+                                                                                        `:""}
+<div>
+                        <span>Tổng tiền: </span>
+                    <span class="price-new">${formatCurrency(order.total_amount)}₫</span>
+                        </div>
+                </div>
+            </div>
+        </div>
+        `;
+                    // Thêm HTML của đơn hàng vào danh sách
+                    listCard.innerHTML += orderHTML;
+
+                    const timer = () => {
+                        const now = new Date().getTime();
+                        const distance = updatedAt.getTime() + (7 * 24 * 60 * 60 * 1000) - now;
+
+                        // Tính toán thời gian còn lại
+                        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                        // Tạo một chuỗi duy nhất cho cập nhật HTML
+                        const html = `
+    <li>
+      <div class="counter d-flex ml-3" style="margin-left: 8px">
+        <div class="d-block">
+          <h5>${days}</h5>
+        </div>
+        <h6>Ngày</h6>
+      </div>
+    </li>
+    <li>
+      <div class="counter d-flex ml-3" style="margin-left: 8px">
+        <div class="d-block">
+          <h5>${hours}</h5>
+        </div>
+        <h6>Giờ</h6>
+      </div>
+    </li>
+    <li>
+      <div class="counter d-flex ml-3" style="margin-left: 8px">
+        <div class="d-block">
+          <h5>${minutes}</h5>
+        </div>
+        <h6>Phút</h6>
+      </div>
+    </li>
+    <li>
+      <div class="counter d-flex ml-3" style="margin-left: 8px">
+        <div class="d-block">
+          <h5>${seconds}</h5>
+        </div>
+        <h6>Giây</h6>
+      </div>
+    </li>
+  `;
+
+                        // Cập nhật toàn bộ danh sách cùng một lúc
+                        $(`.count_time_${order.id}`).html(html);
+
+
+                        // Kiểm tra xem thời gian đã hết chưa
+                        if (distance < 0) {
+                            cancelAnimationFrame(
+                                animationFrameId); // Sử dụng cancelAnimationFrame để dừng vòng lặp
+                            $(`.count_time_${order.id}`).html(
+                                `<li>Hết thời gian hoàn hàng</li>`
+                            );
+                            fetchOrders();
+                            return;
+                        }
+
+                        animationFrameId = requestAnimationFrame(timer);
+                    };
+                    let animationFrameId = requestAnimationFrame(timer);
+                });
+
+                $('.order-detail').click(async function() {
+                    const orderId = $(this).data('orderid');
+                    console.log(orderId);
+                    await fillOrderDetail(orderId)
+                    $("#showDetailOrder").modal('show');
+                })
+
+
+                $(".btn-show-img-money").click(function() {
+                    const orderId = $(this).data("orderid");
+                    const img = $(this).data("img");
+                    const imageUrl =
+                        `{{ Storage::url('${img}') }}`;
+                    $("#showImgBankRefund #img").attr('src', imageUrl)
+                    $("#showImgBankRefund").modal('show');
+
+                })
+
+                $(".btn-received-money").click(function() {
+                    const orderId = $(this).data("idorder");
+                    if (!confirm('Bạn có chắc chắn thao tác này không?')) {
+                        return; // Ngưng nếu người dùng không xác nhận
+                    }
+                    $.ajax({
+                        url: '{{ route('api.orders.userCheckRefundMoney') }}',
+                        type: 'POST',
+                        data: {
+                            order_id: orderId,
+                            status: 1,
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                fetchOrders();
+                            }
+                        },
+                        error: function(error) {
+                            console.error(
+                                "Lỗi cập nhật trạng thái đơn hàng:",
+                                error);
+                        }
+                    });
+
+                })
+
+                $(".btn-not-received-money").click(function() {
+                    const orderId = $(this).data("idorder");
+                    if (!confirm('Bạn có chắc chắn thao tác này không?')) {
+                        return; // Ngưng nếu người dùng không xác nhận
+                    }
+                    $.ajax({
+                        url: '{{ route('api.orders.userCheckRefundMoney') }}',
+                        type: 'POST',
+                        data: {
+                            order_id: orderId,
+                            status: 0,
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                fetchOrders();
+                            }
+                        },
+                        error: function(error) {
+                            console.error(
+                                "Lỗi cập nhật trạng thái đơn hàng:",
+                                error);
+                        }
+                    });
+
+                })
+
+                $(".btn-cancel-order").click(function() {
+                    const orderId = $(this).data("idordercancel");
+                    const ispaid = $(this).data("ispaid");
+
+
+                    if (!confirm('Bạn có chắc chắn hủy hàng không?')) {
+                        return;
+                    }
+
+                    if (ispaid == 1) {
+                        if (!dataUser.bank_account && !dataUser.user_bank_name && !dataUser.bank_name) {
+                            alert("Hãy điền thông tin ngân hàng để được hoàn tiền!");
+                            return
+                        }
+
+
+                        $.ajax({
+                            url: '{{ route('api.orders.changeStatusRefundMoney') }}',
+                            type: 'POST',
+                            data: {
+                                order_id: orderId,
+                                status: 0
+                            },
+                            success: function(response) {
+
+                                if (response.status == 200) {
+                                    Toastify({
+                                        text: "Tiền sẽ được hoàn sớm nhất vào tài khoản của bạn!",
+                                        duration: 2000,
+                                        newWindow: true,
+                                        close: true,
+                                        gravity: "top",
+                                        position: "right",
+                                        stopOnFocus: true,
+                                        style: {
+                                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                        },
+                                    }).showToast();
+                                }
+                            },
+                            error: function(error) {
+                                console.error(
+                                    "Lỗi cập nhật trạng thái đơn hàng:",
+                                    error);
+                            }
+                        });
+
+                        $.ajax({
+                            url: '{{ route('api.orders.changeStatusOrder') }}',
+                            type: 'POST',
+                            data: {
+                                order_id: orderId,
+                                status_id: 6,
+                                user_id: dataUser.id
+
+
+                            },
+                            success: function(response) {
+
+                                if (response.status == 200) {
+                                    if (response.should_logout) {
+                                        $.ajax({
+                                            url: '{{ route('api.auth.logout') }}',
+                                            method: "GET",
+                                            success: function(response) {
+                                                window.location.href = '/';
+                                            }
+                                        })
+                                    }
+                                    fetchOrders();
+                                }
+                            },
+                            error: function(error) {
+                                console.error(
+                                    "Lỗi cập nhật trạng thái đơn hàng:",
+                                    error);
+                            }
+                        });
+
+
+
+
+
+                    } else {
+                        $.ajax({
+                            url: '{{ route('api.orders.changeStatusOrder') }}',
+                            type: 'POST',
+                            data: {
+                                order_id: orderId,
+                                status_id: 6,
+                                user_id: dataUser.id
+
+                            },
+                            success: function(response) {
+                                console.log("res", response);
+                                if (response.status == 200) {
+                                    if (response.should_logout) {
+                                        $.ajax({
+                                            url: '{{ route('api.auth.logout') }}',
+                                            method: "GET",
+                                            success: function(response) {
+                                                window.location.href = '/';
+                                            }
+                                        })
+                                    }
+                                    fetchOrders();
+                                }
+                            },
+                            error: function(error) {
+                                console.error(
+                                    "Lỗi cập nhật trạng thái đơn hàng:",
+                                    error);
+                            }
+                        });
+                    }
 
 
                 });
 
-                var channel = pusher.subscribe('order-status.' + order.id);
-                channel.bind('event-change-status', function(data) {
-                    handleStatusChange(data.orderId)
-                });
+                $(".btn-received-order").click(function() {
+                    const orderId = $(this).data("idorderreceived");
+                    if (!confirm('Bạn có chắc chắn thao tác này không?')) {
+                        return; // Ngưng nếu người dùng không xác nhận
+                    }
 
 
-
-                let orderHTML =
-                    `
-                <div class="order-card">
-
-                    <div class="d-flex justify-content-between align-items-center p-2">
-        <h4 class="ml-3 d-block">ID: ${order.code}</h4>
-
-        <div class="d-flex align-items-center">
-            <div class="d-flex" style="align-items:center">
-                 
-                
-                ${order.is_refund == 1? "<p  class='' style='color:red; margin:unset'>Đã tạo đơn hàng hoàn</p>" : ""}
-                ${order.is_refund_cancel == 0? "<p  class='' style='color:red; margin:unset'>Đang chờ hoàn tiền</p>" : ""}
-                ${order.is_refund_cancel == 1? "<p  class='' style='color:red; margin:unset'>Đã hoàn tiền</p>" : ""}
-                ${order.is_refund_cancel == 1&&order.check_refund_cancel==0? "<p  class='' style='color:red; margin:unset'>(Chưa nhận tiền)</p>" : ""}
-                ${order.is_refund_cancel == 1&&order.check_refund_cancel==1? "<p  class='' style='color:red; margin:unset'>(Đã nhận tiền)</p>" : ""}
-                ${order.img_send_refund_money ? `
-<<<<<<< HEAD
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="badge bg-warning complete ms-2 btn-show-img-money" id="" data-orderid="${order.id}" data-img="${order.img_send_refund_money}" style="font-size: 1.2em;cursor: pointer;background-color: rgb(7 255 16) !important;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Ảnh chuyển khoản
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `:""}
-    =======
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="badge bg-warning complete ms-2 btn-show-img-money" id="" data-orderid="${order.id}" data-img="${order.img_send_refund_money}" style="font-size: 1.2em;cursor: pointer;background-color: rgb(7 255 16) !important;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Ảnh chuyển khoản
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    `:
-                    ""
-            } >>>
-            >>> > ac53fb53a7e9f17b7b03216ce369c0d33b8af896 <
-            /div>
+                    $.ajax({
+                        url: '{{ route('api.orders.updateOrderStatusWithUserCheck') }}',
+                        type: 'POST',
+                        data: {
+                            order_id: orderId,
+                            customer_check: 1,
+                            status_id: 5
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                fetchOrders();
+                            }
+                        },
+                        error: function(error) {
+                            console.error(
+                                "Lỗi cập nhật trạng thái đơn hàng:",
+                                error);
+                        }
+                    });
 
 
-            <
-            span class = "badge bg-success complete ms-2"
-            style = 'font-size: 1.2em; ${order.order_statuses[0].id == 6?'
-            background - color: red!important; color: #fff ':'
-            '}' >
-            $ {
-                order.order_statuses[0].name
-            } <
-            /span>
+                })
 
-            $ {
-                order.order_statuses[0].id == 5 ?
-                    "<span class='order-status ms-2'>Đơn hàng đã được giao thành công</span>" : ""
-            }
-            $ {
-                order.order_statuses[0].id == 6 ?
-                    "<span class='order-status ms-2' style='color: red'>Đơn hàng đã được hủy</span>" : ""
-            } <
-            span class = 'ms-2 order-detail'
-            style = "cursor: pointer;"
-            data - orderid = "${order.id}" > Chi tiết đơn hàng < /span> <
-            /div> <
-            /div>
+                $(".btn-not-received-order").click(function() {
+                    const orderId = $(this).data("idordernotreceived");
 
-            `;
+                    if (!confirm('Bạn có chắc chắn thao tác này không?')) {
+                        return; // Ngưng nếu người dùng không xác nhận
+                    }
+
+                    $.ajax({
+                        url: '{{ route('api.orders.updateOrderStatusWithUserCheck') }}',
+                        type: 'POST',
+                        data: {
+                            order_id: orderId,
+                            customer_check: 0,
+                            status_id: null
+                        },
+                        success: function(response) {
+                            if (response.status == 200) {
+                                fetchOrders();
+                            }
+                        },
+                        error: function(error) {
+                            console.error(
+                                "Lỗi cập nhật trạng thái đơn hàng:",
+                                error);
+                        }
+                    });
+                })
 
 
-                        const updatedAt = new Date(order.order_statuses[0].pivot.updated_at);
-                        const now = new Date();
-                        const diffTime = Math.abs(now - updatedAt);
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                $(".btn-refund-order").click(async function() {
+                    const orderId = $(this).data("idorderrefund");
+                    await getItemProductByOrder(orderId);
 
-                        const showReviewButton = (order.order_statuses[0].id === 5 && diffDays <= 7);
+                    dataRefundProducts.order_id = orderId;
 
-                        const showRefundButton = (order.order_statuses[0].id === 5 && order.is_refund == 0 &&
-                            diffDays <= 7);
+                    $('#returnOrderModal #bank_account').val(dataUser.bank_account ? dataUser
+                        .bank_account : "")
+                    $('#returnOrderModal #user_bank_name').val(dataUser.user_bank_name ? dataUser
+                        .user_bank_name : "")
+                    $('#returnOrderModal #bank_name').val(dataUser.bank_name ? dataUser.bank_name : "")
 
-                        orderHTML += order.order_items.map(item => {
+                    $("#returnOrderModal").modal('show');
 
-                            const oldPriceDisplay = item.old_price_variant ? item.old_price_variant :
-                                item.old_price ?
-                                item.old_price : "";
-                            const formattedOldPrice = oldPriceDisplay ? `
-            $ {
-                oldPriceDisplay
-            }₫
-            ` : "";
+                    $('#returnOrderModal #reason_image').on('change', function(event) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            const fileType = file.type.split('/')[0];
 
-                            if (!item.product_variant_id) {
-                                amountAllItems += parseFloat(item.price) * parseInt(item.quantity);
-                            } else {
-                                amountAllItems += parseFloat(item.price_variant) * parseInt(item
-                                    .quantity_variant);
+                            reader.onload = function(e) {
+                                if (fileType === 'image') {
+                                    $('#returnOrderModal #reason_image_show')
+                                        .attr('src', e.target.result)
+                                        .show();
+                                    $('#returnOrderModal #reason_video_show').hide();
+                                } else if (fileType === 'video') {
+                                    $('#returnOrderModal #reason_video_show')
+                                        .attr('src', e.target.result)
+                                        .show();
+                                    $('#returnOrderModal #reason_image_show').hide();
+                                }
                             }
 
-                            const imageUrl =
-                                `
-            {{ Storage::url('${item.product.thumbnail}') }}`; // Đường dẫn ảnh
-                            // const imageUrl = ` / storage / $ {
-                item.product.thumbnail
-            }
-            `; // Đường dẫn ảnh
-                            return ` <
-            div class = "d-flex flex-row"
-            style = "justify-content: space-between; align-items: center; border-top: 1px solid #ccc" >
-            <
-            div class = "order-body d-flex" >
-            <
-            img src = "${imageUrl}"
-            alt = "Product"
-            class = "me-3"
-            style = "width: 100px; height: 100px; object-fit: cover;" >
-            <
-            div class = "d-flex flex-row"
-            style = "justify-content: space-between" >
-            <
-            div >
-            <
-            a href = "/products/${item.product.slug}"
-            class = "mb-1" > $ {
-                item.name
-            } < /a> <
-            p class = "text-muted mb-1"
-            style = "font-size: 14px;" >
-            $ {
-                item.product_variant_id ?
-                    `Phân loại hàng: ${item.name_variant}` :
-                    ""
-            } <
-            /p> <
-            p class = "text-muted mb-1"
-            style = "font-size: 14px;" >
-            x$ {
-                item.product_variant_id ?
-                    item.quantity_variant :
-                    item.quantity
-            } <
-            /p> <
-            div style = "margin-right: 15px" >
-            <
-            span class = "price-old" > $ {
-                formattedOldPrice
-            } < /span> <
-            span class = "price-new ms-2" >
-            $ {
-                item.product_variant_id ?
-                    formatCurrency(item.price_variant) :
-                    formatCurrency(item.price)
-            }₫ <
-            /span> <
-            /div> <
-            /div> <
-            /div> <
-            /div> <
-            div class = "d-flex"
-            style = "margin-right: 15px;flex-direction: column;" >
-            $ {
-                showReviewButton ? `
-    <<<<<<< HEAD
-                                                                        <a data-bs-toggle="modal"
-                                                                            data-bs-target="#writereview"
-                                                                            href="#"
-                                                                            class="text"
-                                                                            style="align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;"
-                                                                            data-order-id="${item.order_id}"
-                                                                        data-product-id="${item.product.id || item.product_variant_id}"
-                                                                        data-product-name="${item.product.name}"
-                                                                        data-product-image="{{ Storage::url('${item.product.thumbnail}') }} ">Đánh giá</a>
-                                                                    ` : ""
-            } ===
-            === = <
-            a data - bs - toggle = "modal"
-            data - bs - target = "#writereview"
-            href = "#"
-            class = "text"
-            style =
-            "align-items: center;text-align: end;margin-bottom: 11px;cursor: pointer;font-size: 17px;color: #b5d000;"
-            data - order - id = "${item.order_id}"
-            data - product - id = "${item.product.id || item.product_variant_id}"
-            data - product - name = "${item.product.name}"
-            data - product - image = "{{ Storage::url('${item.product.thumbnail}') }} " > Đánh giá < /a>
-            `:""}
-    >>>>>>> ac53fb53a7e9f17b7b03216ce369c0d33b8af896
-        <div class="d-flex flex-row " style="align-items: center;justify-content: center;justify-items: center;">
-            <span>Thành tiền: </span> <p class="price-new" style="margin-bottom: unset">${item.product_variant_id ? formatCurrency(parseFloat(item.quantity_variant) * parseFloat(item.price_variant)) : formatCurrency(parseFloat(item.quantity) * parseFloat(item.price))}₫</p>
-        </div>
-    </div>
-                    </div>
-                `;
-        }).join(""); // Kết hợp tất cả các sản phẩm thành một chuỗi
-
-    if (order.coupon_discount_type == CouponDiscountType_PERCENT) {
-        if (amountAllItems * order.coupon_discount_value / 100 >
-            order.coupon.restriction.max_discount_value) {
-            discountValueOrder = order.coupon.restriction.max_discount_value
-
-        } else {
-            discountValueOrder = amountAllItems * order.coupon_discount_value / 100
-        }
-    } else if (order.coupon_discount_type == CouponDiscountType_FIX_AMOUNT) {
-        discountValueOrder = order.coupon_discount_value
-
-    }
-
-
-    // Thêm phần footer của đơn hàng
-    orderHTML += `
-                <div class="order-footer">
-                    <div class="d-flex flex-row">
-    ${showRefundButton ? `<button class="btn btn-sm btn-not-get btn-refund-order"  data-idOrderRefund="${order.id}" style="background-color: red; color: #fff;">
-                                                                        Hoàn hàng
-                                                                        </button>
-                                                                        <ul class="count_time_${order.id}" style="align-items: center;justify-content: center;display: flex;">
-                                                                        
-                                                                        </ul>
-                                                                        `:""}
-
-    ${order.order_statuses[0].id == 6 && order.is_refund_cancel ==1 &&order.check_refund_cancel !=1 ?`
-                                                                                                                                                                                                                            
-                                                                    <button class="btn me-2 btn-not-get btn-received-money"  data-idorder="${order.id}" style="background-color: green; color: #fff;">
-                                                                    Đã nhận tiền
-                                                                    </button>
-                                                                    <button class="btn btn-reorder btn-not-received-money me-2"  data-idorder="${order.id}" >Chưa nhận tiền</button>
-
-                                                                    `:""}
-    ${order.order_statuses[0].id === 1? `<button  class="btn btn-reorder me-2 btn-cancel-order" data-idOrderCancel="${order.id}" data-ispaid="${order.is_paid}">Hủy hàng</button>` : ""}
-    </div>
-    <div>
-    <div>${order.coupon_discount_type ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                <span>Giảm giá: </span>
-                                                                                <span class="price-new">${formatCurrency(discountValueOrder)}₫</span>
-                                                                                </div>
-
-
-                                                                                `:""}
-    <div>
-                            <span>Tổng tiền: </span>
-                        <span class="price-new">${formatCurrency(order.total_amount)}₫</span>
-                            </div>
-                    </div>
-                </div>
-            </div>
-            `;
-    // Thêm HTML của đơn hàng vào danh sách
-    listCard.innerHTML += orderHTML;
-
-    const timer = () => {
-        const now = new Date().getTime();
-        const distance = updatedAt.getTime() + (7 * 24 * 60 * 60 * 1000) - now;
-
-        // Tính toán thời gian còn lại
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        // Tạo một chuỗi duy nhất cho cập nhật HTML
-        const html = `
-        <li>
-          <div class="counter d-flex ml-3" style="margin-left: 8px">
-            <div class="d-block">
-              <h5>${days}</h5>
-            </div>
-            <h6>Ngày</h6>
-          </div>
-        </li>
-        <li>
-          <div class="counter d-flex ml-3" style="margin-left: 8px">
-            <div class="d-block">
-              <h5>${hours}</h5>
-            </div>
-            <h6>Giờ</h6>
-          </div>
-        </li>
-        <li>
-          <div class="counter d-flex ml-3" style="margin-left: 8px">
-            <div class="d-block">
-              <h5>${minutes}</h5>
-            </div>
-            <h6>Phút</h6>
-          </div>
-        </li>
-        <li>
-          <div class="counter d-flex ml-3" style="margin-left: 8px">
-            <div class="d-block">
-              <h5>${seconds}</h5>
-            </div>
-            <h6>Giây</h6>
-          </div>
-        </li>
-      `;
-
-        // Cập nhật toàn bộ danh sách cùng một lúc
-        $(`.count_time_${order.id}`).html(html);
-
-
-        // Kiểm tra xem thời gian đã hết chưa
-        if (distance < 0) {
-            cancelAnimationFrame(
-                animationFrameId); // Sử dụng cancelAnimationFrame để dừng vòng lặp
-            $(`.count_time_${order.id}`).html(
-                `<li>Hết thời gian hoàn hàng</li>`
-            );
-            fetchOrders();
-            return;
-        }
-
-        animationFrameId = requestAnimationFrame(timer);
-    };
-    let animationFrameId = requestAnimationFrame(timer);
-    });
-
-    $('.order-detail').click(async function() {
-        const orderId = $(this).data('orderid');
-        console.log(orderId);
-        await fillOrderDetail(orderId)
-        $("#showDetailOrder").modal('show');
-    })
-
-
-    $(".btn-show-img-money").click(function() {
-        const orderId = $(this).data("orderid");
-        const img = $(this).data("img");
-        const imageUrl =
-            `{{ Storage::url('${img}') }}`;
-        $("#showImgBankRefund #img").attr('src', imageUrl)
-        $("#showImgBankRefund").modal('show');
-
-    })
-
-    $(".btn-received-money").click(function() {
-        const orderId = $(this).data("idorder");
-        if (!confirm('Bạn có chắc chắn thao tác này không?')) {
-            return; // Ngưng nếu người dùng không xác nhận
-        }
-        $.ajax({
-            url: '{{ route('api.orders.userCheckRefundMoney') }}',
-            type: 'POST',
-            data: {
-                order_id: orderId,
-                status: 1,
-            },
-            success: function(response) {
-                if (response.status == 200) {
-                    fetchOrders();
-                }
-            },
-            error: function(error) {
-                console.error(
-                    "Lỗi cập nhật trạng thái đơn hàng:",
-                    error);
-            }
-        });
-
-    })
-
-    $(".btn-not-received-money").click(function() {
-        const orderId = $(this).data("idorder");
-        if (!confirm('Bạn có chắc chắn thao tác này không?')) {
-            return; // Ngưng nếu người dùng không xác nhận
-        }
-        $.ajax({
-            url: '{{ route('api.orders.userCheckRefundMoney') }}',
-            type: 'POST',
-            data: {
-                order_id: orderId,
-                status: 0,
-            },
-            success: function(response) {
-                if (response.status == 200) {
-                    fetchOrders();
-                }
-            },
-            error: function(error) {
-                console.error(
-                    "Lỗi cập nhật trạng thái đơn hàng:",
-                    error);
-            }
-        });
-
-    })
-
-    $(".btn-cancel-order").click(function() {
-        const orderId = $(this).data("idordercancel");
-        const ispaid = $(this).data("ispaid");
-
-
-        if (!confirm('Bạn có chắc chắn hủy hàng không?')) {
-            return;
-        }
-
-        if (ispaid == 1) {
-            if (!dataUser.bank_account && !dataUser.user_bank_name && !dataUser.bank_name) {
-                alert("Hãy điền thông tin ngân hàng để được hoàn tiền!");
-                return
-            }
-
-
-            $.ajax({
-                url: '{{ route('api.orders.changeStatusRefundMoney') }}',
-                type: 'POST',
-                data: {
-                    order_id: orderId,
-                    status: 0
-                },
-                success: function(response) {
-
-                    if (response.status == 200) {
-                        Toastify({
-                            text: "Tiền sẽ được hoàn sớm nhất vào tài khoản của bạn!",
-                            duration: 2000,
-                            newWindow: true,
-                            close: true,
-                            gravity: "top",
-                            position: "right",
-                            stopOnFocus: true,
-                            style: {
-                                background: "linear-gradient(to right, #00b09b, #96c93d)",
-                            },
-                        }).showToast();
-                    }
-                },
-                error: function(error) {
-                    console.error(
-                        "Lỗi cập nhật trạng thái đơn hàng:",
-                        error);
-                }
-            });
-
-            $.ajax({
-                url: '{{ route('api.orders.changeStatusOrder') }}',
-                type: 'POST',
-                data: {
-                    order_id: orderId,
-                    status_id: 6,
-                    user_id: dataUser.id
-
-
-                },
-                success: function(response) {
-
-                    if (response.status == 200) {
-                        if (response.should_logout) {
-                            $.ajax({
-                                url: '{{ route('api.auth.logout') }}',
-                                method: "GET",
-                                success: function(response) {
-                                    window.location.href = '/';
-                                }
-                            })
+                            reader.readAsDataURL(file); // Đọc file ảnh
                         }
-                        fetchOrders();
-                    }
-                },
-                error: function(error) {
-                    console.error(
-                        "Lỗi cập nhật trạng thái đơn hàng:",
-                        error);
-                }
-            });
+                    });
 
 
+                })
 
-
-
-        } else {
-            $.ajax({
-                url: '{{ route('api.orders.changeStatusOrder') }}',
-                type: 'POST',
-                data: {
-                    order_id: orderId,
-                    status_id: 6,
-                    user_id: dataUser.id
-
-                },
-                success: function(response) {
-                    console.log("res", response);
-                    if (response.status == 200) {
-                        if (response.should_logout) {
-                            $.ajax({
-                                url: '{{ route('api.auth.logout') }}',
-                                method: "GET",
-                                success: function(response) {
-                                    window.location.href = '/';
-                                }
-                            })
-                        }
-                        fetchOrders();
-                    }
-                },
-                error: function(error) {
-                    console.error(
-                        "Lỗi cập nhật trạng thái đơn hàng:",
-                        error);
-                }
-            });
-        }
-
-
-    });
-
-    $(".btn-received-order").click(function() {
-        const orderId = $(this).data("idorderreceived");
-        if (!confirm('Bạn có chắc chắn thao tác này không?')) {
-            return; // Ngưng nếu người dùng không xác nhận
-        }
-
-
-        $.ajax({
-            url: '{{ route('api.orders.updateOrderStatusWithUserCheck') }}',
-            type: 'POST',
-            data: {
-                order_id: orderId,
-                customer_check: 1,
-                status_id: 5
-            },
-            success: function(response) {
-                if (response.status == 200) {
-                    fetchOrders();
-                }
-            },
-            error: function(error) {
-                console.error(
-                    "Lỗi cập nhật trạng thái đơn hàng:",
-                    error);
-            }
-        });
-
-
-    })
-
-    $(".btn-not-received-order").click(function() {
-        const orderId = $(this).data("idordernotreceived");
-
-        if (!confirm('Bạn có chắc chắn thao tác này không?')) {
-            return; // Ngưng nếu người dùng không xác nhận
-        }
-
-        $.ajax({
-            url: '{{ route('api.orders.updateOrderStatusWithUserCheck') }}',
-            type: 'POST',
-            data: {
-                order_id: orderId,
-                customer_check: 0,
-                status_id: null
-            },
-            success: function(response) {
-                if (response.status == 200) {
-                    fetchOrders();
-                }
-            },
-            error: function(error) {
-                console.error(
-                    "Lỗi cập nhật trạng thái đơn hàng:",
-                    error);
-            }
-        });
-    })
-
-
-    $(".btn-refund-order").click(async function() {
-        const orderId = $(this).data("idorderrefund");
-        await getItemProductByOrder(orderId);
-
-        dataRefundProducts.order_id = orderId;
-
-        $('#returnOrderModal #bank_account').val(dataUser.bank_account ? dataUser
-            .bank_account : "")
-        $('#returnOrderModal #user_bank_name').val(dataUser.user_bank_name ? dataUser
-            .user_bank_name : "")
-        $('#returnOrderModal #bank_name').val(dataUser.bank_name ? dataUser.bank_name : "")
-
-        $("#returnOrderModal").modal('show');
-
-        $('#returnOrderModal #reason_image').on('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                const fileType = file.type.split('/')[0];
-
-                reader.onload = function(e) {
-                    if (fileType === 'image') {
-                        $('#returnOrderModal #reason_image_show')
-                            .attr('src', e.target.result)
-                            .show();
-                        $('#returnOrderModal #reason_video_show').hide();
-                    } else if (fileType === 'video') {
-                        $('#returnOrderModal #reason_video_show')
-                            .attr('src', e.target.result)
-                            .show();
-                        $('#returnOrderModal #reason_image_show').hide();
-                    }
-                }
-
-                reader.readAsDataURL(file); // Đọc file ảnh
-            }
-        });
-
-
-    })
-
-    $("#returnOrderModal .btn-close").click(function() {
-        $('#returnOrderModal #formRefundItem')[0].reset();
-        $('#returnOrderModal .error-message').remove();
-        $('#returnOrderModal .is-invalid').removeClass('is-invalid');
-        dataRefundProducts = {
-            products: [],
-            order_id: '',
-            user_id: dataUser.id,
-            total_amount: ''
-        };
-    });
-
-    $("#returnOrderModal #formRefundItem").off('submit').on('submit', function(event) {
-        event.preventDefault();
-
-        const formData = new FormData(this);
-        formData.append('dataRefundProducts', JSON.stringify(dataRefundProducts));
-        $.ajax({
-            url: `{{ route('api.refund_orders.createOrderRefund') }}`,
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-
-                if (response.status == 200) {
-
-
-                    fetchOrders()
-                    Toastify({
-                        text: "Tạo đơn hàng hoàn thành công",
-                        duration: 2000,
-                        newWindow: true,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        stopOnFocus: true,
-                        style: {
-                            background: "linear-gradient(to right, #00b09b, #96c93d)",
-                        },
-                    }).showToast();
-
+                $("#returnOrderModal .btn-close").click(function() {
                     $('#returnOrderModal #formRefundItem')[0].reset();
                     $('#returnOrderModal .error-message').remove();
                     $('#returnOrderModal .is-invalid').removeClass('is-invalid');
@@ -2585,382 +2394,423 @@ ${order.status == "receiving" && order.bank_account_status == "sent" ? `
                         user_id: dataUser.id,
                         total_amount: ''
                     };
-                    $("#returnOrderModal").modal('hide')
-                } else {
-                    $('#returnOrderModal .error-message').remove();
-                    $('#returnOrderModal .is-invalid').removeClass('is-invalid');
-                    if (response.errors) {
-                        $.each(response.errors, function(field, messages) {
-                            let input = $(`#returnOrderModal #${field}`);
-                            if (input.length > 0) {
-                                let errorDiv = $(
-                                    '<div class="invalid-feedback error-message d-block">'
-                                );
-                                $.each(messages, function(index, message) {
-                                    errorDiv.append('<span>' +
-                                        message +
-                                        '</span><br>');
-                                });
-                                input.addClass('is-invalid');
-                                input.after(errorDiv);
-                            }
-                        });
-                    }
-                }
-            },
-            error: function(error) {
-                console.error("Lỗi thêm dữ liệu:", error);
-            }
-        });
-
-    })
-
-    }
-
-    fetchOrders();
-
-    })
-    // comapre-count
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    function updateCompareCountBadge() {
-        const compareCookieName = 'compare_list';
-        const compareListCookie = getCookie(compareCookieName);
-        let compareCount = 0;
-        if (compareListCookie) {
-            try {
-                const compareList = JSON.parse(compareListCookie);
-                compareCount = compareList.length;
-            } catch (error) {
-                console.error('Lỗi khi parse cookie compare_list:', error);
-            }
-        }
-        $('#compare-count-badge').text(compareCount);
-        if (compareCount > 0) {
-            $('#compare-count-badge').show(); // Hoặc sử dụng class để hiển thị
-        } else {
-            $('#compare-count-badge').hide(); // Hoặc sử dụng class để ẩn
-        }
-    }
-
-    // Gọi hàm này khi trang sản phẩm được tải
-    updateCompareCountBadge(); //end compare
-
-    $('#writereview').on('show.bs.modal', function(event) {
-        const reviewButton = $(event.relatedTarget);
-        const orderId = reviewButton.data('order-id');
-        const productId = reviewButton.data('product-id');
-        const productName = reviewButton.data('product-name'); // Lấy tên sản phẩm
-        const productImage = reviewButton.data('product-image'); // Lấy URL hình ảnh sản phẩm
-
-        $('#review_order_id').val(orderId);
-
-        const productIdInput = $("#reviewForm input[name='product_id']");
-        if (productIdInput.length === 0) {
-            $("#reviewForm").append(`<input type="hidden" name="product_id" value="${productId}">`);
-        } else {
-            productIdInput.val(productId);
-        }
-
-        // Hiển thị thông tin sản phẩm trong modal
-        const modalProductImage = $(this).find('.product-image');
-        const modalProductName = $(this).find('.product-content .name');
-
-        if (modalProductImage.length > 0) {
-            modalProductImage.html(
-                `<img class="img-fluid" alt="${productName}" src="${productImage}" width="100px">`);
-        }
-
-        if (modalProductName.length > 0) {
-            modalProductName.text(productName);
-        }
-    });
-
-
-    // đánh giá
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- Khai báo các biến ---
-        const stars = document.querySelectorAll('.star');
-        const ratingValue = document.getElementById('ratingValue');
-        const reviewForm = document.getElementById('reviewForm');
-        const submitButton = document.getElementById('submitReview');
-        const reviewText = document.getElementById('content');
-        const imagesInput = document.getElementById('images');
-        const videosInput = document.getElementById('videos');
-        const isAuthenticated = document.getElementById('isAuthenticated')?.value === 'true';
-        const reviewContainer = document.querySelector(
-            '.reviews-section'
-        ); // Selector cho khu vực hiển thị đánh giá (CẦN CHỈNH SỬA SELECTOR NÀY CHO PHÙ HỢP)
-
-        // --- Hàm xử lý chọn sao đánh giá ---
-        function handleStarRating(starElement) {
-            if (!isAuthenticated) {
-                showLoginRequiredAlert();
-                return;
-            }
-
-            const value = starElement.getAttribute('data-value');
-            ratingValue.value = value;
-
-            stars.forEach(s => {
-                if (s.getAttribute('data-value') <= value) {
-                    s.classList.add('fill');
-                } else {
-                    s.classList.remove('fill');
-                }
-            });
-        }
-        // return cookieValue; // Dòng này có vẻ như bạn muốn trả về cookie ở đây, nhưng nó nằm ngoài hàm
-
-        // --- Hàm hiển thị thông báo yêu cầu đăng nhập ---
-        function showLoginRequiredAlert() {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Thông báo!',
-                text: 'Bạn cần đăng nhập để đánh giá!',
-            });
-        }
-
-        // --- Hàm kiểm tra số lượng ảnh   ---
-        function validateImageCount() {
-            const files = imagesInput.files;
-            if (files.length > 5) {
-                return {
-                    'images_count': 'Bạn chỉ được phép tải lên tối đa 5 hình ảnh.'
-                };
-            }
-            return null; // Không có lỗi
-        }
-
-        // --- Hàm xử lý gửi đánh giá ---
-        async function submitReviewForm(event) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            if (!isAuthenticated) {
-                showLoginRequiredAlert();
-                return;
-            }
-
-            // Xóa thông báo lỗi hiện tại
-            clearErrorMessages();
-
-            // Kiểm tra số lượng ảnh
-            const imageCountError = validateImageCount();
-            if (imageCountError) {
-                displayErrorMessages(imageCountError);
-                return; // Dừng gửi form nếu lỗi số lượng ảnh
-            }
-
-            // Kiểm tra tính hợp lệ của dữ liệu
-            const validationErrors = validateInput();
-            if (validationErrors) {
-                displayErrorMessages(validationErrors);
-                return;
-            }
-
-            // Hiển thị thông báo đang gửi
-            Swal.fire({
-                title: 'Đang gửi đánh giá...',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Gửi form data bằng Fetch API
-            try {
-                const formData = new FormData(reviewForm);
-                const response = await fetch(reviewForm.action, {
-                    method: 'POST',
-                    body: formData,
                 });
 
-                if (response.ok) {
-                    const responseData = await response.json(); // Lấy dữ liệu JSON từ response
-                    handleSuccessResponse(responseData);
-                } else {
-                    handleErrorResponse(response);
-                }
-            } catch (error) {
-                handleFetchError(error);
-            } finally {
-                Swal.close(); // Đóng thông báo đang gửi
-            }
-        }
+                $("#returnOrderModal #formRefundItem").off('submit').on('submit', function(event) {
+                    event.preventDefault();
 
-        // --- Hàm xóa tất cả thông báo lỗi ---
-        function clearErrorMessages() {
-            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
-        }
+                    const formData = new FormData(this);
+                    formData.append('dataRefundProducts', JSON.stringify(dataRefundProducts));
+                    $.ajax({
+                        url: `{{ route('api.refund_orders.createOrderRefund') }}`,
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
 
-        // --- Hàm kiểm tra dữ liệu đầu vào   ---
-        function validateInput() {
-            let errors = {};
-            if (!ratingValue.value) {
-                errors['rating'] = 'Vui lòng chọn số sao.';
-            }
-            if (!reviewText.value) {
-                errors['review_text'] = 'Vui lòng nhập nội dung đánh giá.';
-            }
-            return Object.keys(errors).length > 0 ? errors : null;
-        }
+                            if (response.status == 200) {
 
-        // --- Hàm hiển thị thông báo lỗi ---
-        function displayErrorMessages(errors) {
-            for (const key in errors) {
-                let errorElement = null;
 
-                if (key === 'rating') {
-                    errorElement = document.getElementById('rating-error');
-                } else if (key === 'review_text') {
-                    errorElement = document.getElementById('review_text-error');
-                } else if (key === 'images' || key === 'images_count') {
-                    errorElement = document.getElementById('images-error');
-                } else if (key.startsWith('images.')) {
-                    errorElement = document.getElementById(
-                        'images-error');
-                } else if (key.startsWith('videos.')) {
-                    errorElement = document.getElementById('videos-error');
-                }
+                                fetchOrders()
+                                Toastify({
+                                    text: "Tạo đơn hàng hoàn thành công",
+                                    duration: 2000,
+                                    newWindow: true,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    stopOnFocus: true,
+                                    style: {
+                                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                    },
+                                }).showToast();
 
-                if (errorElement) {
-                    errorElement.textContent = errors[key];
-                }
-            }
-        }
-
-        // --- Hàm xử lý khi gửi đánh giá thành công ---
-        function handleSuccessResponse() {
-            Swal.fire({
-                icon: 'success',
-                title: 'Thành công!',
-                text: 'Đánh giá thành công!',
-                timer: 2000,
-                showConfirmButton: false,
-            }).then(() => {
-                location.reload();
-            });
-        }
-        // --- Hàm tạo HTML cho một đánh giá ---
-        function createReviewHtml(review) {
-            // BẠN CẦN TỰ VIẾT HÀM NÀY ĐỂ TẠO HTML HIỂN THỊ ĐÁNH GIÁ DỰA TRÊN CẤU TRÚC DỮ LIỆU TRẢ VỀ TỪ SERVER
-            // Ví dụ (cần điều chỉnh theo cấu trúc dữ liệu và HTML của bạn):
-            return `
-            <div class="single-review">
-                <div class="review-header">
-                    <p>Người dùng ID: ${review.user_id}</p>
-                    <div class="rating">
-                        ${renderStars(review.rating)}
-                    </div>
-                </div>
-                <div class="review-body">
-                    <p>${review.review_text}</p>
-                    ${review.review_multimedia ? renderReviewMultimedia(review.review_multimedia) : ''}
-                    <p class="review-date">${new Date(review.created_at).toLocaleDateString()}</p>
-                </div>
-            </div>
-        `;
-        }
-
-        // --- Hàm render sao đánh giá (ví dụ) ---
-        function renderStars(rating) {
-            let starsHtml = '';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= rating) {
-                    starsHtml += '<i data-feather="star" class="fill"></i>';
-                } else {
-                    starsHtml += '<i data-feather="star"></i>';
-                }
-            }
-            return starsHtml;
-        }
-
-        // --- Hàm render hình ảnh/video đánh giá (ví dụ) ---
-        function renderReviewMultimedia(multimedia) {
-            let multimediaHtml = '';
-            multimedia.forEach(item => {
-                if (item.file_type === 0) { // Hình ảnh
-                    multimediaHtml +=
-                        `<img src="/storage/${item.file}" alt="Review Image" class="img-fluid mb-2">`;
-                } else if (item.file_type === 1) { // Video
-                    multimediaHtml +=
-                        `<video src="/storage/${item.file}" controls class="w-100 mb-2"></video>`;
-                }
-            });
-            return multimediaHtml;
-        }
-
-        // --- Hàm xử lý khi có lỗi từ server ---
-        async function handleErrorResponse(response) {
-            try {
-                const data = await response.json();
-
-                if (data && data.errors) {
-                    displayErrorMessages(data.errors);
-                } else if (data && data.error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi!',
-                        text: data.error,
+                                $('#returnOrderModal #formRefundItem')[0].reset();
+                                $('#returnOrderModal .error-message').remove();
+                                $('#returnOrderModal .is-invalid').removeClass('is-invalid');
+                                dataRefundProducts = {
+                                    products: [],
+                                    order_id: '',
+                                    user_id: dataUser.id,
+                                    total_amount: ''
+                                };
+                                $("#returnOrderModal").modal('hide')
+                            } else {
+                                $('#returnOrderModal .error-message').remove();
+                                $('#returnOrderModal .is-invalid').removeClass('is-invalid');
+                                if (response.errors) {
+                                    $.each(response.errors, function(field, messages) {
+                                        let input = $(`#returnOrderModal #${field}`);
+                                        if (input.length > 0) {
+                                            let errorDiv = $(
+                                                '<div class="invalid-feedback error-message d-block">'
+                                            );
+                                            $.each(messages, function(index, message) {
+                                                errorDiv.append('<span>' +
+                                                    message +
+                                                    '</span><br>');
+                                            });
+                                            input.addClass('is-invalid');
+                                            input.after(errorDiv);
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function(error) {
+                            console.error("Lỗi thêm dữ liệu:", error);
+                        }
                     });
+
+                })
+
+            }
+
+            fetchOrders();
+
+        })
+        // comapre-count
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
-            } catch (jsonError) {
-                handleFetchError(jsonError);
+            }
+            return cookieValue;
+        }
+
+        function updateCompareCountBadge() {
+            const compareCookieName = 'compare_list';
+            const compareListCookie = getCookie(compareCookieName);
+            let compareCount = 0;
+            if (compareListCookie) {
+                try {
+                    const compareList = JSON.parse(compareListCookie);
+                    compareCount = compareList.length;
+                } catch (error) {
+                    console.error('Lỗi khi parse cookie compare_list:', error);
+                }
+            }
+            $('#compare-count-badge').text(compareCount);
+            if (compareCount > 0) {
+                $('#compare-count-badge').show(); // Hoặc sử dụng class để hiển thị
+            } else {
+                $('#compare-count-badge').hide(); // Hoặc sử dụng class để ẩn
             }
         }
 
+        // Gọi hàm này khi trang sản phẩm được tải
+        updateCompareCountBadge(); //end compare
 
-        // --- Hàm xử lý lỗi Fetch API ---
-        function handleFetchError(error) {
-            console.error('Lỗi Fetch:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Lỗi!',
-                text: 'Có lỗi xảy ra khi gửi đánh giá.',
-            });
-        }
-
-
-        // --- Gắn kết các sự kiện ---
-        stars.forEach(star => {
-            star.addEventListener('click', function() {
-                handleStarRating(this);
-            });
-        });
-
-        if (submitButton && reviewForm) {
-            submitButton.addEventListener('click', submitReviewForm);
-        }
-
-        // Lấy order_id và product_id từ thuộc tính data-* khi modal được hiển thị
         $('#writereview').on('show.bs.modal', function(event) {
-            const reviewButton = $(event.relatedTarget); // Lấy thẻ <a> đã kích hoạt modal
+            const reviewButton = $(event.relatedTarget);
             const orderId = reviewButton.data('order-id');
             const productId = reviewButton.data('product-id');
+            const productName = reviewButton.data('product-name'); // Lấy tên sản phẩm
+            const productImage = reviewButton.data('product-image'); // Lấy URL hình ảnh sản phẩm
 
             $('#review_order_id').val(orderId);
 
-            // Thêm hoặc cập nhật input hidden cho product_id
             const productIdInput = $("#reviewForm input[name='product_id']");
             if (productIdInput.length === 0) {
                 $("#reviewForm").append(`<input type="hidden" name="product_id" value="${productId}">`);
+            } else {
+                productIdInput.val(productId);
+            }
+
+            // Hiển thị thông tin sản phẩm trong modal
+            const modalProductImage = $(this).find('.product-image');
+            const modalProductName = $(this).find('.product-content .name');
+
+            if (modalProductImage.length > 0) {
+                modalProductImage.html(
+                    `<img class="img-fluid" alt="${productName}" src="${productImage}" width="100px">`);
+            }
+
+            if (modalProductName.length > 0) {
+                modalProductName.text(productName);
+            }
+        });
+
+
+        // đánh giá
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Khai báo các biến ---
+            const stars = document.querySelectorAll('.star');
+            const ratingValue = document.getElementById('ratingValue');
+            const reviewForm = document.getElementById('reviewForm');
+            const submitButton = document.getElementById('submitReview');
+            const reviewText = document.getElementById('content');
+            const imagesInput = document.getElementById('images');
+            const videosInput = document.getElementById('videos');
+            const isAuthenticated = document.getElementById('isAuthenticated')?.value === 'true';
+            const reviewContainer = document.querySelector(
+                '.reviews-section'
+            ); // Selector cho khu vực hiển thị đánh giá (CẦN CHỈNH SỬA SELECTOR NÀY CHO PHÙ HỢP)
+
+            // --- Hàm xử lý chọn sao đánh giá ---
+            function handleStarRating(starElement) {
+                if (!isAuthenticated) {
+                    showLoginRequiredAlert();
+                    return;
+                }
+
+                const value = starElement.getAttribute('data-value');
+                ratingValue.value = value;
+
+                stars.forEach(s => {
+                    if (s.getAttribute('data-value') <= value) {
+                        s.classList.add('fill');
+                    } else {
+                        s.classList.remove('fill');
+                    }
+                });
+            }
+            // return cookieValue; // Dòng này có vẻ như bạn muốn trả về cookie ở đây, nhưng nó nằm ngoài hàm
+
+            // --- Hàm hiển thị thông báo yêu cầu đăng nhập ---
+            function showLoginRequiredAlert() {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thông báo!',
+                    text: 'Bạn cần đăng nhập để đánh giá!',
+                });
+            }
+
+            // --- Hàm kiểm tra số lượng ảnh   ---
+            function validateImageCount() {
+                const files = imagesInput.files;
+                if (files.length > 5) {
+                    return {
+                        'images_count': 'Bạn chỉ được phép tải lên tối đa 5 hình ảnh.'
+                    };
+                }
+                return null; // Không có lỗi
+            }
+
+            // --- Hàm xử lý gửi đánh giá ---
+            async function submitReviewForm(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!isAuthenticated) {
+                    showLoginRequiredAlert();
+                    return;
+                }
+
+                // Xóa thông báo lỗi hiện tại
+                clearErrorMessages();
+
+                // Kiểm tra số lượng ảnh
+                const imageCountError = validateImageCount();
+                if (imageCountError) {
+                    displayErrorMessages(imageCountError);
+                    return; // Dừng gửi form nếu lỗi số lượng ảnh
+                }
+
+                // Kiểm tra tính hợp lệ của dữ liệu
+                const validationErrors = validateInput();
+                if (validationErrors) {
+                    displayErrorMessages(validationErrors);
+                    return;
+                }
+
+                // Hiển thị thông báo đang gửi
+                Swal.fire({
+                    title: 'Đang gửi đánh giá...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Gửi form data bằng Fetch API
+                try {
+                    const formData = new FormData(reviewForm);
+                    const response = await fetch(reviewForm.action, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        const responseData = await response.json(); // Lấy dữ liệu JSON từ response
+                        handleSuccessResponse(responseData);
+                    } else {
+                        handleErrorResponse(response);
+                    }
+                } catch (error) {
+                    handleFetchError(error);
+                } finally {
+                    Swal.close(); // Đóng thông báo đang gửi
+                }
+            }
+
+            // --- Hàm xóa tất cả thông báo lỗi ---
+            function clearErrorMessages() {
+                document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            }
+
+            // --- Hàm kiểm tra dữ liệu đầu vào   ---
+            function validateInput() {
+                let errors = {};
+                if (!ratingValue.value) {
+                    errors['rating'] = 'Vui lòng chọn số sao.';
+                }
+                if (!reviewText.value) {
+                    errors['review_text'] = 'Vui lòng nhập nội dung đánh giá.';
+                }
+                return Object.keys(errors).length > 0 ? errors : null;
+            }
+
+            // --- Hàm hiển thị thông báo lỗi ---
+            function displayErrorMessages(errors) {
+                for (const key in errors) {
+                    let errorElement = null;
+
+                    if (key === 'rating') {
+                        errorElement = document.getElementById('rating-error');
+                    } else if (key === 'review_text') {
+                        errorElement = document.getElementById('review_text-error');
+                    } else if (key === 'images' || key === 'images_count') {
+                        errorElement = document.getElementById('images-error');
+                    } else if (key.startsWith('images.')) {
+                        errorElement = document.getElementById(
+                            'images-error');
+                    } else if (key.startsWith('videos.')) {
+                        errorElement = document.getElementById('videos-error');
+                    }
+
+                    if (errorElement) {
+                        errorElement.textContent = errors[key];
+                    }
+                }
+            }
+
+            // --- Hàm xử lý khi gửi đánh giá thành công ---
+            function handleSuccessResponse() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Đánh giá thành công!',
+                    timer: 2000,
+                    showConfirmButton: false,
+                }).then(() => {
+                    location.reload();
+                });
+            }
+            // --- Hàm tạo HTML cho một đánh giá ---
+            function createReviewHtml(review) {
+                // BẠN CẦN TỰ VIẾT HÀM NÀY ĐỂ TẠO HTML HIỂN THỊ ĐÁNH GIÁ DỰA TRÊN CẤU TRÚC DỮ LIỆU TRẢ VỀ TỪ SERVER
+                // Ví dụ (cần điều chỉnh theo cấu trúc dữ liệu và HTML của bạn):
+                return `
+        <div class="single-review">
+            <div class="review-header">
+                <p>Người dùng ID: ${review.user_id}</p>
+                <div class="rating">
+                    ${renderStars(review.rating)}
+                </div>
+            </div>
+            <div class="review-body">
+                <p>${review.review_text}</p>
+                ${review.review_multimedia ? renderReviewMultimedia(review.review_multimedia) : ''}
+                <p class="review-date">${new Date(review.created_at).toLocaleDateString()}</p>
+            </div>
+        </div>
+    `;
+            }
+
+            // --- Hàm render sao đánh giá (ví dụ) ---
+            function renderStars(rating) {
+                let starsHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= rating) {
+                        starsHtml += '<i data-feather="star" class="fill"></i>';
+                    } else {
+                        starsHtml += '<i data-feather="star"></i>';
+                    }
+                }
+                return starsHtml;
+            }
+
+            // --- Hàm render hình ảnh/video đánh giá (ví dụ) ---
+            function renderReviewMultimedia(multimedia) {
+                let multimediaHtml = '';
+                multimedia.forEach(item => {
+                    if (item.file_type === 0) { // Hình ảnh
+                        multimediaHtml +=
+                            `<img src="/storage/${item.file}" alt="Review Image" class="img-fluid mb-2">`;
+                    } else if (item.file_type === 1) { // Video
+                        multimediaHtml +=
+                            `<video src="/storage/${item.file}" controls class="w-100 mb-2"></video>`;
+                    }
+                });
+                return multimediaHtml;
+            }
+
+            // --- Hàm xử lý khi có lỗi từ server ---
+            async function handleErrorResponse(response) {
+                try {
+                    const data = await response.json();
+
+                    if (data && data.errors) {
+                        displayErrorMessages(data.errors);
+                    } else if (data && data.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: data.error,
+                        });
+                    }
+                } catch (jsonError) {
+                    handleFetchError(jsonError);
+                }
+            }
+
+
+            // --- Hàm xử lý lỗi Fetch API ---
+            function handleFetchError(error) {
+                console.error('Lỗi Fetch:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Có lỗi xảy ra khi gửi đánh giá.',
+                });
+            }
+
+
+            // --- Gắn kết các sự kiện ---
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    handleStarRating(this);
+                });
+            });
+
+            if (submitButton && reviewForm) {
+                submitButton.addEventListener('click', submitReviewForm);
+            }
+
+            // Lấy order_id và product_id từ thuộc tính data-* khi modal được hiển thị
+            $('#writereview').on('show.bs.modal', function(event) {
+                const reviewButton = $(event.relatedTarget); // Lấy thẻ <a> đã kích hoạt modal
+                const orderId = reviewButton.data('order-id');
+                const productId = reviewButton.data('product-id');
+
+                $('#review_order_id').val(orderId);
+
+                // Thêm hoặc cập nhật input hidden cho product_id
+                const productIdInput = $("#reviewForm input[name='product_id']");
+                if (productIdInput.length === 0) {
+                    $("#reviewForm").append(`<input type="hidden" name="product_id" value="${productId}">`);
                 } else {
                     productIdInput.val(productId);
                 }
