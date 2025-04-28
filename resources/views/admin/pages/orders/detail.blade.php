@@ -600,9 +600,13 @@
                         customerDetail.find("li:nth-child(5) h4").text(
                             `${data.listItemOrder[0].order.payment.name}`);
                         if (data.listItemOrder[0].order.is_paid == 1) {
+
                             customerDetail.find("li:nth-child(6) h4").text(`Đã thanh toán`);
+
                         } else {
+
                             customerDetail.find("li:nth-child(6) h4").text(`Chưa thanh toán`);
+
                         }
 
                         const orderStatuses = [{
@@ -628,7 +632,7 @@
                             {
                                 id: 4,
                                 name: "Giao hàng thất bại",
-                                next: [4, 6]
+                                next: [4]
                             },
                             {
                                 id: 5,
