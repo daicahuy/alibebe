@@ -31,36 +31,8 @@
                                     </div>
                                 </span>
                             </a>
-                            {{-- <ul class="sidebar-submenu" @style([
-                                'display: block;' => Request::is('admin/index*') || Request::is('admin/detail-index*'),
-                            ])>
-                                <li>
-                                    <a href="{{ route('admin.index') }}"
-                                        class="{{ Request::is('admin/index*') ? 'active' : '' }}">
-                                        <div>Thống kê</div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('admin.detail-index') }}"
-                                        class="{{ Request::is('admin/detail-index*') ? 'active' : '' }}">
-                                        <div>Thống kê chi tiết</div>
-                                    </a>
-                                </li>
-                            </ul> --}}
                         </li>
                     @endif
-                    @if (Auth::user()->isAdmin())
-                    <li class="sidebar-list">
-                        <a  href="{{ route('admin.detail-index') }}" class="debar-link link-nav sidebar-link sidebar-title">
-                            <span>
-                                <div class="d-flex align-items-center">
-                                    <i class="ri-home-line"></i>
-                                    <div class="sidebar-main-link">Thống kê chi tiết</div>
-                                </div>
-                            </span>
-                        </a>
-                    </li>
-                @endif
 
                     {{-- Employee --}}
                     @if (Auth::user()->isEmployee())
@@ -306,6 +278,18 @@
                                         <div class="sidebar-main-link">{{ __('form.messages') }}</div>
                                     </div>
                                     <span class="badge bg-warning ml-2">{{ $unreadMessagesCount }}</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (Auth::user()->isAdmin())
+                        <li class="sidebar-list">
+                            <a  href="{{ route('admin.detail-index') }}" class="debar-link link-nav sidebar-link sidebar-title">
+                                <span>
+                                    <div class="d-flex align-items-center">
+                                        <i class="ri-pie-chart-line"></i>
+                                        <div class="sidebar-main-link">Thống kê</div>
+                                    </div>
                                 </span>
                             </a>
                         </li>

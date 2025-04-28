@@ -666,36 +666,36 @@ class ProductService
     {
         try {
 
-            if (!is_array($productIds) && empty($productIds)) {
+            if (!is_array($productIds) || empty($productIds)) {
                 return [
                     'success' => false,
                     'message' => 'Vui lòng chọn sản phẩm và thử lại.'
                 ];
             }
             // kiểm tra realion
-            $productIdsToDelete = [];
-            $productsInOrders = [];
-            foreach ($productIds as $productId) {
-                if ($this->orderItemRepository->hasOrderItems($productId)) {
-                    $productsInOrders[] = $productId;
-                } else {
-                    $productIdsToDelete[] = $productId; // được xóa
-                }
-            }
+            // $productIdsToDelete = [];
+            // $productsInOrders = [];
+            // foreach ($productIds as $productId) {
+            //     if ($this->orderItemRepository->hasOrderItems($productId)) {
+            //         $productsInOrders[] = $productId;
+            //     } else {
+            //         $productIdsToDelete[] = $productId; // được xóa
+            //     }
+            // }
 
-            if ($productsInOrders) {
-                return [
-                    'success' => false,
-                    'message' => 'Có sản phẩm có trong đơn hàng không thể xóa vĩnh viễn.'
-                ];
-            }
+            // if ($productsInOrders) {
+            //     return [
+            //         'success' => false,
+            //         'message' => 'Có sản phẩm có trong đơn hàng không thể xóa vĩnh viễn.'
+            //     ];
+            // }
 
-            if (empty($productIdsToDelete)) { // gần như không thể lọt, vì check xóa mềm rồi
-                return [
-                    'success' => false,
-                    'message' => 'Không có sản phẩm nào được xóa vĩnh viễn vì tất cả đều có trong đơn hàng.'
-                ];
-            }
+            // if (empty($productIdsToDelete)) { // gần như không thể lọt, vì check xóa mềm rồi
+            //     return [
+            //         'success' => false,
+            //         'message' => 'Không có sản phẩm nào được xóa vĩnh viễn vì tất cả đều có trong đơn hàng.'
+            //     ];
+            // }
 
 
 
@@ -704,7 +704,7 @@ class ProductService
             DB::beginTransaction();
             try { // không có trong đơn hàng thì vào đây
 
-                $deleteCount = $this->productRepository->bulkForceDeleteTrash($productIdsToDelete);
+                $deleteCount = $this->productRepository->bulkForceDeleteTrash($productIds);
 
                 if ($deleteCount > 0) {
                     DB::commit();

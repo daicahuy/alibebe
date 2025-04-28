@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id(); //
             $table->bigInteger('order_id')->unsigned();
             $table->bigInteger('user_id')->unsigned();
+            $table->bigInteger('user_handle')->unsigned()->nullable();
             $table->decimal('total_amount', 12, 2);
             $table->string('bank_account', 255)->nullable();
             $table->string('user_bank_name', 255)->nullable();
@@ -44,6 +45,7 @@ return new class extends Migration {
 
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('user_handle')->references('id')->on('users')->onDelete('cascade');
 
         });
     }

@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\UnlockOrderJob;
 use App\Enums\NotificationType;
 use App\Events\OrderCustomer;
+use App\Events\SystemNotification;
 use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderOrderStatus;
@@ -198,28 +199,27 @@ class OrderController extends Controller
                         $itemStock->save();
                     }
                 }
-
-
-
-            }
-
-            $admins = User::where('role', 2)
+                $admins = User::where('role', 2)
                 ->orWhere('role', 1)
                 ->get();
 
-            $message = "Đơn Hàng {$order->code} đã bị hủy !";
+                $message = "Đơn Hàng {$order->code} đã bị hủy !";
 
-            foreach ($admins as $admin) {
-                Notification::create([
-                    'user_id' => $admin->id,
-                    'message' => $message,
-                    'read' => false,
-                    'type' => NotificationType::Order,
-                    'order_id' => $order->id
-                ]);
+                foreach ($admins as $admin) {
+                    Notification::create([
+                        'user_id' => $admin->id,
+                        'message' => $message,
+                        'read' => false,
+                        'type' => NotificationType::Order,
+                        'order_id' => $order->id
+                    ]);
+                }
+
+                event(new OrderCustomer($order, $message));
+
+
             }
 
-            event(new OrderCustomer($order, $message));
             $user = User::find($user_id);
             // return response()->json(["user" => $user]);
             if ($orderArray['order_statuses'][0]['id'] == 1 && $idStatus == 6 && $user->role == 0) {
@@ -277,6 +277,25 @@ class OrderController extends Controller
 
 
                 if ($response instanceof \Illuminate\Http\JsonResponse) {
+                        $admins = User::where('role', 2)
+                    ->orWhere('role', 1)
+                    ->get();
+
+                    $userCheckLocked = User::find($user_id);
+
+                    $message = "Người dùng {$userCheckLocked->fullname} đã bị khóa Vì Spam hủy đơn hàng!";
+
+                    foreach ($admins as $admin) {
+                        Notification::create([
+                            'user_id' => $admin->id,
+                            'message' => $message,
+                            'read' => false,
+                            'type' => NotificationType::System,
+                            'target_user_id' => $userCheckLocked->id
+                        ]);
+                    }
+
+                    event(new SystemNotification($userCheckLocked, $message));
                     return response()->json([
                         'message' => 'Tài khoản đã bị khóa',
                         'status' => Response::HTTP_OK,

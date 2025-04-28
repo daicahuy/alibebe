@@ -45,7 +45,7 @@
                         <div class="location-box">
                             <i data-feather="check-square"></i>
                             <h6>
-                                {{ !empty($user->verified_at) ? 'Đã Xác Thực' : 'Chưa Xác Thực' }}
+                                {{ !empty($user->email_verified_at) ? 'Đã Xác Thực' : 'Chưa Xác Thực' }}
                             </h6>
                         </div>
                     </li>

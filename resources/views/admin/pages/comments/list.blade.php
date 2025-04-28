@@ -25,7 +25,7 @@
                     <div class="card-body">
                         <div class="title-header">
                             <div class="d-flex align-items-center">
-                                <h5>{{ __('form.users') }}</h5>
+                                <h5>{{ __('form.comments') }}</h5>
                             </div>
 
                         </div>
