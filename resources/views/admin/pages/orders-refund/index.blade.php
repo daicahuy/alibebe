@@ -327,7 +327,8 @@
                         .show();
                 }
                 $("#modalConfirm #reason").text(dataOrderRefund.reason ? dataOrderRefund.reason : "")
-                $("#modalConfirm #user_handle").text(dataOrderRefund.handle_user.fullname ? dataOrderRefund
+                $("#modalConfirm #user_handle").text(dataOrderRefund.handle_user && dataOrderRefund.handle_user
+                    .fullname != null ? dataOrderRefund
                     .handle_user
                     .fullname : "")
                 $("#modalConfirm #idOrderRefund").val(dataOrderRefund.id)
