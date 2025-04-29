@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Enums\NotificationType;
+use App\Events\BankInfoChanged;
+use App\Events\BankInfoChangedForAll;
+use App\Events\OrderCustomer;
 use App\Events\OrderRefundPendingCountUpdated;
 use App\Events\RefundOrderCreate;
 use App\Events\RefundOrderUpdateStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Refund;
 use App\Models\RefundItem;
+use App\Models\User;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -306,6 +312,24 @@ class ApiRefundOrderController extends Controller
             Order::where('id', $dataRefundProducts["order_id"])
                 ->update(["is_refund" => "1"]);
 
+            $order = Order::find($orderRefund->order_id);
+
+            $message = "Khách hàng yêu cầu hoàn đơn {$order->code} (tổng {$orderRefund->total_amount}đ).";
+
+            $admins = User::whereIn('role', [1,2])->get();
+            foreach ($admins as $admin) {
+                Notification::create([
+                    'user_id'   => $admin->id,
+                    'message'   => $message,
+                    'read'      => false,
+                    'type'      => NotificationType::Order,
+                    'order_id'  => $order->id,
+                    // 'refund_id' => $orderRefund->id,
+                ]);
+            }
+
+
+            event(new RefundOrderCreate($orderRefund));
             event(new RefundOrderCreate($orderRefund));
             event(new OrderRefundPendingCountUpdated());
 
@@ -480,7 +504,98 @@ class ApiRefundOrderController extends Controller
                 ]);
             }
 
+
+            $refund = Refund::find($request->input('idOrder'));
+
+            $changes = [];
+            if ($refund) {
+                if ($refund->bank_account != $request->input('bank_account')) {
+                    $changes['bank_account'] = [
+                        'old' => $refund->bank_account,
+                        'new' => $request->input('bank_account'),
+                    ];
+                }
+                if ($refund->user_bank_name != $request->input('user_bank_name')) {
+                    $changes['user_bank_name'] = [
+                        'old' => $refund->user_bank_name,
+                        'new' => $request->input('user_bank_name'),
+                    ];
+                }
+                if ($refund->bank_name != $request->input('bank_name')) {
+                    $changes['bank_name'] = [
+                        'old' => $refund->bank_name,
+                        'new' => $request->input('bank_name'),
+                    ];
+                }
+            }
+
             Refund::where('id', $request->input('idOrder'))->update(["bank_account_status" => "verified", "bank_account" => $request->input('bank_account'), "bank_name" => $request->input('bank_name'), "user_bank_name" => $request->input('user_bank_name')]);
+
+            if (!empty($changes)) {
+
+                //Thông báo đến admin khi người dùng thay đổi thông tin chuyển khoản  
+
+                $order = Order::find($refund->order_id);
+                $orderCode = $order ? $order->code : 'N/A';
+                
+                // Lấy danh sách thay đổi để hiển thị trong thông báo
+                $changeText = '';
+                foreach ($changes as $field => $value) {
+                    switch ($field) {
+                        case 'bank_account':
+                            $changeText .= "Số tài khoản: {$value['old']} => {$value['new']}; ";
+                            break;
+                        case 'user_bank_name':
+                            $changeText .= "Tên người nhận: {$value['old']} => {$value['new']}; ";
+                            break;
+                        case 'bank_name':
+                            $changeText .= "Tên ngân hàng: {$value['old']} => {$value['new']}; ";
+                            break;
+                    }
+                }
+                
+                // Tạo nội dung thông báo
+                $message = "Khách hàng đã thay đổi thông tin ngân hàng cho đơn hoàn tiền #{$orderCode}: $changeText";
+                
+                // Trường hợp nếu có nhân viên xử lý
+                if ($refund->user_handle) {
+                    // Gửi thông báo cho nhân viên xử lý
+                    Notification::create([
+                        'user_id'   => $refund->user_handle,
+                        'message'   => $message,
+                        'read'      => false,
+                        'type'      => NotificationType::Refund,
+                        'order_id'  => $refund->order_id,
+                        'refund_id' => $refund->id,
+                    ]);
+                    
+                    // Thông báo real-time cho nhân viên xử lý
+                    event(new BankInfoChanged($refund->id, $changes, $message, $refund->user_handle));
+                } else {
+                    // Nếu chưa có nhân viên xử lý, gửi cho tất cả admin
+                    $admins = User::whereIn('role', [1, 2])->get(); // Role 1: Admin, 2: Staff
+                    
+                    foreach ($admins as $admin) {
+                        Notification::create([
+                            'user_id'   => $admin->id,
+                            'message'   => $message,
+                            'read'      => false,
+                            'type'      => NotificationType::Refund,
+                            'order_id'  => $refund->order_id,
+                            'refund_id' => $refund->id,
+                        ]);
+                    }
+                    
+                    // Thông báo real-time cho tất cả admin
+                    event(new BankInfoChangedForAll($refund->id, $changes, $message));
+                }
+
+
+            }
+
+
+
+
             event(new RefundOrderUpdateStatus($request->input('idOrder'), 'receiving'));
 
             return response()->json(["status" => Response::HTTP_OK, "data" => $request->all()]);

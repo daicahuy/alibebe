@@ -84,7 +84,7 @@ class CouponService
         try {
             // Chia nhỏ dữ liệu từ $data
             $couponData = [
-                'code' => $data['code'] ?? null,
+                'code' => isset($data['code']) ? preg_replace('/\s+/', '', $data['code']): null,
                 'title' => $data['title'] ?? null,
                 'description' => $data['description'] ?? null,
                 'discount_type' => $data['discount_type'],
