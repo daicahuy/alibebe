@@ -118,6 +118,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @if ($listHidden->isEmpty())
+                                            <tr>
+                                                <td colspan="11" class="text-center text-muted">Không có sản phẩm thỏa mãn
+                                                    điều kiện.</td>
+                                            </tr>
+                                        @endif
                                         @foreach ($listHidden as $hidden)
                                             <tr>
                                                 <td class="sm-width">

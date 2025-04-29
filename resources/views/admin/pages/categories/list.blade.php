@@ -49,7 +49,8 @@
                                     <input type="hidden" name="_keyword" value="{{ request('_keyword') }}">
                                     {{-- Giữ lại _keyword --}}
 
-                                    <select class="form-control" name="per_page" onchange="document.getElementById('filter-form').submit();">
+                                    <select class="form-control" name="per_page"
+                                        onchange="document.getElementById('filter-form').submit();">
                                         {{-- Thêm name và onchange --}}
                                         <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15
                                         </option>
@@ -157,6 +158,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @if ($categories->isEmpty())
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted">Không có danh mục nào.</td>
+                                        </tr>
+                                    @endif
                                     @foreach ($categories as $key => $cate)
                                         <tr>
                                             <td>
@@ -202,7 +208,8 @@
                                             <td class="cursor-pointer">
                                                 <div class="form-check form-switch ps-0">
                                                     <label class="switch switch-sm">
-                                                        <input type="checkbox" class="toggle-active-index"{{-- Class để bắt sự kiện jQuery --}}
+                                                        <input type="checkbox"
+                                                            class="toggle-active-index"{{-- Class để bắt sự kiện jQuery --}}
                                                             data-category-id="{{ $cate->id }}"{{-- Data attribute chứa ID --}}
                                                             {{ $cate->is_active == 1 ? 'checked' : '' }}>
                                                         <span class="switch-state"></span>

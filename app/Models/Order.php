@@ -68,7 +68,7 @@ class Order extends Model
         return $this->belongsToMany(HistoryOrderStatus::class);
     }
     public function refund()
-{
-    return $this->hasOne(Refund::class);
-}
+    {
+        return $this->hasOne(Refund::class);
+    }
 }

@@ -223,22 +223,24 @@
                                                         <li>
                                                             <div class="form-check ps-0 m-0 category-list-box">
                                                                 <input class="checkbox_animated" type="checkbox"
-                                                                       id="rating-{{ $ratingValue }}" name="rating[]"
-                                                                       value="{{ $ratingValue }}"
-                                                                       {{ isset($currentFilters['rating']) && in_array($ratingValue, (array) $currentFilters['rating']) ? 'checked' : '' }}>
+                                                                    id="rating-{{ $ratingValue }}" name="rating[]"
+                                                                    value="{{ $ratingValue }}"
+                                                                    {{ isset($currentFilters['rating']) && in_array($ratingValue, (array) $currentFilters['rating']) ? 'checked' : '' }}>
                                                                 <div class="form-check-label">
                                                                     <ul class="rating">
                                                                         @for ($i = 0; $i < 5; $i++)
                                                                             <li>
                                                                                 @if ($i < $ratingValue)
-                                                                                    <i data-feather="star" class="fill"></i>
+                                                                                    <i data-feather="star"
+                                                                                        class="fill"></i>
                                                                                 @else
                                                                                     <i data-feather="star"></i>
                                                                                 @endif
                                                                             </li>
                                                                         @endfor
                                                                     </ul>
-                                                                    <span class="text-content">({{ $ratingValue }} Star)</span>
+                                                                    <span class="text-content">({{ $ratingValue }}
+                                                                        Star)</span>
                                                                 </div>
                                                             </div>
                                                         </li>
@@ -424,187 +426,196 @@
                         </div>
                     </div>
 
-                    <div
-                        class="row g-sm-4 g-3 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-2 row-cols-md-3 row-cols-2 product-list-section">
-                        {{-- products --}}
-                        @foreach ($listProductCate as $item)
-                            <div>
-                                <div class="product-box-3 h-100 wow fadeInUp">
-                                    <div class="product-header">
-                                        <div class="product-image">
-                                            <a href="{{ route('products', $item->slug) }}">
-                                                <img src="{{ Storage::url($item->thumbnail) }}"
-                                                    class="img-fluid blur-up lazyload" alt="">
-                                            </a>
+                    @if ($listProductCate->isEmpty())
+                        <div class="col-12 text-center my-4"> 
 
-                                            <ul class="product-option">
-                                                <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                    <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                        data-bs-target="#view" data-id={{ $item->id }}
-                                                        data-slug="{{ $item->slug }}">
-                                                        <i data-feather="eye"></i>
-                                                    </a>
-                                                </li>
+                            <img src="https://remagan.com/_nuxt/page-not-found.fH52EovP.png" alt="Không tìm thấy sản phẩm"
+                                class="img-fluid" style="max-width: 200px;">
 
-                                                <li data-bs-toggle="tooltip" data-bs-placement="top" title="So sánh">
-                                                    <a href="javascript:;" class="compare-toggle" data-state="unselected"
-                                                        data-product-id="{{ $item->id }}"
-                                                        data-product-category-id="{{ $item->categories->first()->id ?? null }}">
-                                                        <span class="icon-refresh">
-                                                            <i data-feather="refresh-cw"></i>
-                                                        </span>
-                                                        <span class="icon-check" style="display:none;">
-                                                            <i data-feather="check"></i>
-                                                        </span>
-                                                    </a>
-                                                </li>
+                        </div>
+                    @else
+                        <div
+                            class="row g-sm-4 g-3 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-2 row-cols-md-3 row-cols-2 product-list-section">
+                            {{-- products --}}
+                            @foreach ($listProductCate as $item)
+                                <div>
+                                    <div class="product-box-3 h-100 wow fadeInUp">
+                                        <div class="product-header">
+                                            <div class="product-image">
+                                                <a href="{{ route('products', $item->slug) }}">
+                                                    <img src="{{ Storage::url($item->thumbnail) }}"
+                                                        class="img-fluid blur-up lazyload" alt="">
+                                                </a>
 
-                                                <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                    <a href="javascript:void(0);" class="notifi-wishlist wishlist-toggle"
-                                                        data-product-id="{{ $item->id }}">
-                                                        <i data-feather="heart" class="wishlist-icon"
-                                                            style="color: {{ in_array($item->id, $wishlistProductIds) ? 'red' : 'black' }};"></i>
-                                                    </a>
-                                                </li>
-                                            </ul>
+                                                <ul class="product-option">
+                                                    <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
+                                                        <a href="javascript:void(0)" data-bs-toggle="modal"
+                                                            data-bs-target="#view" data-id={{ $item->id }}
+                                                            data-slug="{{ $item->slug }}">
+                                                            <i data-feather="eye"></i>
+                                                        </a>
+                                                    </li>
+
+                                                    <li data-bs-toggle="tooltip" data-bs-placement="top" title="So sánh">
+                                                        <a href="javascript:;" class="compare-toggle"
+                                                            data-state="unselected" data-product-id="{{ $item->id }}"
+                                                            data-product-category-id="{{ $item->categories->first()->id ?? null }}">
+                                                            <span class="icon-refresh">
+                                                                <i data-feather="refresh-cw"></i>
+                                                            </span>
+                                                            <span class="icon-check" style="display:none;">
+                                                                <i data-feather="check"></i>
+                                                            </span>
+                                                        </a>
+                                                    </li>
+
+                                                    <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Wishlist">
+                                                        <a href="javascript:void(0);"
+                                                            class="notifi-wishlist wishlist-toggle"
+                                                            data-product-id="{{ $item->id }}">
+                                                            <i data-feather="heart" class="wishlist-icon"
+                                                                style="color: {{ in_array($item->id, $wishlistProductIds) ? 'red' : 'black' }};"></i>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="product-footer">
-                                        <div class="product-detail">
-                                            {{-- @if ($item->categories)
+                                        <div class="product-footer">
+                                            <div class="product-detail">
+                                                {{-- @if ($item->categories)
                                                 @foreach ($item->categories as $cate)
                                                     <span class="span-name">{{ $cate->name }}</span>
                                                 @endforeach
                                             @endif --}}
-                                            @if ($item->categories->isNotEmpty())
-                                                {{ $item->categories->pluck('name')->implode(', ') }}
-                                            @else
-                                                <span class="text-muted">Không có danh mục</span>
-                                            @endif
-                                            <a href="{{ route('products', $item->slug) }}">
-                                                <h5 class="name">{{ $item->name }}</h5>
-                                            </a>
-                                            <p class="text-content mt-1 mb-2 product-content">
-                                                {!! $item->short_description !!}</p>
-                                            <div class="product-rating mt-2">
-                                                <ul class="rating">
-                                                    @php
-                                                        $avgRating = $item->reviews->avg('rating');
-                                                        $roundedRating = floor($avgRating); //làm tròn xuống
-                                                    @endphp
-                                                    @empty($item->reviews)
-                                                        @for ($i = 1; $i <= 5; $i++)
-                                                            <li>
-                                                                <i data-feather="star"></i>
-                                                            </li>
-                                                        @endfor
-                                                        <span>(0)</span>
-                                                    @else
-                                                        @for ($i = 1; $i <= 5; $i++)
-                                                            <li>
-                                                                @if ($i <= $roundedRating)
-                                                                    <i data-feather="star" class="fill"></i>
-                                                                @else
-                                                                    <i data-feather="star"></i>
-                                                                @endif
-                                                            </li>
-                                                        @endfor
-                                                        <span>({{ number_format($avgRating, 1) }})</span>
-                                                    @endempty
-                                                </ul>
-                                            </div>
-                                            <h6 class="unit">{{ $item->views }} lượt xem</h6>
-                                            {{-- <h6 class="unit">{{ $item->sold_count ?? 0 }} đã bán</h6> --}}
-                                            <h6 class="unit">{{ $item->getSoldQuantity() }} đã bán</h6>
-
-                                            <h5 class="price">
-                                                <span
-                                                    class="theme-color">{{ number_format($item->display_price) }}đ</span>
-                                                {{-- Kiểm tra is_sale thay vì sale_price --}}
-                                                @if ($item->is_sale == 1)
-                                                    <del>{{ number_format($item->original_price) }}đ</del>
+                                                @if ($item->categories->isNotEmpty())
+                                                    {{ $item->categories->pluck('name')->implode(', ') }}
+                                                @else
+                                                    <span class="text-muted">Không có danh mục</span>
                                                 @endif
-                                            </h5>
-                                            <div class="add-to-cart-box bg-white">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal"
-                                                    data-bs-target="#view" data-id={{ $item->id }}
-                                                    data-slug="{{ $item->slug }}"
-                                                    class="btn btn-add-cart addcart-button">
-                                                    Thêm vào giỏ hàng
+                                                <a href="{{ route('products', $item->slug) }}">
+                                                    <h5 class="name">{{ $item->name }}</h5>
                                                 </a>
+                                                <p class="text-content mt-1 mb-2 product-content">
+                                                    {!! $item->short_description !!}</p>
+                                                <div class="product-rating mt-2">
+                                                    <ul class="rating">
+                                                        @php
+                                                            $avgRating = $item->reviews->avg('rating');
+                                                            $roundedRating = floor($avgRating); //làm tròn xuống
+                                                        @endphp
+                                                        @empty($item->reviews)
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <li>
+                                                                    <i data-feather="star"></i>
+                                                                </li>
+                                                            @endfor
+                                                            <span>(0)</span>
+                                                        @else
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <li>
+                                                                    @if ($i <= $roundedRating)
+                                                                        <i data-feather="star" class="fill"></i>
+                                                                    @else
+                                                                        <i data-feather="star"></i>
+                                                                    @endif
+                                                                </li>
+                                                            @endfor
+                                                            <span>({{ number_format($avgRating, 1) }})</span>
+                                                        @endempty
+                                                    </ul>
+                                                </div>
+                                                <h6 class="unit">{{ $item->views }} lượt xem</h6>
+                                                {{-- <h6 class="unit">{{ $item->sold_count ?? 0 }} đã bán</h6> --}}
+                                                <h6 class="unit">{{ $item->getSoldQuantity() }} đã bán</h6>
+
+                                                <h5 class="price">
+                                                    <span
+                                                        class="theme-color">{{ number_format($item->display_price) }}đ</span>
+                                                    {{-- Kiểm tra is_sale thay vì sale_price --}}
+                                                    @if ($item->is_sale == 1)
+                                                        <del>{{ number_format($item->original_price) }}đ</del>
+                                                    @endif
+                                                </h5>
+                                                <div class="add-to-cart-box bg-white">
+                                                    <a href="javascript:void(0)" data-bs-toggle="modal"
+                                                        data-bs-target="#view" data-id={{ $item->id }}
+                                                        data-slug="{{ $item->slug }}"
+                                                        class="btn btn-add-cart addcart-button">
+                                                        Thêm vào giỏ hàng
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                    @endif
 
-
-
-                    </div>
-
-                    <!-- Phân trang -->
-                    <nav class="custom-pagination">
-                        <ul class="pagination justify-content-center">
-                            <!-- Nút Previous -->
-                            <li class="page-item {{ $listProductCate->onFirstPage() ? 'disabled' : '' }}">
-                                <a class="page-link" href="{{ $listProductCate->previousPageUrl() }}" tabindex="-1">
-                                    <i class="fa-solid fa-angles-left"></i>
-                                </a>
-                            </li>
-
-                            <!-- Hiển thị các trang xung quanh trang hiện tại -->
-                            @php
-                                $currentPage = $listProductCate->currentPage();
-                                $lastPage = $listProductCate->lastPage();
-                                $startPage = max($currentPage - 2, 1); // Bắt đầu = hiện tại - 2
-                                $endPage = min($currentPage + 2, $lastPage); // Kết thúc = hiện tại + 2
-                            @endphp
-
-                            <!-- Hiển thị trang đầu tiên nếu không nằm trong khoảng hiển thị -->
-                            @if ($startPage > 1)
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $listProductCate->url(1) }}">1</a>
-                                </li>
-                                @if ($startPage > 2)
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
-                                @endif
-                            @endif
-
-                            <!-- Hiển thị các trang trong khoảng -->
-                            @for ($page = $startPage; $page <= $endPage; $page++)
-                                <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
-                                    <a class="page-link"
-                                        href="{{ $listProductCate->url($page) }}">{{ $page }}</a>
-                                </li>
-                            @endfor
-
-                            <!-- Hiển thị trang cuối cùng nếu không nằm trong khoảng hiển thị -->
-                            @if ($endPage < $lastPage)
-                                @if ($endPage < $lastPage - 1)
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
-                                @endif
-                                <li class="page-item">
-                                    <a class="page-link"
-                                        href="{{ $listProductCate->url($lastPage) }}">{{ $lastPage }}</a>
-                                </li>
-                            @endif
-
-                            <!-- Nút Next -->
-                            <li class="page-item {{ $listProductCate->hasMorePages() ? '' : 'disabled' }}">
-                                <a class="page-link" href="{{ $listProductCate->nextPageUrl() }}">
-                                    <i class="fa-solid fa-angles-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
 
                 </div>
+
+                <!-- Phân trang -->
+                <nav class="custom-pagination">
+                    <ul class="pagination justify-content-center">
+                        <!-- Nút Previous -->
+                        <li class="page-item {{ $listProductCate->onFirstPage() ? 'disabled' : '' }}">
+                            <a class="page-link" href="{{ $listProductCate->previousPageUrl() }}" tabindex="-1">
+                                <i class="fa-solid fa-angles-left"></i>
+                            </a>
+                        </li>
+
+                        <!-- Hiển thị các trang xung quanh trang hiện tại -->
+                        @php
+                            $currentPage = $listProductCate->currentPage();
+                            $lastPage = $listProductCate->lastPage();
+                            $startPage = max($currentPage - 2, 1); // Bắt đầu = hiện tại - 2
+                            $endPage = min($currentPage + 2, $lastPage); // Kết thúc = hiện tại + 2
+                        @endphp
+
+                        <!-- Hiển thị trang đầu tiên nếu không nằm trong khoảng hiển thị -->
+                        @if ($startPage > 1)
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $listProductCate->url(1) }}">1</a>
+                            </li>
+                            @if ($startPage > 2)
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            @endif
+                        @endif
+
+                        <!-- Hiển thị các trang trong khoảng -->
+                        @for ($page = $startPage; $page <= $endPage; $page++)
+                            <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
+                                <a class="page-link" href="{{ $listProductCate->url($page) }}">{{ $page }}</a>
+                            </li>
+                        @endfor
+
+                        <!-- Hiển thị trang cuối cùng nếu không nằm trong khoảng hiển thị -->
+                        @if ($endPage < $lastPage)
+                            @if ($endPage < $lastPage - 1)
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            @endif
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="{{ $listProductCate->url($lastPage) }}">{{ $lastPage }}</a>
+                            </li>
+                        @endif
+
+                        <!-- Nút Next -->
+                        <li class="page-item {{ $listProductCate->hasMorePages() ? '' : 'disabled' }}">
+                            <a class="page-link" href="{{ $listProductCate->nextPageUrl() }}">
+                                <i class="fa-solid fa-angles-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
             </div>
+        </div>
         </div>
     </section>
     <!-- Shop Section End -->
@@ -1062,7 +1073,7 @@
                     expires = "; expires=" + date.toUTCString();
                 }
                 document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=127.0.0.1";
-    console.log('Cookie set (without port):', document.cookie);
+                console.log('Cookie set (without port):', document.cookie);
             }
 
             // Hàm xóa cookie
@@ -1085,7 +1096,7 @@
                     compareList.push(productId); // Thêm sản phẩm vào list
                     setCookie(compareCookieName, JSON.stringify(compareList),
                         30); // Lưu lại vào cookie (JSON string, hết hạn sau 30 ngày)
-                        // console.log('Cookie compare_list đã được thiết lập:', document.cookie);
+                    // console.log('Cookie compare_list đã được thiết lập:', document.cookie);
                     updateCompareCountBadgeCookie(); // Cập nhật badge số lượng
                 }
             }
