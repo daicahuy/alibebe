@@ -135,6 +135,13 @@
                                     <table class="table all-package theme-table no-footer">
                                         <tbody><!---->
                                             <tr>
+                                                <td class="text-start fw-semibold">Nhân viên đang xử lý</td>
+                                                <td class="text-start" id="user_handle"></td>
+                                            </tr><!---->
+                                            <tr class="" id="div_comfirm_order_with_admin" style="display: none">
+
+                                            </tr><!---->
+                                            <tr>
                                                 <td class="text-start fw-semibold">Lý do </td>
                                                 <td class="text-start" id="reason"></td>
                                             </tr><!---->
@@ -296,7 +303,7 @@
                 channel.bind('event-change-status-refund', function(data) {
                     callApiGetDataOrderRefund()
                 });
-
+                console.log("dataOrderRefund", dataOrderRefund)
                 $('#button-box-footer').empty();
                 $("#modalConfirm #admin_reason_div").empty();
                 $("#modalConfirm #admin_reason_div").append(`<div class="form-floating">
@@ -323,6 +330,10 @@
                         .show();
                 }
                 $("#modalConfirm #reason").text(dataOrderRefund.reason ? dataOrderRefund.reason : "")
+                $("#modalConfirm #user_handle").text(dataOrderRefund.handle_user && dataOrderRefund.handle_user
+                    .fullname != null ? dataOrderRefund
+                    .handle_user
+                    .fullname : "")
                 $("#modalConfirm #idOrderRefund").val(dataOrderRefund.id)
                 $("#modalConfirm #total_amount").text(`${formatCurrency(dataOrderRefund.total_amount)}đ`)
                 $("#modalConfirm #phone_number").text(dataOrderRefund.phone_number ? dataOrderRefund
@@ -343,11 +354,129 @@
                 }
                 if (dataOrderRefund.status == 'rejected') {
                     $("#div_comfirm_bank").empty()
+                    $("#div_comfirm_order_with_admin").empty()
+                    $("#div_comfirm_order_with_admin").show()
+
+                    if (dataUser.role != 2) {
+
+                        if (dataOrderRefund.confirm_order_with_admin == null) {
+
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id=""><button id="btn_confirm_order_with_admin" class="btn btn-primary">Gửi xác nhận</button></td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', true);
+                        } else if (dataOrderRefund.confirm_order_with_admin == 2) {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Đã gửi xác nhận</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', false);
+                        } else if (dataOrderRefund.confirm_order_with_admin == 1) {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Đồng ý đơn hàng</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', false);
+                            $('#withdrawal_rejected_btn').prop('disabled', true);
+                        } else {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Từ chối đơn hàng</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', false);
+                        }
+                    }
+
 
                     $("#modalConfirm #admin_reason").attr("disabled", true);
                 }
                 if (dataOrderRefund.status == 'pending') {
                     $("#div_comfirm_bank").empty()
+
+                    $("#div_comfirm_order_with_admin").empty()
+                    $("#div_comfirm_order_with_admin").show()
+
+                    if (dataUser.role != 2) {
+
+                        if (dataOrderRefund.confirm_order_with_admin == null) {
+
+                            $("#div_comfirm_order_with_admin").append(`
+                                <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+                                <td class="text-start" id=""><button id="btn_confirm_order_with_admin" class="btn btn-primary">Gửi xác nhận</button></td>
+                            `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', true);
+                        } else if (dataOrderRefund.confirm_order_with_admin == 2) {
+                            $("#div_comfirm_order_with_admin").append(`
+                                <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+                                <td class="text-start" id="">Đã gửi xác nhận</td>
+                            `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', false);
+                        } else if (dataOrderRefund.confirm_order_with_admin == 1) {
+                            $("#div_comfirm_order_with_admin").append(`
+                                <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+                                <td class="text-start" id="">Đồng ý đơn hàng</td>
+                            `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', false);
+                            $('#withdrawal_rejected_btn').prop('disabled', true);
+                        } else {
+                            $("#div_comfirm_order_with_admin").append(`
+                                <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+                                <td class="text-start" id="">Từ chối đơn hàng</td>
+                            `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', false);
+                        }
+
+                        $("#btn_confirm_order_with_admin").on('click', function() {
+                            $.ajax({
+                                url: '{{ route('api.refund_orders.sentConfirmOrderWithAdmin') }}',
+                                type: 'POST',
+                                data: {
+                                    id_order_refund: dataOrderRefund.id,
+                                    status: 2
+                                },
+                                success: function(response) {
+                                    if (response.status == 200) {
+                                        Toastify({
+                                            text: "Thao tác thành công",
+                                            duration: 2000,
+                                            newWindow: true,
+                                            close: true,
+                                            gravity: "top",
+                                            position: "right",
+                                            stopOnFocus: true,
+                                            style: {
+                                                background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                            },
+                                        }).showToast();
+                                        callApiGetDataOrderRefund(dataOrderRefund.id)
+                                        fetchOrders()
+                                    }
+                                },
+                                error: function(error) {
+                                    console.error("Lỗi cập nhật trạng thái đơn hàng:",
+                                        error);
+                                }
+                            });
+
+
+                        })
+                    }
+
 
                     $('#button-box-footer').append(`<app-button><button class="btn btn-md  fw-bold"
                                                 style="background-color: red; color: #fff;" disabled
@@ -356,7 +485,7 @@
                                             </button></app-button>
                                         <app-button>
                                             <button class="btn btn-md btn-theme fw-bold" id="withdrawal_approved_btn"
-                                                 fdprocessedid="qq0uf9">
+                                                 fdprocessedid="qq0uf9" ${dataUser.role != 2 && dataOrderRefund.confirm_order_with_admin !=1 ? "disabled":""}>
                                                 <div> Đông ý </div>
                                             </button></app-button>`)
                 }
@@ -364,6 +493,48 @@
                 if (dataOrderRefund.status == 'receiving') {
                     $("#div_comfirm_bank").empty()
                     $("#div_comfirm_bank").show();
+
+                    $("#div_comfirm_order_with_admin").empty()
+                    $("#div_comfirm_order_with_admin").show()
+
+                    if (dataUser.role != 2) {
+
+                        if (dataOrderRefund.confirm_order_with_admin == null) {
+
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id=""><button id="btn_confirm_order_with_admin" class="btn btn-primary">Gửi xác nhận</button></td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', true);
+                        } else if (dataOrderRefund.confirm_order_with_admin == 2) {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Đã gửi xác nhận</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', false);
+                        } else if (dataOrderRefund.confirm_order_with_admin == 1) {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Đồng ý đơn hàng</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', false);
+                            $('#withdrawal_rejected_btn').prop('disabled', true);
+                        } else {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Từ chối đơn hàng</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', false);
+                        }
+                    }
+
 
                     if (dataOrderRefund.bank_account_status == "unverified") {
 
@@ -494,6 +665,47 @@
                 if (dataOrderRefund.status == 'completed') {
                     $("#div_comfirm_bank").empty()
                     $("#div_comfirm_bank").show();
+                    $("#div_comfirm_order_with_admin").empty()
+                    $("#div_comfirm_order_with_admin").show()
+
+                    if (dataUser.role != 2) {
+
+                        if (dataOrderRefund.confirm_order_with_admin == null) {
+
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id=""><button id="btn_confirm_order_with_admin" class="btn btn-primary">Gửi xác nhận</button></td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', true);
+                        } else if (dataOrderRefund.confirm_order_with_admin == 2) {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Đã gửi xác nhận</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', false);
+                        } else if (dataOrderRefund.confirm_order_with_admin == 1) {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Đồng ý đơn hàng</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', false);
+                            $('#withdrawal_rejected_btn').prop('disabled', true);
+                        } else {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Từ chối đơn hàng</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', false);
+                        }
+                    }
+
 
                     if (dataOrderRefund.bank_account_status == "unverified") {
 
@@ -527,6 +739,47 @@
                 if (dataOrderRefund.status == 'failed') {
                     $("#div_comfirm_bank").empty()
                     $("#div_comfirm_bank").show();
+                    $("#div_comfirm_order_with_admin").empty()
+                    $("#div_comfirm_order_with_admin").show()
+
+                    if (dataUser.role != 2) {
+
+                        if (dataOrderRefund.confirm_order_with_admin == null) {
+
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id=""><button id="btn_confirm_order_with_admin" class="btn btn-primary">Gửi xác nhận</button></td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', true);
+                        } else if (dataOrderRefund.confirm_order_with_admin == 2) {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Đã gửi xác nhận</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', false);
+                        } else if (dataOrderRefund.confirm_order_with_admin == 1) {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Đồng ý đơn hàng</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', false);
+                            $('#withdrawal_rejected_btn').prop('disabled', true);
+                        } else {
+                            $("#div_comfirm_order_with_admin").append(`
+        <td class="text-start fw-semibold">Xác nhận đơn hàng với admin</td>
+        <td class="text-start" id="">Từ chối đơn hàng</td>
+    `)
+
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                            $('#withdrawal_rejected_btn').prop('disabled', false);
+                        }
+                    }
+
 
                     if (dataOrderRefund.bank_account_status == "unverified") {
 
@@ -569,21 +822,39 @@
                     }
                 }
 
+
+
                 $('#admin_reason').on('input', function() {
                     const reason = $(this).val()
                         .trim();
                     const rejectButton = $('#withdrawal_rejected_btn');
                     const approvedButton = $('#withdrawal_approved_btn');
 
-                    if (reason.length > 0) {
+                    if (dataUser.role == 2) {
+                        if (reason.length > 0) {
+                            $('#withdrawal_rejected_btn').prop('disabled', false);
+                            $('#withdrawal_approved_btn').prop('disabled', true);
+                        } else {
+                            // Vô hiệu hóa cả hai nút nếu không có lý do
+                            $('#withdrawal_rejected_btn').prop('disabled', true);
+                            $('#withdrawal_approved_btn').prop('disabled', true);
 
-                        rejectButton.prop('disabled', false);
-                        approvedButton.prop('disabled', true);
+                        }
                     } else {
 
-                        rejectButton.prop('disabled', true);
-                        approvedButton.prop('disabled', false);
+                        if (dataOrderRefund.confirm_order_with_admin !== null && dataOrderRefund
+                            .confirm_order_with_admin !== 2) {
+                            if (reason.length > 0) {
+                                $('#withdrawal_rejected_btn').prop('disabled', false);
+                                $('#withdrawal_approved_btn').prop('disabled', true);
+                            } else {
+                                // Vô hiệu hóa cả hai nút nếu không có lý do
+                                $('#withdrawal_rejected_btn').prop('disabled', true);
+                                $('#withdrawal_approved_btn').prop('disabled', true);
+                            }
+                        }
                     }
+
                 });
                 $("#withdrawal_rejected_btn").off("click").on("click", function(event) {
                     event.preventDefault();

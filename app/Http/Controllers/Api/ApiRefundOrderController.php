@@ -48,7 +48,7 @@ class ApiRefundOrderController extends Controller
                         }
                     ])
                 ->orderBy('created_at', 'desc');
-            if ($user_role !== 2) {
+            if ($user_role == 1) {
                 $queryListRefundOrder->where(function ($q) use ($user_id) {
                     $q->where('user_handle', $user_id)
                         ->orWhereIn('status', ['pending', 'cancel']);
@@ -93,7 +93,7 @@ class ApiRefundOrderController extends Controller
     {
         try {
 
-            $dataOrderRefund = Refund::query()->where('id', $id)->with('order', 'user')->with([
+            $dataOrderRefund = Refund::query()->where('id', $id)->with('order', 'user', 'handleUser')->with([
 
                 'refundItems' => function ($query) {
                     $query->with("product");
@@ -316,14 +316,14 @@ class ApiRefundOrderController extends Controller
 
             $message = "Khách hàng yêu cầu hoàn đơn {$order->code} (tổng {$orderRefund->total_amount}đ).";
 
-            $admins = User::whereIn('role', [1,2])->get();
+            $admins = User::whereIn('role', [1, 2])->get();
             foreach ($admins as $admin) {
                 Notification::create([
-                    'user_id'   => $admin->id,
-                    'message'   => $message,
-                    'read'      => false,
-                    'type'      => NotificationType::Order,
-                    'order_id'  => $order->id,
+                    'user_id' => $admin->id,
+                    'message' => $message,
+                    'read' => false,
+                    'type' => NotificationType::Order,
+                    'order_id' => $order->id,
                     // 'refund_id' => $orderRefund->id,
                 ]);
             }
@@ -473,6 +473,26 @@ class ApiRefundOrderController extends Controller
         }
     }
 
+    public function sentConfirmOrderWithAdmin(Request $request)
+    {
+        try {
+            $idOrderRefund = $request->input('id_order_refund');
+            $status = $request->input('status');
+
+            Refund::where('id', $idOrderRefund)->update(["confirm_order_with_admin" => $status]);
+
+
+            return response()->json(["status" => Response::HTTP_OK, "idOrderRefund" => $idOrderRefund]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
     public function confirmBank(Request $request)
     {
         try {
@@ -537,7 +557,7 @@ class ApiRefundOrderController extends Controller
 
                 $order = Order::find($refund->order_id);
                 $orderCode = $order ? $order->code : 'N/A';
-                
+
                 // Lấy danh sách thay đổi để hiển thị trong thông báo
                 $changeText = '';
                 foreach ($changes as $field => $value) {
@@ -553,39 +573,39 @@ class ApiRefundOrderController extends Controller
                             break;
                     }
                 }
-                
+
                 // Tạo nội dung thông báo
                 $message = "Khách hàng đã thay đổi thông tin ngân hàng cho đơn hoàn tiền #{$orderCode}: $changeText";
-                
+
                 // Trường hợp nếu có nhân viên xử lý
                 if ($refund->user_handle) {
                     // Gửi thông báo cho nhân viên xử lý
                     Notification::create([
-                        'user_id'   => $refund->user_handle,
-                        'message'   => $message,
-                        'read'      => false,
-                        'type'      => NotificationType::Refund,
-                        'order_id'  => $refund->order_id,
+                        'user_id' => $refund->user_handle,
+                        'message' => $message,
+                        'read' => false,
+                        'type' => NotificationType::Refund,
+                        'order_id' => $refund->order_id,
                         'refund_id' => $refund->id,
                     ]);
-                    
+
                     // Thông báo real-time cho nhân viên xử lý
                     event(new BankInfoChanged($refund->id, $changes, $message, $refund->user_handle));
                 } else {
                     // Nếu chưa có nhân viên xử lý, gửi cho tất cả admin
                     $admins = User::whereIn('role', [1, 2])->get(); // Role 1: Admin, 2: Staff
-                    
+
                     foreach ($admins as $admin) {
                         Notification::create([
-                            'user_id'   => $admin->id,
-                            'message'   => $message,
-                            'read'      => false,
-                            'type'      => NotificationType::Refund,
-                            'order_id'  => $refund->order_id,
+                            'user_id' => $admin->id,
+                            'message' => $message,
+                            'read' => false,
+                            'type' => NotificationType::Refund,
+                            'order_id' => $refund->order_id,
                             'refund_id' => $refund->id,
                         ]);
                     }
-                    
+
                     // Thông báo real-time cho tất cả admin
                     event(new BankInfoChangedForAll($refund->id, $changes, $message));
                 }

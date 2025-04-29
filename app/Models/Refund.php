@@ -25,7 +25,8 @@ class Refund extends Model
         'img_fail_or_completed',
         'bank_account_status',
         'is_send_money',
-        'user_handle'
+        'user_handle',
+        'confirm_order_with_admin'
     ];
 
     public function refundItems()
@@ -43,5 +44,8 @@ class Refund extends Model
         return $this->belongsTo(Order::class);
     }
 
-
+    public function handleUser()
+    {
+        return $this->belongsTo(User::class, 'user_handle', 'id');
+    }
 }

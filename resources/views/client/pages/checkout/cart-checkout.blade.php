@@ -316,7 +316,41 @@
                                 <div class="mb-4 col-span-12">
                                     <label for="address" class="block text-gray-700 text-sm font-bold mb-2">Địa
                                         Chỉ:</label>
-                                    <textarea id="address" name="address"
+
+
+                                    <div class="form-floating mb-4 theme-form-floating">
+                                        <select class="form-control" id="province" name="province_id" required>
+                                            <option value="">Chọn tỉnh/thành phố</option>
+                                        </select>
+                                        <label for="province">Tỉnh/Thành phố</label>
+                                    </div>
+
+                                    <div class="form-floating mb-4 theme-form-floating">
+                                        <select class="form-control" id="district" name="district_id" required disabled>
+                                            <option value="">Chọn quận/huyện</option>
+                                        </select>
+                                        <label for="district">Quận/Huyện</label>
+                                    </div>
+
+                                    <div class="form-floating mb-4 theme-form-floating">
+                                        <select class="form-control" id="ward" name="ward_id" required disabled>
+                                            <option value="">Chọn phường/xã</option>
+                                        </select>
+                                        <label for="ward">Phường/Xã</label>
+                                    </div>
+
+                                    <div class="form-floating mb-4 theme-form-floating">
+                                        <input type="text" class="form-control" name="address_detail"
+                                            id="address_detail" placeholder="Nhập địa chỉ chi tiết">
+                                        <label for="address_detail">Địa chỉ chi tiết (Thôn , Số Nhà)</label>
+                                    </div>
+
+                                    <input type="hidden" name="province_text" id="province_text">
+                                    <input type="hidden" name="district_text" id="district_text">
+                                    <input type="hidden" name="ward_text" id="ward_text">
+
+
+                                    <textarea id="address" name="address" hidden
                                         class="inputadd appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "></textarea>
                                 </div>
                             </div>
@@ -368,7 +402,37 @@
                                 <div class="mb-4 col-span-12">
                                     <label for="address" class="block text-gray-700 text-sm font-bold mb-2">Địa
                                         Chỉ:</label>
-                                    <textarea id="address" name="address"
+                                    <div class="form-floating mb-4 theme-form-floating">
+                                        <select class="form-control" id="edit_province" name="province_id" required>
+                                            <option value="">Chọn tỉnh/thành phố</option>
+                                        </select>
+                                        <label for="edit_province">Tỉnh/Thành phố</label>
+                                    </div>
+
+                                    <div class="form-floating mb-4 theme-form-floating">
+                                        <select class="form-control" id="edit_district" name="district_id" required>
+                                            <option value="">Chọn quận/huyện</option>
+                                        </select>
+                                        <label for="edit_district">Quận/Huyện</label>
+                                    </div>
+
+                                    <div class="form-floating mb-4 theme-form-floating">
+                                        <select class="form-control" id="edit_ward" name="ward_id" required>
+                                            <option value="">Chọn phường/xã</option>
+                                        </select>
+                                        <label for="edit_ward">Phường/Xã</label>
+                                    </div>
+
+                                    <div class="form-floating mb-4 theme-form-floating">
+                                        <input type="text" class="form-control" name="address_detail"
+                                            id="edit_address_detail" placeholder="Nhập địa chỉ chi tiết">
+                                        <label for="edit_address_detail">Địa chỉ chi tiết (Thôn , Số Nhà)</label>
+                                    </div>
+
+                                    <input type="hidden" name="province_text" id="edit_province_text">
+                                    <input type="hidden" name="district_text" id="edit_district_text">
+                                    <input type="hidden" name="ward_text" id="edit_ward_text">
+                                    <textarea id="address" name="address" hidden
                                         class="inputadd appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "></textarea>
                                 </div>
                             </div>
@@ -482,6 +546,62 @@
                         $("#edit-address-modal #is_default").prop('checked', false).prop('disabled',
                             false); // Bỏ đánh dấu và kích hoạt
                     }
+
+
+                    const addressParts = dataEditAddress.address.split(', ');
+
+                    // Giả sử địa chỉ có định dạng: chi tiết, phường/xã, quận/huyện, tỉnh/thành
+                    const provinceName = addressParts.length > 3 ? addressParts[addressParts.length - 1] : '';
+                    const districtName = addressParts.length > 2 ? addressParts[addressParts.length - 2] : '';
+                    const wardName = addressParts.length > 1 ? addressParts[addressParts.length - 3] : '';
+
+                    // Phần còn lại là địa chỉ chi tiết
+                    const detailAddress = addressParts.length > 3 ?
+                        addressParts.slice(0, addressParts.length - 3).join(', ') :
+                        (addressParts.length > 0 ? addressParts[0] : '');
+
+
+
+                    $('#edit-address-modal #edit_province option').each(function() {
+                        if ($(this).text() === provinceName) {
+                            $(this).prop('selected', true);
+                            $('#edit-address-modal #edit_province').trigger('change');
+
+                            // Đặt timeout để đảm bảo API đã load danh sách quận/huyện
+                            setTimeout(function() {
+                                // Chọn quận/huyện phù hợp
+                                $('#edit-address-modal #edit_district option').each(function() {
+                                    if ($(this).text() === districtName) {
+                                        $(this).prop('selected', true);
+                                        $('#edit-address-modal #edit_district').trigger(
+                                            'change');
+
+                                        // Đặt timeout để đảm bảo API đã load danh sách phường/xã
+                                        setTimeout(function() {
+                                            // Chọn phường/xã phù hợp
+                                            $('#edit-address-modal #edit_ward option')
+                                                .each(function() {
+                                                    if ($(this).text() ===
+                                                        wardName) {
+                                                        $(this).prop('selected',
+                                                            true);
+                                                        $('#edit-address-modal #edit_ward')
+                                                            .trigger(
+                                                                'change');
+                                                    }
+                                                });
+                                        }, 500);
+                                    }
+                                });
+                            }, 500);
+                        }
+                    });
+
+                    $('#edit-address-modal #edit_address_detail').val(detailAddress);
+
+                    $('#edit-address-modal #address').val(dataEditAddress.address);
+
+
 
                 })
                 .catch(error => console.error("Error fetching address data:", error));
@@ -839,6 +959,186 @@
                 $("body").removeClass("overflow-hidden");
 
             })
+
+
+            function updateAddress() {
+                const province = $('#province option:selected').text() !== 'Chọn tỉnh/thành phố' ? $(
+                    '#province option:selected').text() : '';
+                const district = $('#district option:selected').text() !== 'Chọn quận/huyện' ? $(
+                    '#district option:selected').text() : '';
+                const ward = $('#ward option:selected').text() !== 'Chọn phường/xã' ? $('#ward option:selected')
+                    .text() : '';
+
+                // Thay thế dấu phẩy trong địa chỉ chi tiết bằng dấu chấm phẩy
+                const detail = $('#address_detail').val().trim().replace(/,/g, ';');
+
+                // Tạo địa chỉ đầy đủ
+                const fullAddress = [detail, ward, district, province].filter(item => item && item !== '').join(
+                    ', ');
+                $('#add-address-modal #address').val(fullAddress);
+            }
+
+            function updateEditAddress() {
+                const province = $('#edit_province option:selected').text() !== 'Chọn tỉnh/thành phố' ? $(
+                    '#edit_province option:selected').text() : '';
+                const district = $('#edit_district option:selected').text() !== 'Chọn quận/huyện' ? $(
+                    '#edit_district option:selected').text() : '';
+                const ward = $('#edit_ward option:selected').text() !== 'Chọn phường/xã' ? $(
+                    '#edit_ward option:selected').text() : '';
+
+                // Thay thế dấu phẩy trong địa chỉ chi tiết bằng dấu chấm phẩy
+                const detail = $('#edit_address_detail').val().trim().replace(/,/g, ';');
+
+                // Tạo địa chỉ đầy đủ
+                const fullAddress = [detail, ward, district, province].filter(item => item && item !== '').join(
+                    ', ');
+                $('#edit-address-modal #address').val(fullAddress);
+            }
+
+            // Khi chọn tỉnh trong modal chỉnh sửa
+            $('#edit_province').change(function() {
+                var provinceCode = $(this).val();
+                var provinceName = $('#edit_province option:selected').text();
+                $('#edit_province_text').val(provinceName);
+
+                if (provinceCode) {
+                    $('#edit_district').prop('disabled', false);
+                    $.get(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`, function(
+                        province) {
+                        $('#edit_district').empty().append(
+                            '<option value="">Chọn quận/huyện</option>');
+                        province.districts.forEach(function(district) {
+                            $('#edit_district').append($('<option>', {
+                                value: district.code,
+                                text: district.name
+                            }));
+                        });
+                    });
+                } else {
+                    $('#edit_district, #edit_ward').prop('disabled', true).empty().append(
+                        '<option value="">Chọn...</option>');
+                }
+                updateEditAddress();
+            });
+
+            // Khi chọn huyện trong modal chỉnh sửa
+            $('#edit_district').change(function() {
+                var districtCode = $(this).val();
+                var districtName = $('#edit_district option:selected').text();
+                $('#edit_district_text').val(districtName);
+
+                if (districtCode) {
+                    $('#edit_ward').prop('disabled', false);
+                    $.get(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`, function(
+                        district) {
+                        $('#edit_ward').empty().append('<option value="">Chọn phường/xã</option>');
+                        district.wards.forEach(function(ward) {
+                            $('#edit_ward').append($('<option>', {
+                                value: ward.code,
+                                text: ward.name
+                            }));
+                        });
+                    });
+                } else {
+                    $('#edit_ward').prop('disabled', true).empty().append(
+                        '<option value="">Chọn phường/xã</option>');
+                }
+                updateEditAddress();
+            });
+
+            // Khi chọn xã trong modal chỉnh sửa
+            $('#edit_ward').change(function() {
+                var wardName = $('#edit_ward option:selected').text();
+                $('#edit_ward_text').val(wardName);
+                updateEditAddress();
+            });
+
+            // Cập nhật địa chỉ khi có thay đổi trong modal chỉnh sửa
+            $('#edit_ward, #edit_address_detail').on('change input', updateEditAddress);
+
+
+            $.get('https://provinces.open-api.vn/api/p/', function(provinces) {
+                provinceData = provinces;
+
+                // Thêm vào select box tạo mới
+                $('#province').empty().append('<option value="">Chọn tỉnh/thành phố</option>');
+                // $('#edit_province').empty().append('<option value="">Chọn tỉnh/thành phố</option>');
+
+                provinces.forEach(function(province) {
+                    $('#province').append($('<option>', {
+                        value: province.code,
+                        text: province.name
+                    }));
+
+                    $('#edit_province').append($('<option>', {
+                        value: province.code,
+                        text: province.name
+                    }));
+                });
+            });
+
+
+            $('#province').change(function() {
+                var provinceCode = $(this).val();
+                var provinceName = $('#province option:selected').text();
+                $('#province_text').val(provinceName);
+
+                if (provinceCode) {
+                    $('#district').prop('disabled', false);
+                    $.get(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`, function(
+                        province) {
+                        $('#district').empty().append('<option value="">Chọn quận/huyện</option>');
+                        province.districts.forEach(function(district) {
+                            $('#district').append($('<option>', {
+                                value: district.code,
+                                text: district.name
+                            }));
+                        });
+                    });
+                } else {
+                    $('#district, #ward').prop('disabled', true).empty().append(
+                        '<option value="">Chọn...</option>');
+                }
+                updateAddress();
+            });
+
+
+            $('#district').change(function() {
+                var districtCode = $(this).val();
+                var districtName = $('#district option:selected').text();
+                $('#district_text').val(districtName);
+
+                if (districtCode) {
+                    $('#ward').prop('disabled', false);
+                    $.get(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`, function(
+                        district) {
+                        $('#ward').empty().append('<option value="">Chọn phường/xã</option>');
+                        district.wards.forEach(function(ward) {
+                            $('#ward').append($('<option>', {
+                                value: ward.code,
+                                text: ward.name
+                            }));
+                        });
+                    });
+                } else {
+                    $('#ward').prop('disabled', true).empty().append(
+                        '<option value="">Chọn phường/xã</option>');
+                }
+                updateAddress();
+            });
+
+            $('#ward').change(function() {
+                var wardName = $('#ward option:selected').text();
+                $('#ward_text').val(wardName);
+                updateAddress();
+            });
+
+            $('#ward, #address_detail').on('change input', updateAddress);
+
+
+
+
+
 
             $('#add-address-modal').on('submit', (e) => {
                 e.preventDefault();
