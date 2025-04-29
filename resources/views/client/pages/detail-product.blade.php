@@ -898,24 +898,7 @@
                                                 @endif
 
                                             </h5>
-                                            <div class="add-to-cart-box bg-white">
-                                                <button class="btn btn-add-cart addcart-button">add </button>
-
-                                                <div class="cart_qty qty-box">
-                                                    <div class="input-group bg-white">
-                                                        {{-- <button type="button" class="qty-left-minus bg-gray"
-                                                            data-type="minus" data-field="">
-                                                            <i class="fa fa-minus"></i>
-                                                        </button>
-                                                        <input class="form-control input-number qty-input" type="text"
-                                                            name="quantity" value="0">
-                                                        <button type="button" class="qty-right-plus bg-gray"
-                                                            data-type="plus" data-field="">
-                                                            <i class="fa fa-plus"></i>
-                                                        </button> --}}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                           
                                         </div>
                                     </div>
                                 </div>
@@ -1044,14 +1027,14 @@
                                 </div>
 
                                 <div class="product-detail">
-                                    <h4>Product Details :</h4>
+                                    <h4>Mô tả :</h4>
                                     <p id='prdDescription'></p>
                                 </div>
 
                                 <ul class="brand-list">
                                     <li>
                                         <div class="brand-box">
-                                            <h5>Brand:</h5>
+                                            <h5>Thương hiệu:</h5>
                                             <h6 id = 'prdBrand'></h6>
                                         </div>
                                     </li>
@@ -1065,7 +1048,7 @@
 
                                     <li>
                                         <div class="brand-box">
-                                            <h5>Category:</h5>
+                                            <h5>Danh mục:</h5>
                                             <h6 id="prdCategories"></h6>
                                         </div>
                                     </li>
@@ -1530,15 +1513,15 @@
                         .value; // Lấy quantity từ input trong form
 
                     // **[PHẦN THÊM MỚI] - TỰ ĐỘNG CHỌN BIẾN THỂ RẺ NHẤT NẾU CHƯA CHỌN VÀ CÓ BIẾN THỂ**
-                    if (!currentVariant && productVariants.length > 0) {
-                        currentVariant =
-                            defaultVariant; // Sử dụng biến thể mặc định rẻ nhất đã tìm ở DOMContentLoaded
-                        productVariantId = currentVariant.id; // Lấy ID của biến thể mặc định
-                        console.log('Tự động chọn biến thể rẻ nhất (mặc định):', currentVariant);
+                    // if (!currentVariant && productVariants.length > 0) {
+                    //     currentVariant =
+                    //         defaultVariant; // Sử dụng biến thể mặc định rẻ nhất đã tìm ở DOMContentLoaded
+                    //     productVariantId = currentVariant.id; // Lấy ID của biến thể mặc định
+                    //     console.log('Tự động chọn biến thể rẻ nhất (mặc định):', currentVariant);
 
-                        // **Cập nhật lại input cartProductVariantId với ID biến thể mặc định**
-                        addToCartForm.querySelector('#cartProductVariantId').value = productVariantId;
-                    }
+                    //     // **Cập nhật lại input cartProductVariantId với ID biến thể mặc định**
+                    //     addToCartForm.querySelector('#cartProductVariantId').value = productVariantId;
+                    // }
 
                     // **CẬP NHẬT GIÁ TRỊ CHO CÁC INPUT HIDDEN TRONG FORM**
                     addToCartForm.querySelector('#cartProductId').value = productId;

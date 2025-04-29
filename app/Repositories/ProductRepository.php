@@ -174,11 +174,11 @@ END');
                                 })
                                     // is_sale == 0 or sale_price null
                                     ->orwhere(function ($q) use ($minPrice, $maxPrice) {
-                                    $q->where(function ($q) {
-                                        $q->where('is_sale', 0)
-                                            ->orWhereNull('sale_price');
-                                    })->whereBetween('price', [$minPrice, $maxPrice]);
-                                });
+                                        $q->where(function ($q) {
+                                            $q->where('is_sale', 0)
+                                                ->orWhereNull('sale_price');
+                                        })->whereBetween('price', [$minPrice, $maxPrice]);
+                                    });
                             });
                     })
                         // type = 1
@@ -194,16 +194,15 @@ END');
                                         })
                                             // sale false
                                             ->orWhere(function ($q) use ($minPrice, $maxPrice) {
-                                            $q->where(function ($q) {
-                                                $q->where('is_sale', 0)
-                                                    ->orWhereNull('sale_price');
-                                            })->whereBetween('price', [$minPrice, $maxPrice]);
-                                        });
+                                                $q->where(function ($q) {
+                                                    $q->where('is_sale', 0)
+                                                        ->orWhereNull('sale_price');
+                                                })->whereBetween('price', [$minPrice, $maxPrice]);
+                                            });
                                     });
                                 });
                         });
                 });
-
             } //end search price
 
 
@@ -506,7 +505,7 @@ END');
 
     public function getProductByView()
     {
-        
+
         return Product::query()
             ->select(
                 'products.id',
@@ -572,7 +571,6 @@ END');
             ->orderByDesc('products.views')
             ->limit(8)
             ->get();
-
     }
 
     // Mạnh - admin - list - delete - products
@@ -1270,8 +1268,9 @@ END');
                 $q->where('value', 'LIKE', '%' . $query . '%');
             })
             ->where('is_active', 1)
-            ->with(['brand:id,name', 'categories:id,name', 'attributeValues:id,value']) // Eager load
-            ->select('id', 'name', 'slug', 'thumbnail') // Chọn cả trường thumbnail
+            ->with(['brand:id,name', 'categories:id,name', 'attributeValues:id,value'])
+            ->select('id', 'name', 'slug', 'thumbnail') // Chỉ chọn các cột cần thiết
+            ->distinct() // Loại bỏ các bản ghi trùng lặp
             ->limit($limit)
             ->get();
     }
@@ -1292,5 +1291,4 @@ END');
             ->with(['brand', 'categories', 'productVariants'])
             ->paginate(10);
     }
-
 }
