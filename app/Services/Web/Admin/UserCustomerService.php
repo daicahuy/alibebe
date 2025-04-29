@@ -100,6 +100,7 @@ class UserCustomerService
         //1. Tổng quan đơn hàng
         $order = $this->orderRepo->countOrderDetail($userId, $status = null, $startDate, $endDate);
         $orderSuccess = $order['countSuccessDetail']; // số lg đơn thành công
+        $orderFalse = $order['countFalseDetail']; // số lg đơn thất bại
         $orderCance = $order['countCancelDetail'];
         $orderProcessing = $order['countProcessingDetail'];
         $orderShip = $order['countShipDetail'];
@@ -108,6 +109,7 @@ class UserCustomerService
 
         //2. Doanh số
         $successFullRevenue = $order['revenueSuccessDetail']; // doanh số đơn thành công
+        $falseFullRevenue = $order['revenueFalseDetail']; // doanh số đơn thành công
         $cancelledRevenue = $order['revenueCancelDetail']; // doanh số hủy
         $processingRevenue = $order['revenueProcessingDetail']; // doanh số đang xử lý 
         $shipRevenue = $order['revenueShipDetail']; // doanh số đang giao
@@ -121,6 +123,7 @@ class UserCustomerService
         $percentPriceSuccess = 0;// phần trăm theo doanh số
         if ($allOrders > 0) {
             $percentCountSuccess = round(($orderSuccess / $allOrders) * 100, 2);
+            $percentCountFalse = round(($orderFalse / $allOrders) * 100, 2);
             $percentCountCancel = round($order['countCancelDetail'] / $allOrders * 100, 2);
             $percentCountProcessing = round($order['countProcessingDetail'] / $allOrders * 100, 2);
             $percentCountShip = round($order['countShipDetail'] / $allOrders * 100, 2);
@@ -148,6 +151,13 @@ class UserCustomerService
                 'revenue' => $shipRevenue,
                 'percentCount' => $percentCountShip ?? 0,
                 'badge_class' => 'bg-info',
+            ],
+            [
+                'type' => 'Giao hàng thất bại',
+                'quantity' => $orderFalse,
+                'revenue' => $falseFullRevenue,
+                'percentCount' => $percentCountSuccess,
+                'badge_class' => 'btn-secondary',
             ],
             [
                 'type' => 'Đã hoàn thành',
@@ -201,13 +211,27 @@ class UserCustomerService
         // Xử lý danh sách đơn hàng để hiển thị trạng thái đúng
         $listUserOrders->getCollection()->transform(function ($order) {
             // Kiểm tra nếu đơn hàng đã hoàn tiền
-            if ($order->is_refund) {
-                $order->display_status = 'Hoàn hàng'; // Thêm thuộc tính mới để hiển thị
+            if ($order->is_refund && $order->refund) {
+                // Xác định trạng thái hiển thị dựa trên trạng thái thực tế của quy trình hoàn tiền
+                switch ($order->refund->status) {
+                    case 'completed':
+                        $order->display_status = 'Hoàn hàng thành công'; 
+                        break;
+                    case 'failed':
+                        $order->display_status = 'Hoàn hàng thất bại';
+                        break;
+                    case 'pending':
+                        $order->display_status = 'Hoàn hàng đang xử lý';
+                        break;
+                    // Thêm các case khác nếu có trạng thái hoàn hàng khác
+                    default:
+                        $order->display_status = 'Hoàn hàng (' . $order->refund->status . ')'; // Trạng thái fallback
+                }
             } else {
-                // Nếu không phải hoàn tiền, lấy trạng thái cuối cùng từ orderStatuses
-                // Cần đảm bảo bạn đã eager load orderStatuses
-                $latestStatus = $order->orderStatuses->sortByDesc('pivot.created_at')->first();
-                $order->display_status = $latestStatus ? $latestStatus->name : 'Chưa có trạng thái'; // Lấy tên trạng thái hoặc mặc định
+                
+                $currentStatusPivot = $order->orderStatuses->firstWhere('pivot.is_current', 1);
+        
+                $order->display_status = $currentStatusPivot ? $currentStatusPivot->name : 'Chưa có trạng thái'; // Lấy tên trạng thái hiện tại
             }
             return $order;
         });

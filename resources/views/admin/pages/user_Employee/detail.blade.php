@@ -1152,63 +1152,7 @@
 
                 </div>
 
-                {{-- <div class="col-lg-4">
-                        <!-- Phân loại khách hàng -->
-                       
-                    </div> --}}
-                <!-- Lịch sử hoạt động -->
-                {{-- <div class="col-lg-6">
-
-                        <div class="card mb-6">
-                            <div class="card-body">
-                                <div class="section-heading">
-                                    <h6 class="card-subtitle mb-0">Lịch sử hoạt động</h6>
-                                </div>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item px-0">
-                                        <div class="d-flex justify-content-between">
-                                            <div>
-                                                <i class="fas fa-shopping-cart text-primary me-2"></i>
-                                                Đặt đơn hàng #2453
-                                            </div>
-                                            <small class="text-muted">Hôm nay</small>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item px-0">
-                                        <div class="d-flex justify-content-between">
-                                            <div>
-                                                <i class="fas fa-heart text-danger me-2"></i>
-                                                Thêm sản phẩm yêu thích
-                                            </div>
-                                            <small class="text-muted">Hôm qua</small>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item px-0">
-                                        <div class="d-flex justify-content-between">
-                                            <div>
-                                                <i class="fas fa-star text-warning me-2"></i>
-                                                Đánh giá sản phẩm
-                                            </div>
-                                            <small class="text-muted">3 ngày trước</small>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                           
-                            <br>
-                            <div class="card-body">
-                                <div class="section-heading">
-                                    <h6 class="card-subtitle mb-0">Phân loại khách hàng</h6>
-
-                                </div>
-                                <div class="d-flex flex-wrap">
-                                    <span class="badge bg-primary me-2 mb-2">Khách VIP</span>
-                                    
-                                </div>
-                            </div>
-                           
-                        </div>
-                    </div> --}}
+               
 
                 <!-- Cột phải - Đơn hàng, Danh sách yêu thích, Đánh giá -->
 
@@ -1251,7 +1195,7 @@
                                         <!-- Filter & Reset Buttons -->
                                         <div class="d-flex gap-2">
                                             <button type="submit" class="btn btn-theme">Lọc</button>
-                                            <a href="{{ route('admin.users.customer.detail', $data['user']->id) }}"
+                                            <a href="{{ route('admin.users.employee.detail', $data['user']->id) }}"
                                                 class="btn btn-secondary">Reset</a>
                                         </div>
                                     </form>
@@ -1280,9 +1224,11 @@
                                                     <small class="text-muted">Chi Tiết Trạng Thái</small>
                                                     <div class="d-flex justify-content-between mt-1">
                                                         <span class="badge bg-warning badge-custom">Đang Xử Lý:
+                                                            {{ $data['order']['countShipDetail'] }}</span>
+                                                        <span class="badge bg-info badge-custom">Đang Giao:
                                                             {{ $data['order']['countProcessingDetail'] }}</span>
-                                                        <span class="badge bg-info badge-custom">Đang Giao Hàng:
-                                                            {{ $data['order']['countProcessingDetail'] }}</span>
+                                                            <span class="badge  badge-custom" style="background-color: #6c757d">Thất Bại:
+                                                                {{ $data['order']['countProcessingDetail'] }}</span>
                                                         <span class="badge bg-success badge-custom">Thành Công:
                                                             {{ $data['order']['countSuccessDetail'] }}</span>
                                                         <span class="badge bg-danger badge-custom">Hủy:

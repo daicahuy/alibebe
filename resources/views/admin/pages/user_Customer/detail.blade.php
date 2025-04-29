@@ -1245,10 +1245,12 @@
                                             <div class="flex-grow-1">
                                                 <label for="startDate" class="form-label fw-bold mb-0">Ngày bắt
                                                     đầu</label>
-                                                    <input type="date" id="startDate" name="startDate"
+                                                <input type="date" id="startDate" name="startDate"
                                                     value="{{ request('startDate', now()->toDateString()) }}"
-                                                    class="form-control @error('startDate') is-invalid @enderror"> {{-- Thêm class is-invalid khi có lỗi --}}
-                                                @error('startDate') {{-- Kiểm tra nếu có lỗi cho trường startDate --}}
+                                                    class="form-control @error('startDate') is-invalid @enderror">
+                                                {{-- Thêm class is-invalid khi có lỗi --}}
+                                                @error('startDate')
+                                                    {{-- Kiểm tra nếu có lỗi cho trường startDate --}}
                                                     <div class="invalid-feedback">
                                                         {{ $message }} {{-- Hiển thị thông báo lỗi --}}
                                                     </div>
@@ -1259,10 +1261,12 @@
                                             <div class="flex-grow-1">
                                                 <label for="endDate" class="form-label fw-bold mb-0">Ngày kết
                                                     thúc</label>
-                                                    <input type="date" id="endDate" name="endDate"
+                                                <input type="date" id="endDate" name="endDate"
                                                     value="{{ request('endDate', now()->toDateString()) }}"
-                                                    class="form-control @error('endDate') is-invalid @enderror"> {{-- Thêm class is-invalid khi có lỗi --}}
-                                                @error('endDate') {{-- Kiểm tra nếu có lỗi cho trường endDate --}}
+                                                    class="form-control @error('endDate') is-invalid @enderror">
+                                                {{-- Thêm class is-invalid khi có lỗi --}}
+                                                @error('endDate')
+                                                    {{-- Kiểm tra nếu có lỗi cho trường endDate --}}
                                                     <div class="invalid-feedback">
                                                         {{ $message }} {{-- Hiển thị thông báo lỗi --}}
                                                     </div>
@@ -1303,8 +1307,10 @@
                                                         <div class="d-flex justify-content-between mt-1">
                                                             <span class="badge bg-warning badge-custom">Đang Xử Lý:
                                                                 {{ $data['order']['countProcessingDetail'] }}</span>
-                                                            <span class="badge bg-info badge-custom">Đang Giao Hàng:
+                                                            <span class="badge bg-info badge-custom">Đang Giao:
                                                                 {{ $data['order']['countShipDetail'] }}</span>
+                                                            <span class="badge  badge-custom" style="background-color: #6c757d">Thất Bại:
+                                                                {{ $data['order']['countFalseDetail'] }}</span>
                                                             <span class="badge bg-success badge-custom">Thành Công:
                                                                 {{ $data['order']['countSuccessDetail'] }}</span>
                                                             <span class="badge bg-danger badge-custom">Hủy:

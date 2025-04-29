@@ -269,7 +269,7 @@
                                             <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#view"
                                                 data-id={{ $product['id'] }} data-slug="{{ $product['slug'] }}"
                                                 class="btn btn-animation btn-sm w-100">
-                                                Add To Cart
+                                                Thêm vào giỏ hàng
                                             </a>
                                         </td>
                                     @endforeach
@@ -282,7 +282,7 @@
                                             <button type="button"
                                                 class="btn btn-success w-100 d-flex align-items-center justify-content-center remove-compare-button"
                                                 data-product-id="{{ $product['id'] }}">
-                                                <i class="fa-solid fa-trash-can me-2"></i> Remove
+                                                <i class="fa-solid fa-trash-can me-2"></i> Xóa
                                             </button>
 
                                         </td>

@@ -38,6 +38,7 @@ class UserEmployeeService
         //1. Tổng quan đơn hàng
         $order = $this->orderRepo->countOrderDetailForEmployee($userId, $startDate, $endDate);
         $orderSuccess = $order['countSuccessDetail']; // số lg đơn thành công
+        $orderFalse = $order['countFalseDetail'];
         $orderCance = $order['countCancelDetail'];
         $orderProcessing = $order['countProcessingDetail'];
         $orderShip = $order['countShipDetail'];
@@ -46,11 +47,12 @@ class UserEmployeeService
 
         //2. Doanh số
         $successFullRevenue = $order['revenueSuccessDetail']; // doanh thu đơn thành công
+        $falseRevenue = $order['revenueFalseDetail'];
         $cancelledRevenue = $order['revenueCancelDetail']; // doanh thu hủy
         $processingRevenue = $order['revenueProcessingDetail']; // doanh thu đang xử lý
         $shipRevenue = $order['revenueShipDetail']; // doanh thu đang giao
         $refundRevenue = $order['revenueRefundDetail']; // doanh thu hoàn hàng
-        $totalRevenue = $this->orderRepo->getTotalRevenueForEmployee($userId, $startDate, $endDate) + $refundRevenue; //tổng doanh thu
+        $totalRevenue = $this->orderRepo->getTotalRevenueForEmployee($userId, $startDate, $endDate); //tổng doanh thu
 
 
         // dd($totalRevenue);
@@ -59,6 +61,7 @@ class UserEmployeeService
         $percentPriceSuccess = 0;
         if ($allOrders > 0) { // Sử dụng $allOrders từ countOrderDetailForEmployee
             $percentCountSuccess = round(($orderSuccess / $allOrders) * 100, 2);
+            $percentCountFalse = round(($orderFalse / $allOrders) * 100, 2);
             $percentCountCancel = round($order['countCancelDetail'] / $allOrders * 100, 2);
             $percentCountProcessing = round($order['countProcessingDetail'] / $allOrders * 100, 2);
             $percentCountShip = round($order['countShipDetail'] / $allOrders * 100, 2);
@@ -88,10 +91,17 @@ class UserEmployeeService
                 'badge_class' => 'bg-info',
             ],
             [
+                'type' => 'Giao hàng thất bại',
+                'quantity' => $orderFalse,
+                'revenue' => $falseRevenue,
+                'percentCount' => $percentCountFalse ?? 0,
+                'badge_class' => 'btn-secondary',
+            ],
+            [
                 'type' => 'Đã hoàn thành',
                 'quantity' => $orderSuccess,
                 'revenue' => $successFullRevenue,
-                'percentCount' => $percentCountSuccess,
+                'percentCount' => $percentCountSuccess ?? 0,
                 'badge_class' => 'bg-success',
             ],
             [
@@ -114,6 +124,7 @@ class UserEmployeeService
         // 4. Phương thức thanh toán
 
         $paymentMethods = $this->orderRepo->getPaymentMethodForEmployee($userId, $startDate, $endDate);
+        // dd($paymentMethods);
         $paymentMethodData = [];
         if ($allOrders > 0 && $totalRevenue > 0) { // Sử dụng $allOrders từ countOrderDetailForEmployee
             foreach ($paymentMethods as $payment) {
