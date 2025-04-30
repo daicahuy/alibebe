@@ -179,7 +179,7 @@ class Product extends Model
                 'products.thumbnail',
                 'products.views'
             )
-            ->orderByDesc('products.updated_at')
+            ->orderByDesc('products.View')
             ->limit(10);
     }
 
