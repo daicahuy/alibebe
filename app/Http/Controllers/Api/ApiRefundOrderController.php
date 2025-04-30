@@ -6,6 +6,7 @@ use App\Enums\NotificationType;
 use App\Enums\UserRoleType;
 use App\Events\BankInfoChanged;
 use App\Events\BankInfoChangedForAll;
+use App\Events\ChangeConfirmAdmin;
 use App\Events\OrderCustomer;
 use App\Events\OrderRefundCustomer;
 use App\Events\OrderRefundPendingCountUpdated;
@@ -319,20 +320,20 @@ class ApiRefundOrderController extends Controller
 
             $message = "Khách hàng yêu cầu hoàn đơn {$order->code} (tổng {$orderRefund->total_amount}đ).";
 
-            $admins = User::whereIn('role', [1,2])->get();
+            $admins = User::whereIn('role', [1, 2])->get();
             foreach ($admins as $admin) {
                 Notification::create([
-                    'user_id'   => $admin->id,
-                    'message'   => $message,
-                    'read'      => false,
-                    'type'      => NotificationType::Refund,
+                    'user_id' => $admin->id,
+                    'message' => $message,
+                    'read' => false,
+                    'type' => NotificationType::Refund,
                     // 'order_id'  => $order->id,
                     'refund_id' => $orderRefund->id,
                 ]);
             }
 
 
-            event(new OrderRefundCustomer($orderRefund , $message));
+            event(new OrderRefundCustomer($orderRefund, $message));
             event(new RefundOrderCreate($orderRefund));
             event(new OrderRefundPendingCountUpdated());
 
@@ -481,15 +482,16 @@ class ApiRefundOrderController extends Controller
         try {
             $idOrderRefund = $request->input('id_order_refund');
             $status = $request->input('status');
+            $user_handle = $request->input('user_handle');
 
             Refund::where('id', $idOrderRefund)->update(["confirm_order_with_admin" => $status]);
 
-            $refund = Refund::with('order','user')->find($idOrderRefund);
+            $refund = Refund::with('order', 'user')->find($idOrderRefund);
 
-            $admins = User::where('role',UserRoleType::ADMIN)->get();
+            $admins = User::where('role', UserRoleType::ADMIN)->get();
             $message = "Yêu cầu xác nhận hoàn tiền đơn {$refund->order->code}";
 
-            foreach($admins as $admin) {
+            foreach ($admins as $admin) {
                 Notification::create([
                     'user_id' => $admin->id,
                     'message' => $message,
@@ -601,11 +603,11 @@ class ApiRefundOrderController extends Controller
                 if ($refund->user_handle) {
                     // Gửi thông báo cho nhân viên xử lý
                     Notification::create([
-                        'user_id'   => $refund->user_handle,
-                        'message'   => $message,
-                        'read'      => false,
-                        'type'      => NotificationType::Bank,
-                        'order_id'  => $refund->order_id,
+                        'user_id' => $refund->user_handle,
+                        'message' => $message,
+                        'read' => false,
+                        'type' => NotificationType::Bank,
+                        'order_id' => $refund->order_id,
                         'refund_id' => $refund->id,
                     ]);
 
@@ -684,7 +686,7 @@ class ApiRefundOrderController extends Controller
             $action = $request->get('action');
 
             $admins = User::where('role', UserRoleType::ADMIN)
-            ->get(['id','fullname']);
+                ->get(['id', 'fullname']);
 
 
             $status = $action === 'accept' ? 1 : 0;
@@ -699,16 +701,18 @@ class ApiRefundOrderController extends Controller
                 ? "Admin đã đồng ý yêu cầu hoàn tiền đơn hàng {$refund->order->code}."
                 : "Admin đã từ chối yêu cầu hoàn tiền đơn hàng {$refund->order->code}.";
 
-                foreach ($admins as $admin) {
-                    Notification::create([
-                        'user_id' => $admin->id,
-                        'message' => $message,
-                        'read' => false,
-                        'type' => NotificationType::Confirm,
-                        'order_id' => $refund->order->id,
-                        'refund_id' => $refund->id,
-                    ]);
-                }
+            foreach ($admins as $admin) {
+                Notification::create([
+                    'user_id' => $admin->id,
+                    'message' => $message,
+                    'read' => false,
+                    'type' => NotificationType::Confirm,
+                    'order_id' => $refund->order->id,
+                    'refund_id' => $refund->id,
+                ]);
+            }
+
+            event(new ChangeConfirmAdmin($idOrderRefund));
 
             return response()->json([
                 'status' => Response::HTTP_OK,

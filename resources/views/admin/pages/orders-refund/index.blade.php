@@ -301,7 +301,19 @@
 
                 var channel = pusher.subscribe('order-refund-status.' + dataOrderRefund.id);
                 channel.bind('event-change-status-refund', function(data) {
-                    callApiGetDataOrderRefund()
+                    if (data.orderId == dataOrderRefund.id) {
+                        callApiGetDataOrderRefund(data.orderId)
+
+                    }
+                });
+
+
+                var channel2 = pusher.subscribe('order-refund-confirmed.' + dataOrderRefund.id);
+                channel2.bind('event-order-refund-confirmed', function(data) {
+                    if (data.orderId == dataOrderRefund.id) {
+
+                        callApiGetDataOrderRefund(data.orderId)
+                    }
                 });
                 console.log("dataOrderRefund", dataOrderRefund)
                 $('#button-box-footer').empty();
@@ -447,9 +459,11 @@
                                 type: 'POST',
                                 data: {
                                     id_order_refund: dataOrderRefund.id,
-                                    status: 2
+                                    status: 2,
+                                    user_handle: dataUser.id
                                 },
                                 success: function(response) {
+                                    console.log(response)
                                     if (response.status == 200) {
                                         Toastify({
                                             text: "Thao tác thành công",
@@ -1007,6 +1021,8 @@
                 }
             });
 
+
+
             function callApiGetDataOrderRefund(idOrderRefund) {
 
                 $.ajax({
@@ -1032,6 +1048,8 @@
 
 
             }
+
+
 
 
             function renderHtmlModalProductOrderRefund(listItems) {
