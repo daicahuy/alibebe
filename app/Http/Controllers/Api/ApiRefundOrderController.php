@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Enums\NotificationType;
+use App\Enums\UserRoleType;
 use App\Events\BankInfoChanged;
 use App\Events\BankInfoChangedForAll;
 use App\Events\OrderCustomer;
@@ -10,6 +11,7 @@ use App\Events\OrderRefundCustomer;
 use App\Events\OrderRefundPendingCountUpdated;
 use App\Events\RefundOrderCreate;
 use App\Events\RefundOrderUpdateStatus;
+use App\Events\SendConfirmOrderToAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\Order;
@@ -482,6 +484,23 @@ class ApiRefundOrderController extends Controller
 
             Refund::where('id', $idOrderRefund)->update(["confirm_order_with_admin" => $status]);
 
+            $refund = Refund::with('order','user')->find($idOrderRefund);
+
+            $admins = User::where('role',UserRoleType::ADMIN)->get();
+            $message = "Yêu cầu xác nhận hoàn tiền đơn {$refund->order->code}";
+
+            foreach($admins as $admin) {
+                Notification::create([
+                    'user_id' => $admin->id,
+                    'message' => $message,
+                    'read' => false,
+                    'type' => NotificationType::Confirm,
+                    'order_id' => $refund->order->id,
+                    'refund_id' => $refund->id,
+                ]);
+            }
+
+            event(new SendConfirmOrderToAdmin($refund, $message));
 
             return response()->json(["status" => Response::HTTP_OK, "idOrderRefund" => $idOrderRefund]);
 
@@ -651,5 +670,58 @@ class ApiRefundOrderController extends Controller
             ]);
         }
     }
+
+
+    public function confirmRefundByAdmin(Request $request)
+    {
+        $request->validate([
+            'id_order_refund' => 'required|integer|exists:refunds,id',
+            'action' => 'required|in:accept,reject',
+        ]);
+
+        try {
+            $idOrderRefund = $request->get('id_order_refund');
+            $action = $request->get('action');
+
+            $admins = User::where('role', UserRoleType::ADMIN)
+            ->get(['id','fullname']);
+
+
+            $status = $action === 'accept' ? 1 : 0;
+
+            Refund::where('id', $idOrderRefund)->update([
+                'confirm_order_with_admin' => $status
+            ]);
+
+            $refund = Refund::with('order', 'user')->find($idOrderRefund);
+
+            $message = $status
+                ? "Admin đã đồng ý yêu cầu hoàn tiền đơn hàng {$refund->order->code}."
+                : "Admin đã từ chối yêu cầu hoàn tiền đơn hàng {$refund->order->code}.";
+
+                foreach ($admins as $admin) {
+                    Notification::create([
+                        'user_id' => $admin->id,
+                        'message' => $message,
+                        'read' => false,
+                        'type' => NotificationType::Confirm,
+                        'order_id' => $refund->order->id,
+                        'refund_id' => $refund->id,
+                    ]);
+                }
+
+            return response()->json([
+                'status' => Response::HTTP_OK,
+                'message' => $message
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR
+            ]);
+        }
+    }
+
 
 }

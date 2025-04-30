@@ -61,3 +61,7 @@ Broadcast::channel('give-order-refund', function ($user) {
     return $user->role == UserRoleType::ADMIN
         || $user->role == UserRoleType::EMPLOYEE;
 });
+
+Broadcast::channel('send-confirm', function ($user) {
+    return $user->role == UserRoleType::ADMIN;
+});

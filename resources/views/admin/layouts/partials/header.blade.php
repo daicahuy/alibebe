@@ -165,6 +165,7 @@
         const bankInfoChannel = pusher.subscribe('admin-notifications-bank');
         const userBankInfoChannel = pusher.subscribe('private-user.' + window.currentUserId);
         const orderRefundChannel = pusher.subscribe('give-order-refund');
+        const confirmChannel = pusher.subscribe('private-send-confirm');
 
         // Channel bindings
         couponChannel.bind('event-coupon', data => handleNotification(data, 'coupon'));
@@ -173,6 +174,7 @@
         bankInfoChannel.bind('bank.info.changed.all', data => handleNotification(data, 'bank'));
         userBankInfoChannel.bind('bank.info.changed', data => handleNotification(data, 'bank'));
         orderRefundChannel.bind('give-order-customer', data => handleNotification(data, 'refund'));
+        confirmChannel.bind('send-confirm-admin', data => handleNotification(data, 'confirm'));
 
         function handleNotification(data, type) {
             try {
@@ -247,6 +249,12 @@
                     icon = 'ri-refund-2-line';
                     if (data.refund && data.refund.id) {
                         content += ` <small class="text-muted">(Đơn hoàn tiền: ${data.refund.id})</small>`;
+                    }
+                } else if (type === 'confirm') {
+                    icon = 'ri-refund-2-line';
+                    if (data.refund && data.refund.id) {
+                        content +=
+                            ` <small class="text-muted">(Có yêu cầu đồng ý hoàn tiền từ nhân viên)</small>`;
                     }
                 }
             } catch (error) {
@@ -336,7 +344,44 @@
                         `<div class="col-6"><small class="text-muted">SĐT:</small><p class="mb-1">${r.phone_number || 'N/A'}</p></div>` +
                         `<div class="col-12"><small class="text-muted">Lý do:</small><p class="mb-1">${r.reason || 'Không có lý do'}</p></div>` +
                         `</div></div>`;
+                } else if (type === 'confirm' && d.refund) {
+                    const r = d.refund;
+                    console.log(r);
+                    const confirmed = r.confirm_order_with_admin;
+                    let btnAccept =
+                        `<button class="btn btn-sm btn-success flex-fill me-1 btn-confirm" data-id="${r.id}">Chấp nhận</button>`;
+                    let btnReject =
+                        `<button class="btn btn-sm btn-danger  flex-fill ms-1 btn-reject" data-id="${r.id}">Từ chối</button>`;
+
+                    if (confirmed === 1) {
+                        btnAccept =
+                            `<button class="btn btn-sm btn-success flex-fill me-1" disabled>Đã chấp nhận</button>`;
+                        btnReject =
+                            `<button class="btn btn-sm btn-danger flex-fill ms-1" disabled>Từ chối</button>`;
+                    } else if (confirmed === 0) {
+                        btnAccept =
+                            `<button class="btn btn-sm btn-success flex-fill me-1" disabled>Chấp nhận</button>`;
+                        btnReject =
+                            `<button class="btn btn-sm btn-danger flex-fill ms-1" disabled>Đã từ chối</button>`;
+                    }
+
+                    details = `
+                <div class="refund-details mt-2">
+                    <div class="row">
+                        <div class="col-6"><small class="text-muted">Mã đơn:</small><p class="mb-1 fw-bold">${r.order.code || 'N/A'}</p></div>
+                        <div class="col-6"><small class="text-muted">Số tiền hoàn:</small><p class="mb-1">${formatCurrency(r.total_amount)}</p></div>
+                        <div class="col-6"><small class="text-muted">SĐT:</small><p class="mb-1">${r.phone_number || 'N/A'}</p></div>
+                        <div class="col-12"><small class="text-muted">Lý do:</small><p class="mb-1">${r.reason || 'Không có lý do'}</p></div>
+                    </div>
+                </div>
+                <div class="mt-2 d-flex">
+                    ${btnAccept}
+                    ${btnReject}
+                </div>`;
                 }
+
+
+
             } catch (error) {
                 console.error("Error generating notification details:", error);
                 details =
@@ -386,6 +431,7 @@
             if (notification.type === 2) return 'system';
             if (notification.type === 3) return 'bank';
             if (notification.type === 4) return 'refund';
+            if (notification.type === 5) return 'confirm';
             return 'system'; // fallback
         }
 
@@ -516,13 +562,14 @@
         // Init
         loadNotifications();
         loadNotificationsOffcanvas(true);
-        $('#open-notification-offcanvas').on('click', function(e) {
-            e.preventDefault();
-            loadNotificationsOffcanvas(true);
-            new bootstrap.Offcanvas($('#notificationOffcanvas')[0], {
-                backdrop: false
-            }).show();
-        });
+        $('#open-notification-offcanvas').on('click',
+            function(e) {
+                e.preventDefault();
+                loadNotificationsOffcanvas(true);
+                new bootstrap.Offcanvas($('#notificationOffcanvas')[0], {
+                    backdrop: false
+                }).show();
+            });
         $(document).on('click', '.notification-item', function() {
             const id = $(this).data('id');
             if (id) markRead(id, $(this));
@@ -532,6 +579,44 @@
         $('#mark-all-read').on('click', function(e) {
             e.preventDefault();
             markAllAsRead();
+        });
+
+        $(document).on('click', '.btn-confirm, .btn-reject', function() {
+            const $btn = $(this);
+            const id = $btn.data('id');
+            const action = $btn.hasClass('btn-confirm') ? 'accept' : 'reject';
+            const url = '/api/admin/refund/confirm';
+
+            $btn.prop('disabled', true);
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    id_order_refund: id,
+                    action: action
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(res) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: res.message,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                    // Tự động ẩn hoặc cập nhật UI
+                    $btn.closest('.notification-item').remove();
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON?.message || 'Có lỗi, vui lòng thử lại.';
+                    Swal.fire('Lỗi', msg, 'error');
+                    $btn.prop('disabled', false);
+                }
+            });
         });
     });
 </script>

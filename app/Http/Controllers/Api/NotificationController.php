@@ -51,7 +51,7 @@ class NotificationController extends Controller
     {
         $notification = Notification::find($id);
 
-        $notification->update(['read' => true]);
+        $notification->update(['read' => 1]);
 
         return response()->json([
             'unread_count' => Notification::where('user_id', $notification->user_id)
