@@ -17,6 +17,7 @@ class Notification extends Model
         'order_id',
         'coupon_id',
         'refund_id',
+        'target_user_id'
     ];
 
     protected $casts = [

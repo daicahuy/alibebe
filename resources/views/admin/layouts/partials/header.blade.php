@@ -166,6 +166,7 @@
         const userBankInfoChannel = pusher.subscribe('private-user.' + window.currentUserId);
         const orderRefundChannel = pusher.subscribe('give-order-refund');
         const confirmChannel = pusher.subscribe('private-send-confirm');
+        const employeeChanel = pusher.subscribe('private-send-confirm-e.' + window.currentUserId);
 
         // Channel bindings
         couponChannel.bind('event-coupon', data => handleNotification(data, 'coupon'));
@@ -175,6 +176,7 @@
         userBankInfoChannel.bind('bank.info.changed', data => handleNotification(data, 'bank'));
         orderRefundChannel.bind('give-order-customer', data => handleNotification(data, 'refund'));
         confirmChannel.bind('send-confirm-admin', data => handleNotification(data, 'confirm'));
+        employeeChanel.bind('send-confirm-employee', data => handleNotification(data, 'confirm'));
 
         function handleNotification(data, type) {
             try {

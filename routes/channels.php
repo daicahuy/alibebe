@@ -65,3 +65,8 @@ Broadcast::channel('give-order-refund', function ($user) {
 Broadcast::channel('send-confirm', function ($user) {
     return $user->role == UserRoleType::ADMIN;
 });
+
+Broadcast::channel('send-confirm-e.{userId}', function ($user, $userId) {
+    // Chỉ user có ID khớp mới subscribe được
+    return (int)$user->id === (int)$userId;
+});
