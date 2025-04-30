@@ -167,19 +167,16 @@ class DashboardRepository extends BaseRepository
             $countOrderComplete = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
                 $query->whereIn('order_status_id', $statusIds);
             })
-            ->where('is_refund', 0)
             ->whereBetween('created_at', [$start, $end])->count();
         } else if ($IdEmployee != 0) {
             $countOrderComplete = Order::whereHas('orderStatuses', function ($query) use ($IdEmployee, $statusIds) {
                 $query->whereIn('order_status_id', $statusIds)->where('modified_by', $IdEmployee);
             }) 
-            ->where('is_refund', 0)
             ->whereBetween('created_at', [$start, $end])->count();
         } else {
             $countOrderComplete = Order::whereHas('orderStatuses', function ($query) use ($statusIds) {
                 $query->whereIn('order_status_id', $statusIds);
             })
-            ->where('is_refund', 0)
             ->whereDate('created_at', now()->toDateString())->count();
         }
         // dd($countOrderComplete);
@@ -460,7 +457,7 @@ class DashboardRepository extends BaseRepository
             ->join('orders as o', 'ot.order_id', '=', 'o.id')
             ->join('order_order_status as oos', 'o.id', '=', 'oos.order_id')
             ->join('order_statuses as os', 'oos.order_status_id', '=', 'os.id')
-            ->where('os.id', '=', 6) // Chỉ lấy các đơn hàng có trạng thái "Hoàn thành"
+            ->where('os.id', '=', 5) // Chỉ lấy các đơn hàng có trạng thái "Hoàn thành"
             ->where('o.is_refund', 0)
             ->whereBetween('o.created_at', [$start, $end])
             ->select(
@@ -479,7 +476,7 @@ class DashboardRepository extends BaseRepository
             ->join('orders as o', 'ot.order_id', '=', 'o.id')
             ->join('order_order_status as oos', 'o.id', '=', 'oos.order_id')
             ->join('order_statuses as os', 'oos.order_status_id', '=', 'os.id')
-            ->where('os.id', '=', 6) // Chỉ lấy các đơn hàng có trạng thái "Hoàn thành"
+            ->where('os.id', '=', 5) // Chỉ lấy các đơn hàng có trạng thái "Hoàn thành"
             ->where('o.is_refund', 0)
             ->whereDate('o.created_at', now()->toDateString())
             ->select(
@@ -745,17 +742,15 @@ class DashboardRepository extends BaseRepository
                 ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
 
                 ->whereBetween('orders.created_at', [$start, $end])
-                ->where('orders.is_refund', 0)
                 ->selectRaw("$selectFormat, order_statuses.id as order_status_id, COUNT(orders.id) as total_orders")
                 ->groupBy(DB::raw($groupBy), 'order_status_id')
                 ->orderBy(DB::raw($groupBy))
                 ->get();
         
-                $refund = DB::table('refunds')
-                ->join('orders', 'orders.id', '=', 'refunds.order_id')
-                ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
-                ->whereBetween('refunds.updated_at', [$start, $end])
-                ->selectRaw("$selectFormat, COUNT(refunds.id) as total_refunds")
+                $refund = DB::table('orders')
+                ->where('orders.is_refund',1)
+                ->whereBetween('orders.created_at', [$start, $end])
+                ->selectRaw("$selectFormat, COUNT(orders.id) as total_orders")
                 ->groupBy(DB::raw($groupBy))
                 ->orderBy(DB::raw($groupBy))
                 ->get();
@@ -784,18 +779,17 @@ class DashboardRepository extends BaseRepository
                 ->whereHas('orderStatuses', function ($query) use ($IdEmployee) {
                     $query->where('modified_by', $IdEmployee);
                 })
+                ->where('orders.is_refund',1)
                 ->whereBetween('orders.created_at', [$start, $end])
-                ->where('orders.is_refund', 0)
                 ->selectRaw("$selectFormat, order_statuses.id as order_status_id, COUNT(orders.id) as total_orders")
                 ->groupBy(DB::raw($groupBy), 'order_status_id')
                 ->orderBy(DB::raw($groupBy))
                 ->get();
-            $refund = DB::table('refunds')
-            ->join('orders', 'orders.id', '=', 'refunds.order_id')
+            $refund = DB::table('orders')
             ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
-                ->where('user_handle', $IdEmployee)
-                ->whereBetween('refunds.updated_at', [$start, $end])
-                ->selectRaw("$selectFormat, COUNT(refunds.id) as total_refunds")
+                ->where('order_order_status.modified_by', $IdEmployee)
+                ->whereBetween('orders.created_at', [$start, $end])
+                ->selectRaw("$selectFormat, COUNT(orders.id) as total_orders")
                 ->groupBy(DB::raw($groupBy))
                 ->orderBy(DB::raw($groupBy))
                 ->get();
@@ -806,17 +800,17 @@ class DashboardRepository extends BaseRepository
             $data = Order::join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
                 ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
                 ->whereDate('orders.created_at', now()->toDateString())
-                ->where('orders.is_refund', 0)
                 ->selectRaw('FLOOR(HOUR(orders.created_at) / 2) * 2 as time_label, order_statuses.id as order_status_id, COUNT(orders.id) as total_orders')
                 ->groupBy('time_label', 'order_status_id')
                 ->orderBy('time_label')
                 ->get();
-            $refund = DB::table('refunds')
-                ->whereDate('updated_at', now()->toDateString())
-                ->selectRaw('FLOOR(HOUR(refunds.created_at) / 2) * 2 as time_label, COUNT(refunds.id) as total_refunds')
-                ->groupBy('time_label')
-                ->orderBy('time_label')
-                ->get();
+                $refund = DB::table('orders')
+                ->where('orders.is_refund',1)
+                    ->whereDate('orders.created_at', now()->toDateString())
+                    ->selectRaw('FLOOR(HOUR(orders.created_at) / 2) * 2 as time_label, COUNT(orders.id) as total_orders')
+                    ->groupBy('time_label')
+                    ->orderBy('time_label')
+                    ->get();
             }
             // dd($data);
 
@@ -862,7 +856,7 @@ class DashboardRepository extends BaseRepository
             if (!isset($ordersByStatus['Hoàn hàng'][$key])) {
                 $ordersByStatus['Hoàn hàng'][$key] = 0;
             }
-            $ordersByStatus['Hoàn hàng'][$key] += $r->total_refunds;  // Cộng dồn số hoàn hàng
+            $ordersByStatus['Hoàn hàng'][$key] += $r->total_orders;  // Cộng dồn số hoàn hàng
         }
 
         return [
@@ -1330,7 +1324,7 @@ class DashboardRepository extends BaseRepository
             ->join('orders as o', 'ot.order_id', '=', 'o.id')
             ->join('order_order_status as oos', 'o.id', '=', 'oos.order_id')
             ->join('order_statuses as os', 'oos.order_status_id', '=', 'os.id')
-            ->where('os.id', '=', 6) // Chỉ lấy các đơn hàng có trạng thái "Hoàn thành"
+            ->where('os.id', '=', 5) // Chỉ lấy các đơn hàng có trạng thái "Hoàn thành"
             ->where('o.is_refund', 0)
             ->whereBetween('o.created_at', [$start, $end])
             ->select(
@@ -1349,7 +1343,7 @@ class DashboardRepository extends BaseRepository
             ->join('orders as o', 'ot.order_id', '=', 'o.id')
             ->join('order_order_status as oos', 'o.id', '=', 'oos.order_id')
             ->join('order_statuses as os', 'oos.order_status_id', '=', 'os.id')
-            ->where('os.id', '=', 6) // Chỉ lấy các đơn hàng có trạng thái "Hoàn thành"
+            ->where('os.id', '=', 5) // Chỉ lấy các đơn hàng có trạng thái "Hoàn thành"
             ->where('o.is_refund', 0)
             ->whereDate('o.created_at', now()->toDateString())
             ->select(
@@ -1568,12 +1562,11 @@ class DashboardRepository extends BaseRepository
                 ->groupBy(DB::raw($groupBy), 'order_status_id')
                 ->orderBy(DB::raw($groupBy))
                 ->get();
-            $refund = DB::table('refunds')
-                ->join('orders', 'refunds.order_id', '=', 'orders.id')
+            $refund = DB::table('orders')
                 ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
-                ->where('user_handle', $employee)
-                ->whereBetween('refunds.updated_at', [$start, $end])
-                ->selectRaw("$selectFormat, COUNT(refunds.id) as total_refunds")
+                ->where('order_order_status.modified_by', $employee)
+                ->whereBetween('orders.updated_at', [$start, $end])
+                ->selectRaw("$selectFormat, COUNT(orders.id) as total_orders")
                 ->groupBy(DB::raw($groupBy))
                 ->orderBy(DB::raw($groupBy))
                 ->get();
@@ -1592,15 +1585,16 @@ class DashboardRepository extends BaseRepository
                 ->groupBy('time_label', 'order_status_id')
                 ->orderBy('time_label')
                 ->get();
-            $refund = DB::table('refunds')
-                ->join('orders', 'refunds.order_id', '=', 'orders.id')
-                ->where('user_handle', $employee)
-                ->whereDate('refunds.updated_at', now()->toDateString())
-                ->selectRaw('FLOOR(HOUR(refunds.created_at) / 2) * 2 as time_label, COUNT(refunds.id) as total_refunds')
+            $refund = DB::table('orders')
+                ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
+                ->where('order_order_status.modified_by', $employee)
+                ->whereDate('orders.created_at', now()->toDateString())
+                ->selectRaw('FLOOR(HOUR(orders.created_at) / 2) * 2 as time_label, COUNT(orders.id) as total_orders')
                 ->groupBy('time_label')
                 ->orderBy('time_label')
                 ->get();
-                // dd( $refund );
+
+               
             
         }
 
@@ -1638,7 +1632,7 @@ class DashboardRepository extends BaseRepository
         }
         foreach ($refund as $r) {
             $key = ($diffInDays == 0) ? (int) $r->time_label : $r->time_label;
-            $ordersByStatus['Hoàn hàng'][$key] = $r->total_refunds;
+            $ordersByStatus['Hoàn hàng'][$key] = $r->total_orders;
         }
 
         return [

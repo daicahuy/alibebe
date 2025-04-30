@@ -153,7 +153,7 @@
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
-                                <h5>Hoàn hàng</h5>
+                                <h5>Xử lý đơn hoàn</h5>
                                 <h3>{{ $countOrderReturns ?? 0 }} đơn</h3>
                             </div>
                             <div class="icon-box"><i class="ri-store-3-line"></i></div>
