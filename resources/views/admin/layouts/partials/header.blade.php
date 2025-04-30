@@ -194,7 +194,9 @@
 
                 // Dropdown update
                 const $list = $('#notification-list');
-                $list.find('li.notification-item:last').before(renderNotificationItem(data, type));
+                const $header = $list.find('li').first();
+                $header.after(renderNotificationItem(data, type));
+
                 let items = $list.find('li.notification-item');
                 if (items.length > MAX_NOTIFICATION) items.last().remove();
 
