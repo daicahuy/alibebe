@@ -79,16 +79,16 @@
             <div class="row">
                 <div class="col-12">
                     <div class="breadcrumb-contain">
-                        <h2>Creamy Chocolate Cake</h2>
+                        <h2>{{ $detail->name }}</h2>
                         <nav>
                             <ol class="breadcrumb mb-0">
                                 <li class="breadcrumb-item">
-                                    <a href="index.html">
+                                    <a href="{{ route('index') }}">
                                         <i class="fa-solid fa-house"></i>
                                     </a>
                                 </li>
 
-                                <li class="breadcrumb-item active">Creamy Chocolate Cake</li>
+                                <li class="breadcrumb-item active">{{ $detail->name }}</li>
                             </ol>
                         </nav>
                     </div>
@@ -218,7 +218,7 @@
                                     style="display: none;" @endif>
                                     <div class="my-timer-product-title">
                                         <h4 class="my-timer-promotion-message" id="promotion-message">Nhanh lên! Khuyến
-                                            mạikết thúc vào</h4>
+                                            mại kết thúc vào</h4>
 
                                     </div>
                                     <ul>

@@ -24,7 +24,8 @@ class Refund extends Model
         'fail_reason',
         'img_fail_or_completed',
         'bank_account_status',
-        'is_send_money'
+        'is_send_money',
+        'user_handle'
     ];
 
     public function refundItems()
