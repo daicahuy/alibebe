@@ -30,11 +30,17 @@ class AddressService
     }
     public function createAddress()
     {
+        $userLogin = $this->accountRepository->findUserLogin();
+        $hasPhone  = !empty($userLogin->phone_number);
         // Kiểm tra xem người dùng đã có địa chỉ chưa
         $hasAddress = $this->userAddressRepository->countAddress() > 0;
 
         // Đặt rule cho field 'address'
         $addressRule = $hasAddress ? 'nullable|string' : 'required|string';
+
+        $phoneRule = $hasPhone
+            ? ['nullable', 'string', 'max:11', 'regex:/^[0-9]{10,11}$/']
+            : ['required', 'string', 'max:11', 'regex:/^[0-9]{10,11}$/'];
 
         request()->validate([
             'address' => $addressRule,
@@ -47,12 +53,7 @@ class AddressService
                 'string',
                 'max:100'
             ],
-            'phone_number' => [
-                'nullable',
-                'string',
-                'max:11',
-                'regex:/^[0-9]{10,11}$/'
-            ],
+            'phone_number' => $phoneRule,
             'is_default' => [
                 'nullable',
                 'integer',
@@ -224,7 +225,11 @@ class AddressService
             // Chuẩn bị dữ liệu cập nhật
             $is_default = request('is_default');
 
-            if ($is_default == 0 && $addressDefault->is_default) {
+            if (
+                $is_default == 0 &&
+                $addressDefault->is_default &&
+                $address->id === $addressDefault->id
+            ) {
                 return [
                     'status' => false,
                     'message' => 'Bạn Không Thể Tắt đi địa chỉ mặc định !'
