@@ -250,3 +250,5 @@ Route::prefix('user/{userId}')
     ->group(function () {
         Route::get('/products/{productId}/reviews', [UserController::class, 'detailReview'])->name('reviews');
     });
+
+Route::post('/admin/refund/confirm', [ApiRefundOrderController::class, 'confirmRefundByAdmin']);

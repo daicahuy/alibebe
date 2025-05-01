@@ -16,7 +16,7 @@ class NotificationController extends Controller
             $userId = request('user_id');
             return response()->json([
                 'notifications' => Notification::where('user_id', $userId)
-                    ->with('coupon', 'order' , 'targetUser')
+                    ->with('coupon', 'order' , 'targetUser', 'refund.user','refund.order')
                     ->latest('id')
                     ->paginate(5),
                 'unread_count' => Notification::where('user_id', $userId)
@@ -51,7 +51,7 @@ class NotificationController extends Controller
     {
         $notification = Notification::find($id);
 
-        $notification->update(['read' => true]);
+        $notification->update(['read' => 1]);
 
         return response()->json([
             'unread_count' => Notification::where('user_id', $notification->user_id)

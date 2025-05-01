@@ -44,6 +44,11 @@ class Refund extends Model
         return $this->belongsTo(Order::class);
     }
 
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'refund_id');
+    }
+
     public function handleUser()
     {
         return $this->belongsTo(User::class, 'user_handle', 'id');
