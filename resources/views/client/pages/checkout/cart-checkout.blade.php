@@ -120,7 +120,7 @@
                 <div class="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
                     <div>
                         <div class="mt-10 border-t border-gray-200 pt-10">
-                            <h2 class="text-lg font-medium text-gray-900">Shipping information</h2>
+                            <h2 class="text-lg font-medium text-gray-900">Thông tin vận chuyển</h2>
 
                             <div class="space-y-2">
                                 <div class="text-red-500 font-medium flex items-center">
