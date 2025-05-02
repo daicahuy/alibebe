@@ -174,7 +174,8 @@ class OrderController extends Controller
             $idStatus = $request->input("status_id");
             $user_id = $request->input("user_id");
             $note = $request->input("note");
-
+            $isPaid = $request->input('ispaid');
+            
             $order = Order::query()->where('id', $idOrder)->with('orderItems', 'orderStatuses')->first();
 
             DB::beginTransaction();
@@ -196,10 +197,14 @@ class OrderController extends Controller
                     }
                 }
                 $admins = User::where('role', 2)
-                ->orWhere('role', 1)
-                ->get();
+                    ->orWhere('role', 1)
+                    ->get();
 
-                $message = "Đơn Hàng {$order->code} đã bị hủy !";
+                    if ($isPaid == 1) {
+                        $message = "Đơn hàng {$order->code} đã bị hủy (thanh toán online). Vui lòng hoàn số tiền {$order->total_amount} đ cho khách.";
+                    } else {
+                        $message = "Đơn hàng {$order->code} đã bị hủy!";
+                    }
 
                 foreach ($admins as $admin) {
                     Notification::create([
@@ -279,9 +284,9 @@ class OrderController extends Controller
 
 
                 if ($response instanceof \Illuminate\Http\JsonResponse) {
-                        $admins = User::where('role', 2)
-                    ->orWhere('role', 1)
-                    ->get();
+                    $admins = User::where('role', 2)
+                        ->orWhere('role', 1)
+                        ->get();
 
                     $userCheckLocked = User::find($user_id);
 
@@ -462,6 +467,26 @@ class OrderController extends Controller
             $status = 1;
 
             Order::where("id", $orderId)->update(["is_refund_cancel" => $status, "img_send_refund_money" => $data['img_send_money']]);
+            return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $th->getMessage(),
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'data' => [],
+            ]);
+        }
+    }
+
+    public function changeStatusSendRefundMoney(Request $request)
+    {
+        try {
+            $data = $request->all();
+            $orderId = $data["order_id"];
+
+            $status = $data["status"];
+
+            Order::where("id", $orderId)->update(["is_refund_cancel" => $status]);
             return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
 
         } catch (\Throwable $th) {

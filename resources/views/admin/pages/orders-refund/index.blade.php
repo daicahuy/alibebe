@@ -1294,6 +1294,10 @@
                             $('#pagination').twbsPagination({
                                 totalPages: response.totalPages,
                                 visiblePages: 3,
+                                first: 'Đầu',
+                                last: 'Cuối',
+                                prev: 'Trước',
+                                next: 'Sau',
                                 startPage: currentPage, // Duy trì trang hiện tại
                                 onPageClick: function(event, page) {
                                     currentPage = page;
