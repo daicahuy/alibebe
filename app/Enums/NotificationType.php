@@ -14,4 +14,7 @@ final class NotificationType extends Enum
     const Coupon = 0;
     const Order = 1;
     const System = 2;
+    const Bank = 3;
+    const Refund = 4;
+    const Confirm = 5;
 }

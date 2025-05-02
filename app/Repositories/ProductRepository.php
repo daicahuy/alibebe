@@ -1239,6 +1239,13 @@ END');
         return $products;
     }
 
+    public function getProductsByIds(array $ids)
+    {
+         // Lấy các sản phẩm theo IDs.
+         // Đảm bảo chỉ lấy các sản phẩm CHƯA XÓA MỀM.
+         return $this->model->whereIn('id', $ids)->whereNull('deleted_at'); // Trả về Query Builder
+    }
+
     public function getProductsWithDetailsByIds(array $productIds, array $with = [])
     {
         return $this->model->with([

@@ -240,7 +240,7 @@ class UserRepository extends BaseRepository
     {
         return $this->model->with([
             'addresses' => function ($query) {
-                $query->select('id', 'user_id', 'address', 'is_default');
+                $query->select('id', 'user_id', 'address', 'is_default','phone_number');
             }
         ])->findOrFail($userId, $columns);
     }

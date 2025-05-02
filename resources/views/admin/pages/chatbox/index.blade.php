@@ -338,26 +338,43 @@
                 const channel = pusher.subscribe(channelName);
 
                 channel.bind('message.sent', function(data) {
+                    console.log('New message received:', data);
+                    
                     // Kiểm tra nếu tin nhắn mới đến từ khách hàng
                     if (data.message && data.sender && data.sender.role === 0) {
                         // Tìm phần tử chat item dựa trên chatSessionId
                         const chatItem = $(
                             `.chat-session-item[data-chat-session-id="${chatSessionId}"]`);
-                        const btn = chatItem.find('a.btn-primary');
-                        let badge = btn.find('.badge');
-
-                        if (badge.length > 0) {
-                            // Nếu badge đã tồn tại, tăng số đếm
-                            let count = parseInt(badge.text());
-                            badge.text(count + 1);
-                        } else {
-                            // Nếu chưa có badge, tạo mới hiển thị số 1
-                            btn.append(
-                                `<span class="badge bg-danger position-absolute top-0 start-100 translate-middle">1</span>`
-                            );
+                        
+                        if (chatItem.length > 0) {
+                            // Cập nhật badge trước
+                            const btn = chatItem.find('a.btn-primary');
+                            let badge = btn.find('.badge');
+    
+                            if (badge.length > 0) {
+                                // Nếu badge đã tồn tại, tăng số đếm
+                                let count = parseInt(badge.text());
+                                badge.text(count + 1);
+                            } else {
+                                // Nếu chưa có badge, tạo mới hiển thị số 1
+                                btn.append(
+                                    `<span class="badge bg-danger position-absolute top-0 start-100 translate-middle">1</span>`
+                                );
+                            }
+                            
+                            // Clone chatItem để tránh mất sự kiện đã đăng ký
+                            const chatItemClone = chatItem.clone(true);
+                            
+                            // Xóa phần tử cũ và đưa bản sao lên đầu danh sách
+                            chatItem.remove();
+                            userListContent.prepend(chatItemClone);
+                            
+                            // Làm nổi bật phần tử mới thêm bằng animation đơn giản
+                            chatItemClone.css('background-color', '#f3f9ff');
+                            setTimeout(function() {
+                                chatItemClone.css('background-color', '');
+                            }, 1000);
                         }
-
-                        chatItem.prependTo($('.user-list-content'));
                     }
                 });
             });

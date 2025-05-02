@@ -127,7 +127,7 @@
                     <div class="col-xl-3 col-sm-6">
                         <div class="card-tiles">
                             <div>
-                                <h5>Hoàn hàng</h5>
+                                <h5>Xử lý đơn hoàn</h5>
                                 <h3>{{ $countOrderReturns ?? 0 }} đơn</h3>
                             </div>
                             <div class="icon-box"><i class="ri-store-3-line"></i></div>
@@ -179,7 +179,7 @@
                                     <div class="card-body">
                                         <div class="title-header">
                                             <div class="w-100 d-flex align-items-center justify-content-between">
-                                                <h5>{{ __('message.top_customers') }}</h5>
+                                                <h5>Top Khách Hàng Rank Cao</h5>
 
                                             </div>
                                         </div>
@@ -236,6 +236,9 @@
 
                                             </div>
                                         </div>
+                                        @if ($topProduct->isEmpty())
+                                        <h4>Chưa có sản phẩm được bán</h4>
+                                        @else
                                         <div class="top-selling-table datatable-wrapper table-responsive">
                                             <table>
                                                 @foreach ($topProduct as $data)
@@ -253,6 +256,7 @@
                                                 @endforeach
                                             </table>
                                         </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

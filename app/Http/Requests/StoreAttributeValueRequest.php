@@ -32,6 +32,7 @@ class StoreAttributeValueRequest extends FormRequest
         return [
             'value.required' => 'Vui lòng nhập tên thuộc tính.',
             'value.unique' => 'Tên thuộc tính đã tồn tại.',
+            'value.max' => 'Tên thuộc tính không được vượt quá 255 ký tự.',
         ];
         
     }

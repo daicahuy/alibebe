@@ -16,6 +16,8 @@ class Notification extends Model
         'read',
         'order_id',
         'coupon_id',
+        'refund_id',
+        'target_user_id'
     ];
 
     protected $casts = [
@@ -38,6 +40,11 @@ class Notification extends Model
     public function coupon()
     {
         return $this->belongsTo(Coupon::class);
+    }
+
+    public function refund()
+    {
+        return $this->belongsTo(Refund::class, 'refund_id');
     }
 
     // Scopes hữu ích

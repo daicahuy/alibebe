@@ -26,6 +26,7 @@ return new class extends Migration {
             $table->text('reason_image');
             $table->text('admin_reason')->nullable();
             $table->boolean('is_send_money')->default(null)->nullable();
+            $table->boolean('confirm_order_with_admin')->default(null)->nullable();
 
             $table->enum('status', [
                 'pending',

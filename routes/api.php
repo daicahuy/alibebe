@@ -126,6 +126,7 @@ Route::prefix('/refund-orders')
         Route::post('/getOrdersRefundByUser', [ApiRefundOrderController::class, 'getOrdersRefundByUser'])->name('getOrdersRefundByUser');
         Route::post('/sentConfirmBank', [ApiRefundOrderController::class, 'sentConfirmBank'])->name('sentConfirmBank');
         Route::post('/confirmBank', [ApiRefundOrderController::class, 'confirmBank'])->name('confirmBank');
+        Route::post('/sentConfirmOrderWithAdmin', [ApiRefundOrderController::class, 'sentConfirmOrderWithAdmin'])->name('sentConfirmOrderWithAdmin');
         Route::post('/userCheckReceivedBank', [ApiRefundOrderController::class, 'userCheckReceivedBank'])->name('userCheckReceivedBank');
     });
 
@@ -249,3 +250,5 @@ Route::prefix('user/{userId}')
     ->group(function () {
         Route::get('/products/{productId}/reviews', [UserController::class, 'detailReview'])->name('reviews');
     });
+
+Route::post('/admin/refund/confirm', [ApiRefundOrderController::class, 'confirmRefundByAdmin']);

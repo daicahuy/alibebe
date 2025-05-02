@@ -14,17 +14,17 @@ class UserAddressSeeder extends Seeder
      */
     public function run(): void
     {
-        $userIds = User::query()->where('id', '<>', 1)->pluck('id')->toArray();
+        $users = User::query()->where('id', '<>', 1)->get();
         $batchSize = 20;
         $insertData = [];
 
-        foreach ($userIds as $index => $userId) {
-            for ($i = 0; $i < rand(2, 4); $i++) {
+        foreach ($users as $index => $user) {
+            for ($i = 0; $i < rand(1, 2); $i++) {
                 $insertData[] = [
-                    'user_id' => $userId,
+                    'user_id' => $user->id,
                     'address' => fake()->address(),  
-                    'phone_number' => fake()->numerify('09########'),  
-                    'fullname' => fake()->name(),  
+                    'phone_number' => $user->phone_number,  
+                    'fullname' => $user->fullname,  
                     'is_default' => $i === 0,
                     'created_at' => now(),
                     'updated_at' => now(),
