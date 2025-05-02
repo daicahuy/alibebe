@@ -614,7 +614,7 @@
                 let productId = row.data("product-id") || null;
                 let productVariantId = row.data("product-variant-id") || null;
                 let productName = row.find("h5").text().trim();
-                let nameVariant = row.find(".selected-variation").text().trim() || null;
+                let nameVariant = row.find(".selected-variation").text().replace(/\s+/g, ' ').trim() || null;
                 let imageUrl = row.find(".drop-image img").attr("src") || "";
 
                 if (imageUrl.startsWith("http")) {
@@ -717,23 +717,23 @@
                                 image.style.marginRight = '5px';
                                 image.style.verticalAlign = 'middle';
 
-                                const link = document.createElement('a');
-                                link.href = `/products/${product.slug}`;
-                                link.textContent = product.name;
-                                link.style.textDecoration = 'none';
-                                link.style.color = '#333';
+                                // const link = document.createElement('a');
+                                // link.href = `/products/${product.slug}`;
+                                // link.textContent = product.name;
+                                // link.style.textDecoration = 'none';
+                                // link.style.color = '#333';
 
                                 listItem.appendChild(image);
                                 listItem.appendChild(link);
 
-                                listItem.addEventListener('click', function(event) {
-                                    event.preventDefault();
-                                    const selectedProductName = product
-                                        .name; // Get the name of the clicked product
-                                    localStorage.setItem('selectedSuggestionName',
-                                        selectedProductName); // Store the name
-                                    window.location.href = link.href;
-                                });
+                                // listItem.addEventListener('click', function(event) {
+                                //     event.preventDefault();
+                                //     const selectedProductName = product
+                                //         .name; // Get the name of the clicked product
+                                //     localStorage.setItem('selectedSuggestionName',
+                                //         selectedProductName); // Store the name
+                                //     window.location.href = link.href;
+                                // });
 
                                 suggestionsList.appendChild(listItem);
                             });

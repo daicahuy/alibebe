@@ -510,115 +510,120 @@ class ProductService
     // Xóa mềm nhiều
     public function bulkTrash($productIds)
     {
-        try { // try ngoài cùng
+        try { // try ngoài cùng - Bắt các lỗi tổng quan
 
-            if (!$productIds || !is_array($productIds) || empty($productIds)) {
-                return ['success' => false, 'message' => 'Vui lòng chọn ít nhất một sản phẩm'];
+            // 1. Kiểm tra đầu vào: Đảm bảo $productIds là mảng và không rỗng.
+            if (!is_array($productIds) || empty($productIds)) {
+                Log::warning(__METHOD__ . " - Input validation failed", ['product_ids' => $productIds]);
+                return ['success' => false, 'message' => 'Vui lòng chọn ít nhất một sản phẩm.'];
             }
 
-            $successIds = [];
-            $failedIds = [];
-            $orderItemIds = [];
-            $variantProductIds = [];
+            // 2. KIỂM TRA ĐIỀU KIỆN DỪNG: Kiểm tra xem có bất kỳ sản phẩm nào có đơn hàng liên quan không.
+            // LẤY DỮ LIỆU: Lấy sản phẩm với relationship orderItems
 
-            $products = $this->productRepository->getBulkTrash($productIds);
+            $productsToCheckForOrders = $this->productRepository->getBulkTrash($productIds); // Đảm bảo method này chỉ lấy sản phẩm CHƯA XÓA MỀM và tải orderItems
 
-            $valiProducts = [];
-            foreach ($products as $key => $product) {
+            $productsWithOrdersIds = [];
+            foreach ($productsToCheckForOrders as $product) {
+                // KIỂM TRA: Nếu relationship orderItems không rỗng
                 if ($product->orderItems->isNotEmpty()) {
-                    $orderItemIds[] = $product->id;
-                } else {
-                    $valiProducts[] = $product->id;
+                    $productsWithOrdersIds[] = $product->id;
                 }
-                // if ($product->type == 1) {
-                //     $variantProductIds[] = $product->id;
-                // }
             }
 
+
+            // NẾU CÓ SẢN PHẨM CÓ ĐƠN HÀNG LIÊN QUAN, DỪNG TOÀN BỘ THAO TÁC XÓA MỀM.
+            if (!empty($productsWithOrdersIds)) {
+                // Sửa: Thông báo chung, KHÔNG liệt kê IDs trong nội dung thông báo
+                $message = "Không thể chuyển một số sản phẩm vào thùng rác vì đang có đơn hàng liên quan. Vui lòng xử lý đơn hàng trước khi xóa.";
+                Log::warning(__METHOD__ . " - Some products have related orders, stopping bulk trash.", ['product_ids_with_orders' => $productsWithOrdersIds]);
+
+                return [
+                    'success' => false,
+                    'message' => $message, // Nội dung thông báo không chứa IDs cụ thể
+                    'failed_ids' => $productsWithOrdersIds // IDs vẫn được trả về trong failed_ids
+                ];
+            }
+            // === KẾT THÚC PHẦN DỪNG ===
+
+
+            // 3. Nếu không có sản phẩm nào có đơn hàng liên quan, tiến hành xóa mềm c
             DB::beginTransaction();
-            try { // try bên trong - transaction
-
-                if (!empty($valiProducts)) {
-                    $queryBuilder = $this->productRepository->getwithTrashIds($valiProducts); // Lấy Query Builder 
-
-                    $deleteCount = $queryBuilder->delete(); //  soft delete
-                    $queryBuilder->update(['is_active' => 0]); // Cập nhật is_active (sử dụng lại Query Builder)
+            try { // try bên trong - Bắt các lỗi xảy ra TRONG QUÁ TRÌNH thực hiện transaction database.
 
 
-                    if ($deleteCount !== count($valiProducts)) {
+                $queryBuilderForProducts = $this->productRepository->getProductsByIds($productIds); // Sử dụng $productIds ban đầu
 
-                        Log::warning(
-                            __METHOD__ . " - Số lượng product xóa không khớp ",
-                            [
-                                'expected' => count($valiProducts),
-                                'actual' => $deleteCount,
-                                'valid_product_ids' => $valiProducts,
-                            ]
-                        );
-                        $successIds = []; // Coi như tất cả failed để đơn giản hóa
-                        $failedIds = $valiProducts;
-                    } else {
-                        $successIds = $valiProducts;
-                        $failedIds = [];
-                    }
 
-                    // XÓa mềm biến thể 
-                    // if (!empty($variantProductIds)) {
-                    //     $variantQueryBuilder = $this->productRepository->getwithTrashIds($variantProductIds)
-                    //         ->where('type', 1)
-                    //         ->with('productVariants');
+                // Cập nhật is_active về 0 (NGAY TRƯỚC KHI XÓA MỀM).
+                $updateCount = $queryBuilderForProducts->update(['is_active' => 0]);
 
-                    //     $variantProducts = $variantQueryBuilder->get();
+                // LẤY LẠI QUERY BUILDER:
 
-                    //     $totalVariantDeleteCount = 0;
-                    //     foreach ($variantProducts as $mainProduct) {
-                    //         $variantDeleteCount = $mainProduct->productVariants()->delete(); //xóa biến thể
-                    //         $totalVariantDeleteCount += $variantDeleteCount;
-                    //     }
-                    //     Log::info(__METHOD__ . ' Xóa mềm ' . $totalVariantDeleteCount . 'biến thể của ' . count($variantProductIds));
-                    // }
+                $queryBuilderAfterUpdate = $this->productRepository->getProductsByIds($productIds); // Sử dụng $productIds ban đầu
+
+
+                // THAO TÁC DATABASE: Xóa mềm (SAU KHI CẬP NHẬT).
+                $deleteCount = $queryBuilderAfterUpdate->delete();
+                // === KẾT THÚC SỬA ĐỔI THỨ TỰ ===
+
+
+                // 4. Kiểm tra 
+                if ($updateCount === count($productIds) && $deleteCount === count($productIds)) {
+                    // Nếu số lượng khớp, toàn bộ thao tác thành công.
+                    DB::commit();
+
+                    $message = "Đã chuyển vào thùng rác thành công cho " . count($productIds) . " sản phẩm.";
+                    Log::info(__METHOD__ . " - Bulk trash successful.", ['product_ids' => $productIds]);
+
+                    return [
+                        'success' => true,
+                        'message' => $message,
+                        'failed_ids' => [] // Không có sản phẩm nào thất bại
+                    ];
+                } else {
+                    // Nếu số lượng không khớp, toàn bộ thao tác thất bại.
+                    DB::rollBack();
+
+                    $message = "Đã xảy ra lỗi khi chuyển sản phẩm vào thùng rác. Vui lòng thử lại.";
+                    Log::warning(
+                        __METHOD__ . " - Số lượng product xóa/cập nhật không khớp. Rollback.",
+                        [
+                            'product_ids' => $productIds,
+                            'delete_count' => $deleteCount,
+                            'update_count' => $updateCount,
+                        ]
+                    );
+
+                    return [
+                        'success' => false,
+                        'message' => $message,
+                        'failed_ids' => $productIds
+                    ];
                 }
-                DB::commit();
 
             } catch (\Throwable $th) {
-                DB::rollBack();
-                log::error(
+
+                DB::rollBack(); // ROLLBACK transaction database.
+
+                $message = "Đã xảy ra lỗi hệ thống trong quá trình chuyển sản phẩm vào thùng rác. Vui lòng thử lại sau.";
+                Log::error(
                     __CLASS__ . '--@--' . __FUNCTION__,
-                    ['error' => $th->getMessage()]
+                    ['error' => $th->getMessage(), 'product_ids' => $productIds]
                 );
-                return ['success' => false, 'message' => 'Đã xảy ra lỗi, vui lòng thử lại sau'];
+
+                return [
+                    'success' => false,
+                    'message' => $message, // Nội dung thông báo không chứa IDs cụ thể
+                    'failed_ids' => $productIds // Toàn bộ danh sách ban đầu được coi là thất bại (IDs vẫn được trả về)
+                ];
             }
-
-
-            $message = '';
-            $status = true;
-
-
-            if (!empty($failedIds)) {
-                $message .= "Đã có lỗi xảy ra với các ID: " . implode(", ", $failedIds) . '.' . PHP_EOL;
-                $status = false;
-            }
-
-
-            if (!empty($orderItemIds)) {
-                $message .= "Các sản phẩm sau <b style='color:red;'>KHÔNG THỂ</b> chuyển vào thùng rác vì đang có đơn hàng liên quan ID: <b style='color:red;'> " . implode(", ", $orderItemIds) . '</b>.<br/>' . PHP_EOL;
-                $status = false;
-            }
-
-            if (!empty($successIds)) {
-                $message .= "Đã chuyển vào thùng rác thành công  ID: " . implode(", ", $successIds) . '.';
-            }
-
-
-            return [
-                'success' => $status,
-                'message' => nl2br($message), // Chuyển đổi newline thành <br>
-                'failed_ids' => $failedIds
-            ];
 
         } catch (\Throwable $th) {
-            Log::error(__METHOD__, ['error' => $th->getMessage(), 'product_ids' => $productIds]);
-            return ['success' => false, 'message' => 'Đã có lỗi tổng quan. Vui lòng thử lại sau.'];
+
+            // Log lỗi và trả về thông báo lỗi tổng quan.
+            Log::error(__METHOD__ . " - Lỗi tổng quan.", ['error' => $th->getMessage(), 'product_ids' => $productIds]);
+            return ['success' => false, 'message' => 'Đã có lỗi tổng quan khi xử lý danh sách sản phẩm. Vui lòng thử lại sau.'];
         }
     }
     // Khôi phục nhiều 

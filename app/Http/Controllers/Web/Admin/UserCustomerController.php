@@ -41,6 +41,15 @@ class UserCustomerController extends Controller
     public function detail(Request $request, User $user)
     {
 
+        $request->validate([
+            'startDate' => 'nullable|date|before_or_equal:today', // Ngày bắt đầu: có thể rỗng, là ngày, không sau ngày hiện tại
+            'endDate' => 'nullable|date|after_or_equal:startDate|before_or_equal:today',
+        ], [
+            'startDate.before_or_equal' => 'Ngày bắt đầu không được chọn ngày trong tương lai.',
+            'endDate.after_or_equal' => 'Ngày kết thúc phải sau hoặc bằng Ngày bắt đầu.',
+            'endDate.before_or_equal' => 'Ngày kết thúc không được chọn ngày trong tương lai.',
+        ]);
+
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
 
@@ -186,7 +195,7 @@ class UserCustomerController extends Controller
         ]);
     }
 
-    public function lockUserSpam( User $user)
+    public function lockUserSpam(User $user)
     {
         $this->userService->UpdateUserCustomer($user->id, [
             'status' => UserStatusType::ACTIVE,

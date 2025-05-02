@@ -46,7 +46,7 @@ class CategoryService
     }
 
 
-    
+
 
 
 
@@ -187,7 +187,7 @@ class CategoryService
         // dd($perPage);
         try {
 
-            
+
             // dd($listHidden);
 
             $listHidden = $this->categoryRepo->getHidden($perPage, $keyword);
@@ -500,23 +500,18 @@ class CategoryService
             $failedIds = [];
             $childrenIds = [];
             $productsIds = [];
-
+            $hasError = false;
             // Lấy danh sách cate + relation theo Ids
             $categoies = $this->categoryRepo->getBulkTrash($categoryIds);
 
-            // check lỗi
-            $valiCate = [];
-
+            // check lỗi và ngắt vòng lặp nếu có lỗi
             foreach ($categoies as $category) {
-
-                if ($category->categories->isNotEmpty()) {
-                    $childrenIds[] = $category->id;
-
-                } elseif ($category->products->isNotEmpty()) {
-                    $productsIds[] = $category->id;
-
+                if ($category->categories->isNotEmpty() || $category->products->isNotEmpty()) {
+                    $failedIds[] = $category->id;
+                    $hasError = true;
+                    break; // *** THAY ĐỔI: Ngắt vòng lặp ngay khi có lỗi ***
                 } else {
-                    $valiCate[] = $category->id; //những tak ko lỗi.
+                    $successIds[] = $category->id;
                 }
             }
 
@@ -524,41 +519,42 @@ class CategoryService
 
             try {
 
-                if (!empty($valiCate)) {
+                if (!$hasError && !empty($successIds)) {
 
                     // Số lượng xóa success ko khớp với số lượng validate check
 
-                    $deleteCount = $this->categoryRepo->getwithTrashIds($valiCate)->delete();
+                    $deleteCount = $this->categoryRepo->getwithTrashIds($successIds)->delete();
 
                     // chuyển những tak đã xóa mềm thành false
-                    $this->categoryRepo->getwithTrashIds($valiCate)->update(['is_active' => 0]);
+                    $this->categoryRepo->getwithTrashIds($successIds)->update(['is_active' => 0]);
 
                     // $activeFalse
 
-                    if ($deleteCount !== count($valiCate)) {
+                    if ($deleteCount !== count($successIds)) {
 
                         // lấy lại các id đã xóa mềm
 
-                        $deletedids = $this->categoryRepo->getwithTrashIds($valiCate)
+                        $deletedids = $this->categoryRepo->getwithTrashIds($successIds)
                             ->pluck('id') //chỉ lấy id
                             ->toArray(); //chuyển collection thành mảng
 
                         $successIds = $deletedids;
 
-                        $failedIds = array_diff($valiCate, $successIds); // Lấy ra các phần tử không trùng nhau
+                        $failedIds = array_merge($failedIds, array_diff($successIds, $deletedids));
                         Log::warning(
                             __METHOD__ . " - Số lượng category xóa không khớp",
                             [
-                                'expected' => count($valiCate),
+                                'expected' => count($successIds),
                                 'actual' => $deleteCount,
-                                'valid_category_ids' => $valiCate,
+                                'valid_category_ids' => $successIds,
                                 'success_ids' => $successIds,
                             ]
                         );
 
-                    } else {
-                        $successIds = $valiCate; //chiều thuận
                     }
+                    // else {
+                    //     $successIds = $valiCate; //chiều thuận
+                    // }
                 }
 
                 DB::commit();
@@ -579,27 +575,14 @@ class CategoryService
             $message = '';
             $status = true;
 
-
-            //    chuyển mảng => chuỗi,
-            if (!empty($failedIds)) {
-                $message .= "Đã có lỗi xảy ra với các ID: " . implode(", ", $failedIds) . '.' . PHP_EOL;
+            if ($hasError) {
+                $message = 'Một hoặc nhiều danh mục không thể xóa mềm do chứa SẢN PHẨM hoặc DANH MỤC CON.';
                 $status = false;
-            }
-
-            if (!empty($childrenIds)) {
-                $message .= "Có danh mục ở ID: " . implode(", ", $childrenIds) . '.' . PHP_EOL;
-                $status = false;
-
-            }
-
-            if (!empty($productsIds)) {
-                $message .= "Có sản phẩm ở ID: " . implode(", ", $productsIds) . '.' . PHP_EOL;
-                $status = false;
-
-            }
-
-            if (!empty($successIds)) {
-                $message .= "Đã chuyển vào thùng rác thành công  ID: " . implode(", ", $successIds) . '.';
+            } else if (!empty($successIds)) {
+                $message = "Đã xóa mềm thành công.";
+            } else {
+                $message = 'Không có danh mục nào được chuyển vào thùng rác.';
+                $status = false; // Hoặc true nếu bạn muốn báo thành công (không có gì để xóa hợp lệ)
             }
 
 
@@ -619,7 +602,7 @@ class CategoryService
 
 
     }
-   
+
 
 
 

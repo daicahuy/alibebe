@@ -161,6 +161,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @if ($products->isEmpty())
+                                            <tr>
+                                                <td colspan="11" class="text-center text-muted">Không có sản phẩm thỏa mãn
+                                                    điều kiện.</td>
+                                            </tr>
+                                        @endif
                                         @foreach ($products as $product)
                                             <tr>
                                                 <td class="sm-width">
@@ -280,29 +286,35 @@
                                 <div class="border">
                                     <div class="form-group align-items-center g-3 p-3 row">
                                         <div class="col-7">
-                                            <label class="form-label-title mb-0 w-100" style="text-align: left;" for="icon">
+                                            <label class="form-label-title mb-0 w-100" style="text-align: left;"
+                                                for="icon">
                                                 Tên sản phẩm:
                                             </label>
                                             <div>
-                                                <input type="text" name="" class="form-control disabled" value="Tủ lạnh Casper 95 lít RO-95PG" disabled>
+                                                <input type="text" name="" class="form-control disabled"
+                                                    value="Tủ lạnh Casper 95 lít RO-95PG" disabled>
                                                 <div class="invalid-feedback text-start"></div>
                                             </div>
                                         </div>
                                         <div class="col-3">
-                                            <label class="form-label-title mb-0 w-100" style="text-align: left;" for="icon">
+                                            <label class="form-label-title mb-0 w-100" style="text-align: left;"
+                                                for="icon">
                                                 SKU:
                                             </label>
                                             <div>
-                                                <input type="text" name="" class="form-control disabled" value="SPBT002" disabled>
+                                                <input type="text" name="" class="form-control disabled"
+                                                    value="SPBT002" disabled>
                                                 <div class="invalid-feedback text-start"></div>
                                             </div>
                                         </div>
                                         <div class="col-2">
-                                            <label class="form-label-title mb-0 w-100" style="text-align: left;" for="icon">
+                                            <label class="form-label-title mb-0 w-100" style="text-align: left;"
+                                                for="icon">
                                                 Số lượng:
                                             </label>
                                             <div>
-                                                <input type="number" name="" class="form-control" value="">
+                                                <input type="number" name="" class="form-control"
+                                                    value="">
                                                 <div class="invalid-feedback text-start"></div>
                                             </div>
                                         </div>
@@ -315,11 +327,13 @@
                                 <div class="border">
                                     <div class="form-group align-items-center g-3 p-3 row">
                                         <div class="col-12">
-                                            <label class="form-label-title mb-0 w-100" style="text-align: left;" for="icon">
+                                            <label class="form-label-title mb-0 w-100" style="text-align: left;"
+                                                for="icon">
                                                 Tên sản phẩm:
                                             </label>
                                             <div>
-                                                <input type="text" name="" class="form-control disabled" value="Tủ lạnh Casper 95 lít RO-95PG" disabled>
+                                                <input type="text" name="" class="form-control disabled"
+                                                    value="Tủ lạnh Casper 95 lít RO-95PG" disabled>
                                                 <div class="invalid-feedback text-start"></div>
                                             </div>
                                         </div>
@@ -335,12 +349,12 @@
                                         </thead>
                                         <tbody>
                                             <tr class="variant">
-    
+
                                                 <td class="form-group">
                                                     SPBT001
                                                     <div class="invalid-feedback"></div>
                                                 </td>
-    
+
                                                 <td class="form-group">
                                                     <div>
                                                         Xanh | 256 GB
@@ -348,7 +362,7 @@
                                                     </div>
                                                     <div class="invalid-feedback text-start"></div>
                                                 </td>
-    
+
                                                 <td class="form-group">
                                                     <input type="number" name="" class="form-control">
                                                     <div class="invalid-feedback text-start"></div>
@@ -359,7 +373,8 @@
                                 </div>
                             </div>
                             <div class="button-box justify-content-end">
-                                <button class="btn btn-md btn-secondary fw-bold" id="btn-cancel-import-stock" type="button">
+                                <button class="btn btn-md btn-secondary fw-bold" id="btn-cancel-import-stock"
+                                    type="button">
                                     {{ __('message.cancel') }}
                                 </button>
                                 <button class="btn btn-md btn-theme fw-bold btn-action" type="submit">
@@ -546,7 +561,7 @@
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error("Lỗi AJAX: " + textStatus + ", " + errorThrown);
                         $this.prop('checked', !
-                        isActive); // Đảo ngược lại trạng thái checkbox nếu có lỗi
+                            isActive); // Đảo ngược lại trạng thái checkbox nếu có lỗi
                         let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại sau.";
                         if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
                             errorMessage = jqXHR.responseJSON.message;
@@ -575,7 +590,7 @@
                     text: message,
                 });
             }
-            
+
         });
     </script>
 @endpush

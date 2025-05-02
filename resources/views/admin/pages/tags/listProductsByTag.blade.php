@@ -27,7 +27,7 @@
                         <div class="title-header">
                             <div class="d-flex align-items-center">
                                 <h5>
-                                    <a class="link" href="{{ route('admin.tags.index') }}">{{ __('form.brands') }}</a>
+                                    <a class="link" href="{{ route('admin.tags.index') }}">{{ __('form.tags') }}</a>
                                     <span class="fs-6 fw-light">></span> Product
                                 </h5>
                             </div>
@@ -94,7 +94,6 @@
                                             </th>
                                             <th>{{ __('form.product.thumbnail') }}</th>
                                             <th>{{ __('form.product.price') }}</th>
-                                            <th>{{ __('form.product.type') }}</th>
                                             <th>{{ __('form.product.created_at') }} 
                                             </th>
                                             <th>{{ __('form.product.updated_at') }} </th>
@@ -148,20 +147,15 @@
                                                     <td class="cursor-pointer sm-width">
                                                         <img alt="image" class="tbl-image "
                                                             style="max-height: 200px; object-fit: contain;"
-                                                            src="{{ Storage::url($product->logo) }}">
+                                                            src="{{ Storage::url($product->thumbnail) }}">
                                                     </td>
                                                     <td class="cursor-pointer">
 
-                                                        <a href="#!"
-                                                            class="fs-6 fw-bold w-100">{{ $product->price }}</a>
+                                                        <a href="#!" class="fs-6 fw-bold w-100">
+                                                            {{ number_format($product->price, 0, ',', '.') }} ₫
+                                                        </a>
 
-                                                    </td>
-                                                    <td class="cursor-pointer">
-
-                                                        <a href="#!"
-                                                            class="fs-6 fw-bold w-100">{{ $product->type }}</a>
-
-                                                    </td>                                                  
+                                                    </td>                                               
                                                     <td class="cursor-pointer">
 
                                                         {{ $product->created_at }}

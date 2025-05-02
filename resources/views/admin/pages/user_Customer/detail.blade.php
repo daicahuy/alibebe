@@ -1247,7 +1247,14 @@
                                                     đầu</label>
                                                 <input type="date" id="startDate" name="startDate"
                                                     value="{{ request('startDate', now()->toDateString()) }}"
-                                                    class="form-control">
+                                                    class="form-control @error('startDate') is-invalid @enderror">
+                                                {{-- Thêm class is-invalid khi có lỗi --}}
+                                                @error('startDate')
+                                                    {{-- Kiểm tra nếu có lỗi cho trường startDate --}}
+                                                    <div class="invalid-feedback">
+                                                        {{ $message }} {{-- Hiển thị thông báo lỗi --}}
+                                                    </div>
+                                                @enderror
                                             </div>
 
                                             <!-- End Date -->
@@ -1256,7 +1263,14 @@
                                                     thúc</label>
                                                 <input type="date" id="endDate" name="endDate"
                                                     value="{{ request('endDate', now()->toDateString()) }}"
-                                                    class="form-control">
+                                                    class="form-control @error('endDate') is-invalid @enderror">
+                                                {{-- Thêm class is-invalid khi có lỗi --}}
+                                                @error('endDate')
+                                                    {{-- Kiểm tra nếu có lỗi cho trường endDate --}}
+                                                    <div class="invalid-feedback">
+                                                        {{ $message }} {{-- Hiển thị thông báo lỗi --}}
+                                                    </div>
+                                                @enderror
                                             </div>
 
                                             <!-- Filter & Reset Buttons -->
@@ -1291,10 +1305,14 @@
                                                         {{-- @dd($data) --}}
                                                         <small class="text-muted">Chi Tiết Trạng Thái</small>
                                                         <div class="d-flex justify-content-between mt-1">
-                                                            <span class="badge bg-success badge-custom">Thành Công:
-                                                                {{ $data['order']['countSuccessDetail'] }}</span>
                                                             <span class="badge bg-warning badge-custom">Đang Xử Lý:
                                                                 {{ $data['order']['countProcessingDetail'] }}</span>
+                                                            <span class="badge bg-info badge-custom">Đang Giao:
+                                                                {{ $data['order']['countShipDetail'] }}</span>
+                                                            <span class="badge  badge-custom" style="background-color: #6c757d">Thất Bại:
+                                                                {{ $data['order']['countFalseDetail'] }}</span>
+                                                            <span class="badge bg-success badge-custom">Thành Công:
+                                                                {{ $data['order']['countSuccessDetail'] }}</span>
                                                             <span class="badge bg-danger badge-custom">Hủy:
                                                                 {{ $data['order']['countCancelDetail'] }}</span>
                                                             <span class="badge bg-dark badge-custom">Hoàn hàng:
@@ -1490,8 +1508,7 @@
                                                 <td class="fw-bold text-success">
                                                     {{ number_format($item['total_amount']) }}₫</td>
                                                 <td>
-                                                    <span
-                                                        class="badge bg-success">{{ $item['orderStatuses'][0]['name'] }}</span>
+                                                    <span class="badge bg-success">{{ $item->display_status }}</span>
                                                 </td>
                                                 <td class="text-muted">{{ $item['payment']['name'] }}</td>
                                                 <td>{{ $item['created_at'] }}</td>
@@ -1525,7 +1542,8 @@
 
                             <!-- START PAGINATION -->
                             <div class="custom-pagination">
-                                {{ $data['listUserOrders']->links('pagination::bootstrap-5', ['pageName' => 'list_order']) }}
+                                {{-- {{ $data['listUserOrders']->links('pagination::bootstrap-5', ['pageName' => 'list_order']) }} --}}
+                                {{ $data['listUserOrders']->appends(['startDate' => request('startDate'), 'endDate' => request('endDate')])->links('pagination::bootstrap-5', ['pageName' => 'list_order']) }}
                             </div>
                             <!-- END PAGINATIOn -->
                         </div>
@@ -1633,7 +1651,8 @@
                             </div>
                             <!-- START PAGINATION -->
                             <div class="custom-pagination">
-                                {{ $data['wishlists']->links() }}
+                                {{-- {{ $data['wishlists']->links() }} --}}
+                                {{ $data['wishlists']->appends(['startDate' => request('startDate'), 'endDate' => request('endDate')])->links('pagination::bootstrap-5', ['pageName' => 'wishlists_page']) }}
                             </div>
                             <!-- END PAGINATIOn -->
 
@@ -1645,7 +1664,7 @@
                         <div class="card-body">
                             <div class="section-heading">
                                 <h5 class="card-title mb-0">Ratings &amp; reviews <span
-                                        class="text-body-tertiary fw-normal">({{$data['countReviews']}})</span></h5>
+                                        class="text-body-tertiary fw-normal">({{ $data['countReviews'] }})</span></h5>
 
                             </div>
 
@@ -1720,7 +1739,8 @@
 
                             <!-- START PAGINATION -->
                             <div class="custom-pagination">
-                                {{ $data['reviews']->links('pagination::bootstrap-5', ['pageName' => 'reviews_page']) }}
+                                {{-- {{ $data['reviews']->links('pagination::bootstrap-5', ['pageName' => 'reviews_page']) }} --}}
+                                {{ $data['reviews']->appends(['startDate' => request('startDate'), 'endDate' => request('endDate')])->links('pagination::bootstrap-5', ['pageName' => 'reviews_page']) }}
                             </div>
                             <!-- END PAGINATIOn -->
                         </div>
