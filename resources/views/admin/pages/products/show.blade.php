@@ -71,7 +71,7 @@
                                                                 role="tab" aria-controls="#inventory-panel"
                                                                 aria-selected="true" aria-disabled="false">
                                                                 <i
-                                                                    class="ri-file-list-line"></i>{{ __('form.inventory') }}</a>
+                                                                    class="ri-file-list-line"></i>{{ __('message.detail') }}</a>
                                                         </li>
                                                         <li id="setup" class="nav-item" role="presentation">
                                                             <a href="#setup-panel" class="nav-link" data-bs-toggle="tab"

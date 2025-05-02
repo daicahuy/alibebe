@@ -19,8 +19,8 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $this->fakeAdmin();
-        $this->fakeEmployee(30);
-        $this->fakeCustomer(500);
+        $this->fakeEmployee(10);
+        $this->fakeCustomer(30);
     }
 
     private function fakeAdmin()
