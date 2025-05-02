@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="breadcrumb-contain">
-                        <h2 class="mb-2">Compare</h2>
+                        <h2 class="mb-2">So Sánh</h2>
                         <nav>
                             <ol class="breadcrumb mb-0">
                                 <li class="breadcrumb-item">
@@ -17,8 +17,8 @@
                                         <i class="fa-solid fa-house"></i>
                                     </a>
                                 </li>
-                                <li class="breadcrumb-item">Shop</li>
-                                <li class="breadcrumb-item active">Compare</li>
+                                <li class="breadcrumb-item">Cửa Hàng</li>
+                                <li class="breadcrumb-item active">So Sánh</li>
                             </ol>
                         </nav>
                     </div>
@@ -142,7 +142,7 @@
 
 
                                 <tr>
-                                    <th>Price</th>
+                                    <th>Giá</th>
                                     @foreach ($productsData as $product)
                                         <td class="price text-content">
                                             @if ($product['type'] == 1)
@@ -216,7 +216,7 @@
                                     @endforeach
                                 </tr> --}}
                                 <tr>
-                                    <th>Rating</th>
+                                    <th>Đánh Giá</th>
                                     @foreach ($productsData as $product)
                                         <td>
                                             <div class="compare-rating">

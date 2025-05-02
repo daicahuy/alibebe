@@ -231,9 +231,8 @@
                                 <!-- Submit and Cancel Buttons -->
                                 <div class="modal-footer mt-3">
                                     <button type="button" class="btn btn-animation btn-md fw-bold"
-                                        data-bs-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn theme-bg-color btn-md fw-bold text-light">Save
-                                        changes</button>
+                                        data-bs-dismiss="modal">Đóng</button>
+                                    <button type="submit" class="btn theme-bg-color btn-md fw-bold text-light">Lưu</button>
                                 </div>
                             </form>
                         </div>
