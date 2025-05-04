@@ -194,6 +194,7 @@ class AttributeValueRepository extends BaseRepository
                 })->where('is_active', 1);
             });
         }
+        $query->having('product_count', '>', 0); //chỉ hiện giá trị thuộc tính có sản phẩm
         // dd($query->get());
         return $query->get();
     }
