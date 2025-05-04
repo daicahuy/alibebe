@@ -208,11 +208,11 @@
                                                         </div>
                                                     @elseif($product->stock_quantity > 0)
                                                         <div class="status-low_stock">
-                                                            <span>{{ __('form.product_stock_low_stock') }}</span>{{-- hết  --}}
+                                                            <span>{{ __('form.product_stock_low_stock') }}</span>{{-- sắp hết  --}}
                                                         </div>
                                                     @else
                                                         <div class="status-out_of_stock">
-                                                            <span>{{ __('form.product_stock_out_of_stock') }}</span>{{-- sắp hết  --}}
+                                                            <span>{{ __('form.product_stock_out_of_stock') }}</span>{{-- hết  --}}
                                                         </div>
                                                     @endif
                                                 </td>

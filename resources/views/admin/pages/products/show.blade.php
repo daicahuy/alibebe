@@ -253,7 +253,7 @@
                                                                                 class="form-control disabled"
                                                                                 placeholder="{{ __('form.enter_price') }}"
                                                                                 name="product[price]"
-                                                                                value="{{ $product->price }}"
+                                                                                value="{{ (int) $product->price }}"
                                                                                 {{ $product->isVariant() ? 'disabled' : '' }}
                                                                                 disabled
                                                                             >
@@ -274,7 +274,7 @@
                                                                                 placeholder="{{ __('form.enter_sale_price') }}"
                                                                                 class="form-control disabled"
                                                                                 name="product[sale_price]"
-                                                                                value="{{ $product->sale_price }}"
+                                                                                value="{{ (int) $product->sale_price }}"
                                                                                 {{ $product->isVariant() ? 'd-none' : '' }}
                                                                                 disabled
                                                                             >
@@ -413,7 +413,7 @@
                                                                                                 type="number"
                                                                                                 name="product_variants[{{ $variant->id }}][info][price]"
                                                                                                 class="form-control disabled"
-                                                                                                value="{{ $variant->price }}"
+                                                                                                value="{{ (int) $variant->price }}"
                                                                                                 disabled
                                                                                             >
                                                                                             <div class="invalid-feedback"></div>
@@ -423,7 +423,7 @@
                                                                                                 type="number"
                                                                                                 name="product_variants[{{ $variant->id }}][info][sale_price]"
                                                                                                 class="form-control disabled"
-                                                                                                value="{{ $variant->sale_price }}"
+                                                                                                value="{{ (int) $variant->sale_price }}"
                                                                                                 disabled
                                                                                             >
                                                                                             <div class="invalid-feedback"></div>
@@ -598,7 +598,7 @@
                                                         <div class="tab-pane fade" id="status-panel"
                                                             aria-labelledby="status">
                                                             <div tab="status" class="tab">
-                                                                <div class="form-group align-items-center g-2 mb-4 row">
+                                                                {{-- <div class="form-group align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0"
                                                                         for="is_featured">
                                                                         {{ __('form.product.is_featured') }}
@@ -621,7 +621,7 @@
                                                                         </div>
                                                                         <div class="invalid-feedback"></div>
                                                                     </div>
-                                                                </div>
+                                                                </div> --}}
 
                                                                 <div class="form-group align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0"

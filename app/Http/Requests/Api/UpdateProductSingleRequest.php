@@ -31,7 +31,7 @@ class UpdateProductSingleRequest extends FormRequest
             'product.name'                 =>    ['required', Rule::unique('products', 'name')->ignore($this->route('id'))],
             'product.short_description'    =>    ['required', 'max:255'],
             'product.description'          =>    ['nullable'],
-            'product.thumbnail'            =>    ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'product.thumbnail'            =>    ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'product.type'                 =>    ['nullable', Rule::in([ProductType::SINGLE, ProductType::VARIANT])],
             'product.sku'                  =>    ['required', Rule::unique('products', 'sku')->ignore($this->route('id')), Rule::unique('product_variants', 'sku')],
             'product.price'                =>    ['required', 'numeric', 'integer', 'gt:0'],
@@ -50,7 +50,7 @@ class UpdateProductSingleRequest extends FormRequest
             'product_accessories'          =>    ['nullable', 'array'],
             'product_accessories.*'        =>    [Rule::exists('products', 'id')],
             'product_galleries'            =>    ['nullable', 'array', 'min:1'],
-            'product_galleries.*'          =>    ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'product_galleries.*'          =>    ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
         ];
     }
 

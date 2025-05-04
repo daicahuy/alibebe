@@ -33,7 +33,7 @@ class UpdateProductVariantRequest extends FormRequest
             'product.name'                              =>    ['required', Rule::unique('products', 'name')->ignore($this->route('id'))],
             'product.short_description'                 =>    ['required', 'max:255'],
             'product.description'                       =>    ['nullable'],
-            'product.thumbnail'                         =>    ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'product.thumbnail'                         =>    ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'product.type'                              =>    ['nullable', Rule::in([ProductType::SINGLE, ProductType::VARIANT])],
             'product.sku'                               =>    ['required', Rule::unique('products', 'sku')->ignore($this->route('id')), Rule::unique('product_variants', 'sku')],
             'product.sale_price_start_at'               =>    ['nullable', 'sometimes', 'required_with:product.is_sale', 'date'],
@@ -50,14 +50,14 @@ class UpdateProductVariantRequest extends FormRequest
             'product_accessories'                       =>    ['nullable', 'array'],
             'product_accessories.*'                     =>    [Rule::exists('products', 'id')],
             'product_galleries'                         =>    ['nullable', 'array', 'min:1'],
-            'product_galleries.*'                       =>    ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'product_galleries.*'                       =>    ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'product_variants'                          =>    ['required', 'array', 'min:1'],
             'product_variants.*.id'                     =>    ['required', Rule::exists('product_variants', 'id')],
             //{:1}
             'product_variants.*.info'                   =>    ['required', 'array'],
             'product_variants.*.info.price'             =>    ['required', 'numeric', 'integer', 'gt:0'],
             'product_variants.*.info.sale_price'        =>    ['nullable', 'sometimes', 'required_with:product.is_sale', 'numeric', 'integer', 'gt:0', 'lt:product_variants.*.info.price'],
-            'product_variants.*.info.thumbnail'         =>    ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'product_variants.*.info.thumbnail'         =>    ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'product_variants.*.info.is_active'         =>    ['nullable', Rule::in([0, 1]) ],
         ];
 

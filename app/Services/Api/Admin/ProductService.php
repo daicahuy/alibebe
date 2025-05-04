@@ -65,7 +65,7 @@ class ProductService
 
             $product = $this->productRepository->create($data['product']);
             $product->productStock()->create($data['product_stocks']);
-            $product->categories()->attach($this->attachCategory($data['category_id']));
+            $product->categories()->attach([$data['category_id']]);
             $product->attributeValues()->attach($data['product_specifications']);
             $product->tags()->attach($data['tags'] ?? []);
             $product->productAccessories()->attach($data['product_accessories'] ?? []);
@@ -113,7 +113,7 @@ class ProductService
             DB::beginTransaction();
 
             $product = $this->productRepository->create($data['product']);
-            $product->categories()->attach($this->attachCategory($data['category_id']));
+            $product->categories()->attach([$data['category_id']]);
             $product->attributeValues()->attach($data['product_specifications']);
             $product->tags()->attach($data['tags'] ?? []);
             $product->productAccessories()->attach($data['product_accessories'] ?? []);
@@ -172,7 +172,7 @@ class ProductService
             DB::beginTransaction();
 
             $product->update($data['product']);
-            $product->categories()->sync($this->attachCategory($data['category_id']));
+            $product->categories()->sync([$data['category_id']]);
             $product->attributeValues()->sync($data['product_specifications']);
             $product->tags()->sync($data['tags'] ?? []);
             $product->productAccessories()->sync($data['product_accessories'] ?? []);
@@ -240,7 +240,7 @@ class ProductService
             DB::beginTransaction();
 
             $product->update($data['product']);
-            $product->categories()->sync($this->attachCategory($data['category_id']));
+            $product->categories()->sync([$data['category_id']]);
             $product->attributeValues()->sync($data['product_specifications']);
             $product->tags()->sync($data['tags'] ?? []);
             $product->productAccessories()->sync($data['product_accessories'] ?? []);
@@ -272,22 +272,5 @@ class ProductService
 
             return ['success' => false, 'message' => 'Lỗi hệ thống! Vui lòng thử lại sau ít phút.'];
         }
-    }
-
-    public function attachCategory($id)
-    {
-        $category = $this->categoryRepository->findWithChild($id, false);
-
-        if (!empty($category->categories)) {
-            $categoryChilds = [];
-            
-            foreach ($category->categories as $categoryChild) {
-                $categoryChilds[] = $categoryChild->id;
-            }
-
-            return [$category->id, ...$categoryChilds];
-        }
-
-        return [$category->id];
     }
 }

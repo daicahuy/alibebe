@@ -218,7 +218,7 @@
                                     style="display: none;" @endif>
                                     <div class="my-timer-product-title">
                                         <h4 class="my-timer-promotion-message" id="promotion-message">Nhanh lên! Khuyến
-                                            mại kết thúc vào</h4>
+                                            mại kết thúc sau</h4>
 
                                     </div>
                                     <ul>
@@ -227,7 +227,7 @@
                                                 <div class="d-block">
                                                     <h5 class="my-timer-days-value"></h5>
                                                 </div>
-                                                <h6>Days</h6>
+                                                <h6>Ngày</h6>
                                             </div>
                                         </li>
                                         <li>
@@ -235,7 +235,7 @@
                                                 <div class=" d-block">
                                                     <h5 class="my-timer-hours-value"></h5>
                                                 </div>
-                                                <h6>Hours</h6>
+                                                <h6>Giờ</h6>
                                             </div>
                                         </li>
                                         <li>
@@ -243,7 +243,7 @@
                                                 <div class=" d-block">
                                                     <h5 class="my-timer-minutes-value"></h5>
                                                 </div>
-                                                <h6>Min</h6>
+                                                <h6>Phút</h6>
                                             </div>
                                         </li>
                                         <li>
@@ -251,7 +251,7 @@
                                                 <div class=" d-block">
                                                     <h5 class="my-timer-seconds-value"></h5>
                                                 </div>
-                                                <h6>Sec</h6>
+                                                <h6>Giây</h6>
                                             </div>
                                         </li>
                                     </ul>
@@ -360,7 +360,7 @@
                     <div class="col-12">
                         <div class="related-product">
                             <div class="product-title-2">
-                                <h4>Sản phẩm & Phụ kiện đi kèm</h4>
+                                <h4>Phụ kiện đi kèm</h4>
                             </div>
                             <div class="related-box">
                                 <div class="related-image">
@@ -2022,7 +2022,7 @@
                     const now = new Date();
 
                     let targetTime;
-                    let promotionMessage = "Nhanh lên! Khuyến mại kết thúc vào";
+                    let promotionMessage = "Nhanh lên! Khuyến mại kết thúc sau";
 
                     if (now < startTime) {
                         targetTime = startTime;
@@ -2033,7 +2033,7 @@
                         return;
                     } else {
                         targetTime = endTime;
-                        promotionMessage = "Nhanh lên! Khuyến mại kết thúc vào";
+                        promotionMessage = "Nhanh lên! Khuyến mại kết thúc sau";
                     }
 
                     if (promotionMessageElement) {
@@ -2050,7 +2050,7 @@
                                 targetTime = endTime;
                                 if (promotionMessageElement) {
                                     promotionMessageElement.textContent =
-                                        "Nhanh lên! Khuyến mại kết thúc vào";
+                                        "Nhanh lên! Khuyến mại kết thúc sau";
                                 }
                                 timeInterval = setInterval(updateClock, 1000);
                             } else {
@@ -2190,10 +2190,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- sidebar open js -->
     <script src="{{ asset('theme/client/assets/js/filter-sidebar.js') }}"></script>
-
-    <!-- Zoom Js -->
-    <script src="{{ asset('theme/client/assets/js/jquery.elevatezoom.js') }}"></script>
-    <script src="{{ asset('theme/client/assets/js/zoom-filter.js') }}"></script>
 
     <!-- Sticky-bar js -->
     <script src="{{ asset('theme/client/assets/js/sticky-cart-bottom.js') }}"></script>

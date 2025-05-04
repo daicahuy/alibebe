@@ -35,7 +35,7 @@ class StoreProductSingleRequest extends FormRequest
             'product.name'                 =>    ['required', Rule::unique('products', 'name')],
             'product.short_description'    =>    ['required', 'max:255'],
             'product.description'          =>    ['nullable'],
-            'product.thumbnail'            =>    ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'product.thumbnail'            =>    ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'product.type'                 =>    ['required', Rule::in([ProductType::SINGLE, ProductType::VARIANT])],
             'product.sku'                  =>    ['required', Rule::unique('products', 'sku'), Rule::unique('product_variants', 'sku')],
             'product.price'                =>    ['required', 'numeric', 'integer', 'gt:0'],
@@ -56,7 +56,7 @@ class StoreProductSingleRequest extends FormRequest
             'product_accessories'          =>    ['nullable', 'array'],
             'product_accessories.*'        =>    [Rule::exists('products', 'id')],
             'product_galleries'            =>    ['required', 'array', 'min:1'],
-            'product_galleries.*'          =>    ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'product_galleries.*'          =>    ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
         ];
     }
 

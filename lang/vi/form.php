@@ -450,7 +450,7 @@ return [
     'help_short_description' => '*Độ dài tối đa là 255 ký tự.',
     'help_product_accessories' => '*Chọn tối đa 6 phụ kiện để hiển thị phụ kiện đi kèm hiệu quả.',
     'help_is_featured' => '*Bật tùy chọn này sẽ hiển thị cờ <Nổi bật> trên sản phẩm.',
-    'help_is_trending' => '*Bật tùy chọn này sẽ hiển thị sản phẩm trong thanh bên của trang sản phẩm dưới dạng mặt hàng thịnh hành.',
+    'help_is_trending' => '*Bật tùy chọn này sẽ hiển thị sản phẩm trong thanh bên của trang chủ dưới dạng mặt hàng thịnh hành.',
 
     'accounts' => 'Tài Khoản',
     'account' => [

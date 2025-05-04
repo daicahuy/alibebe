@@ -282,18 +282,6 @@
                             </a>
                         </li>
                     @endif
-                    @if (Auth::user()->isAdmin())
-                        <li class="sidebar-list">
-                            <a  href="{{ route('admin.detail-index') }}" class="debar-link link-nav sidebar-link sidebar-title">
-                                <span>
-                                    <div class="d-flex align-items-center">
-                                        <i class="ri-pie-chart-line"></i>
-                                        <div class="sidebar-main-link">Thống kê</div>
-                                    </div>
-                                </span>
-                            </a>
-                        </li>
-                    @endif
                 </ul>
             </div>
         </nav>

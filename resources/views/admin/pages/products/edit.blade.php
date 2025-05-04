@@ -621,7 +621,7 @@
                                                         <div class="tab-pane fade" id="status-panel"
                                                             aria-labelledby="status">
                                                             <div tab="status" class="tab">
-                                                                <div class="form-group align-items-center g-2 mb-4 row">
+                                                                {{-- <div class="form-group align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0"
                                                                         for="is_featured">
                                                                         {{ __('form.product.is_featured') }}
@@ -643,7 +643,7 @@
                                                                         </div>
                                                                         <div class="invalid-feedback"></div>
                                                                     </div>
-                                                                </div>
+                                                                </div> --}}
 
                                                                 <div class="form-group align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0"

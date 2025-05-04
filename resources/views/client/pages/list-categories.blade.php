@@ -88,7 +88,7 @@
                                                     <input type="search" class="form-control" id="search-category"
                                                         name='search' placeholder="Search .."
                                                         value="{{ $currentFilters['search'] ?? '' }}">
-                                                    <label for="search-category">Search</label>
+                                                    <label for="search-category">Tìm kiếm theo tên</label>
                                                 </div>
 
                                                 <ul class="category-list custom-padding custom-height">

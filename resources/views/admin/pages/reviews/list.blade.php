@@ -81,8 +81,7 @@
                                 <tr>
                                     <th>STT</th>
                                     <th>Tên sản phẩm</th>
-                                    <th>Tên Khách Hàng</th>
-                                    <th>Đánh giá</th>
+                                    <th>Đánh giá trung bình</th>
                                     <th>Tổng số đánh giá</th>
                                     <th>Hành động</th>
                                 </tr>
@@ -99,7 +98,6 @@
                                         {{ $index-- }}
                                     </td>
                                     <td>{{$review->product->name ?? 'N/A'}}</td>
-                                    <td>{{$review->user->name ?? 'Guest'}}</td>
                                     <td>
                                         <ul class="rating">
                                             @for ($i = 1; $i <= 5; $i++)
