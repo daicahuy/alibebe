@@ -1951,10 +1951,10 @@
                 if (isProductOnSale === 1 && currentSalePrice !== null && currentSalePrice < currentPrice) {
                     // Hiển thị giá sale và giá thường gạch ngang
                     productPriceDisplay.innerHTML = formatPrice(currentSalePrice) +
-                        ' ₫ <br><del class="text-content">' + formatPrice(currentPrice) + ' ₫</del>';
+                        '  <br><del class="text-content">' + formatPrice(currentPrice) + ' </del>';
                 } else {
                     // Hiển thị chỉ giá thường
-                    productPriceDisplay.innerHTML = formatPrice(currentPrice) + ' ₫';
+                    productPriceDisplay.innerHTML = formatPrice(currentPrice) + ' đ';
                 }
 
                 // Cập nhật số lượng tồn kho: Lấy từ thuộc tính product_stock.stock của biến thể
