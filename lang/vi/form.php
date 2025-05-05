@@ -9,7 +9,7 @@ return [
 
     'auth' => [
         'login' => 'Đăng nhập',
-        'welcome' => 'Welcome To Fastkart',
+        'welcome' => 'Chào mừng đến với Alibebe',
         'login_account' => 'Đăng nhập vào tài khoản của bạn',
         'email_or_phone_number' => 'Nhập số điện thoại hoặc email',
         'password' => 'Mật khẩu',
