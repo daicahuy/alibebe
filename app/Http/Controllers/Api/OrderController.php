@@ -534,7 +534,7 @@ class OrderController extends Controller
                 Order::whereIn("id", $numericOrderIds)->update(["locked_status" => 1]);
                 foreach ($numericOrderIds as $id) {
                     event(new OrderLockStatus($id, $status = 1, $userID));
-                    dispatch(new UnlockOrderJob($id))->delay(now()->addSeconds(5));
+                    dispatch(new UnlockOrderJob($id))->delay(now()->addSeconds(2));
                 }
 
                 return response()->json([
@@ -545,7 +545,7 @@ class OrderController extends Controller
 
                 Order::where("id", $orderId)->update(["locked_status" => 1]);
                 event(new OrderLockStatus($orderId, $status = 1, $userID));
-                dispatch(new UnlockOrderJob($orderId))->delay(now()->addSeconds(5));
+                dispatch(new UnlockOrderJob($orderId))->delay(now()->addSeconds(2));
                 return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
 
             }
