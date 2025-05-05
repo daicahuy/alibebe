@@ -94,23 +94,23 @@
             }, 100);
         });
 
-        @if (session()->has('success'))
-            Swal.fire({
-                icon: 'success',
-                title: 'Thành công',
-                text: '{{ session('success') }}',
-                timer: 2000
-            });
-        @endif
+        // @if (session()->has('success'))
+        //     Swal.fire({
+        //         icon: 'success',
+        //         title: 'Thành công',
+        //         text: '{{ session('success') }}',
+        //         timer: 2000
+        //     });
+        // @endif
 
-        @if (session()->has('error'))
-            Swal.fire({
-                icon: 'error',
-                title: 'Có lỗi xảy ra',
-                text: '{{ session('error') }}',
-                showConfirmButton: true
-            });
-        @endif
+        // @if (session()->has('error'))
+        //     Swal.fire({
+        //         icon: 'error',
+        //         title: 'Có lỗi xảy ra',
+        //         text: '{{ session('error') }}',
+        //         showConfirmButton: true
+        //     });
+        // @endif
     </script>
 @endsection
 
