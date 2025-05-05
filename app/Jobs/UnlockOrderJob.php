@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\OrderStatusUpdated;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -33,6 +34,8 @@ class UnlockOrderJob implements ShouldQueue
             if ($order->locked_status) {
                 $order->locked_status = 0;
                 $order->save();
+                event(new OrderStatusUpdated($this->orderId, "", ""));
+
             } else {
                 Log::info("Order {$this->orderId} was already unlocked.");
             }
