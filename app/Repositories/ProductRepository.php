@@ -220,16 +220,31 @@ END');
             //         });
             //     }
             // } //end filter rating
-            if (isset($filters['rating'])) { //filter rating
-                $ratingFilter = $filters['rating'];
-                if (!is_array($ratingFilter)) {
-                    $ratingFilter = [$ratingFilter];
-                }
-                $query->whereHas('reviews', function ($q) use ($ratingFilter) {
-                    $q->whereIn('rating', $ratingFilter);
-                });
+            // if (isset($filters['rating'])) { //filter rating
+            //     $ratingFilter = $filters['rating'];
+            //     if (!is_array($ratingFilter)) {
+            //         $ratingFilter = [$ratingFilter];
+            //     }
+            //     $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+            //         $q->whereIn('rating', $ratingFilter);
+            //     });
+            // }
+            if (isset($filters['rating'])) {
+                // Lấy giá trị sao được chọn (giả sử là số nguyên, ví dụ: 3, 4, 5)
+                $selectedRating = (int) min((array) $filters['rating']);
+                // Tính giới hạn trên (không bao gồm), ví dụ: nếu chọn 3, giới hạn trên là 4
+                $nextRating = $selectedRating + 1;
+            
+                $productIdsWithAvgRating = DB::table('products as p_sub')
+                    ->select('p_sub.id')
+                    ->leftJoin('reviews as r_sub', 'p_sub.id', '=', 'r_sub.product_id')
+                    ->groupBy('p_sub.id')
+                    // Sửa mệnh đề havingRaw để lọc trong khoảng [selectedRating, nextRating)
+                    ->havingRaw('COALESCE(AVG(r_sub.rating), 0) >= ? AND COALESCE(AVG(r_sub.rating), 0) < ?', [$selectedRating, $nextRating])
+                    ->pluck('p_sub.id');
+            
+                $query->whereIn('products.id', $productIdsWithAvgRating);
             }
-
 
 
             if (isset($filters['search']) && !empty($filters['search'])) { // search basic
