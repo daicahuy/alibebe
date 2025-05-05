@@ -56,22 +56,22 @@ class DashboardRepository extends BaseRepository
         // dd($IdEmployee); 
         if ( $IdEmployee == 0) {
             $query = Order::whereHas('orderStatuses', function ($query) use ($sevenDaysAgo) {
-                $query->where('order_status_id', 6)
+                $query->where('order_status_id', 5)
                     ->where('updated_at', '<=', $sevenDaysAgo);
-            })->whereBetween('created_at', [$start, $end]);
+            })->where('orders.is_refund',0)->whereBetween('created_at', [$start, $end]);
+            // dd($query->toRawSql());
         } elseif ( $IdEmployee != 0) {
             $query = Order::whereHas('orderStatuses', function ($query) use ($IdEmployee, $sevenDaysAgo) {
-                $query->where('order_status_id', 6)
+                $query->where('order_status_id', 5)
                     ->where('modified_by', $IdEmployee)
                     ->where('updated_at', '<=', $sevenDaysAgo);
-            })->whereBetween('created_at', [$start, $end]);
+            })->where('orders.is_refund',0)->whereBetween('created_at', [$start, $end]);
         } else {
             $query = Order::whereHas('orderStatuses', function ($query) use ($sevenDaysAgo) {
-                $query->where('order_status_id', 6)
+                $query->where('order_status_id', 5)
                     ->where('updated_at', '<=', $sevenDaysAgo);
-            })->whereDate('created_at', now()->toDateString());
+            })->where('orders.is_refund',0)->whereDate('created_at', now()->toDateString());
         }
-
         return $query->sum('total_amount');
     }
 
@@ -500,7 +500,7 @@ class DashboardRepository extends BaseRepository
             ->join('users as u', 'u.id', '=', 'o.user_id')
             ->join('order_order_status as oos', 'o.id', '=', 'oos.order_id')
             ->join('order_statuses as os', 'oos.order_status_id', '=', 'os.id')
-            ->where('os.id', '=', 6) // Chỉ lấy đơn hàng "Hoàn thành"
+            ->where('os.id', '=', 5) // Chỉ lấy đơn hàng "Hoàn thành"
 
             ->select(
                 'o.user_id',
@@ -602,9 +602,10 @@ class DashboardRepository extends BaseRepository
             // Truy vấn dữ liệu cho tất cả nhân viên
             $data = Order::with('orderStatuses')
                 ->whereHas('orderStatuses', function ($query) use ($sevenDaysAgo) {
-                    $query->where('order_status_id', 6)
+                    $query->where('order_status_id', 5)
                         ->where('updated_at', '<=', $sevenDaysAgo);
                 })
+                ->where('orders.is_refund',0)
                 ->whereBetween('created_at', [$start, $end]) // Lọc dữ liệu theo $start và $end
                 ->selectRaw("$selectFormat, SUM(total_amount) as revenue, COUNT(id) as orders")
                 ->groupBy(DB::raw($groupBy))
@@ -617,10 +618,11 @@ class DashboardRepository extends BaseRepository
             // Truy vấn dữ liệu cho nhân viên cụ thể
             $data = Order::with('orderStatuses')
                 ->whereHas('orderStatuses', function ($query) use ($IdEmployee, $sevenDaysAgo) {
-                    $query->where('order_status_id', 6)
+                    $query->where('order_status_id', 5)
                         ->where('modified_by', $IdEmployee)
                         ->where('updated_at', '<=', $sevenDaysAgo);
                 })
+                ->where('orders.is_refund',0)
                 ->whereBetween('created_at', [$start, $end]) // Lọc dữ liệu theo $start và $end
                 ->selectRaw("$selectFormat, SUM(total_amount) as revenue, COUNT(id) as orders")
                 ->groupBy(DB::raw($groupBy))
@@ -636,9 +638,10 @@ class DashboardRepository extends BaseRepository
 
             $data = Order::with('orderStatuses')
                 ->whereHas('orderStatuses', function ($query) use ($sevenDaysAgo) {
-                    $query->where('order_status_id', 6)
+                    $query->where('order_status_id', 5)
                         ->where('updated_at', '<=', $sevenDaysAgo);
                 })
+                ->where('orders.is_refund',0)
                 ->whereDate('created_at', now()->toDateString())
                 ->selectRaw('FLOOR(HOUR(created_at) / 2) * 2 as time_label, SUM(total_amount) as revenue, COUNT(id) as orders')
                 ->groupBy('time_label')
@@ -929,12 +932,12 @@ class DashboardRepository extends BaseRepository
         if ($start_date) {
           
             $query = Order::whereHas('orderStatuses', function ($query) use ($employee,$sevenDaysAgo) {
-                $query->where('order_status_id', 6)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
-            })->whereBetween('created_at', [$start, $end]);
+                $query->where('order_status_id', 5)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
+            })->where('orders.is_refund',0)->whereBetween('created_at', [$start, $end]);
         } else {
             $query = Order::whereHas('orderStatuses', function ($query) use ($employee,$sevenDaysAgo) {
-                $query->where('order_status_id', 6)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
-            })->whereDate('created_at', now()->toDateString());
+                $query->where('order_status_id', 5)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
+            })->where('orders.is_refund',0)->whereDate('created_at', now()->toDateString());
         }
         // dd($query->sum('total_amount'));
         return $query->sum('total_amount');
@@ -1425,8 +1428,8 @@ class DashboardRepository extends BaseRepository
 
             $data = Order::with('orderStatuses')
                 ->whereHas('orderStatuses', function ($query) use ($employee,$sevenDaysAgo) {
-                    $query->where('order_status_id', 6)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
-                })
+                    $query->where('order_status_id', 5)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
+                })->where('orders.is_refund',0)
                 ->whereBetween('created_at', [$start, $end])
                 ->selectRaw("$selectFormat, SUM(total_amount) as revenue, COUNT(id) as orders")
                 ->groupBy(DB::raw($groupBy)) // ✅ Chỉ nhóm theo `groupBy`, không thêm `created_at`
@@ -1441,8 +1444,8 @@ class DashboardRepository extends BaseRepository
 
             $data = Order::with('orderStatuses')
                 ->whereHas('orderStatuses', function ($query) use ($employee,$sevenDaysAgo) {
-                    $query->where('order_status_id', 6)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
-                })
+                    $query->where('order_status_id', 5)->where('updated_at', '<=', $sevenDaysAgo)->where('modified_by', $employee);
+                })->where('orders.is_refund',0)
                 ->whereDate('created_at', now()->toDateString())
                 ->selectRaw('FLOOR(HOUR(created_at) / 2) * 2 as time_label, SUM(total_amount) as revenue, COUNT(id) as orders')
                 ->groupBy('time_label')
@@ -1579,13 +1582,13 @@ class DashboardRepository extends BaseRepository
                 ->join('order_statuses', 'order_order_status.order_status_id', '=', 'order_statuses.id')
                 ->whereHas('orderStatuses', function ($query) use ($employee) {
                     $query->where('modified_by', $employee);
-                })
+                })->where('orders.is_refund',1)
                 ->whereDate('orders.created_at', now()->toDateString())
                 ->selectRaw('FLOOR(HOUR(orders.created_at) / 2) * 2 as time_label, order_statuses.id as order_status_id, COUNT(orders.id) as total_orders')
                 ->groupBy('time_label', 'order_status_id')
                 ->orderBy('time_label')
                 ->get();
-            $refund = DB::table('orders')
+            $refund = DB::table('orders')->where('orders.is_refund',1)
                 ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
                 ->where('order_order_status.modified_by', $employee)
                 ->whereDate('orders.created_at', now()->toDateString())

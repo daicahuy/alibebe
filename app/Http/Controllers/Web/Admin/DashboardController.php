@@ -41,6 +41,7 @@ class DashboardController extends Controller
         // dd($start_date);
     
         $revenue = $this->dashboardService->revenue($start_date, $IdEmployee);
+        // dd($revenue);
         $countUser = $this->dashboardService->countUser();
         $newCountUser = $this->dashboardService->newCountUser($start_date);
         $countOrder = $this->dashboardService->countOrder($start_date, $IdEmployee);

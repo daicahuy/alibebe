@@ -32,6 +32,7 @@ class OrderSeeder extends Seeder
 
         foreach ($users as $user) {
             for ($i = 0; $i < rand(15, 30); $i++) {
+                $subdays = rand(0, 30);
                 $orders[] = [
                     'code' => fake()->randomElement(['HN-', 'HCM-', 'HP-', 'NA-', 'TH-']) . fake()->unique()->numberBetween(1000, 90000),
                     'user_id' => $user->id,
@@ -48,8 +49,8 @@ class OrderSeeder extends Seeder
                     'coupon_description' => null,
                     'coupon_discount_type' => null,
                     'coupon_discount_value' => null,
-                    'created_at' => now()->subDays(rand(0, 30)),
-                    'updated_at' => now(),
+                    'created_at' => now()->subDays($subdays),
+                    'updated_at' => now()->subDays($subdays - 2),
                 ];
             }
             if (count($orders) >= $batchSize) {
@@ -125,18 +126,40 @@ class OrderSeeder extends Seeder
     {
         $orders = Order::all();
         foreach ($orders as $order) {
-            $orderStatus = 5;
+            $orderStatus = $this->renderOrderStatus();
             $userId = rand(2, 11);
             $order->orderStatuses()->attach([
                 $orderStatus => [
-                    'modified_by' => $userId
+                    'modified_by' => $userId,
+                    'created_at' => $order->created_at,
+                    'updated_at' => $order->updated_at,
                 ]
             ]);
             HistoryOrderStatus::query()->create([
                 'order_id' => $order->id,
                 'order_status_id' => $orderStatus,
                 'user_id' => $userId,
+                'created_at' => $order->updated_at,
+                'updated_at' => $order->updated_at,
             ]);
+        }
+    }
+
+    public function renderOrderStatus() {
+        $choices = [
+            5 => 93,
+            6 => 5,
+            4 => 2,
+        ];
+    
+        $rand = rand(1, 100);
+        $cumulative = 0;
+    
+        foreach ($choices as $value => $weight) {
+            $cumulative += $weight;
+            if ($rand <= $cumulative) {
+                return $value;
+            }
         }
     }
 }

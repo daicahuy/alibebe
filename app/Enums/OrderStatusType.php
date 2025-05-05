@@ -19,5 +19,4 @@ final class OrderStatusType extends Enum
     const COMPLETED = 5;        // Hoàn thành
     const CANCEL = 6;           // Đã hủy
     const RETURN = 8;
-
 }
