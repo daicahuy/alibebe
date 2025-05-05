@@ -462,6 +462,11 @@ class OrderController extends Controller
             $status = 1;
 
             Order::where("id", $orderId)->update(["is_refund_cancel" => $status, "img_send_refund_money" => $data['img_send_money']]);
+
+
+            event(new OrderStatusUpdated($orderId, 6, null, null));
+
+
             return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
 
         } catch (\Throwable $th) {
@@ -482,6 +487,9 @@ class OrderController extends Controller
             $status = $data["status"];
 
             Order::where("id", $orderId)->update(["is_refund_cancel" => $status]);
+
+            event(new OrderStatusUpdated($orderId, 6, null, null));
+
             return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
 
         } catch (\Throwable $th) {
