@@ -175,7 +175,7 @@ class OrderController extends Controller
             $user_id = $request->input("user_id");
             $note = $request->input("note");
             $isPaid = $request->input('ispaid');
-            
+
             $order = Order::query()->where('id', $idOrder)->with('orderItems', 'orderStatuses')->first();
 
             DB::beginTransaction();
@@ -200,11 +200,11 @@ class OrderController extends Controller
                     ->orWhere('role', 1)
                     ->get();
 
-                    if ($isPaid == 1) {
-                        $message = "Đơn hàng {$order->code} đã bị hủy (thanh toán online). Vui lòng hoàn số tiền {$order->total_amount} đ cho khách.";
-                    } else {
-                        $message = "Đơn hàng {$order->code} đã bị hủy!";
-                    }
+                if ($isPaid == 1) {
+                    $message = "Đơn hàng {$order->code} đã bị hủy (thanh toán online). Vui lòng hoàn số tiền {$order->total_amount} đ cho khách.";
+                } else {
+                    $message = "Đơn hàng {$order->code} đã bị hủy!";
+                }
 
                 foreach ($admins as $admin) {
                     Notification::create([
@@ -467,6 +467,11 @@ class OrderController extends Controller
             $status = 1;
 
             Order::where("id", $orderId)->update(["is_refund_cancel" => $status, "img_send_refund_money" => $data['img_send_money']]);
+
+
+            event(new OrderStatusUpdated($orderId, 6, null, null));
+
+
             return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
 
         } catch (\Throwable $th) {
@@ -487,6 +492,9 @@ class OrderController extends Controller
             $status = $data["status"];
 
             Order::where("id", $orderId)->update(["is_refund_cancel" => $status]);
+
+            event(new OrderStatusUpdated($orderId, 6, null, null));
+
             return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
 
         } catch (\Throwable $th) {
@@ -526,7 +534,7 @@ class OrderController extends Controller
                 Order::whereIn("id", $numericOrderIds)->update(["locked_status" => 1]);
                 foreach ($numericOrderIds as $id) {
                     event(new OrderLockStatus($id, $status = 1, $userID));
-                    dispatch(new UnlockOrderJob($id))->delay(now()->addSeconds(60));
+                    dispatch(new UnlockOrderJob($id))->delay(now()->addSeconds(2));
                 }
 
                 return response()->json([
@@ -537,7 +545,7 @@ class OrderController extends Controller
 
                 Order::where("id", $orderId)->update(["locked_status" => 1]);
                 event(new OrderLockStatus($orderId, $status = 1, $userID));
-                dispatch(new UnlockOrderJob($orderId))->delay(now()->addSeconds(60));
+                dispatch(new UnlockOrderJob($orderId))->delay(now()->addSeconds(2));
                 return response()->json(["status" => Response::HTTP_OK, "data" => $orderId]);
 
             }
