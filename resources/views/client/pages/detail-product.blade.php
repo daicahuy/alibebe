@@ -71,6 +71,13 @@
         background-color: #0da487;
         color: white;
     }
+    .review-media-thumbnail {
+    width: 100px;  
+    height: 100px;
+    object-fit: cover; 
+    display: block;
+  
+}
 </style>
 @section('content')
     <!-- Breadcrumb Section Start -->
@@ -643,15 +650,21 @@
                                                                         <p>{{ $item->review_text }}</p>
                                                                     </div>
                                                                     @if ($item->reviewMultimedia && $item->reviewMultimedia->isNotEmpty())
-                                                                        <div>
+                                                                        <div
+                                                                            style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                                                            {{-- Thêm style display: flex và gap --}}
                                                                             @foreach ($item->reviewMultimedia as $media)
                                                                                 @if ($media->file_type == 0)
                                                                                     <img src="{{ asset('storage/' . $media->file) }}"
-                                                                                        style="max-width: 100px;">
+                                                                                        class="review-media-thumbnail"
+                                                                                        {{-- Thêm class --}}
+                                                                                        alt="Review Image">
+                                                                                    {{-- Nên thêm alt text --}}
                                                                                 @elseif ($media->file_type == 1)
                                                                                     <video
                                                                                         src="{{ asset('storage/' . $media->file) }}"
-                                                                                        style="max-width: 100px;"
+                                                                                        class="review-media-thumbnail"
+                                                                                        {{-- Thêm class --}}
                                                                                         controls></video>
                                                                                 @endif
                                                                             @endforeach
@@ -898,7 +911,7 @@
                                                 @endif
 
                                             </h5>
-                                           
+
                                         </div>
                                     </div>
                                 </div>
@@ -1494,216 +1507,504 @@
         //Chọn biến thể
 
         document.addEventListener('DOMContentLoaded', function() {
+            // === Phần xử lý nút Thêm vào giỏ hàng ===
             const addToCartButton = document.getElementById('addToCartButton');
-            // console.log("Phần tử addToCartButton:", addToCartButton);
+            const addToCartForm = document.getElementById('addToCartForm'); // Lấy form ngay ở đây cho tiện
+            const qtyInput = addToCartForm ? addToCartForm.querySelector('.qty-input') : null; // Lấy qty input
 
-            if (addToCartButton) {
+            // Kiểm tra sự tồn tại của các phần tử cần thiết cho Add To Cart
+            if (!addToCartButton || !addToCartForm || !qtyInput) {
+                console.error(
+                    "LỖI: Thiếu một hoặc nhiều phần tử DOM cần thiết cho chức năng 'Thêm vào giỏ hàng' (addToCartButton, addToCartForm, .qty-input). Kiểm tra ID/class trong HTML."
+                    );
+                // Có thể return ở đây nếu chức năng chính của script là Add To Cart và không thể hoạt động
+                // return;
+            } else {
+                // Thêm lắng nghe sự kiện click cho nút 'Thêm vào giỏ hàng'
                 addToCartButton.addEventListener('click', function(event) {
-                    // event.preventDefault(); // Ngăn chặn form submit mặc định
+                    // event.preventDefault(); // Giữ lại dòng này nếu bạn sẽ xử lý submit form hoặc AJAX bằng JS
 
-                    // debugger;
                     console.log("Nút 'Thêm vào giỏ hàng' đã được click!");
 
-                    // **LẤY DỮ LIỆU TỪ FORM VÀ CẬP NHẬT INPUT HIDDEN TRONG FORM**
-                    const addToCartForm = document.getElementById('addToCartForm'); // Lấy form
-                    const productId = "{{ $detail->id }}"; // Lấy product_id từ Blade
-                    let productVariantId = currentVariant ? currentVariant.id :
-                        null; // Lấy product_variant_id từ biến currentVariant (nếu có)
-                    const quantity = addToCartForm.querySelector('.qty-input')
-                        .value; // Lấy quantity từ input trong form
+                    // Lấy product_id từ Blade (đảm bảo biến $detail->id có sẵn trong Blade)
+                    const productId = "{{ $detail->id }}";
+                    // Lấy quantity từ input số lượng
+                    const quantity = qtyInput.value;
 
-                    // **[PHẦN THÊM MỚI] - TỰ ĐỘNG CHỌN BIẾN THỂ RẺ NHẤT NẾU CHƯA CHỌN VÀ CÓ BIẾN THỂ**
-                    // if (!currentVariant && productVariants.length > 0) {
-                    //     currentVariant =
-                    //         defaultVariant; // Sử dụng biến thể mặc định rẻ nhất đã tìm ở DOMContentLoaded
-                    //     productVariantId = currentVariant.id; // Lấy ID của biến thể mặc định
-                    //     console.log('Tự động chọn biến thể rẻ nhất (mặc định):', currentVariant);
+                    // === KIỂM TRA BẮT BUỘC CHỌN BIẾN THỂ NẾU SẢN PHẨM CÓ BIẾN THỂ ===
+                    // Kiểm tra xem productVariants có được định nghĩa, có phần tử (>0)
+                    // VÀ biến currentVariant có đang là null hay không (chưa chọn biến thể)
+                    if (typeof productVariants !== 'undefined' && productVariants.length > 0 && !
+                        currentVariant) {
+                        console.warn("Không thể thêm vào giỏ hàng: Vui lòng chọn một tùy chọn biến thể.");
 
-                    //     // **Cập nhật lại input cartProductVariantId với ID biến thể mặc định**
-                    //     addToCartForm.querySelector('#cartProductVariantId').value = productVariantId;
-                    // }
+                        // **Hiển thị thông báo lỗi cho người dùng**
+                        // Sử dụng alert() là cách đơn giản nhất
+                        alert(
+                            'Vui lòng chọn một tùy chọn biến thể (ví dụ: Màu sắc, Kích thước) trước khi thêm vào giỏ hàng.');
+                        // Nếu bạn đã tích hợp thư viện SweetAlert2, hãy dùng:
+                        // Swal.fire({
+                        //     icon: 'warning',
+                        //     title: 'Lỗi!',
+                        //     text: 'Vui lòng chọn một tùy chọn biến thể trước khi thêm vào giỏ hàng.',
+                        //     confirmButtonText: 'Đồng ý'
+                        // });
 
-                    // **CẬP NHẬT GIÁ TRỊ CHO CÁC INPUT HIDDEN TRONG FORM**
-                    addToCartForm.querySelector('#cartProductId').value = productId;
-                    addToCartForm.querySelector('#cartProductVariantId').value = productVariantId ||
-                        ''; // Gán giá trị hoặc chuỗi rỗng nếu null (hoặc đã được gán ở trên)
-                    addToCartForm.querySelector('.qty-input').value =
-                        quantity; // Cập nhật lại qty-input (mặc dù giá trị đã có, nhưng để đồng bộ)
+
+                        // **Ngăn chặn hành động thêm vào giỏ hàng (submit form hoặc gửi AJAX)**
+                        if (event.preventDefault) {
+                            event
+                        .preventDefault(); // Ngăn chặn submit form mặc định nếu event là submit event
+                        }
+                        return; // Dừng hàm xử lý tại đây, không tiếp tục thêm vào giỏ
+                    }
+                    // =======================================================================
+
+                    // Lấy productVariantId: Nếu currentVariant có giá trị, lấy id của nó; ngược lại là null.
+                    // Kiểm tra này chỉ chạy nếu đã qua bước kiểm tra bắt buộc chọn biến thể (hoặc sản phẩm không có biến thể)
+                    let productVariantId = currentVariant ? currentVariant.id : null;
+
+                    // === CẬP NHẬT GIÁ TRỊ CHO CÁC INPUT HIDDEN TRONG FORM ===
+                    // Đảm bảo các input hidden cần thiết tồn tại trong form addToCartForm
+                    const cartProductIdInput = addToCartForm.querySelector('#cartProductId');
+                    const cartProductVariantIdInput = addToCartForm.querySelector('#cartProductVariantId');
+                    // const cartQuantityInput = addToCartForm.querySelector('.qty-input'); // Đã lấy qtyInput ở đầu
+
+                    if (!cartProductIdInput || !cartProductVariantIdInput) {
+                        console.error(
+                            "LỖI: Không tìm thấy input hidden #cartProductId hoặc #cartProductVariantId trong form để cập nhật dữ liệu."
+                            );
+                        // Ngăn chặn submit nếu không tìm thấy input cần thiết
+                        if (event.preventDefault) {
+                            event.preventDefault();
+                        }
+                        return;
+                    }
+
+
+                    cartProductIdInput.value = productId; // Gán ID sản phẩm chính
+                    // Gán ID biến thể. Nếu productVariantId là null (sản phẩm không có biến thể), gán chuỗi rỗng.
+                    cartProductVariantIdInput.value = productVariantId || '';
+                    // Gán quantity (mặc dù giá trị đã có trong qtyInput, gán lại để đồng bộ hóa với form)
+                    // cartQuantityInput.value = quantity; // Hoặc chỉ cần đảm bảo qtyInput được lấy đúng giá trị ban đầu
+
 
                     console.log('Input form đã được cập nhật với dữ liệu:');
                     console.log('product_id:', productId);
-                    console.log('product_variant_id:', productVariantId);
+                    console.log('product_variant_id:',
+                    productVariantId); // Sẽ là null nếu không có biến thể hoặc chưa chọn (và đã qua kiểm tra bắt buộc)
                     console.log('quantity:', quantity);
 
-                    // Swal.fire({
-                    //     icon: 'success',
-                    //     title: 'Thành công!',
-                    //     text: 'Sản phẩm đã được thêm vào giỏ hàng!',
-                    //     showConfirmButton: false,
-                    //     timer: 1500
-                    // });
+                    // === Tiếp tục hành động thêm vào giỏ hàng (submit form hoặc gửi AJAX) ===
+                    // Nếu bạn đã dùng event.preventDefault() ở đầu hàm click, bạn cần trigger submit form hoặc AJAX ở đây.
+                    // Ví dụ: if (event.preventDefault) { addToCartForm.submit(); }
+                    // Nếu không dùng event.preventDefault(), form sẽ tự submit (hành vi mặc định của button type="submit")
+                    // =====================================================================
 
+                    // ... (Swal.fire thông báo thành công nên chỉ hiển thị sau khi backend báo thêm vào giỏ hàng thành công) ...
                 });
-            } else {
-                console.error("LỖI: Không tìm thấy nút 'addToCartButton' trong DOM! Kiểm tra ID nút trong HTML.");
+            }
+            // === Hết phần xử lý nút Thêm vào giỏ hàng ===
+
+
+            // === Phần xử lý chọn biến thể, cập nhật hiển thị, và tìm biến thể phù hợp ===
+            const productPriceDisplay = document.getElementById('productPrice'); // Phần tử hiển thị giá sản phẩm
+            const productStockElement = document.getElementById('productStock'); // Phần tử hiển thị tồn kho
+            const productImageElement = document.getElementById('productImage'); // Phần tử hiển thị ảnh sản phẩm
+            const variantOptions = document.querySelectorAll(
+            '.option'); // Các nút/phần tử chọn tùy chọn biến thể (ví dụ: màu sắc, kích thước)
+
+            // Kiểm tra sự tồn tại của các phần tử hiển thị thông tin sản phẩm
+            if (!productPriceDisplay || !productStockElement || !productImageElement) {
+                console.error(
+                    "LỖI: Thiếu một hoặc nhiều phần tử DOM cần thiết để hiển thị thông tin sản phẩm (productPrice, productStock, productImage). Kiểm tra ID trong HTML."
+                    );
+                // Script vẫn có thể chạy phần Add To Cart nếu các phần tử này không critical cho chức năng đó
             }
 
 
-            const productPriceDisplay = document.getElementById('productPrice');
-            const variantOptions = document.querySelectorAll('.option');
-            let selectedVariantAttributes = {};
+            let
+            selectedVariantAttributes = {}; // Đối tượng lưu trữ các thuộc tính biến thể đã được người dùng chọn. Ví dụ: { "Color": "Red", "Size": "M" }
+            // Biến này cần được khai báo ở phạm vi đủ rộng (trong DOMContentLoaded) để cả click button và click option đều có thể truy cập và cập nhật nó
             let currentVariant =
-                null; // **Khai báo currentVariant ở phạm vi ngoài cùng (global scope trong DOMContentLoaded)**
-            const productVariants = @json($detail->productVariants); // Lấy danh sách biến thể từ Blade
-            const isProductOnSale = {{ $detail->is_sale }}; // Lấy trạng thái is_sale của sản phẩm
+            null; // Biến lưu trữ đối tượng biến thể ĐANG khớp với sự kết hợp thuộc tính mà người dùng đã chọn.
 
-            let defaultVariant = null;
+            // productVariants và isProductOnSale lấy từ Blade. Đảm bảo các biến Blade này được in ra JSON/giá trị số trước khối script này.
+            // productVariants là một mảng các đối tượng biến thể, mỗi đối tượng biến thể có thuộc tính attribute_values là một mảng các thuộc tính cụ thể của biến thể đó.
+            const productVariants =
+            @json($detail->productVariants); // Danh sách tất cả biến thể của sản phẩm này từ Backend
+            const isProductOnSale = {{ $detail->is_sale }}; // Trạng thái sale của sản phẩm chính (0 hoặc 1)
 
-            if (productVariants.length > 0) {
-                // **Tìm biến thể mặc định: Ưu tiên giá thấp nhất, sau đó biến thể đầu tiên**
-                defaultVariant = productVariants.reduce((minVariant, currentVariant) => {
-                    let minPrice = minVariant ? (minVariant.sale_price !== null ? minVariant.sale_price :
-                        minVariant.price) : Infinity;
-                    let currentPrice = currentVariant.sale_price !== null ? currentVariant.sale_price :
-                        currentVariant.price;
+            let defaultVariant =
+            null; // Biến lưu trữ biến thể mặc định (thường là biến thể có giá rẻ nhất hoặc biến thể đầu tiên nếu không có sale).
 
+            // Tìm biến thể mặc định (rẻ nhất) và cập nhật hiển thị ban đầu khi trang tải xong
+            // Chỉ thực hiện nếu sản phẩm có biến thể
+            if (typeof productVariants !== 'undefined' && Array.isArray(productVariants) && productVariants.length >
+                0) {
+                console.log("Sản phẩm có biến thể. Số lượng biến thể:", productVariants.length);
+
+                // **Tìm biến thể mặc định:** Logic tìm biến thể có giá (sale hoặc thường) thấp nhất. Nếu giá bằng nhau, có thể chọn biến thể đầu tiên trong danh sách.
+                defaultVariant = productVariants.reduce((minVariant, current) => {
+                    // Lấy giá của biến thể hiện tại (ưu tiên sale_price nếu có và isProductOnSale = 1)
+                    let currentPrice = (isProductOnSale === 1 && current.sale_price !== null && current
+                        .sale_price !== undefined) ? current.sale_price : current.price;
+
+                    // Lấy giá của biến thể thấp nhất hiện tại trong quá trình reduce
+                    let minPrice = minVariant ? ((isProductOnSale === 1 && minVariant.sale_price !== null &&
+                            minVariant.sale_price !== undefined) ? minVariant.sale_price : minVariant
+                        .price) : Infinity;
+
+                    // So sánh giá
                     if (currentPrice < minPrice) {
-                        return currentVariant;
+                        return current; // Biến thể hiện tại có giá thấp hơn
                     } else if (currentPrice === minPrice && !minVariant) {
-                        return currentVariant;
-                    } else {
-                        return minVariant || currentVariant;
+                        // Nếu giá bằng nhau và đây là biến thể đầu tiên được xem xét (minVariant đang null), chọn nó
+                        return current;
                     }
-                }, null);
+                    // Nếu giá hiện tại lớn hơn hoặc bằng minPrice (và minVariant không null), giữ lại minVariant
+                    return minVariant ||
+                    current; // Trả về minVariant nếu đã tìm thấy, hoặc current nếu minVariant là null (chỉ xảy ra ở iteration đầu tiên của reduce)
+                }, null); // Bắt đầu với minVariant là null
 
+
+                // Nếu tìm thấy biến thể mặc định
                 if (defaultVariant) {
-                    console.log('Biến thể mặc định được chọn ban đầu (giá rẻ nhất):', defaultVariant);
-                    // Chọn các option tương ứng với biến thể mặc định khi trang tải
-                    defaultVariant.attribute_values.forEach(attrValue => {
-                        const optionButton = document.querySelector(
-                            `.option[data-attribute-name="${attrValue.attribute.name}"][data-attribute-value="${attrValue.value}"]`
+                    console.log('Biến thể mặc định được chọn ban đầu (thường là giá rẻ nhất):', defaultVariant);
+
+                    // Tự động "chọn" các tùy chọn thuộc tính tương ứng với biến thể mặc định trên giao diện (thêm class 'active')
+                    if (typeof defaultVariant.attribute_values !== 'undefined' && Array.isArray(defaultVariant
+                            .attribute_values)) {
+                        defaultVariant.attribute_values.forEach(attrValue => {
+                            // Đảm bảo dữ liệu thuộc tính của biến thể hợp lệ
+                            if (attrValue && typeof attrValue === 'object' && attrValue.attribute &&
+                                typeof attrValue.attribute.name === 'string' && typeof attrValue.value ===
+                                'string') {
+                                // Tìm phần tử HTML (nút option) trên trang tương ứng với thuộc tính và giá trị này
+                                const optionButton = document.querySelector(
+                                    `.option[data-attribute-name="${attrValue.attribute.name}"][data-attribute-value="${attrValue.value}"]`
+                                );
+                                if (optionButton) {
+                                    // Thêm class 'active' để nó trông như được chọn
+                                    optionButton.classList.add('active');
+                                    // Lưu thuộc tính này vào đối tượng các thuộc tính đã chọn ban đầu
+                                    selectedVariantAttributes[attrValue.attribute.name] = attrValue.value;
+                                }
+                            } else {
+                                console.warn("Dữ liệu thuộc tính biến thể mặc định không đúng định dạng:",
+                                    attrValue);
+                            }
+                        });
+                        console.log('Các thuộc tính đã chọn ban đầu (từ biến thể mặc định):',
+                            selectedVariantAttributes);
+
+                    } else {
+                        console.warn(
+                            "Biến thể mặc định không có thuộc tính biến thể (attribute_values) hoặc không phải mảng."
+                            );
+                    }
+
+
+                    updateProductDisplay(
+                    defaultVariant); // Cập nhật hiển thị giá, tồn kho, ảnh dựa trên biến thể mặc định này
+                    currentVariant = defaultVariant; // Gán biến thể mặc định cho biến currentVariant ban đầu
+                    console.log('currentVariant được đặt là biến thể mặc định:', currentVariant);
+
+
+                } else {
+                    console.warn(
+                        "Sản phẩm có biến thể nhưng không tìm thấy biến thể mặc định hợp lệ (có thể do dữ liệu biến thể rỗng hoặc không có cấu trúc giá hợp lệ)."
                         );
-                        if (optionButton) {
-                            optionButton.classList.add('active');
-                            selectedVariantAttributes[attrValue.attribute.name] = attrValue.value;
+                    // Xử lý hiển thị khi không tìm thấy biến thể mặc định nếu cần (ví dụ: hiển thị giá/tồn kho sản phẩm chính)
+                }
+            } else {
+                console.log("Sản phẩm này không có biến thể.");
+                // Nếu sản phẩm không có biến thể, biến currentVariant vẫn là null
+                // Bạn có thể thêm logic ở đây để đảm bảo thông tin hiển thị là của sản phẩm chính
+                // và ẩn/disable các tùy chọn biến thể trên UI nếu chúng tồn tại
+                // (Logic này tùy thuộc vào cấu trúc HTML và yêu cầu hiển thị của bạn)
+            }
+
+
+            // Thêm event listener cho các tùy chọn biến thể (khi người dùng click vào một option)
+            if (variantOptions.length > 0) {
+                variantOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        // Lấy tên thuộc tính (ví dụ: "Color") và giá trị (ví dụ: "Red") từ data attribute của nút được click
+                        const attributeName = this.dataset.attributeName;
+                        const attributeValue = this.dataset.attributeValue;
+
+                        // Kiểm tra data attribute có tồn tại và hợp lệ không
+                        if (!attributeName || !attributeValue) {
+                            console.warn(
+                                "Thiếu data-attribute-name hoặc data-attribute-value trên phần tử option:",
+                                this);
+                            return; // Bỏ qua xử lý nếu thiếu data attribute cần thiết
+                        }
+
+
+                        // 1. Quản lý class 'active': Xóa active class khỏi các option khác trong cùng nhóm thuộc tính
+                        //closest('.select-package') giả định rằng các tùy chọn cùng một thuộc tính được bọc trong một phần tử cha có class 'select-package'
+                        const attributeGroup = this.closest('.select-package');
+                        if (attributeGroup) {
+                            const attributeGroupOptions = attributeGroup.querySelectorAll(
+                            '.option');
+                            // Duyệt qua tất cả các option trong nhóm này và xóa class 'active'
+                            attributeGroupOptions.forEach(opt => opt.classList.remove('active'));
+                        } else {
+                            console.warn("Không tìm thấy phần tử cha '.select-package' cho option:",
+                                this, ". Chỉ xử lý class 'active' cho nút hiện tại.");
+                            // Nếu không tìm thấy nhóm cha, chỉ xóa active trên chính nút này (không cần xóa các nút khác)
+                        }
+
+                        // 2. Thêm class 'active' vào option mà người dùng vừa click
+                        this.classList.add('active');
+
+                        // 3. Cập nhật đối tượng các thuộc tính đã chọn với lựa chọn mới nhất của người dùng
+                        selectedVariantAttributes[attributeName] = attributeValue;
+                        console.log('Thuộc tính biến thể đã chọn:', selectedVariantAttributes);
+
+                        // 4. Tìm biến thể sản phẩm phù hợp trong danh sách productVariants dựa trên sự kết hợp các thuộc tính đã chọn
+                        // Đảm bảo productVariants có sẵn và là mảng trước khi gọi hàm tìm kiếm
+                        if (typeof productVariants !== 'undefined' && Array.isArray(
+                            productVariants)) {
+                            currentVariant = findMatchingVariant(selectedVariantAttributes,
+                                productVariants);
+                        } else {
+                            console.error(
+                                "Dữ liệu productVariants không khả dụng hoặc không phải là mảng khi tìm biến thể phù hợp."
+                                );
+                            currentVariant = null; // Reset currentVariant nếu dữ liệu biến thể lỗi
+                        }
+
+
+                        // 5. Cập nhật hiển thị thông tin sản phẩm dựa trên biến thể tìm được (hoặc không tìm thấy)
+                        if (currentVariant) {
+                            console.log('Biến thể phù hợp được tìm thấy:', currentVariant);
+                            updateProductDisplay(currentVariant); // Gọi hàm cập nhật UI
+
+                            // Cập nhật giá trị của input hidden cartProductVariantId trong form
+                            // Logic này có thể nằm trong updateProductDisplay hoặc ở đây, đảm bảo nó chạy khi tìm thấy biến thể
+                            if (addToCartForm) { // Kiểm tra form có tồn tại không
+                                const cartProductVariantIdInput = addToCartForm.querySelector(
+                                    '#cartProductVariantId');
+                                if (cartProductVariantIdInput) {
+                                    cartProductVariantIdInput.value = currentVariant.id;
+                                    console.log(
+                                        'Input cartProductVariantId đã được cập nhật với ID biến thể:',
+                                        currentVariant.id);
+                                } else {
+                                    console.error(
+                                        "Không tìm thấy input hidden #cartProductVariantId trong form để cập nhật ID biến thể."
+                                        );
+                                }
+                            }
+
+
+                        } else {
+                            console.log(
+                                'Không tìm thấy biến thể phù hợp với sự kết hợp thuộc tính đã chọn.'
+                                );
+                            // Cập nhật hiển thị khi không tìm thấy biến thể phù hợp
+                            if (productStockElement) productStockElement.textContent =
+                                'Không có sẵn với lựa chọn này';
+                            if (productPriceDisplay) productPriceDisplay.textContent = 'Liên hệ';
+                            // Có thể cần reset ảnh về ảnh sản phẩm chính hoặc hiển thị trạng thái không có ảnh biến thể
+                            // (Cần có biến lưu trữ URL ảnh sản phẩm chính ban đầu)
+                            // if (productImageElement) {
+                            //      const mainProductThumbnail = "{{ asset('storage/' . $detail->thumbnail) }}"; // Cần lấy giá trị này từ Blade
+                            //      productImageElement.src = mainProductThumbnail;
+                            //      productImageElement.dataset.zoomImage = mainProductThumbnail;
+                            // }
+
+
+                            // Xóa giá trị của input hidden cartProductVariantId khi không tìm thấy biến thể phù hợp
+                            if (addToCartForm) {
+                                const cartProductVariantIdInput = addToCartForm.querySelector(
+                                    '#cartProductVariantId');
+                                if (cartProductVariantIdInput) {
+                                    cartProductVariantIdInput.value = ''; // Xóa giá trị input
+                                    console.log(
+                                        'Input cartProductVariantId đã được XÓA vì không có biến thể phù hợp.'
+                                        );
+                                }
+                            }
+
                         }
                     });
-                    updateProductDisplay(defaultVariant); // Cập nhật hiển thị ban đầu với biến thể mặc định
-                }
+                });
+            } else {
+                console.log("Sản phẩm này không có bất kỳ tùy chọn biến thể nào để chọn.");
+                // Xử lý hiển thị cho sản phẩm không có tùy chọn biến thể nếu cần (ví dụ: ẩn phần chọn biến thể)
+                // (Logic này tùy thuộc vào HTML và yêu cầu)
             }
 
 
-            variantOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    // 1. Xóa active class khỏi các option khác trong cùng nhóm thuộc tính
-                    const attributeGroupOptions = this.closest('.select-package').querySelectorAll(
-                        '.option');
-                    attributeGroupOptions.forEach(opt => opt.classList.remove('active'));
-                    // 2. Thêm active class vào option vừa click
-                    this.classList.add('active');
-
-                    // 3. Thu thập thuộc tính đã chọn
-                    const attributeName = this.dataset.attributeName;
-                    const attributeValue = this.dataset.attributeValue;
-                    selectedVariantAttributes[attributeName] = attributeValue;
-                    console.log('Thuộc tính biến thể đã chọn:', selectedVariantAttributes);
-
-                    // 4. Tìm biến thể phù hợp
-                    currentVariant = findMatchingVariant(selectedVariantAttributes,
-                        productVariants);
-
-                    if (currentVariant) {
-                        console.log('Biến thể phù hợp đã chọn:', currentVariant);
-                        updateProductDisplay(currentVariant);
-
-                        // **PHẦN THÊM MỚI - CẬP NHẬT INPUT cartProductVariantId KHI CHỌN BIẾN THỂ**
-                        const addToCartForm = document.getElementById('addToCartForm'); // Lấy form
-                        addToCartForm.querySelector('#cartProductVariantId').value = currentVariant
-                            .id; // Gán currentVariant.id vào input
-
-                        console.log('Input cartProductVariantId đã được cập nhật với ID biến thể:',
-                            currentVariant.id); // Log để kiểm tra
-
-                    } else {
-                        console.log('Không tìm thấy biến thể phù hợp');
-                        document.getElementById('productStock').textContent =
-                            ' Không có sẵn với lựa chọn này';
-                        document.getElementById('productPrice').textContent = 'Liên hệ';
-                        // **NẾU KHÔNG TÌM THẤY BIẾN THỂ, CŨNG CẦN XÓA GIÁ TRỊ INPUT cartProductVariantId**
-                        const addToCartForm = document.getElementById(
-                            'addToCartForm'); // Lấy form lại (cho chắc chắn)
-                        addToCartForm.querySelector('#cartProductVariantId').value =
-                            ''; // Xóa giá trị input khi không có biến thể
-                        console.log(
-                            'Input cartProductVariantId đã được XÓA vì không có biến thể phù hợp.'
-                        ); // Log để kiểm tra
-                    }
-                });
-            });
-
+            // === Hàm hỗ trợ: Tìm biến thể phù hợp trong mảng productVariants ===
+            // Dựa trên selectedAttributes (các thuộc tính đã chọn bởi người dùng)
+            // selectedAttributes: { "Tên thuộc tính 1": "Giá trị 1", "Tên thuộc tính 2": "Giá trị 2", ... }
+            // productVariants: Mảng các đối tượng biến thể (như từ @json($detail->productVariants))
             function findMatchingVariant(selectedAttributes, productVariants) {
+                // Kiểm tra đầu vào có hợp lệ không
+                if (!Array.isArray(productVariants) || typeof selectedAttributes !== 'object' ||
+                    selectedAttributes === null) {
+                    console.error("Dữ liệu đầu vào không hợp lệ cho hàm findMatchingVariant.");
+                    return null;
+                }
+
+                const selectedAttrNames = Object.keys(
+                selectedAttributes); // Lấy danh sách tên các thuộc tính đã chọn
+                const selectedAttrCount = selectedAttrNames.length; // Đếm số lượng loại thuộc tính đã chọn
+
+                // Nếu không có thuộc tính nào được chọn (ví dụ: sản phẩm không có biến thể), không tìm biến thể nào
+                if (selectedAttrCount === 0) {
+                    return null;
+                }
+
+
+                // Duyệt qua từng biến thể trong danh sách productVariants
                 for (const variant of productVariants) {
-                    let match = true;
-                    for (const attrName in selectedAttributes) {
-                        const selectedAttrValue = selectedAttributes[attrName];
-                        let variantHasAttrValue = false;
+                    // Kiểm tra xem đối tượng biến thể có hợp lệ và có danh sách thuộc tính không
+                    if (!variant || typeof variant !== 'object' || !Array.isArray(variant.attribute_values)) {
+                        // console.warn("Bỏ qua biến thể không hợp lệ trong danh sách productVariants:", variant); // Debug biến thể bị lỗi cấu trúc
+                        continue; // Bỏ qua biến thể hiện tại nếu nó không đúng định dạng
+                    }
+
+                    let match =
+                    true; // Biến cờ để xác định xem biến thể hiện tại có khớp hoàn toàn với các lựa chọn không
+                    let matchedAttrCount = 0; // Đếm số lượng thuộc tính đã chọn khớp với biến thể hiện tại
+
+                    // Duyệt qua từng thuộc tính mà người dùng đã chọn (ví dụ: "Color", "Size")
+                    for (const attrName of selectedAttrNames) {
+                        const selectedAttrValue = selectedAttributes[
+                        attrName]; // Lấy giá trị đã chọn cho thuộc tính này (ví dụ: "Red", "M")
+
+                        let variantHasAttrValue =
+                        false; // Biến cờ kiểm tra biến thể hiện tại có thuộc tính 'attrName' với giá trị 'selectedAttrValue' không
+
+                        // Duyệt qua các thuộc tính cụ thể của biến thể hiện tại (variant.attribute_values)
                         for (const variantAttrValue of variant.attribute_values) {
-                            if (variantAttrValue.attribute.name === attrName && variantAttrValue.value ===
-                                selectedAttrValue) {
-                                variantHasAttrValue = true;
-                                break;
+                            // Kiểm tra xem dữ liệu thuộc tính của biến thể có hợp lệ không
+                            if (variantAttrValue && typeof variantAttrValue === 'object' && variantAttrValue
+                                .attribute && typeof variantAttrValue.attribute.name === 'string' &&
+                                typeof variantAttrValue.value === 'string') {
+                                // So sánh tên thuộc tính và giá trị: Nếu tên thuộc tính của biến thể trùng với tên thuộc tính người dùng chọn,
+                                // VÀ giá trị thuộc tính của biến thể trùng với giá trị người dùng chọn
+                                if (variantAttrValue.attribute.name === attrName && variantAttrValue.value ===
+                                    selectedAttrValue) {
+                                    variantHasAttrValue =
+                                    true; // Tìm thấy khớp cho thuộc tính 'attrName' với giá trị 'selectedAttrValue' trong biến thể này
+                                    matchedAttrCount++; // Tăng số lượng thuộc tính đã khớp
+                                    break; // Thoát khỏi vòng lặp thuộc tính của biến thể hiện tại, vì đã tìm thấy khớp cho 'attrName'
+                                }
+                            } else {
+                                // console.warn("Dữ liệu thuộc tính cụ thể trong biến thể không đúng định dạng:", variantAttrValue); // Debug thuộc tính lỗi trong biến thể
                             }
                         }
+
+                        // Nếu sau khi duyệt hết các thuộc tính của biến thể hiện tại mà KHÔNG tìm thấy khớp cho 'attrName' với giá trị 'selectedAttrValue'
                         if (!variantHasAttrValue) {
-                            match = false;
-                            break;
+                            match =
+                            false; // Biến thể hiện tại không khớp hoàn toàn với tất cả các lựa chọn của người dùng
+                            break; // Thoát khỏi vòng lặp thuộc tính người dùng chọn, chuyển sang xem xét biến thể tiếp theo
                         }
                     }
-                    if (match) {
-                        return variant;
+
+                    // Kiểm tra xem biến thể hiện tại có khớp hoàn toàn hay không
+                    // Biến thể khớp hoàn toàn khi tất cả các thuộc tính mà người dùng đã chọn đều tìm thấy trong biến thể đó
+                    // Và số lượng thuộc tính khớp phải bằng tổng số loại thuộc tính mà người dùng đã chọn
+                    if (match && matchedAttrCount === selectedAttrCount) {
+                        // === Tùy chọn kiểm tra nâng cao: Đảm bảo biến thể có đủ số lượng thuộc tính tương ứng với các loại thuộc tính của sản phẩm ===
+                        // Logic này có thể cần thiết nếu một biến thể có ít thuộc tính hơn các loại thuộc tính mà sản phẩm định nghĩa.
+                        // Ví dụ: Sản phẩm có thuộc tính Màu sắc và Kích thước, nhưng có biến thể chỉ định Màu sắc mà không có Kích thước.
+                        // Kiểm tra này phức tạp hơn và cần cấu trúc dữ liệu về các loại thuộc tính của sản phẩm chính.
+                        // Tạm thời bỏ qua kiểm tra này để giữ hàm đơn giản, chỉ dựa vào việc các thuộc tính đã chọn có tồn tại trong biến thể hay không.
+                        // =======================================================================================================================
+
+                        return variant; // Trả về đối tượng biến thể đã khớp hoàn toàn
                     }
                 }
-                return null; // Không tìm thấy biến thể phù hợp
+
+                return null; // Nếu duyệt hết tất cả các biến thể mà không tìm thấy biến thể nào khớp hoàn toàn
             }
+            // === Hết hàm findMatchingVariant ===
 
 
+            // === Hàm hỗ trợ: Cập nhật hiển thị thông tin sản phẩm (giá, tồn kho, ảnh) trên UI ===
+            // Dựa trên dữ liệu của biến thể (hoặc sản phẩm chính nếu không có biến thể)
             function updateProductDisplay(variant) {
-                const productPriceElement = document.getElementById('productPrice');
-                const productStockElement = document.getElementById('productStock');
-                const productImageElement = document.getElementById('productImage');
-
-                // Cập nhật giá (chỉ hiển thị giá sale nếu is_sale của sản phẩm là 1)
-                if (isProductOnSale === 1 && variant.sale_price !== null) {
-                    productPriceElement.innerHTML = formatPrice(variant.sale_price) +
-                        ' ₫ <br><del class="text-content">' + formatPrice(variant.price) + ' ₫</del>';
-                } else {
-                    productPriceElement.innerHTML = formatPrice(variant.price) + ' ₫';
+                // Đảm bảo các phần tử DOM và đối tượng variant/product hợp lệ trước khi cập nhật
+                if (!productPriceDisplay || !productStockElement || !productImageElement || !variant ||
+                    typeof variant !== 'object') {
+                    console.error(
+                        "Không thể cập nhật hiển thị sản phẩm: Thiếu phần tử DOM hoặc dữ liệu biến thể/sản phẩm không hợp lệ."
+                        );
+                    return; // Dừng hàm nếu thiếu thông tin cần thiết
                 }
 
-                // Cập nhật số lượng tồn kho
-                if (variant.product_stock && variant.product_stock.stock > 0) {
+
+                // Cập nhật giá: Hiển thị giá sale nếu isProductOnSale = 1 và biến thể có giá sale hợp lệ VÀ giá sale nhỏ hơn giá thường
+                const currentPrice = variant.price; // Giá thường của biến thể
+                const currentSalePrice = (variant.sale_price !== null && variant.sale_price !== undefined) ? variant
+                    .sale_price : null; // Giá sale của biến thể
+
+                if (isProductOnSale === 1 && currentSalePrice !== null && currentSalePrice < currentPrice) {
+                    // Hiển thị giá sale và giá thường gạch ngang
+                    productPriceDisplay.innerHTML = formatPrice(currentSalePrice) +
+                        ' ₫ <br><del class="text-content">' + formatPrice(currentPrice) + ' ₫</del>';
+                } else {
+                    // Hiển thị chỉ giá thường
+                    productPriceDisplay.innerHTML = formatPrice(currentPrice) + ' ₫';
+                }
+
+                // Cập nhật số lượng tồn kho: Lấy từ thuộc tính product_stock.stock của biến thể
+                // Đảm bảo product_stock là object và stock là number
+                if (variant.product_stock && typeof variant.product_stock === 'object' && typeof variant
+                    .product_stock.stock === 'number' && variant.product_stock.stock > 0) {
                     productStockElement.textContent = 'Số lượng tồn kho: ' + variant.product_stock.stock;
                 } else {
-                    productStockElement.textContent = 'Hết hàng';
+                    // Nếu không có thông tin stock, stock <= 0, hoặc cấu trúc dữ liệu sai
+                    productStockElement.textContent = 'Hết hàng'; // Hoặc 'Số lượng tồn kho: 0'
                 }
 
-                // Cập nhật ảnh (nếu có thumbnail cho biến thể)
-                if (variant.thumbnail) {
-                    productImageElement.src = "{{ asset('storage/') }}/" + variant.thumbnail;
-                    productImageElement.dataset.zoomImage = "{{ asset('storage/') }}/" + variant.thumbnail;
+                // Cập nhật ảnh sản phẩm: Ưu tiên thumbnail của biến thể nếu có
+                // Cần có cách để lấy URL ảnh sản phẩm chính mặc định từ Blade
+                const mainProductThumbnail =
+                "{{ asset('storage/' . $detail->thumbnail) }}"; // Lấy ảnh sản phẩm chính từ Blade
+
+
+                if (variant.thumbnail && variant.thumbnail !== '') {
+                    const variantThumbnailUrl = "{{ asset('storage/') }}/" + variant
+                    .thumbnail; // Xây dựng URL ảnh biến thể
+                    productImageElement.src = variantThumbnailUrl;
+                    // Cập nhật cho thư viện zoom ảnh nếu đang dùng (ví dụ: data-zoom-image)
+                    productImageElement.dataset.zoomImage = variantThumbnailUrl;
                 } else {
-                    productImageElement.src = "{{ asset('storage/' . $detail->thumbnail) }}";
-                    productImageElement.dataset.zoomImage = "{{ asset('storage/' . $detail->thumbnail) }}";
+                    // Nếu biến thể không có thumbnail, sử dụng ảnh sản phẩm chính mặc định
+                    productImageElement.src = mainProductThumbnail;
+                    productImageElement.dataset.zoomImage = mainProductThumbnail;
                 }
+
+                // TODO: Cập nhật các thông tin khác của sản phẩm nếu cần, ví dụ: mã SKU biến thể, mô tả ngắn biến thể (nếu có trong dữ liệu variant)
+                // console.log("Biến thể hiện tại:", variant); // Dùng log để xem các thông tin khác có sẵn trong đối tượng variant
             }
+            // === Hết hàm updateProductDisplay ===
 
 
+            // === Hàm hỗ trợ: Format số tiền theo định dạng Việt Nam (ví dụ: 1.000.000) ===
             function formatPrice(price) {
+                // Kiểm tra xem giá trị có phải là số hợp lệ không
+                if (typeof price !== 'number' || isNaN(price)) {
+                    console.warn("Giá trị không phải số hợp lệ khi formatPrice:", price);
+                    return price; // Trả về giá trị gốc nếu không phải số hoặc NaN
+                }
+                // Sử dụng Intl.NumberFormat để format số
                 return new Intl.NumberFormat('vi-VN').format(price);
             }
+            // === Hết hàm formatPrice ===
 
 
-        });
+        }); // Kết thúc DOMContentLoaded. Tất cả code bên trong sẽ chạy khi DOM đã sẵn sàng.
 
         // comapre cookie
         const compareCookieName = 'compare_list'; // Tên cookie để lưu danh sách so sánh
