@@ -1568,7 +1568,7 @@ class DashboardRepository extends BaseRepository
             $refund = DB::table('orders')
                 ->join('order_order_status', 'orders.id', '=', 'order_order_status.order_id')
                 ->where('order_order_status.modified_by', $employee)
-                ->whereBetween('orders.updated_at', [$start, $end])
+                ->whereBetween('orders.created_at', [$start, $end])
                 ->selectRaw("$selectFormat, COUNT(orders.id) as total_orders")
                 ->groupBy(DB::raw($groupBy))
                 ->orderBy(DB::raw($groupBy))
