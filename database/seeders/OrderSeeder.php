@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -28,28 +29,29 @@ class OrderSeeder extends Seeder
         // ORDERS
         $batchSize = 100;
         $orders = [];
-        $users = User::with('addresses')->where('id', '<>', 1)->get();
+        $users = User::with('addresses')->where('id', '>', 11)->get();
 
         foreach ($users as $user) {
-            for ($i = 0; $i < rand(0, 50); $i++) {
+            for ($i = 0; $i < rand(15, 30); $i++) {
+                $subDays = rand(0, 30);
                 $orders[] = [
                     'code' => fake()->randomElement(['HN-', 'HCM-', 'HP-', 'NA-', 'TH-']) . fake()->unique()->numberBetween(1000, 90000),
                     'user_id' => $user->id,
-                    'payment_id' => rand(1, 2),
+                    'payment_id' => 2,
                     'phone_number' => $user->phone_number,
                     'email' => $user->email,
                     'fullname' => $user->fullname,
                     'address' => $user->addresses->value('address') ?? 'Chưa có địa chỉ',
-                    'note' => fake()->text(),
-                    'total_amount' => rand(100000, 10000000),
-                    'is_paid' => array_rand([0, 1], 1),
+                    'note' => fake()->randomElement(['Giao hàng nhanh nhé, tôi đang cần gấp', 'Không cần giao nhanh đâu, cứ thoải mái đi', 'Tôi đang cần gấp, giao nhanh cho tôi tôi bo thêm tiền nha cưng']),
+                    'total_amount' => rand(1000000, 100000000),
+                    'is_paid' => 1,
                     'coupon_id' => null,
                     'coupon_code' => null,
                     'coupon_description' => null,
                     'coupon_discount_type' => null,
                     'coupon_discount_value' => null,
-                    'created_at' => now()->subDays(rand(0, 1095)),
-                    'updated_at' => now(),
+                    'created_at' => now()->subDays($subDays),
+                    'updated_at' => now()->subDays($subDays),
                 ];
             }
             if (count($orders) >= $batchSize) {
@@ -72,7 +74,7 @@ class OrderSeeder extends Seeder
         $orderItems = [];
 
         foreach ($orders as $order) {
-            for ($i = 1; $i <= rand(1, 5); $i++) {
+            for ($i = 1; $i <= rand(1, 3); $i++) {
                 $product = Product::query()->inRandomOrder()->first();
                 if ($product->isVariant()) {
                     $productVariant = ProductVariant::query()->where('product_id', $product->id)->inRandomOrder()->first();
@@ -92,7 +94,7 @@ class OrderSeeder extends Seeder
                         'name_variant' => $nameVariant,
                         'attributes_variant' => null,
                         'price_variant' => $productVariant->sale_price ? $productVariant->sale_price : $productVariant->price,
-                        'quantity_variant' => rand(1, 5),
+                        'quantity_variant' => rand(1, 3),
                     ];
                 } else if ($product->isSingle()) {
                     $orderItems[] = [
@@ -101,7 +103,7 @@ class OrderSeeder extends Seeder
                         'product_variant_id' => null,
                         'name' => $product->name,
                         'price' => $product->price,
-                        'quantity' => rand(1, 5),
+                        'quantity' => rand(1, 3),
                         'name_variant' => 'Không có phân loại',
                         'attributes_variant' => null,
                         'price_variant' => 0,
@@ -125,11 +127,12 @@ class OrderSeeder extends Seeder
     {
         $orders = Order::all();
         foreach ($orders as $order) {
-            $orderStatus = rand(2, 6);
-            $userId = rand(2, 30);
+            $orderStatus = 5;
+            $userId = rand(2, 11);
             $order->orderStatuses()->attach([
                 $orderStatus => [
-                    'modified_by' => $userId
+                    'modified_by' => $userId,
+                    'created_at' => $order->created_at,
                 ]
             ]);
             HistoryOrderStatus::query()->create([

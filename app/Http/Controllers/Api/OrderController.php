@@ -174,7 +174,8 @@ class OrderController extends Controller
             $idStatus = $request->input("status_id");
             $user_id = $request->input("user_id");
             $note = $request->input("note");
-
+            $isPaid = $request->input('ispaid');
+            
             $order = Order::query()->where('id', $idOrder)->with('orderItems', 'orderStatuses')->first();
 
             DB::beginTransaction();
@@ -199,7 +200,11 @@ class OrderController extends Controller
                     ->orWhere('role', 1)
                     ->get();
 
-                $message = "Đơn Hàng {$order->code} đã bị hủy !";
+                    if ($isPaid == 1) {
+                        $message = "Đơn hàng {$order->code} đã bị hủy (thanh toán online). Vui lòng hoàn số tiền {$order->total_amount} đ cho khách.";
+                    } else {
+                        $message = "Đơn hàng {$order->code} đã bị hủy!";
+                    }
 
                 foreach ($admins as $admin) {
                     Notification::create([

@@ -609,7 +609,7 @@
                     </div>
                     <div class="review-box">
                         <div class="product-review-rating">
-                            <label>Rating</label>
+                            <label>Đánh giá</label>
                             <div class="product-rating">
                                 <ul class="rating">
                                     @for ($i = 1; $i <= 5; $i++)

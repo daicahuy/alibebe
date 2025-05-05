@@ -20,8 +20,7 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('categories:prune')->dailyAt('06:00');
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('categories:prune')->everyFifteenSeconds();
         $schedule->command('app:delete-old-trashed-items')->everyFifteenSeconds();
         $schedule->command('coupons:check-expired-coupons')->everyFifteenSeconds();
         $schedule->command('product:update-expired-sale')->everyFifteenSeconds();

@@ -511,7 +511,7 @@
                                                         <div class="tab-pane fade" id="status-panel"
                                                             aria-labelledby="status">
                                                             <div tab="status" class="tab">
-                                                                <div class="form-group align-items-center g-2 mb-4 row">
+                                                                {{-- <div class="form-group align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0"
                                                                         for="is_featured">
                                                                         {{ __('form.product.is_featured') }}
@@ -528,7 +528,7 @@
                                                                         </div>
                                                                         <div class="invalid-feedback"></div>
                                                                     </div>
-                                                                </div>
+                                                                </div> --}}
 
                                                                 <div class="form-group align-items-center g-2 mb-4 row">
                                                                     <label class="col-sm-3 form-label-title mb-0"
@@ -969,7 +969,7 @@
                                 <td class="form-group">
                                     <div class="form-check form-switch ps-0">
                                         <label class="switch">
-                                            <input type="checkbox" id="is_active" name="product_variants[${index}][info][is_active]" value="1">
+                                            <input type="checkbox" id="is_active" name="product_variants[${index}][info][is_active]" value="1" checked>
                                             <span class="switch-state"></span>
                                         </label>
                                     </div>

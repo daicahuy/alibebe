@@ -73,11 +73,11 @@
                         <ul id="notification-list" class="notification-dropdown onhover-show-div">
                             <li>
                                 <i class="ri-notification-line"></i>
-                                <h6 class="f-18 mb-0">Notifications</h6>
+                                <h6 class="f-18 mb-0">Thông Báo</h6>
                             </li>
                             <li>
                                 <a class="btn btn-theme" href="#" id="open-notification-offcanvas">
-                                    Check All Notification
+                                    Xem Tất Cả Thông Báo
                                 </a>
                             </li>
                         </ul>

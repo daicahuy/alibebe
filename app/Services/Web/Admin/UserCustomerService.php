@@ -215,7 +215,7 @@ class UserCustomerService
                 // Xác định trạng thái hiển thị dựa trên trạng thái thực tế của quy trình hoàn tiền
                 switch ($order->refund->status) {
                     case 'completed':
-                        $order->display_status = 'Hoàn hàng thành công'; 
+                        $order->display_status = 'Hoàn hàng thành công';
                         break;
                     case 'failed':
                         $order->display_status = 'Hoàn hàng thất bại';
@@ -223,14 +223,23 @@ class UserCustomerService
                     case 'pending':
                         $order->display_status = 'Hoàn hàng đang xử lý';
                         break;
+                    case 'receiving':
+                        $order->display_status = 'Hoàn hàng Chờ vận chuyển';
+                        break;
+                    case 'rejected':
+                        $order->display_status = 'Hoàn hàng bị từ chối';
+                        break;
+                    case 'cancel':
+                        $order->display_status = 'Hoàn hàng đã hủy';
+                        break;
                     // Thêm các case khác nếu có trạng thái hoàn hàng khác
                     default:
                         $order->display_status = 'Hoàn hàng (' . $order->refund->status . ')'; // Trạng thái fallback
                 }
             } else {
-                
-                $currentStatusPivot = $order->orderStatuses->firstWhere('pivot.is_current', 1);
-        
+
+                $currentStatusPivot = $order->orderStatuses->firstWhere('name');
+
                 $order->display_status = $currentStatusPivot ? $currentStatusPivot->name : 'Chưa có trạng thái'; // Lấy tên trạng thái hiện tại
             }
             return $order;
