@@ -133,6 +133,7 @@ class OrderSeeder extends Seeder
                 $orderStatus => [
                     'modified_by' => $userId,
                     'created_at' => $order->created_at,
+                    'updated_at' => Carbon::parse($order->created_at)->addDay(),
                 ]
             ]);
             HistoryOrderStatus::query()->create([
