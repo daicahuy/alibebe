@@ -1992,15 +1992,15 @@
 
 
             // === Hàm hỗ trợ: Format số tiền theo định dạng Việt Nam (ví dụ: 1.000.000) ===
-            function formatPrice(price) {
-                // Kiểm tra xem giá trị có phải là số hợp lệ không
-                if (typeof price !== 'number' || isNaN(price)) {
-                    console.warn("Giá trị không phải số hợp lệ khi formatPrice:", price);
-                    return price; // Trả về giá trị gốc nếu không phải số hoặc NaN
-                }
-                // Sử dụng Intl.NumberFormat để format số
-                return new Intl.NumberFormat('vi-VN').format(price);
-            }
+            // function formatPrice(price) {
+            //     // Kiểm tra xem giá trị có phải là số hợp lệ không
+            //     if (typeof price !== 'number' || isNaN(price)) {
+            //         console.warn("Giá trị không phải số hợp lệ khi formatPrice:", price);
+            //         return price; // Trả về giá trị gốc nếu không phải số hoặc NaN
+            //     }
+            //     // Sử dụng Intl.NumberFormat để format số
+            //     return new Intl.NumberFormat('vi-VN').format(price);
+            // }
             // === Hết hàm formatPrice ===
 
 
