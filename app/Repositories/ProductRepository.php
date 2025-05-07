@@ -174,11 +174,11 @@ END');
                                 })
                                     // is_sale == 0 or sale_price null
                                     ->orwhere(function ($q) use ($minPrice, $maxPrice) {
-                                        $q->where(function ($q) {
-                                            $q->where('is_sale', 0)
-                                                ->orWhereNull('sale_price');
-                                        })->whereBetween('price', [$minPrice, $maxPrice]);
-                                    });
+                                    $q->where(function ($q) {
+                                        $q->where('is_sale', 0)
+                                            ->orWhereNull('sale_price');
+                                    })->whereBetween('price', [$minPrice, $maxPrice]);
+                                });
                             });
                     })
                         // type = 1
@@ -194,11 +194,11 @@ END');
                                         })
                                             // sale false
                                             ->orWhere(function ($q) use ($minPrice, $maxPrice) {
-                                                $q->where(function ($q) {
-                                                    $q->where('is_sale', 0)
-                                                        ->orWhereNull('sale_price');
-                                                })->whereBetween('price', [$minPrice, $maxPrice]);
-                                            });
+                                            $q->where(function ($q) {
+                                                $q->where('is_sale', 0)
+                                                    ->orWhereNull('sale_price');
+                                            })->whereBetween('price', [$minPrice, $maxPrice]);
+                                        });
                                     });
                                 });
                         });
@@ -220,14 +220,50 @@ END');
             //         });
             //     }
             // } //end filter rating
-            if (isset($filters['rating'])) { //filter rating
-                $ratingFilter = $filters['rating'];
-                if (!is_array($ratingFilter)) {
-                    $ratingFilter = [$ratingFilter];
+            // if (isset($filters['rating'])) { //filter rating
+            //     $ratingFilter = $filters['rating'];
+            //     if (!is_array($ratingFilter)) {
+            //         $ratingFilter = [$ratingFilter];
+            //     }
+            //     $query->whereHas('reviews', function ($q) use ($ratingFilter) {
+            //         $q->whereIn('rating', $ratingFilter);
+            //     });
+            // }
+            if (isset($filters['rating'])) {
+                // Lấy mảng các giá trị sao được chọn (ví dụ: [1, 4])
+                $selectedRatings = (array) $filters['rating'];
+                // Chuyển đổi các giá trị thành số nguyên và loại bỏ giá trị trùng lặp
+                $selectedRatings = array_map('intval', $selectedRatings);
+                $selectedRatings = array_unique($selectedRatings);
+
+                if (!empty($selectedRatings)) {
+                    $havingConditions = [];
+                    $bindings = [];
+
+                    // Xây dựng các điều kiện HAVING cho từng khoảng sao được chọn
+                    foreach ($selectedRatings as $rating) {
+                        $nextRating = $rating + 1;
+                        $havingConditions[] = '(COALESCE(AVG(r_sub.rating), 0) >= ? AND COALESCE(AVG(r_sub.rating), 0) < ?)';
+                        $bindings[] = $rating;
+                        $bindings[] = $nextRating;
+                    }
+
+                    // Kết hợp các điều kiện bằng OR
+                    $havingString = implode(' OR ', $havingConditions);
+
+                    // Sử dụng subquery để lấy các product_id thỏa mãn điều kiện trung bình sao
+                    $productIdsWithAvgRating = DB::table('products as p_sub')
+                        ->select('p_sub.id')
+                        ->leftJoin('reviews as r_sub', 'p_sub.id', '=', 'r_sub.product_id')
+                        // Tùy chọn: Nếu bạn chỉ muốn tính trung bình trên các đánh giá active, thêm điều kiện này
+                        // ->where('r_sub.is_active', 1)
+                        ->groupBy('p_sub.id')
+                        ->havingRaw($havingString, $bindings)
+                        ->pluck('p_sub.id');
+
+                    // Lọc truy vấn chính
+                    $query->whereIn('products.id', $productIdsWithAvgRating);
                 }
-                $query->whereHas('reviews', function ($q) use ($ratingFilter) {
-                    $q->whereIn('rating', $ratingFilter);
-                });
             }
 
 
@@ -1241,9 +1277,9 @@ END');
 
     public function getProductsByIds(array $ids)
     {
-         // Lấy các sản phẩm theo IDs.
-         // Đảm bảo chỉ lấy các sản phẩm CHƯA XÓA MỀM.
-         return $this->model->whereIn('id', $ids)->whereNull('deleted_at'); // Trả về Query Builder
+        // Lấy các sản phẩm theo IDs.
+        // Đảm bảo chỉ lấy các sản phẩm CHƯA XÓA MỀM.
+        return $this->model->whereIn('id', $ids)->whereNull('deleted_at'); // Trả về Query Builder
     }
 
     public function getProductsWithDetailsByIds(array $productIds, array $with = [])
